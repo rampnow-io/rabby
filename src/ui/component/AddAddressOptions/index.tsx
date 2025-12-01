@@ -340,25 +340,25 @@ const AddAddressOptions = () => {
     () =>
       hadSeedPhrase
         ? [
-            {
-              leftIcon: IconAddFromCurrentSeedPhrase,
-              content: t('page.newAddress.addFromCurrentSeedPhrase'),
-              brand: 'AddAddressFromCurrentSeedPhrase',
-              onClick: () => {
-                handleRouter((history) => {
-                  if (isDesktop) {
-                    history.push(
-                      `${history.location.pathname}?${qs.stringify({
-                        action: 'add-address',
-                        import: 'add-from-current-seed-phrase',
-                      })}`
-                    );
-                  } else {
-                    history.push('/import/add-from-current-seed-phrase');
-                  }
-                });
-              },
-            },
+            // {
+            //   leftIcon: IconAddFromCurrentSeedPhrase,
+            //   content: t('page.newAddress.addFromCurrentSeedPhrase'),
+            //   brand: 'AddAddressFromCurrentSeedPhrase',
+            //   onClick: () => {
+            //     handleRouter((history) => {
+            //       if (isDesktop) {
+            //         history.push(
+            //           `${history.location.pathname}?${qs.stringify({
+            //             action: 'add-address',
+            //             import: 'add-from-current-seed-phrase',
+            //           })}`
+            //         );
+            //       } else {
+            //         history.push('/import/add-from-current-seed-phrase');
+            //       }
+            //     });
+            //   },
+            // },
             {
               leftIcon: RcIconCreatenewaddr,
               content: t('page.newAddress.createNewSeedPhrase'),

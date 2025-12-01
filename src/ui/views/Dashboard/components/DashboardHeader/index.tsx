@@ -4,9 +4,10 @@ import {
   KEYRING_CLASS,
   KEYRING_ICONS_WHITE,
   KEYRING_TYPE,
+  ThemeIconType,
   WALLET_BRAND_CONTENT,
 } from 'consts';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { useInterval } from 'react-use';
@@ -19,10 +20,30 @@ import { useWallet } from 'ui/utils';
 
 import { getKRCategoryByType } from '@/utils/transaction';
 
+import IconAlertRed from 'ui/assets/alert-red.svg';
+
+import {
+  RcIconApprovalsCC,
+  RcIconBridgeCC,
+  RcIconGasAccountCC,
+  RcIconMobileSyncCC,
+  RcIconSettingCC,
+  RcIconNftCC,
+  RcIconPerpsCC,
+  RcIconPointsCC,
+  RcIconReceiveCC,
+  RcIconSendCC,
+  RcIconSwapCC,
+  RcIconTransactionsCC,
+  RcIconSearchCC,
+  RcIconDappsCC,
+  RcIconManageCC,
+} from 'ui/assets/dashboard/panel';
+
 import {
   RcIconAddWalletCC,
+  RcIconExternal1CC,
   RcIconQrCodeCC,
-  RcIconSettingCC,
 } from '@/ui/assets/dashboard';
 import { CommonSignal } from '@/ui/component/ConnectStatus/CommonSignal';
 import { useWalletConnectIcon } from '@/ui/component/WalletConnect/useWalletConnectIcon';
@@ -36,8 +57,9 @@ import { BalanceView } from '../BalanceView/BalanceView';
 import { useHomeBalanceViewOuterPrefetch } from '../BalanceView/useHomeBalanceView';
 import PendingTxs from '../PendingTxs';
 import Queue from '../Queue';
-import { Popover } from 'antd';
+import { Badge, Popover, Tooltip } from 'antd';
 import QRCode from 'qrcode.react';
+import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
 
 const Container = styled.div`
   width: 100%;
@@ -54,6 +76,8 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
   const history = useHistory();
   const wallet = useWallet();
   const dispatch = useRabbyDispatch();
+  const { t } = useTranslation();
+  const [approvalRiskAlert, setApprovalRiskAlert] = useState(0);
 
   const currentAccount = useCurrentAccount();
 
@@ -118,8 +142,182 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
     history.push('/add-address');
   });
 
+  type IPanelItem = {
+    icon: ThemeIconType;
+    content: string;
+    onClick: import('react').MouseEventHandler<HTMLElement>;
+    badge?: number;
+    badgeAlert?: boolean;
+    badgeClassName?: string;
+    iconSpin?: boolean;
+    hideForGnosis?: boolean;
+    showAlert?: boolean;
+    disabled?: boolean;
+    commingSoonBadge?: boolean;
+    disableReason?: string;
+    eventKey: string;
+    iconClassName?: string;
+    subContent?: React.ReactNode;
+    isFullscreen?: boolean;
+  };
+
+  const giftUsdValue = useRabbySelector((s) => s.gift.giftUsdValue);
+  const hasClaimedGift = useRabbySelector((s) => s.gift.hasClaimedGift);
+
+  const hasGiftEligibility = useMemo(() => {
+    return giftUsdValue > 0 && !hasClaimedGift;
+  }, [giftUsdValue, hasClaimedGift]);
+
+  const panelItems = {
+    swap: {
+      icon: RcIconSwapCC,
+      eventKey: 'Fund',
+      content: t('page.dashboard.home.panel.swap'),
+      onClick: () => {
+        history.push('/dex-swap?rbisource=dashboard');
+      },
+    } as IPanelItem,
+    send: {
+      icon: RcIconSendCC,
+      eventKey: 'Send',
+      content: t('page.dashboard.home.panel.send'),
+      onClick: () => {
+        history.push('/send-token?rbisource=dashboard');
+      },
+    } as IPanelItem,
+    bridge: {
+      icon: RcIconBridgeCC,
+      eventKey: 'Bridge',
+      content: t('page.dashboard.home.panel.bridge'),
+      onClick: () => {
+        history.push('/bridge');
+      },
+    } as IPanelItem,
+    receive: {
+      icon: RcIconReceiveCC,
+      eventKey: 'Receive',
+      content: t('page.dashboard.home.panel.receive'),
+    } as IPanelItem,
+    // queue: {
+    //   icon: RcIconTransactionsCC,
+    //   eventKey: 'Queue',
+    //   content: t('page.dashboard.home.panel.queue'),
+    //   badge: gnosisPendingCount,
+    //   onClick: () => {
+    //     history.push('/gnosis-queue');
+    //   },
+    // } as IPanelItem,
+    transactions: {
+      icon: RcIconTransactionsCC,
+      eventKey: 'Transactions',
+      content: t('page.dashboard.home.panel.transactions'),
+      onClick: () => {
+        history.push('/history');
+      },
+    } as IPanelItem,
+    security: {
+      icon: RcIconApprovalsCC,
+      eventKey: 'Approvals',
+      content: t('page.dashboard.home.panel.approvals'),
+      onClick: async (evt) => {
+        // openInternalPageInTab('approval-manage');
+        await wallet.openInDesktop('/desktop/profile/approvals');
+        window.close();
+      },
+      badge: approvalRiskAlert,
+      badgeAlert: approvalRiskAlert > 0,
+      isFullscreen: true,
+    } as IPanelItem,
+    // nft: {
+    //   icon: RcIconNftCC,
+    //   eventKey: 'NFT',
+    //   content: t('page.dashboard.home.panel.nft'),
+    //   onClick: () => {
+    //     history.push('/nft');
+    //   },
+    // } as IPanelItem,
+    // gasAccount: {
+    //   icon: RcIconGasAccountCC,
+    //   eventKey: 'GasAccount',
+    //   content: t('page.dashboard.home.panel.gasAccount'),
+    //   onClick: () => {
+    //     history.push('/gas-account');
+    //   },
+    //   subContent: hasGiftEligibility ? (
+    //     <div className="absolute top-[6px] right-[6px]">
+    //       <div
+    //         className={clsx(
+    //           'text-r-green-default text-[10px] leading-[12px] font-medium',
+    //           'flex items-center px-[3px] py-[2px] rounded-[4px] bg-r-green-light'
+    //         )}
+    //       >
+    //         <RcIconGift viewBox="0 0 14 14" />
+    //         {Number.isInteger(giftUsdValue)
+    //           ? '$' + splitNumberByStep(giftUsdValue)
+    //           : formatGasAccountUsdValueV2(giftUsdValue)}
+    //       </div>
+    //     </div>
+    //   ) : null,
+    // } as IPanelItem,
+    // mobile: {
+    //   icon: RcIconMobileSyncCC,
+    //   eventKey: 'Rabby Mobile',
+    //   content: t('page.dashboard.home.panel.mobile'),
+    //   onClick: () => {
+    //     openInternalPageInTab('sync');
+    //   },
+    //   isFullscreen: true,
+    // } as IPanelItem,
+    // perps: {
+    //   icon: RcIconPerpsCC,
+    //   eventKey: 'Perps',
+    //   iconClassName: 'icon-perps',
+    //   subContent: perpsPositionInfo.show ? (
+    //     <div
+    //       className={clsx(
+    //         'absolute bottom-[4px] text-[11px] leading-[13px] font-medium',
+    //         perpsPositionInfo.pnl > 0
+    //           ? 'text-r-green-default'
+    //           : 'text-r-red-default'
+    //       )}
+    //     >
+    //       {perpsPositionInfo.pnl >= 0 ? '+' : '-'}$
+    //       {splitNumberByStep(Math.abs(perpsPositionInfo.pnl).toFixed(2))}
+    //     </div>
+    //   ) : isFetching ? (
+    //     <div className="absolute bottom-[4px] text-[11px] font-medium">
+    //       <Skeleton.Button
+    //         active={true}
+    //         className="h-[10px] block rounded-[2px]"
+    //         style={{ width: 42 }}
+    //       />
+    //     </div>
+    //   ) : null,
+    //   content: t('page.dashboard.home.panel.perps'),
+    //   onClick: () => {
+    //     history.push('/perps');
+    //   },
+    // } as IPanelItem,
+    // searchDapp: {
+    //   icon: RcIconSearchCC,
+    //   eventKey: 'Search Dapp',
+    //   content: t('page.dashboard.home.panel.searchDapp'),
+    //   onClick: () => {
+    //     openInternalPageInTab('dapp-search');
+    //   },
+    //   isFullscreen: true,
+    // } as IPanelItem,
+  };
+
   const brandIcon = useWalletConnectIcon(currentAccount);
-  const { t } = useTranslation();
+
+  const pickedPanelKeys = useMemo<
+    ('swap' | 'send' | 'bridge' | 'receive' | 'transactions' | 'security')[]
+  >(() => {
+    return isGnosis
+      ? ['swap', 'send', 'bridge', 'receive', 'transactions', 'security']
+      : ['swap', 'send', 'bridge', 'receive', 'transactions', 'security'];
+  }, [isGnosis]);
 
   return (
     <Container>
@@ -221,10 +419,92 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
           </div>
         </div>
       )}
+      {pickedPanelKeys.map((panelKey, index) => {
+        const item = panelItems[panelKey] as IPanelItem;
+        if (item.hideForGnosis && isGnosis) return null;
+        return (
+          <div key={panelKey} className="bg-r-neutral-bg-2">
+            {item.disabled ? (
+              <Tooltip
+                {...(item.commingSoonBadge && { visible: false })}
+                title={
+                  item.disableReason || t('page.dashboard.home.comingSoon')
+                }
+                overlayClassName="rectangle direction-tooltip"
+                autoAdjustOverflow={false}
+              >
+                <div key={index} className="disable-direction">
+                  <ThemeIcon src={item.icon} className="images" />
+                  <div className="panel-item-label">{item.content} </div>
+                </div>
+              </Tooltip>
+            ) : (
+              <div
+                key={index}
+                onClick={(evt) => {
+                  matomoRequestEvent({
+                    category: 'Dashboard',
+                    action: 'clickEntry',
+                    label: item.eventKey,
+                  });
+
+                  ga4.fireEvent(`Entry_${item.eventKey}`, {
+                    event_category: 'Dashboard',
+                  });
+
+                  item?.onClick(evt);
+                }}
+                className="panel-item group"
+              >
+                {item.showAlert && (
+                  <ThemeIcon src={IconAlertRed} className="icon icon-alert" />
+                )}
+                {item.badge ? (
+                  <Badge
+                    count={item.badge}
+                    size="small"
+                    className={clsx(
+                      {
+                        alert: item.badgeAlert && !item.badgeClassName,
+                      },
+                      item.badgeClassName
+                    )}
+                  >
+                    <ThemeIcon
+                      src={item.icon}
+                      className={clsx([
+                        item.iconSpin && 'icon-spin',
+                        'panel-item-icon',
+                      ])}
+                    />
+                  </Badge>
+                ) : (
+                  <ThemeIcon
+                    src={item.icon}
+                    className={clsx(['panel-item-icon', item.iconClassName])}
+                  />
+                )}
+                <div className="panel-item-label">{item.content}</div>
+                {item.subContent}
+                {item.commingSoonBadge && (
+                  <div className="coming-soon-badge">
+                    {t('page.dashboard.home.soon')}
+                  </div>
+                )}
+                {item.isFullscreen && (
+                  <div className="absolute top-[6px] right-[6px] opacity-50 text-r-neutral-foot hidden group-hover:block">
+                    <RcIconExternal1CC />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
       {dashboardBalanceCacheInited && (
         <BalanceView currentAccount={currentAccount} />
       )}
-      {isGnosis ? (
+      {/* {isGnosis ? (
         <Queue
           // count={gnosisPendingCount || 0}
           count={0}
@@ -235,7 +515,7 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
         />
       ) : (
         pendingTxCount > 0 && <PendingTxs pendingTxCount={pendingTxCount} />
-      )}
+      )} */}
     </Container>
   );
 };

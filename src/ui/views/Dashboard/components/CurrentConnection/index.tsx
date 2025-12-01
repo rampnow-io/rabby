@@ -361,24 +361,6 @@ export const CurrentConnection = memo((props: CurrentConnectionProps) => {
                   </div>
                 </div>
               </div>
-              <ChainSelector
-                className={clsx(!site && 'disabled')}
-                value={site?.chain || CHAINS_ENUM.ETH}
-                onChange={handleChangeDefaultChain}
-                showModal={visible}
-                onAfterOpen={() => {
-                  matomoRequestEvent({
-                    category: 'Front Page Click',
-                    action: 'Click',
-                    label: 'Change Chain',
-                  });
-
-                  ga4.fireEvent('Click_ChangeChain', {
-                    event_category: 'Front Page Click',
-                  });
-                }}
-                showRPCStatus
-              />
             </>
           ) : (
             <div className="site is-empty">

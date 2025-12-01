@@ -773,23 +773,23 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
             reportSettings('Manage Address');
           },
         },
-        {
-          leftIcon: RcIconEcosystemCC,
-          leftIconClassName: 'text-r-neutral-body',
-          content: t('page.dashboard.settings.features.ecosystem'),
-          onClick: () => {
-            setIsShowEcologyModal(true);
-          },
-        },
-        {
-          leftIcon: RcIconRabbyMobileCC,
-          leftIconClassName: 'text-r-neutral-body w-24 h-24',
-          leftIconStyle: { marginRight: '-2px', marginLeft: '-2px' },
-          content: t('page.dashboard.home.panel.mobile'),
-          onClick: () => {
-            openInternalPageInTab('sync');
-          },
-        },
+        // {
+        //   leftIcon: RcIconEcosystemCC,
+        //   leftIconClassName: 'text-r-neutral-body',
+        //   content: t('page.dashboard.settings.features.ecosystem'),
+        //   onClick: () => {
+        //     setIsShowEcologyModal(true);
+        //   },
+        // },
+        // {
+        //   leftIcon: RcIconRabbyMobileCC,
+        //   leftIconClassName: 'text-r-neutral-body w-24 h-24',
+        //   leftIconStyle: { marginRight: '-2px', marginLeft: '-2px' },
+        //   content: t('page.dashboard.home.panel.mobile'),
+        //   onClick: () => {
+        //     openInternalPageInTab('sync');
+        //   },
+        // },
         // {
         //   leftIcon: RcIconPoints,
         //   content: t('page.dashboard.settings.features.rabbyPoints'),
@@ -797,24 +797,24 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
         //     history.push('/rabby-points');
         //   },
         // },
-        {
-          leftIcon: RcIconSettingsSearchDapps,
-          content: t('page.dashboard.settings.features.searchDapps'),
-          onClick: () => {
-            matomoRequestEvent({
-              category: 'Setting',
-              action: 'clickToUse',
-              label: 'Search Dapps',
-            });
+        // {
+        //   leftIcon: RcIconSettingsSearchDapps,
+        //   content: t('page.dashboard.settings.features.searchDapps'),
+        //   onClick: () => {
+        //     matomoRequestEvent({
+        //       category: 'Setting',
+        //       action: 'clickToUse',
+        //       label: 'Search Dapps',
+        //     });
 
-            ga4.fireEvent('More_SearchDapps', {
-              event_category: 'Click More',
-            });
+        //     ga4.fireEvent('More_SearchDapps', {
+        //       event_category: 'Click More',
+        //     });
 
-            reportSettings('Search Dapps');
-            openInternalPageInTab('dapp-search');
-          },
-        },
+        //     reportSettings('Search Dapps');
+        //     openInternalPageInTab('dapp-search');
+        //   },
+        // },
         {
           leftIcon: RcIconSettingsFeatureConnectedDapps,
           content: t('page.dashboard.settings.features.connectedDapp'),
@@ -849,42 +849,42 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
           ),
         },
 
-        {
-          leftIcon: RcIconCustomTestnet,
-          content: t('page.dashboard.settings.settings.customTestnet'),
-          onClick: () => {
-            history.push('/custom-testnet');
-            matomoRequestEvent({
-              category: 'Setting',
-              action: 'clickToUse',
-              label: 'Custom Testnet',
-            });
+        // {
+        //   leftIcon: RcIconCustomTestnet,
+        //   content: t('page.dashboard.settings.settings.customTestnet'),
+        //   onClick: () => {
+        //     history.push('/custom-testnet');
+        //     matomoRequestEvent({
+        //       category: 'Setting',
+        //       action: 'clickToUse',
+        //       label: 'Custom Testnet',
+        //     });
 
-            ga4.fireEvent('More_CustomTestnet', {
-              event_category: 'Click More',
-            });
+        //     ga4.fireEvent('More_CustomTestnet', {
+        //       event_category: 'Click More',
+        //     });
 
-            reportSettings('Custom Testnet');
-          },
-        },
-        {
-          leftIcon: RcIconCustomRPC,
-          content: t('page.dashboard.settings.settings.customRpc'),
-          onClick: () => {
-            history.push('/custom-rpc');
-            matomoRequestEvent({
-              category: 'Setting',
-              action: 'clickToUse',
-              label: 'Custom RPC',
-            });
+        //     reportSettings('Custom Testnet');
+        //   },
+        // },
+        // {
+        //   leftIcon: RcIconCustomRPC,
+        //   content: t('page.dashboard.settings.settings.customRpc'),
+        //   onClick: () => {
+        //     history.push('/custom-rpc');
+        //     matomoRequestEvent({
+        //       category: 'Setting',
+        //       action: 'clickToUse',
+        //       label: 'Custom RPC',
+        //     });
 
-            ga4.fireEvent('More_CustomRPC', {
-              event_category: 'Click More',
-            });
+        //     ga4.fireEvent('More_CustomRPC', {
+        //       event_category: 'Click More',
+        //     });
 
-            reportSettings('Custom RPC');
-          },
-        },
+        //     reportSettings('Custom RPC');
+        //   },
+        // },
         {
           leftIcon: RcIconI18n,
           content: t('page.dashboard.settings.settings.currentLanguage'),
