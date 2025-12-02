@@ -327,7 +327,7 @@ export const BalanceView = ({
         >
           <div
             className={clsx(
-              'text-r-neutral-title2 text-[30px] leading-[36px] font-bold max-w-full'
+              'text-rb-neutral-black text-[30px] leading-[36px] font-bold max-w-full'
             )}
           >
             {shouldShowBalanceLoading ? (
@@ -350,21 +350,6 @@ export const BalanceView = ({
               onRefresh({ isManual: true });
             }}
           >
-            <div
-              className={clsx(
-                currentIsLoss ? 'text-r-red-default' : 'text-r-green-default',
-                'text-[15px] leading-[18px] font-medium truncate',
-                {
-                  hidden: shouldHidePercentChange,
-                }
-              )}
-            >
-              {currentIsLoss ? '-' : '+'}
-              {currentChangePercent === '0%' ? '0.00%' : currentChangePercent}
-              {currentChangeValue ? (
-                <span className="ml-4">({currentChangeValue})</span>
-              ) : null}
-            </div>
             {missingList?.length ? (
               <TooltipWithMagnetArrow
                 overlayClassName="rectangle font-normal whitespace-pre-wrap"
@@ -420,7 +405,7 @@ export const BalanceView = ({
                     matteredChainBalances={chainBalancesWithValue.slice(0)}
                     gnosisNetworks={gnosisNetworks}
                   />
-                  <RcIconArrowRightCC className="ml-auto w-[18px] h-[18px] text-r-neutral-title2 opacity-50" />
+                  <RcIconArrowRightCC className="ml-auto w-[18px] h-[18px] text-rb-neutral-black opacity-50" />
                 </div>
               ) : (
                 <div
@@ -431,26 +416,17 @@ export const BalanceView = ({
                 >
                   <div
                     className={clsx(
-                      'text-[12px] leading-[14px] text-r-neutral-title-2'
+                      'text-[12px] leading-[14px] text-rb-neutral-black'
                     )}
                   >
                     {t('page.dashboard.assets.noAssets')}
                   </div>
-                  <RcIconArrowRightCC className="ml-auto w-[18px] h-[18px] text-r-neutral-title2 opacity-50" />
+                  <RcIconArrowRightCC className="ml-auto w-[18px] h-[18px] text-rb-neutral-black opacity-50" />
                 </div>
               )}
             </div>
           )}
           <div className={clsx('h-[66px] w-full relative')}>
-            {!!shouldRenderCurve && !!curveChartData && (
-              <CurveThumbnail
-                isHover={currentHover}
-                data={curveChartData}
-                showAppChainTips={showAppChainTips}
-                appChainIds={appChainIds}
-                onHover={handleHoverCurve}
-              />
-            )}
             {!!shouldShowLoading && (
               <div className="flex">
                 <Skeleton.Input

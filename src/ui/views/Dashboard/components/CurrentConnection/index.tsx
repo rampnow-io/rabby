@@ -26,13 +26,7 @@ import { useGnosisNetworks } from '@/ui/hooks/useGnosisNetworks';
 import styled from 'styled-components';
 
 const Container = styled.div`
-  margin-top: 12px;
   display: flex;
-  align-items: center;
-  border-radius: 8px;
-  background: var(--r-neutral-card1, #fff);
-  padding: 10px 12px;
-
   &.site-group:hover {
     .site-icon-container.is-support {
       cursor: pointer;
@@ -77,8 +71,8 @@ const Container = styled.div`
     }
     &-icon {
       flex-shrink: 0;
-      width: 28px;
-      height: 28px;
+      width: 10px;
+      height: 10px;
       border-radius: 28px;
     }
     &-icon-container {
@@ -310,10 +304,10 @@ export const CurrentConnection = memo((props: CurrentConnectionProps) => {
   if (!isEnabledDappAccount) {
     return (
       <>
-        <Container className={clsx('h-[52px] px-[12px]')}>
+        <Container>
           {site ? (
             <>
-              <div className="site mr-[18px]">
+              <div className="site">
                 <div className="relative">
                   <FallbackSiteLogo
                     url={site.icon}
@@ -341,18 +335,12 @@ export const CurrentConnection = memo((props: CurrentConnectionProps) => {
                   ) : null}
                 </div>
                 <div className="site-content">
-                  <div className="site-name truncate" title={site?.origin}>
-                    {site?.origin?.replace(/^https?:\/\//, '')}
-                  </div>
                   <div
                     className={clsx(
                       'site-status text-[12px]',
                       site?.isConnected && 'active'
                     )}
                   >
-                    {site?.isConnected
-                      ? t('page.dashboard.recentConnection.connected')
-                      : t('page.dashboard.recentConnection.notConnected')}
                     <RCIconDisconnectCC
                       viewBox="0 0 14 14"
                       className="site-status-icon w-12 h-12 ml-4 text-r-neutral-foot hover:text-rabby-red-default"
@@ -365,9 +353,6 @@ export const CurrentConnection = memo((props: CurrentConnectionProps) => {
           ) : (
             <div className="site is-empty">
               <img src={IconDapps} className="site-icon ml-6" alt="" />
-              <div className="site-content">
-                {t('page.dashboard.recentConnection.noDappFound')}
-              </div>
             </div>
           )}
         </Container>
@@ -425,21 +410,15 @@ export const CurrentConnection = memo((props: CurrentConnectionProps) => {
               </div>
             </div>
             <div className="site-content">
-              <div className="site-name truncate" title={site?.origin}>
-                {site?.origin?.replace(/^https?:\/\//, '')}
-              </div>
               <div
                 className={clsx(
                   'site-status text-[12px]',
                   site?.isConnected && 'active'
                 )}
               >
-                {site?.isConnected
-                  ? t('page.dashboard.recentConnection.connected')
-                  : t('page.dashboard.recentConnection.notConnected')}
                 <RCIconDisconnectCC
                   viewBox="0 0 14 14"
-                  className="site-status-icon w-12 h-12 ml-4 text-r-neutral-foot hover:text-rabby-red-default"
+                  className="site-status-icon w-12 h-12 ml-4 text-rb-neutral-black hover:text-rabby-red-default"
                   onClick={() => handleRemove(site!.origin)}
                 />
               </div>
@@ -448,9 +427,6 @@ export const CurrentConnection = memo((props: CurrentConnectionProps) => {
         ) : (
           <div className="site is-empty">
             <img src={IconDapps} className="site-icon ml-6" alt="" />
-            <div className="site-content">
-              {t('page.dashboard.recentConnection.noDappFound')}
-            </div>
           </div>
         )}
         {site ? (

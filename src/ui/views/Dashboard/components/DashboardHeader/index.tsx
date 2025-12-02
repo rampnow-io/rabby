@@ -1,6 +1,7 @@
 import { matomoRequestEvent } from '@/utils/matomo-request';
 import clsx from 'clsx';
 import {
+  CHAINS_ENUM,
   KEYRING_CLASS,
   KEYRING_ICONS_WHITE,
   KEYRING_TYPE,
@@ -60,14 +61,107 @@ import Queue from '../Queue';
 import { Badge, Popover, Tooltip } from 'antd';
 import QRCode from 'qrcode.react';
 import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
+import { useThemeMode } from '@/ui/hooks/usePreference';
+import { CurrentConnection } from '../CurrentConnection';
 
 const Container = styled.div`
   width: 100%;
-  height: 196px;
-  background: linear-gradient(0deg, #2539b7 0%, #2539b7 100%), #2539b7;
+  height: 350px;
+  background: #ffff;
   position: relative;
   overflow: hidden;
   padding: 12px 16px;
+`;
+
+const WrapContainer = styled.div`
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  overflow: auto;
+
+  border-radius: 8px;
+  background-color: var(--r-neutral-card2, #f2f4f7);
+
+  .panel-item {
+    height: 88px;
+    width: 100%;
+    cursor: pointer;
+
+    background: var(--r-neutral-card1, #fff);
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    &:hover {
+      background: var(--r-blue-light1, #edf0ff);
+    }
+
+    &-icon {
+      width: 24px;
+      height: 24px;
+      justify-self: center;
+      margin-bottom: 6px;
+      color: var(--r-neutral-title1, #192945);
+
+      &.icon-spin {
+        animation: icn-spin 1.5s linear infinite;
+      }
+
+      &.icon-rabby-mobile {
+        width: 24px;
+        height: 24px;
+        margin-bottom: 4px;
+      }
+
+      &.icon-points {
+        width: 24px;
+        height: 24px;
+        margin-bottom: 4px;
+      }
+    }
+
+    &-label {
+      font-weight: 500;
+      font-size: 13px;
+      line-height: 16px;
+      color: var(--r-neutral-title-1, rgba(25, 41, 69, 1));
+      text-align: center;
+    }
+
+    @keyframes icn-spin {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .icon-alert {
+      position: absolute;
+      right: 33px;
+      top: 7px;
+    }
+  }
+
+  .ant-badge {
+    .ant-badge-count {
+      background-color: var(--r-blue-default, #7084ff);
+      padding: 2px 6px;
+      font-size: 13px;
+      line-height: 1;
+      height: 18px;
+      border-radius: 90px;
+      box-shadow: none;
+    }
+    &.alert .ant-badge-count {
+      background-color: #ec5151;
+    }
+    &.round .ant-badge-count {
+      padding: 2px 4.5px !important;
+    }
+  }
 `;
 
 export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
@@ -78,6 +172,12 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
   const dispatch = useRabbyDispatch();
   const { t } = useTranslation();
   const [approvalRiskAlert, setApprovalRiskAlert] = useState(0);
+  const [currentConnectedSiteChain, setCurrentConnectedSiteChain] = useState(
+    CHAINS_ENUM.ETH
+  );
+
+  const ref = React.useRef<HTMLDivElement>(null);
+  const { isDarkTheme } = useThemeMode();
 
   const currentAccount = useCurrentAccount();
 
@@ -207,27 +307,27 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
     //     history.push('/gnosis-queue');
     //   },
     // } as IPanelItem,
-    transactions: {
-      icon: RcIconTransactionsCC,
-      eventKey: 'Transactions',
-      content: t('page.dashboard.home.panel.transactions'),
-      onClick: () => {
-        history.push('/history');
-      },
-    } as IPanelItem,
-    security: {
-      icon: RcIconApprovalsCC,
-      eventKey: 'Approvals',
-      content: t('page.dashboard.home.panel.approvals'),
-      onClick: async (evt) => {
-        // openInternalPageInTab('approval-manage');
-        await wallet.openInDesktop('/desktop/profile/approvals');
-        window.close();
-      },
-      badge: approvalRiskAlert,
-      badgeAlert: approvalRiskAlert > 0,
-      isFullscreen: true,
-    } as IPanelItem,
+    // transactions: {
+    //   icon: RcIconTransactionsCC,
+    //   eventKey: 'Transactions',
+    //   content: t('page.dashboard.home.panel.transactions'),
+    //   onClick: () => {
+    //     history.push('/history');
+    //   },
+    // } as IPanelItem,
+    // security: {
+    //   icon: RcIconApprovalsCC,
+    //   eventKey: 'Approvals',
+    //   content: t('page.dashboard.home.panel.approvals'),
+    //   onClick: async (evt) => {
+    //     // openInternalPageInTab('approval-manage');
+    //     await wallet.openInDesktop('/desktop/profile/approvals');
+    //     window.close();
+    //   },
+    //   badge: approvalRiskAlert,
+    //   badgeAlert: approvalRiskAlert > 0,
+    //   isFullscreen: true,
+    // } as IPanelItem,
     // nft: {
     //   icon: RcIconNftCC,
     //   eventKey: 'NFT',
@@ -312,11 +412,11 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
   const brandIcon = useWalletConnectIcon(currentAccount);
 
   const pickedPanelKeys = useMemo<
-    ('swap' | 'send' | 'bridge' | 'receive' | 'transactions' | 'security')[]
+    ('swap' | 'send' | 'bridge' | 'receive')[]
   >(() => {
     return isGnosis
-      ? ['swap', 'send', 'bridge', 'receive', 'transactions', 'security']
-      : ['swap', 'send', 'bridge', 'receive', 'transactions', 'security'];
+      ? ['swap', 'send', 'bridge', 'receive']
+      : ['swap', 'send', 'bridge', 'receive'];
   }, [isGnosis]);
 
   return (
@@ -349,7 +449,7 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
                 />
               </div>
               <div
-                className="text-[15px] leading-[18px] font-medium text-r-neutral-title2 truncate max-w-[86px]"
+                className="text-[15px] leading-[18px] font-medium text-black truncate max-w-[86px]"
                 title={displayName}
               >
                 {displayName}
@@ -358,7 +458,7 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
                 <AddressViewer
                   address={currentAccount.address}
                   showArrow={false}
-                  className="text-[12px] leading-[14px] text-r-neutral-title2 opacity-60"
+                  className="text-[12px] leading-[14px] text-black opacity-60"
                 />
               )}
               <IconArrowRight />
@@ -366,7 +466,7 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
 
             <RcIconCopy
               viewBox="0 0 16 16"
-              className="w-[16px] h-[16px] cursor-pointer opacity-60 hover:opacity-80"
+              className="w-[16px] h-[16px] cursor-pointer text-black opacity-60 hover:opacity-80"
               onClick={() => {
                 copyAddress(currentAccount.address);
                 matomoRequestEvent({
@@ -399,17 +499,16 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
           <div className="ml-auto flex items-center gap-[8px]">
             <div
               className={clsx(
-                'py-[6px] px-[8px] rounded-[5px] cursor-pointer text-r-neutral-title-2',
+                'rounded-[5px] cursor-pointer text-r-neutral-title-2',
                 'bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)]'
               )}
-              onClick={handleAddAddress}
             >
-              <RcIconAddWalletCC />
+              <CurrentConnection onChainChange={setCurrentConnectedSiteChain} />
             </div>
 
             <div
               className={clsx(
-                'py-[6px] px-[8px] rounded-[5px] cursor-pointer text-r-neutral-title-2',
+                'py-[6px] px-[8px] rounded-[5px] cursor-pointer text-black',
                 'bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)]'
               )}
               onClick={onSettingClick}
@@ -419,91 +518,103 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
           </div>
         </div>
       )}
-      {pickedPanelKeys.map((panelKey, index) => {
-        const item = panelItems[panelKey] as IPanelItem;
-        if (item.hideForGnosis && isGnosis) return null;
-        return (
-          <div key={panelKey} className="bg-r-neutral-bg-2">
-            {item.disabled ? (
-              <Tooltip
-                {...(item.commingSoonBadge && { visible: false })}
-                title={
-                  item.disableReason || t('page.dashboard.home.comingSoon')
-                }
-                overlayClassName="rectangle direction-tooltip"
-                autoAdjustOverflow={false}
-              >
-                <div key={index} className="disable-direction">
-                  <ThemeIcon src={item.icon} className="images" />
-                  <div className="panel-item-label">{item.content} </div>
-                </div>
-              </Tooltip>
-            ) : (
-              <div
-                key={index}
-                onClick={(evt) => {
-                  matomoRequestEvent({
-                    category: 'Dashboard',
-                    action: 'clickEntry',
-                    label: item.eventKey,
-                  });
-
-                  ga4.fireEvent(`Entry_${item.eventKey}`, {
-                    event_category: 'Dashboard',
-                  });
-
-                  item?.onClick(evt);
-                }}
-                className="panel-item group"
-              >
-                {item.showAlert && (
-                  <ThemeIcon src={IconAlertRed} className="icon icon-alert" />
-                )}
-                {item.badge ? (
-                  <Badge
-                    count={item.badge}
-                    size="small"
-                    className={clsx(
-                      {
-                        alert: item.badgeAlert && !item.badgeClassName,
-                      },
-                      item.badgeClassName
-                    )}
-                  >
-                    <ThemeIcon
-                      src={item.icon}
-                      className={clsx([
-                        item.iconSpin && 'icon-spin',
-                        'panel-item-icon',
-                      ])}
-                    />
-                  </Badge>
-                ) : (
-                  <ThemeIcon
-                    src={item.icon}
-                    className={clsx(['panel-item-icon', item.iconClassName])}
-                  />
-                )}
-                <div className="panel-item-label">{item.content}</div>
-                {item.subContent}
-                {item.commingSoonBadge && (
-                  <div className="coming-soon-badge">
-                    {t('page.dashboard.home.soon')}
-                  </div>
-                )}
-                {item.isFullscreen && (
-                  <div className="absolute top-[6px] right-[6px] opacity-50 text-r-neutral-foot hidden group-hover:block">
-                    <RcIconExternal1CC />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        );
-      })}
       {dashboardBalanceCacheInited && (
         <BalanceView currentAccount={currentAccount} />
       )}
+      <WrapContainer
+        ref={ref}
+        style={
+          isDarkTheme
+            ? {
+                backgroundColor: 'rgb(41,43,57)',
+              }
+            : undefined
+        }
+      >
+        {pickedPanelKeys.map((panelKey, index) => {
+          const item = panelItems[panelKey] as IPanelItem;
+          if (item.hideForGnosis && isGnosis) return null;
+          return (
+            <div key={panelKey} className="bg-r-neutral-bg-2">
+              {item.disabled ? (
+                <Tooltip
+                  {...(item.commingSoonBadge && { visible: false })}
+                  title={
+                    item.disableReason || t('page.dashboard.home.comingSoon')
+                  }
+                  overlayClassName="rectangle direction-tooltip"
+                  autoAdjustOverflow={false}
+                >
+                  <div key={index} className="disable-direction">
+                    <ThemeIcon src={item.icon} className="images" />
+                    <div className="panel-item-label">{item.content} </div>
+                  </div>
+                </Tooltip>
+              ) : (
+                <div
+                  key={index}
+                  onClick={(evt) => {
+                    matomoRequestEvent({
+                      category: 'Dashboard',
+                      action: 'clickEntry',
+                      label: item.eventKey,
+                    });
+
+                    ga4.fireEvent(`Entry_${item.eventKey}`, {
+                      event_category: 'Dashboard',
+                    });
+
+                    item?.onClick(evt);
+                  }}
+                  className="panel-item group"
+                >
+                  {item.showAlert && (
+                    <ThemeIcon src={IconAlertRed} className="icon icon-alert" />
+                  )}
+                  {item.badge ? (
+                    <Badge
+                      count={item.badge}
+                      size="small"
+                      className={clsx(
+                        {
+                          alert: item.badgeAlert && !item.badgeClassName,
+                        },
+                        item.badgeClassName
+                      )}
+                    >
+                      <ThemeIcon
+                        src={item.icon}
+                        className={clsx([
+                          item.iconSpin && 'icon-spin',
+                          'panel-item-icon',
+                        ])}
+                      />
+                    </Badge>
+                  ) : (
+                    <ThemeIcon
+                      src={item.icon}
+                      className={clsx(['panel-item-icon', item.iconClassName])}
+                    />
+                  )}
+                  <div className="panel-item-label">{item.content}</div>
+                  {item.subContent}
+                  {item.commingSoonBadge && (
+                    <div className="coming-soon-badge">
+                      {t('page.dashboard.home.soon')}
+                    </div>
+                  )}
+                  {item.isFullscreen && (
+                    <div className="absolute top-[6px] right-[6px] opacity-50 text-r-neutral-foot hidden group-hover:block">
+                      <RcIconExternal1CC />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </WrapContainer>
+
       {/* {isGnosis ? (
         <Queue
           // count={gnosisPendingCount || 0}

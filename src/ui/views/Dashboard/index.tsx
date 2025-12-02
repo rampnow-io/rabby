@@ -84,10 +84,6 @@ const Dashboard = () => {
       <div className={clsx('dashboard')}>
         <DashboardHeader onSettingClick={toggleShowMoreSettings} />
         <DashboardPanel onSettingClick={toggleShowMoreSettings} />
-        <div className="px-[16px] pb-[13px]">
-          <GasPriceBar currentConnectedSiteChain={currentConnectedSiteChain} />
-          <CurrentConnection onChainChange={setCurrentConnectedSiteChain} />
-        </div>
       </div>
       <Modal
         visible={firstNotice && updateContent}
