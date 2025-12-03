@@ -70,9 +70,6 @@ const Dashboard = () => {
   }, [dispatch]);
 
   const { t } = useTranslation();
-  const [currentConnectedSiteChain, setCurrentConnectedSiteChain] = useState(
-    CHAINS_ENUM.ETH
-  );
 
   const [settingVisible, setSettingVisible] = useState(false);
   const toggleShowMoreSettings = useMemoizedFn(() => {

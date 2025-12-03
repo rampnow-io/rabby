@@ -319,7 +319,7 @@ export const BalanceView = ({
   return (
     <div onMouseLeave={onMouseLeave} className={clsx('w-full')}>
       <div
-        className="min-h-[132px] w-full cursor-pointer rounded-[8px] bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)]"
+        className="!min-h-[70px] w-full cursor-pointer rounded-[8px] bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)]"
         onClick={onClickViewAssets}
       >
         <div
@@ -375,68 +375,7 @@ export const BalanceView = ({
             </div>
           </div>
         </div>
-        <div
-          onMouseMove={onMouseMove}
-          onMouseLeave={onMouseLeave}
-          className={clsx('mt-[2px]', 'relative cursor-pointer')}
-        >
-          {/* <img
-            src={ArrowNextSVG}
-            className={clsx(
-              'absolute w-[20px] h-[20px] top-[8px] right-[10px]',
-              !currentHover && 'opacity-80'
-              // balanceFromCache
-              //   ? !currentHover && 'opacity-0'
-              //   : !currentHover && 'opacity-80'
-            )}
-          /> */}
-          {!shouldShowLoading && (
-            <div className={clsx('px-[12px] pointer-events-none')}>
-              {!loadBalanceSuccess ? null : chainBalancesWithValue.length >
-                0 ? (
-                <div
-                  className={clsx(
-                    'w-full flex items-center gap-[4px]',
-                    !currentHover && 'opacity-80'
-                  )}
-                >
-                  <ChainList
-                    isGnosis={isGnosis}
-                    matteredChainBalances={chainBalancesWithValue.slice(0)}
-                    gnosisNetworks={gnosisNetworks}
-                  />
-                  <RcIconArrowRightCC className="ml-auto w-[18px] h-[18px] text-rb-neutral-black opacity-50" />
-                </div>
-              ) : (
-                <div
-                  className={clsx(
-                    'w-full flex items-center gap-[4px]',
-                    !currentHover && 'opacity-80'
-                  )}
-                >
-                  <div
-                    className={clsx(
-                      'text-[12px] leading-[14px] text-rb-neutral-black'
-                    )}
-                  >
-                    {t('page.dashboard.assets.noAssets')}
-                  </div>
-                  <RcIconArrowRightCC className="ml-auto w-[18px] h-[18px] text-rb-neutral-black opacity-50" />
-                </div>
-              )}
-            </div>
-          )}
-          <div className={clsx('h-[66px] w-full relative')}>
-            {!!shouldShowLoading && (
-              <div className="flex">
-                <Skeleton.Input
-                  active
-                  className="mx-auto mt-[4px] w-[344px] h-[66px] rounded block"
-                />
-              </div>
-            )}
-          </div>
-        </div>
+        <div className={clsx('h-[20px] w-full relative')}></div>{' '}
       </div>
       <OfflineChainNotify />
     </div>
