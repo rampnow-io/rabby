@@ -79,7 +79,7 @@ const TransactionHistory = () => {
   }, [handleReload]);
 
   return (
-    <div className="tx-history">
+    <div className="tx-history overflow-auto">
       <SkipNonceAlert
         pendings={pendingList}
         onClearPending={() => {

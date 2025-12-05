@@ -19,6 +19,7 @@
     "build:sourcemap": "npm run clean && npm run make-theme && webpack --progress --env config=sourcemap",
     "sync-chain": "node ./scripts/sync-support-chain.js",
     "lint:fix": "eslint --fix --ext .js,.jsx,.ts,.tsx ./src",
+    "format:views": "prettier --write \"src/ui/views/**/*.{ts,tsx}\"",
     "test": "jest",
     "pub": "node build/release.js",
     "postinstall": "patch-package"

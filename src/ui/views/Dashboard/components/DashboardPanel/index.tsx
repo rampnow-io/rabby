@@ -7,7 +7,7 @@ import { findChainByID } from '@/utils/chain';
 import { appIsDev } from '@/utils/env';
 import { ga4 } from '@/utils/ga4';
 import { matomoRequestEvent } from '@/utils/matomo-request';
-import { Badge, Col, Row, Skeleton, Tooltip } from 'antd';
+import { Badge, Col, Row, Skeleton, Tooltip, Tabs } from 'antd';
 import clsx from 'clsx';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +17,9 @@ import styled from 'styled-components';
 import IconAlertRed from 'ui/assets/alert-red.svg';
 import { ReactComponent as RcIconEco } from 'ui/assets/dashboard/icon-eco.svg';
 import { ReactComponent as RcIconGift } from 'ui/assets/gift-14.svg';
+import { AssetList } from '@/ui/views/CommonPopup/AssetList/AssetList';
+import TransactionHistory from '@/ui/views/TransactionHistory';
+import { ApprovalsTabPane } from '@/ui/views/DesktopProfile/components/ApprovalsTabPane';
 
 import {
   RcIconApprovalsCC,
@@ -152,74 +155,14 @@ export const DashboardPanel: React.FC<{ onSettingClick?(): void }> = ({
 }) => {
   const { t } = useTranslation();
   const history = useHistory();
-  const { perpsPositionInfo, isFetching } = usePerpsHomePnl();
-  // useCheckBridgePendingItem();
+
+  const [activeTab, setActiveTab] = useState('tokens');
+  const [selectedChainId, setSelectedChainId] = useState<string | null>(null);
+  const [approvalChain, setApprovalChain] = useState<CHAINS_ENUM | undefined>(
+    undefined
+  );
 
   const [badgeModalVisible, setBadgeModalVisible] = useState(false);
-
-  const [isShowReceiveModal, setIsShowReceiveModal] = useState(false);
-
-  const [isShowEcology, setIsShowEcologyModal] = useState(false);
-
-  const [isShowRabbyPoints, setIsShowRabbyPoints] = useState(false);
-
-  const [isShowDappsPopup, setIsShowDappsPopup] = useState(false);
-
-  const [safeSupportChains, setSafeSupportChains] = useState<CHAINS_ENUM[]>([]);
-
-  const wallet = useWallet();
-
-  const account = useRabbySelector((state) => state.account.currentAccount);
-
-  const [approvalRiskAlert, setApprovalRiskAlert] = useState(0);
-
-  const { value: approvalState } = useAsync(async () => {
-    if (
-      account?.address &&
-      (account.type !== KEYRING_TYPE.WatchAddressKeyring || appIsDev)
-    ) {
-      const data = await wallet.openapi.approvalStatus(account.address);
-      return data;
-    }
-    return;
-  }, [account?.address]);
-
-  const isGnosis = useMemo(() => {
-    return account?.type === KEYRING_TYPE.GnosisKeyring;
-  }, [account]);
-
-  useEffect(() => {
-    if (approvalState) {
-      setApprovalRiskAlert(
-        approvalState.reduce(
-          (pre, now) =>
-            pre + now.nft_approval_danger_cnt + now.token_approval_danger_cnt,
-          0
-        )
-      );
-    } else {
-      setApprovalRiskAlert(0);
-    }
-  }, [approvalState]);
-
-  const getSafeNetworks = async () => {
-    if (!account) return;
-    const chainIds = await wallet.getGnosisNetworkIds(account.address);
-    const chains: CHAINS_ENUM[] = [];
-    chainIds.forEach((id) => {
-      const chain = findChainByID(Number(id));
-      if (chain) {
-        chains.push(chain.enum);
-      }
-    });
-    setSafeSupportChains(chains);
-  };
-
-  useEffect(() => {
-    if (isGnosis) {
-      getSafeNetworks();
-    }
-  }, [isGnosis]);
 
   type IPanelItem = {
     icon: ThemeIconType;
@@ -247,158 +190,6 @@ export const DashboardPanel: React.FC<{ onSettingClick?(): void }> = ({
     return giftUsdValue > 0 && !hasClaimedGift;
   }, [giftUsdValue, hasClaimedGift]);
 
-  const panelItems = {
-    swap: {
-      icon: RcIconSwapCC,
-      eventKey: 'Fund',
-      content: t('page.dashboard.home.panel.swap'),
-      onClick: () => {
-        history.push('/dex-swap?rbisource=dashboard');
-      },
-    } as IPanelItem,
-    send: {
-      icon: RcIconSendCC,
-      eventKey: 'Send',
-      content: t('page.dashboard.home.panel.send'),
-      onClick: () => {
-        history.push('/send-token?rbisource=dashboard');
-      },
-    } as IPanelItem,
-    bridge: {
-      icon: RcIconBridgeCC,
-      eventKey: 'Bridge',
-      content: t('page.dashboard.home.panel.bridge'),
-      onClick: () => {
-        history.push('/bridge');
-      },
-    } as IPanelItem,
-    receive: {
-      icon: RcIconReceiveCC,
-      eventKey: 'Receive',
-      content: t('page.dashboard.home.panel.receive'),
-      onClick: () => {
-        setIsShowReceiveModal(true);
-      },
-    } as IPanelItem,
-    // queue: {
-    //   icon: RcIconTransactionsCC,
-    //   eventKey: 'Queue',
-    //   content: t('page.dashboard.home.panel.queue'),
-    //   badge: gnosisPendingCount,
-    //   onClick: () => {
-    //     history.push('/gnosis-queue');
-    //   },
-    // } as IPanelItem,
-    transactions: {
-      icon: RcIconTransactionsCC,
-      eventKey: 'Transactions',
-      content: t('page.dashboard.home.panel.transactions'),
-      onClick: () => {
-        history.push('/history');
-      },
-    } as IPanelItem,
-    security: {
-      icon: RcIconApprovalsCC,
-      eventKey: 'Approvals',
-      content: t('page.dashboard.home.panel.approvals'),
-      onClick: async (evt) => {
-        // openInternalPageInTab('approval-manage');
-        await wallet.openInDesktop('/desktop/profile/approvals');
-        window.close();
-      },
-      badge: approvalRiskAlert,
-      badgeAlert: approvalRiskAlert > 0,
-      isFullscreen: true,
-    } as IPanelItem,
-    // nft: {
-    //   icon: RcIconNftCC,
-    //   eventKey: 'NFT',
-    //   content: t('page.dashboard.home.panel.nft'),
-    //   onClick: () => {
-    //     history.push('/nft');
-    //   },
-    // } as IPanelItem,
-    // gasAccount: {
-    //   icon: RcIconGasAccountCC,
-    //   eventKey: 'GasAccount',
-    //   content: t('page.dashboard.home.panel.gasAccount'),
-    //   onClick: () => {
-    //     history.push('/gas-account');
-    //   },
-    //   subContent: hasGiftEligibility ? (
-    //     <div className="absolute top-[6px] right-[6px]">
-    //       <div
-    //         className={clsx(
-    //           'text-r-green-default text-[10px] leading-[12px] font-medium',
-    //           'flex items-center px-[3px] py-[2px] rounded-[4px] bg-r-green-light'
-    //         )}
-    //       >
-    //         <RcIconGift viewBox="0 0 14 14" />
-    //         {Number.isInteger(giftUsdValue)
-    //           ? '$' + splitNumberByStep(giftUsdValue)
-    //           : formatGasAccountUsdValueV2(giftUsdValue)}
-    //       </div>
-    //     </div>
-    //   ) : null,
-    // } as IPanelItem,
-    // mobile: {
-    //   icon: RcIconMobileSyncCC,
-    //   eventKey: 'Rabby Mobile',
-    //   content: t('page.dashboard.home.panel.mobile'),
-    //   onClick: () => {
-    //     openInternalPageInTab('sync');
-    //   },
-    //   isFullscreen: true,
-    // } as IPanelItem,
-    // perps: {
-    //   icon: RcIconPerpsCC,
-    //   eventKey: 'Perps',
-    //   iconClassName: 'icon-perps',
-    //   subContent: perpsPositionInfo.show ? (
-    //     <div
-    //       className={clsx(
-    //         'absolute bottom-[4px] text-[11px] leading-[13px] font-medium',
-    //         perpsPositionInfo.pnl > 0
-    //           ? 'text-r-green-default'
-    //           : 'text-r-red-default'
-    //       )}
-    //     >
-    //       {perpsPositionInfo.pnl >= 0 ? '+' : '-'}$
-    //       {splitNumberByStep(Math.abs(perpsPositionInfo.pnl).toFixed(2))}
-    //     </div>
-    //   ) : isFetching ? (
-    //     <div className="absolute bottom-[4px] text-[11px] font-medium">
-    //       <Skeleton.Button
-    //         active={true}
-    //         className="h-[10px] block rounded-[2px]"
-    //         style={{ width: 42 }}
-    //       />
-    //     </div>
-    //   ) : null,
-    //   content: t('page.dashboard.home.panel.perps'),
-    //   onClick: () => {
-    //     history.push('/perps');
-    //   },
-    // } as IPanelItem,
-    // searchDapp: {
-    //   icon: RcIconSearchCC,
-    //   eventKey: 'Search Dapp',
-    //   content: t('page.dashboard.home.panel.searchDapp'),
-    //   onClick: () => {
-    //     openInternalPageInTab('dapp-search');
-    //   },
-    //   isFullscreen: true,
-    // } as IPanelItem,
-  };
-
-  const pickedPanelKeys = useMemo<
-    ('swap' | 'send' | 'bridge' | 'receive' | 'transactions' | 'security')[]
-  >(() => {
-    return isGnosis
-      ? ['swap', 'send', 'bridge', 'receive', 'transactions', 'security']
-      : ['swap', 'send', 'bridge', 'receive', 'transactions', 'security'];
-  }, [isGnosis]);
-
   const ref = useRef<HTMLDivElement | null>(null);
   const scroll = useScroll(ref);
   const scrollRatio = useMemo(() => {
@@ -412,65 +203,33 @@ export const DashboardPanel: React.FC<{ onSettingClick?(): void }> = ({
 
   return (
     <div className="relative px-[16px] pt-[14px] pb-[12px]">
-      <Container
-        ref={ref}
-        style={
-          isDarkTheme
-            ? {
-                backgroundColor: 'rgb(41,43,57)',
-              }
-            : undefined
-        }
-      ></Container>
-      <div className="absolute right-[8px] top-[50%] translate-y-[-50%]">
-        <div className="w-[3px] h-[80px] rounded-full relative">
-          <div
-            className="w-[3px] h-[50px] bg-r-blue-default rounded-full relative z-10"
-            style={{
-              transform: `translateY(${scrollRatio * 30}px)`,
-            }}
-          ></div>
-          <div className="rounded-full absolute top-0 left-0 right-0 bottom-0 bg-r-blue-disable opacity-50"></div>
-        </div>
-      </div>
-      <ChainSelectorModal
-        className="receive-chain-select-modal"
-        value={CHAINS_ENUM.ETH}
-        visible={isShowReceiveModal}
-        showRPCStatus
-        onChange={(chain) => {
-          history.push(`/receive?rbisource=dashboard&chain=${chain}`);
-          setIsShowReceiveModal(false);
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        className="dashboard-panel-tabs"
+        tabBarStyle={{
+          marginBottom: 16,
         }}
-        onCancel={() => {
-          setIsShowReceiveModal(false);
-        }}
-        supportChains={isGnosis ? safeSupportChains : undefined}
-        disabledTips={t('page.dashboard.GnosisWrongChainAlertBar.notDeployed')}
-      />
+      >
+        <Tabs.TabPane tab="Tokens" key="tokens">
+          <div className="bg-r-neutral-card-1 p-[10px] rounded-[8px] overflow-auto max-h-[500px]">
+            <AssetList visible={activeTab === 'tokens'} onClose={() => {}} />
+          </div>
+        </Tabs.TabPane>
 
-      <ClaimRabbyFreeGasBadgeModal
-        visible={badgeModalVisible}
-        onCancel={() => {
-          setBadgeModalVisible(false);
-        }}
-      />
-      <EcologyPopup
-        visible={isShowEcology}
-        onClose={() => setIsShowEcologyModal(false)}
-      />
-      <RabbyPointsPopup
-        visible={isShowRabbyPoints}
-        onClose={() => setIsShowRabbyPoints(false)}
-      />
+        <Tabs.TabPane tab="Transactions" key="transactions">
+          <div className="bg-r-neutral-card-1 p-[10px] overflow-auto rounded-[8px]  max-h-[500px]">
+            <TransactionHistory />
+          </div>
+        </Tabs.TabPane>
+
+        <Tabs.TabPane tab="Approvals" key="approvals">
+          <div className="bg-r-neutral-card-1 p-[10px] rounded-[8px] overflow-auto max-h-[500px]">
+            <ApprovalsTabPane isDesktop={false} desktopChain={approvalChain} />
+          </div>
+        </Tabs.TabPane>
+      </Tabs>
       <RateModal />
-
-      <RecentConnectionsPopup
-        visible={isShowDappsPopup}
-        onClose={() => {
-          setIsShowDappsPopup(false);
-        }}
-      />
     </div>
   );
 };

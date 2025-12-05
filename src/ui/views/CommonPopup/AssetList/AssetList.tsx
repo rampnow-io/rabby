@@ -65,13 +65,13 @@ export const AssetList = ({
 
   return (
     <div ref={containerRef}>
-      {isShowTestnet && (
+      {/* {isShowTestnet && (
         <NetSwitchTabs
           value={selectedTab}
           onTabChange={onTabChange}
           // className="h-[28px] box-content mt-[20px] mb-[20px]"
         />
-      )}
+      )} */}
       <div className={clsx(selectedTab === 'mainnet' ? 'block' : 'hidden')}>
         <div className={clsx('mt-[120px]', isEmptyAssets ? 'block' : 'hidden')}>
           <AssetEmptySVG className="m-auto" />
