@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": ".",
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "jsx": "react-jsx",
+    "strict": false,
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": false,
+    "declarationMap": false,
+    "outDir": "./dist",
+    "noEmit": true,
+    "isolatedModules": true,
+    "types": ["./src/types/radix-ui.d.ts"],
+    "paths": {
+      "@lib/*": ["./src/lib"],
+      "@repo/utils": ["../utils"],
+      "@repo/utils/*": ["../utils/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["dist", "build", "node_modules", ".storybook", "storybook-static", "**/*.stories.tsx"]
+}

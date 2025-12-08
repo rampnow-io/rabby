@@ -20,6 +20,7 @@ import { GasPriceBar } from './components/GasPriceBar';
 import { CHAINS_ENUM } from '@/constant';
 import Settings from './components/Settings';
 import { useMemoizedFn } from 'ahooks';
+import { Button } from '@repo/ui/primitives';
 
 const Dashboard = () => {
   const history = useHistory();
@@ -80,6 +81,7 @@ const Dashboard = () => {
     <>
       <div className={clsx('dashboard')}>
         <DashboardHeader onSettingClick={toggleShowMoreSettings} />
+        <Button>hey !</Button>
         <DashboardPanel onSettingClick={toggleShowMoreSettings} />
       </div>
       <Modal

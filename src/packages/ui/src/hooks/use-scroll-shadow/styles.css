@@ -1,0 +1,29 @@
+.scroll-shadow-inner-content {
+  &::before {
+    top: 0;
+    content: "";
+    display: block;
+    position: sticky;
+    left: 0;
+    right: 0;
+    height: 0;
+    pointer-events: none;
+    box-shadow: 0 5px 20px var("--top-shadow-size", 0) rgb(255 255 255 / 0.9);
+    z-index: 11;
+    transition: box-shadow 0.05s ease-in-out;
+  }
+
+  &::after {
+    bottom: 0;
+    content: "";
+    display: block;
+    position: sticky;
+    left: 0;
+    right: 0;
+    height: 0;
+    pointer-events: none;
+    box-shadow: 0 5px 20px var("--bottom-shadow-size", 0) rgb(255 255 255 / 0.9);
+    z-index: 11;
+    transition: box-shadow 0.05s ease-in-out;
+  }
+}

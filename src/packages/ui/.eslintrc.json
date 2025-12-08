@@ -1,0 +1,14 @@
+{
+  "extends": [
+    "@repo/eslint-config/react.js",
+    "plugin:storybook/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "plugins": [
+    "prettier"
+  ],
+  "rules": {
+    "prettier/prettier": "error",
+    "import/order": "off"
+  }
+}

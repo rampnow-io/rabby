@@ -1,0 +1,17 @@
+.copy-action-tag {
+  animation: overlayFadeOut 1s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+@keyframes overlayFadeOut {
+  0% {
+    opacity: 1;
+    transform: translate3d(-50%, -10px, 0);
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(-50%, -50px, 0);
+  }
+}

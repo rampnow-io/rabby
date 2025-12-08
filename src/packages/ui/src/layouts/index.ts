@@ -1,0 +1,6 @@
+export { default as Action } from "./widget/action"
+export { default as Container } from "./widget/container"
+export { default as Content } from "./widget/content.tsx"
+export { default as Footer } from "./widget/footer"
+export { default as Header } from "./widget/header"
+export { default as Wrapper } from "./widget/wrapper"

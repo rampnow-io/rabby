@@ -11,6 +11,10 @@
     "esModuleInterop": true,
     "useUnknownInCatchVariables": false,
     "paths": {
+      "@repo/ui": ["./src/packages/ui/src"],
+      "@repo/ui/*": ["./src/packages/ui/src/*"],
+      "@repo/utils": ["./src/packages/utils/src"],
+      "@repo/utils/*": ["./src/packages/utils/src/*"],
       "@/utils": ["./src/utils"],
       "@/*": ["./src/*"],
       "ui/*": ["./src/ui/*"],
@@ -25,6 +29,7 @@
     "types": ["chrome", "node", "jest"],
     "allowSyntheticDefaultImports": true,
     "allowJs": true,
+    "skipLibCheck": true,
     "plugins": [
       {
         "transform": "typescript-transform-paths",

@@ -1,0 +1,20 @@
+.snack-animation-fadeout {
+  animation: snackAnimationFadeOut var(--snack-animation-fadeout-timeout)
+    cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+@keyframes snackAnimationFadeOut {
+  0% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+  }
+  99% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+    display: none;
+  }
+}

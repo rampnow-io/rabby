@@ -2,6 +2,10 @@
   "name": "rabby",
   "version": "0.93.62",
   "description": "A browser plugin for DeFi users",
+  "private": true,
+  "workspaces": [
+    "src/packages/*"
+  ],
   "scripts": {
     "clean": "node build/clean.js",
     "make-theme": "node ./scripts/make-theme.js",
@@ -159,6 +163,7 @@
     "@types/archiver": "6.0.2",
     "@types/chrome": "0.0.263",
     "@types/events": "3.0.0",
+    "@types/hoist-non-react-statics": "^3.3.7",
     "@types/jest": "27.4.0",
     "@types/koa-compose": "3.2.5",
     "@types/lru-cache": "5.1.0",
@@ -235,7 +240,9 @@
   "resolutions": {
     "@debank/common": "^0.3.0",
     "blake2b": "https://github.com/RabbyHub/mirror-blake2b#55b93cc51a50b0af6b81bb44fcdf88e95c7e6b36",
-    "@rabby-wallet/eth-simple-keyring": "5.1.0"
+    "@rabby-wallet/eth-simple-keyring": "5.1.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0"
   },
   "engines": {
     "node": ">=22"

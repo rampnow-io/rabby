@@ -1,0 +1,52 @@
+*:has(> .modal-overlay) {
+  overflow: clip;
+  box-shadow: inset 0 0 0 0.33px #000000;
+  overflow-clip-margin: 0.33px;
+}
+
+.modal-overlay {
+  animation: overlayFadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.modal-body {
+  animation: bodyFadeIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.modal-body-secondary {
+  animation: bodyFadeInSecondary 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(4px);
+  }
+}
+
+@keyframes bodyFadeIn {
+  from {
+    transform: translate3d(0, 60px, 0) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bodyFadeInSecondary {
+  from {
+    transform: translate3d(0, 10px, 0) scale(0.995);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+}

@@ -1,0 +1,11 @@
+
+> @repo/ui@0.0.0 dev /Users/rohithroshan.r/Documents/GitHub/frontend/packages/ui
+> tailwindcss -i ./src/styles.css -o ./dist/index.css --watch
+
+
+Rebuilding...
+(node:9324) ExperimentalWarning: CommonJS module /Users/rohithroshan.r/Documents/GitHub/frontend/node_modules/.pnpm/tailwindcss@3.4.18_yaml@2.8.1/node_modules/tailwindcss/lib/lib/load-config.js is loading ES Module /Users/rohithroshan.r/Documents/GitHub/frontend/packages/ui/tailwind.config.ts using require().
+Support for loading ES Module in require() is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+Done in 337ms.

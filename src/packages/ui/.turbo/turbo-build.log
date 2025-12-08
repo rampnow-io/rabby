@@ -1,0 +1,9 @@
+
+
+> @repo/ui@0.0.0 build /Users/rohithroshan.r/Documents/GitHub/frontend/packages/ui
+> tailwindcss -i ./src/styles.css -o ./dist/index.css && tsc
+
+
+Rebuilding...
+
+Done in 514ms.

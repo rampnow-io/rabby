@@ -2,6 +2,7 @@ import browser from 'webextension-polyfill';
 
 import './style/index.less';
 import './app';
+import "@repo/ui/styles.css"
 
 // in mv2, we need to import the app.tsx file delay to avoid ui render problem
 // setTimeout(() => {
