@@ -637,7 +637,7 @@ const MiniSignTxV2 = ({ isDesktop }: { isDesktop?: boolean }) => {
           onCancel={handleCancel}
           onRetry={async () => {
             await wallet.setRetryTxType(retryUpdateType);
-            handleRetry(config?.getContainer);
+            handleRetry(config?.getContainer as any);
           }}
           retryUpdateType={retryUpdateType}
         />
@@ -794,7 +794,7 @@ const MiniSignTxV2 = ({ isDesktop }: { isDesktop?: boolean }) => {
           chain={chain}
           isTestnet={chain.isTestnet}
           onCancel={handleCancel}
-          onSubmit={() => handleConfirm(getContainer)}
+          onSubmit={() => handleConfirm(getContainer as any)}
           onIgnoreAllRules={noop}
           enableTooltip={ctx.checkErrors?.some(
             (e) => e.code !== 3001 && e.level === 'forbidden'

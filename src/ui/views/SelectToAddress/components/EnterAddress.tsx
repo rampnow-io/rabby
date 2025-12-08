@@ -5,7 +5,7 @@ import React, {
   useRef,
   useCallback,
 } from 'react';
-import { Input, Form, Button } from 'antd';
+import { Input, InputRef, Form, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { isValidAddress } from '@ethereumjs/util';
 import { debounce, flatten } from 'lodash';
@@ -90,7 +90,7 @@ export const EnterAddress = ({
     whitelist: s.whitelist.whitelist,
   }));
 
-  const inputRef = useRef<AntdInput>(null);
+  const inputRef = useRef<InputRef>(null);
 
   const [inputAddress, setInputAddress] = useState('');
   const [ensResult, setEnsResult] = useState<null | {

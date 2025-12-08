@@ -43,6 +43,7 @@ interface Props {
   className?: string;
   style?: React.CSSProperties;
   isUnlock?: boolean;
+  children?: React.ReactNode;
 }
 
 const UiType = getUiType();

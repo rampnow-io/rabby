@@ -36,13 +36,9 @@ const ErrorBox = styled(FocusingBox)`
   border-color: var(--r-red-default);
 `;
 
-const MatrixWrapper = styled.div.withConfig<{
-  rowCount?: number;
-}>({
-  shouldForwardProp: (prop, defaultValidatorFn) => {
-    return !['rowCount'].includes(prop) && defaultValidatorFn(prop);
-  },
-})`
+const MatrixWrapper = styled.div<{
+  $rowCount?: number;
+}>`
   overflow: hidden;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -130,7 +126,7 @@ function WordsMatrix({
   return (
     <MatrixWrapper
       className={clsx('rounded-[6px] bg-white text-center', className)}
-      rowCount={rowCount}
+      $rowCount={rowCount}
     >
       {checkedWords.map((word, idx) => {
         const number = idx + 1;

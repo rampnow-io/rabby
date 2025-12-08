@@ -175,9 +175,7 @@ export const DesktopSelectAccountList: React.FC<DesktopSelectAccountListProps> =
               item={item}
               isShowApprovalCount={isShowApprovalAlert}
               isInModal={isInModal}
-            >
-              {item.address}
-            </AccountItem>
+            />
           );
         }}
         components={{

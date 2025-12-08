@@ -2,7 +2,7 @@ import { useSearchTestnetToken } from '@/ui/hooks/useSearchTestnetToken';
 import { useRabbySelector } from '@/ui/store';
 import { useTokens } from '@/ui/utils/portfolio/token';
 import { findChain } from '@/utils/chain';
-import { DrawerProps, Input, Modal, Skeleton } from 'antd';
+import {  DrawerProps, Input, InputRef, Modal, Skeleton  } from 'antd';
 import { TokenItem } from 'background/service/openapi';
 import clsx from 'clsx';
 import uniqBy from 'lodash/uniqBy';
@@ -99,7 +99,7 @@ const TokenAmountInput = ({
   initLoading,
   disableItemCheck,
 }: TokenAmountInputProps) => {
-  const tokenInputRef = useRef<Input>(null);
+  const tokenInputRef = useRef<InputRef>(null);
   const [updateNonce, setUpdateNonce] = useState(0);
   const [tokenSelectorVisible, setTokenSelectorVisible] = useState(false);
   const selectorOpened = useRef(false);

@@ -496,7 +496,7 @@ const SendNFT = () => {
       if (await wallet.hasPageStateCache()) {
         const cache = await wallet.getPageStateCache();
         if (cache?.path === history.location.pathname) {
-          if (cache.states.values) {
+          if (cache?.states?.values) {
             form.setFieldsValue(cache.states.values);
           }
         }

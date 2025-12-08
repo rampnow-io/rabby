@@ -1,7 +1,7 @@
 import React from 'react';
 import { TBody, THeadCell, THeader, Table } from './Table';
 import { TokenItem, Props as TokenItemProps } from '../TokenItem';
-import { FixedSizeList } from 'react-window';
+import { FixedSizeList as VirtualList } from 'react-window';
 import { TokenDetailPopup } from '@/ui/views/Dashboard/components/TokenDetailPopup';
 import { TokenItem as TokenItemType } from '@/background/service/openapi';
 import { useTranslation } from 'react-i18next';
@@ -55,16 +55,15 @@ export const TokenTable: React.FC<Props> = ({
               {t('page.dashboard.assets.table.useValue')}
             </THeadCell>
           </THeader>
-          <TBody className="mt-0">
-            {virtual ? (
-              <FixedSizeList
-                height={virtual.height}
-                width="100%"
-                itemData={list}
-                itemCount={list?.length || 0}
-                itemSize={virtual.itemSize}
-              >
-                {({ data, index, style }) => {
+          {virtual ? (
+            <VirtualList
+              {...({ height: virtual.height } as any)}
+              width="100%"
+              itemData={list}
+              itemCount={list?.length || 0}
+              itemSize={virtual.itemSize}
+              children={
+                (({ data, index, style }) => {
                   const item = data[index];
                   return (
                     <TokenItem
@@ -74,10 +73,12 @@ export const TokenTable: React.FC<Props> = ({
                       item={item}
                     />
                   );
-                }}
-              </FixedSizeList>
-            ) : (
-              list?.map((item) => {
+                }) as any
+              }
+            />
+          ) : (
+            <TBody className="mt-0">
+              {list?.map((item) => {
                 return (
                   <TokenItem
                     onClick={() => setSelected(item)}
@@ -85,9 +86,9 @@ export const TokenTable: React.FC<Props> = ({
                     item={item}
                   />
                 );
-              })
-            )}
-          </TBody>
+              })}
+            </TBody>
+          )}
         </Table>
       )}
       <TokenDetailPopup

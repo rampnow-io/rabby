@@ -1,6 +1,5 @@
 import React from 'react';
 import { DisplayedAccount } from './hooks';
-import { VariableSizeList as VList } from 'react-window';
 import { IHighlightedAddress } from '@/background/service/preference';
 import { KEYRING_TYPE } from '@/constant';
 import { IDisplayedAccountWithBalance } from 'ui/models/accountToDisplay';

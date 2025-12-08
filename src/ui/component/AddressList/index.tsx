@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import clsx from 'clsx';
 import { findIndex } from 'lodash';
-import { FixedSizeList, areEqual } from 'react-window';
+import { FixedSizeList as VirtualFixedList, areEqual } from 'react-window';
 import { DisplayedKeryring } from 'background/service/keyring';
 import { KEYRING_TYPE } from 'consts';
 
@@ -99,7 +99,7 @@ const AddressList: any = forwardRef(
     const [alianNamesList, setAlianNamesList] = useState(alianNames);
     const [stopEditing, setStopEditing] = useState(false);
     const addressItems = useRef(new Array(list.length));
-    const fixedList = useRef<FixedSizeList>();
+    const fixedList = useRef<any>(null);
     const combinedList = list
       .sort((a, b) => {
         return SORT_WEIGHT[a.type] - SORT_WEIGHT[b.type];
@@ -151,31 +151,33 @@ const AddressList: any = forwardRef(
         className={`address-group-list ${action}`}
         onClick={() => setStopEditing(true)}
       >
-        <FixedSizeList
-          height={currentAccount ? switchAddressHeight : 500}
-          width="100%"
-          itemData={{
-            combinedList: combinedList,
-            others: {
-              ActionButton,
-              onClick,
-              hiddenAddresses,
-              addressItems,
-              currentAccount,
-              stopEditing,
-              setStopEditing,
-              editIndex,
-              setEditIndex,
+        <VirtualFixedList
+          {...({
+            height: currentAccount ? switchAddressHeight : 500,
+            width: '100%',
+            itemData: {
+              combinedList: combinedList,
+              others: {
+                ActionButton,
+                onClick,
+                hiddenAddresses,
+                addressItems,
+                currentAccount,
+                stopEditing,
+                setStopEditing,
+                editIndex,
+                setEditIndex,
+              },
             },
-          }}
-          itemCount={combinedList.length}
-          itemSize={64}
-          itemKey={itemKey}
-          ref={fixedList as React.MutableRefObject<FixedSizeList<any>>}
-          onItemsRendered={onItemsRendered}
+            itemCount: combinedList.length,
+            itemSize: 64,
+            itemKey: itemKey,
+            ref: fixedList,
+            onItemsRendered: onItemsRendered
+          } as any)}
         >
-          {Row}
-        </FixedSizeList>
+          {Row as any}
+        </VirtualFixedList>
       </ul>
     );
   }

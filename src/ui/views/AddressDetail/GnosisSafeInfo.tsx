@@ -156,12 +156,10 @@ export const GnonisSafeInfo = ({
                 </div>
               </div>
               <div className="rabby-list-item-desc text-r-neutral-body">
-                <Trans t={t} i18nKey="page.addressDetail.tx-requires">
+                <Trans i18nKey="page.addressDetail.safeInfo.confirmations">
                   Any transaction requires{' '}
                   <span className="text-r-neutral-foot text-14">
-                    {{
-                      num: `${activeData?.data?.threshold}/${activeData?.data?.owners.length}`,
-                    }}
+                    {`${activeData?.data?.threshold}/${activeData?.data?.owners.length}`}
                   </span>{' '}
                   confirmations
                 </Trans>

@@ -208,13 +208,15 @@ const TokenSelector = ({
 
           {!loading && (
             <FixedSizeList
-              width={'100%'}
-              height={402}
-              itemCount={sortedList?.length || 0}
-              itemData={sortedList}
-              itemSize={60}
+              {...({
+                width: '100%',
+                height: 402,
+                itemCount: sortedList?.length || 0,
+                itemData: sortedList,
+                itemSize: 60,
+              } as any)}
             >
-              {Row}
+              {Row as any}
             </FixedSizeList>
           )}
         </div>

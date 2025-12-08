@@ -1,13 +1,13 @@
-import {
+import { 
   Button,
   Drawer,
   DrawerProps,
   Form,
-  Input,
+  Input, InputRef,
   Skeleton,
   Switch,
   Tooltip,
-} from 'antd';
+ } from 'antd';
 import React, { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
@@ -126,7 +126,7 @@ export const AddressTypeCard = ({
 
   const [form] = useForm();
   const [_alias, setAlias] = useAlias(address);
-  const inputRef = useRef<Input>(null);
+  const inputRef = useRef<InputRef>(null);
   const showCexInfo = useMemo(() => {
     return cexInfo.id && cexInfo.isDeposit && type === KEYRING_CLASS.WATCH;
   }, [cexInfo, type]);

@@ -61,7 +61,7 @@ export const ImportCoinbase: React.FC<{ isInModal?: boolean }> = ({
     },
     onError(err) {
       if (!err?.message.includes('duplicate')) {
-        message.error(t(err?.message as any));
+        message.error(String(t(err?.message || 'Unknown error')));
       }
       handleImportCoinbase();
       return;

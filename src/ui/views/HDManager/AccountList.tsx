@@ -39,6 +39,7 @@ export interface Props {
   data?: Account[];
   preventLoading?: boolean;
   brand?: string;
+  children?: React.ReactNode;
 }
 
 export const AccountList: React.FC<Props> = ({

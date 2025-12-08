@@ -4,6 +4,7 @@ import IconArrowRight from '@/ui/assets/dashboard/settings/icon-right-arrow.svg'
 
 export interface Props {
   onClick(): void;
+  children?: React.ReactNode;
 }
 
 export const CancelItem: React.FC<Props> = ({ children, onClick }) => {

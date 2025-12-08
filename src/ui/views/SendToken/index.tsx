@@ -1759,7 +1759,7 @@ const SendToken = () => {
           const cache = await wallet.getPageStateCache();
 
           if (cache?.path === history.location.pathname) {
-            if (cache.states.values) {
+            if (cache?.states.values) {
               form.setFieldsValue(cache.states.values);
               handleFormValuesChange(
                 cache.states.values,
@@ -1771,10 +1771,10 @@ const SendToken = () => {
                 }
               );
             }
-            if (cache.states.currentToken) {
+            if (cache?.states.currentToken) {
               needLoadToken = cache.states.currentToken;
             }
-            if (cache.states.safeInfo) {
+            if (cache?.states.safeInfo) {
               setSafeInfo(cache.states.safeInfo);
             }
           }

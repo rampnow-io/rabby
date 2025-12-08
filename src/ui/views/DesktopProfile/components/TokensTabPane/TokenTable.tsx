@@ -6,7 +6,7 @@ import {
   Table,
 } from '@/ui/views/CommonPopup/AssetList/components/Table';
 import { Props as TokenItemProps } from '@/ui/views/CommonPopup/AssetList/TokenItem';
-import { FixedSizeList } from 'react-window';
+import { FixedSizeList as VirtualList } from 'react-window';
 import { TokenItem } from './TokenItem';
 import { useTranslation } from 'react-i18next';
 
@@ -48,16 +48,15 @@ export const TokenTable: React.FC<Props> = ({
               {t('page.desktopProfile.portfolio.table.usdValue')}
             </THeadCell>
           </THeader>
-          <TBody className="mt-0">
-            {virtual ? (
-              <FixedSizeList
-                height={virtual.height}
-                width="100%"
-                itemData={list}
-                itemCount={list?.length || 0}
-                itemSize={virtual.itemSize}
-              >
-                {({ data, index, style }) => {
+          {virtual ? (
+            <VirtualList
+              {...({ height: virtual.height } as any)}
+              width="100%"
+              itemData={list}
+              itemCount={list?.length || 0}
+              itemSize={virtual.itemSize}
+              children={
+                (({ data, index, style }) => {
                   const item = data[index];
                   const last = index === (list?.length || 0) - 1;
                   return (
@@ -68,10 +67,12 @@ export const TokenTable: React.FC<Props> = ({
                       isLast={last}
                     />
                   );
-                }}
-              </FixedSizeList>
-            ) : (
-              list?.map((item, index) => {
+                }) as any
+              }
+            />
+          ) : (
+            <TBody className="mt-0">
+              {list?.map((item, index) => {
                 const last = index === (list?.length || 0) - 1;
                 return (
                   <TokenItem
@@ -80,9 +81,9 @@ export const TokenTable: React.FC<Props> = ({
                     isLast={last}
                   />
                 );
-              })
-            )}
-          </TBody>
+              })}
+            </TBody>
+          )}
         </Table>
       )}
     </>

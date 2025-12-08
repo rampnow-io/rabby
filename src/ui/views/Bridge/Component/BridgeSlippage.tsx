@@ -191,11 +191,7 @@ export const BridgeSlippage = memo((props: BridgeSlippageProps) => {
               onClick={setRecommendValue}
               className="underline cursor-pointer"
             >
-              {{
-                slippage: new BigNumber(recommendValue || 0)
-                  .times(100)
-                  .toString(),
-              }}
+              {new BigNumber(recommendValue || 0).times(100).toString()}
             </span>
             %{' '}
           </Trans>

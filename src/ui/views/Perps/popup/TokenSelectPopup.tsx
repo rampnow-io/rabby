@@ -327,13 +327,15 @@ export const TokenSelectPopup: React.FC<TokenSelectPopupProps> = ({
             </div>
           ) : (
             <FixedSizeList
-              width={'100%'}
-              height={444}
-              itemCount={sortedList?.length || 0}
-              itemData={sortedList}
-              itemSize={56}
+              {...({
+                width: '100%',
+                height: 444,
+                itemCount: sortedList?.length || 0,
+                itemData: sortedList,
+                itemSize: 56,
+              } as any)}
             >
-              {Row}
+              {Row as any}
             </FixedSizeList>
           )}
         </div>

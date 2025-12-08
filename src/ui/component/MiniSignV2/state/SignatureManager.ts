@@ -413,7 +413,7 @@ class SignatureManager {
         await SignatureSteps.invokeEnterPassphraseModal({
           wallet: wallet,
           value: config.account.address,
-          getContainer: getContainer || config.getContainer,
+          getContainer: (getContainer || config.getContainer) as any,
         });
       } catch (error) {
         this.rejectPending(MINI_SIGN_ERROR.USER_CANCELLED);

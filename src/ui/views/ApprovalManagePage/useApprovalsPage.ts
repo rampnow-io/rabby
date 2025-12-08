@@ -95,9 +95,7 @@ function sortTokenOrNFTApprovalsSpenderList(
   });
 }
 
-const resetTableRenderer = (
-  ref: React.MutableRefObject<VariableSizeGrid | null>
-) => {
+const resetTableRenderer = (ref: React.MutableRefObject<any>) => {
   if (ref.current) {
     ref.current.scrollToItem({ columnIndex: 0 });
     // ref.current.resetAfterRowIndex(0, true);
@@ -130,8 +128,8 @@ export function useApprovalsPage(options?: {
 
   const [skContracts, setSKContracts] = useState('');
   const [skAssets, setSKAssets] = useState('');
-  const vGridRefContracts = useRef<VariableSizeGrid>(null);
-  const vGridRefAsset = useRef<VariableSizeGrid>(null);
+  const vGridRefContracts = useRef<any>(null);
+  const vGridRefAsset = useRef<any>(null);
 
   const setSearchKw = useMemo(
     () => (filterType === 'contract' ? setSKContracts : setSKAssets),

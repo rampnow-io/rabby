@@ -8,7 +8,6 @@ import { CHAINS_ENUM } from '@debank/common';
 import PQueue from 'p-queue';
 import { useMemo, useRef, useState } from 'react';
 import { useAsyncRetry } from 'react-use';
-import { VariableSizeGrid } from 'react-window';
 import { Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
 
@@ -114,7 +113,7 @@ export const useEIP7702ApprovalsQuery = ({
 
   const [selectedRows, setSelectedRows] = useState<EIP7702Delegated[]>([]);
 
-  const vGridRefEIP7702 = useRef<VariableSizeGrid>(null);
+  const vGridRefEIP7702 = useRef<any>(null);
 
   const { value, loading, error, retry } = useAsyncRetry(async () => {
     if (!accountAddress || !wallet.requestETHRpc) {

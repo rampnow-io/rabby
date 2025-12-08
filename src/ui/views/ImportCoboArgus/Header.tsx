@@ -6,6 +6,7 @@ import IconCoboArgus from 'ui/assets/walletlogo/CoboArgus.svg';
 
 export const Header: React.FC<{
   hasBack?: boolean;
+  children?: React.ReactNode;
 }> = ({ children, hasBack = true }) => {
   const history = useHistory();
 

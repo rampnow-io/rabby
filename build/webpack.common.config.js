@@ -30,6 +30,8 @@ const {
   displayName: isEnvDevelopment,
   minify: false, // it's still an experimental feature
   componentIdPrefix: 'rabby-',
+  // Fix for empty path write error with newer TypeScript versions
+  identifierCachePath: path.resolve(__dirname, '../tmp/styled-components-id-mappings.json'),
 });
 // 'chrome-mv2', 'chrome-mv3', 'firefox-mv2', 'firefox-mv3'
 const MANIFEST_TYPE = process.env.MANIFEST_TYPE || 'chrome-mv2';
@@ -129,11 +131,16 @@ const config = {
           {
             loader: 'css-loader',
             options: {
-              importLoaders: 1,
+              importLoaders: 3,
             },
           },
           {
             loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                config: path.resolve(__dirname, '../postcss.config.js'),
+              },
+            },
           },
           {
             loader: 'less-loader',
@@ -169,6 +176,11 @@ const config = {
           },
           {
             loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                config: path.resolve(__dirname, '../postcss.config.js'),
+              },
+            },
           },
         ],
       },
@@ -244,6 +256,7 @@ const config = {
       Buffer: ['buffer', 'Buffer'],
       process: 'process',
       dayjs: 'dayjs',
+      regeneratorRuntime: ['regenerator-runtime', 'default'],
     }),
     new webpack.DefinePlugin({
       'process.env.version': JSON.stringify(`version: ${process.env.VERSION}`),
@@ -307,6 +320,7 @@ const config = {
     alias: {
       moment: require.resolve('dayjs'),
       '@debank/common': require.resolve('@debank/common/dist/index-rabby'),
+      'react-window': paths.rootResolve('src/utils/react-window-shim.ts'),
     },
     plugins: [new TSConfigPathsPlugin()],
     fallback: {
@@ -316,6 +330,7 @@ const config = {
       zlib: require.resolve('browserify-zlib'),
       https: require.resolve('https-browserify'),
       http: require.resolve('stream-http'),
+      vm: require.resolve('vm-browserify'),
     },
     extensions: ['.js', 'jsx', '.ts', '.tsx'],
   },

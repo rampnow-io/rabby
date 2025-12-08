@@ -277,23 +277,27 @@ const Selector = ({
         <div className="overflow-y-auto flex-1 relative px-20">
           {!sortedList?.length ? null : isSelectChain ? (
             <FixedSizeList<RechargeChainItem[]>
-              width={'100%'}
-              height={328}
-              itemCount={sortedList?.length || 0}
-              itemData={sortedList as RechargeChainItem[]}
-              itemSize={68}
+              {...({
+                width: '100%',
+                height: 328,
+                itemCount: sortedList?.length || 0,
+                itemData: sortedList as RechargeChainItem[],
+                itemSize: 68,
+              } as any)}
             >
-              {ChainRow}
+              {ChainRow as any}
             </FixedSizeList>
           ) : (
             <FixedSizeList<WithdrawListAddressItem[]>
-              width={'100%'}
-              height={328}
-              itemCount={sortedList?.length || 0}
-              itemData={sortedList as WithdrawListAddressItem[]}
-              itemSize={68}
+              {...({
+                width: '100%',
+                height: 328,
+                itemCount: sortedList?.length || 0,
+                itemData: sortedList as WithdrawListAddressItem[],
+                itemSize: 68,
+              } as any)}
             >
-              {AddressRow}
+              {AddressRow as any}
             </FixedSizeList>
           )}
           {!sortedList?.length && (

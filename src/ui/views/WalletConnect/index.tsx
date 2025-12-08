@@ -97,7 +97,7 @@ const WalletConnectTemplate: React.FC<{ isInModal?: boolean }> = ({
           type: KEYRING_CLASS.WALLETCONNECT,
         });
       } else {
-        message.error(t(err?.message as any));
+        message.error(String(t(err?.message || 'Unknown error')));
         handleImportByWalletconnect();
       }
     },

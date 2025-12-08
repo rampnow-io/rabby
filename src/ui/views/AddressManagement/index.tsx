@@ -1,7 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
-import { VariableSizeList as VList, ListOnScrollProps } from 'react-window';
+import {
+  VariableSizeList as VirtualVariableList,
+  ListOnScrollProps,
+} from 'react-window';
 import { PageHeader } from 'ui/component';
 import AddressItem from './AddressItem';
 import { ReactComponent as RcIconPinned } from 'ui/assets/icon-pinned.svg';
@@ -346,9 +349,7 @@ const AddressManagement = () => {
     });
   }, [searchKeyword]);
 
-  const listRef = useRef<
-    VList<IDisplayedAccountWithBalance[] | IDisplayedAccountWithBalance[][]>
-  >(null);
+  const listRef = useRef<any>(null);
 
   const handleScroll = useCallback(
     (p: ListOnScrollProps) => {
@@ -502,20 +503,23 @@ const AddressManagement = () => {
         <NoSearchedAddressUI />
       ) : (
         <div className={'address-group-list management'}>
-          <VList
-            ref={listRef}
-            key={addressSortStore.sortType + debouncedSearchKeyword}
-            height={currentAccountIndex === -1 ? 471 : hasStatusBar ? 368 : 417}
-            width="100%"
-            itemData={filteredAccounts}
-            itemCount={filteredAccounts.length}
-            itemSize={getItemSize}
-            className="address-scroll-container"
-            overscanCount={6}
-            onScroll={handleScroll}
+          <VirtualVariableList
+            {...({
+              ref: listRef,
+              key: addressSortStore.sortType + debouncedSearchKeyword,
+              height:
+                currentAccountIndex === -1 ? 471 : hasStatusBar ? 368 : 417,
+              width: '100%',
+              itemData: filteredAccounts,
+              itemCount: filteredAccounts.length,
+              itemSize: getItemSize,
+              className: 'address-scroll-container',
+              overscanCount: 6,
+              onScroll: handleScroll as any,
+            } as any)}
           >
-            {Row}
-          </VList>
+            {Row as any}
+          </VirtualVariableList>
         </div>
       )}
     </div>

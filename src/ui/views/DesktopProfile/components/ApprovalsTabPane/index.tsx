@@ -16,7 +16,6 @@ import {
   IVGridContextualPayload,
   VirtualTable,
 } from './components/Table';
-import { VariableSizeGrid as VGrid } from 'react-window';
 import PillsSwitch from '@/ui/component/PillsSwitch';
 
 import IconSearch from 'ui/assets/search.svg';
@@ -960,7 +959,7 @@ type PageTableProps<
   containerHeight: number;
   selectedRows: ApprovalSpenderItemToBeRevoked[];
   onClickRow?: HandleClickTableRow<T>;
-  vGridRef: React.RefObject<VGrid>;
+  vGridRef: React.RefObject<any>;
   className?: string;
   toggleAllAssetRevoke?: (list: AssetApprovalSpender[]) => void;
   toggleAllContractRevoke?: (list: ContractApprovalItem[]) => void;
@@ -1156,7 +1155,7 @@ function TableByEIP7702({
   containerHeight: number;
   selectedRows: EIP7702Delegated[];
   onClickRow?: HandleClickTableRow<EIP7702Delegated>;
-  vGridRef: React.RefObject<VGrid>;
+  vGridRef: React.RefObject<any>;
   className?: string;
   toggleSelectAll: () => void;
   isActive?: boolean;

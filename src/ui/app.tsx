@@ -9,6 +9,7 @@ import * as Sentry from '@sentry/react';
 import i18n, { addResourceBundle, changeLanguage } from 'src/i18n';
 import { EVENTS } from 'consts';
 import browser from 'webextension-polyfill';
+import { createRoot } from 'react-dom/client';
 
 import type { WalletControllerType } from 'ui/utils/WalletContext';
 
@@ -162,16 +163,20 @@ const main = () => {
     });
   }
 
-  wallet.getLocale().then((locale) => {
-    addResourceBundle(locale).then(() => {
-      changeLanguage(locale);
-      ReactDOM.render(
-        <Provider store={store}>
-          <Views wallet={wallet} />
-        </Provider>,
-        document.getElementById('root')
-      );
-    });
+  wallet.getLocale().then(async (locale) => {
+    await addResourceBundle(locale);
+    changeLanguage(locale);
+
+    const container = document.getElementById('root');
+    if (!container) return;
+
+    const root = createRoot(container);
+
+    root.render(
+      <Provider store={store}>
+        <Views wallet={wallet} />
+      </Provider>
+    );
   });
 };
 

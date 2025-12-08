@@ -122,7 +122,11 @@ const TableCellProto = <RecordType extends object = any>({
 
   const colGroupConfig = columnConfig as ColumnGroupType<RecordType>;
   if (typeof colGroupConfig.render === 'function') {
-    cellNode = colGroupConfig.render!(cellValue, record, rowIndex) || null;
+    const rendered = colGroupConfig.render!(cellValue, record, rowIndex);
+    cellNode =
+      rendered && typeof rendered === 'object' && 'props' in rendered
+        ? rendered.props.children
+        : rendered || null;
   }
 
   return (
@@ -201,7 +205,7 @@ export function VirtualTable<RecordType extends object>({
   ...props
 }: TableProps<RecordType> & {
   markHoverRow?: boolean;
-  vGridRef?: React.RefObject<VGrid>;
+  vGridRef?: React.RefObject<any>;
   onClickRow?: HandleClickTableRow<RecordType>;
   getTotalHeight?: (rows: readonly RecordType[]) => number;
   getRowHeight?: (
@@ -244,7 +248,7 @@ export function VirtualTable<RecordType extends object>({
     });
   }, [columns, tableWidth, widthColumnCount, isDesktop]);
 
-  const localGridRef = useRef<VGrid>(null);
+  const localGridRef = useRef<any>(null);
 
   const gridRef = vGridRef || localGridRef;
   const [connectObject] = useState<any>(() => {
@@ -252,8 +256,7 @@ export function VirtualTable<RecordType extends object>({
     Object.defineProperty(obj, 'scrollLeft', {
       get: () => {
         if (gridRef.current) {
-          // @ts-expect-error state is expected as {}, but it is not
-          return gridRef.current?.state?.scrollLeft;
+          return (gridRef.current as any)?.state?.scrollLeft;
         }
         return null;
       },
@@ -325,10 +328,9 @@ export function VirtualTable<RecordType extends object>({
         />
       );
     }
-
     return (
       <VGrid<IVGridItemDataType<RecordType>>
-        ref={gridRef}
+        {...({ ref: gridRef } as any)}
         className={clsx(
           'am-virtual-grid',
           isDesktop,
@@ -377,11 +379,13 @@ export function VirtualTable<RecordType extends object>({
         }}
         height={tableHeight}
         width={tableWidth}
-        onScroll={({ scrollLeft }: { scrollLeft: number }) => {
-          onScroll({ scrollLeft });
-        }}
+        onScroll={
+          (({ scrollLeft }: { scrollLeft: number }) => {
+            onScroll({ scrollLeft });
+          }) as any
+        }
       >
-        {TableCellRenderer}
+        {TableCellRenderer as any}
       </VGrid>
     );
   };

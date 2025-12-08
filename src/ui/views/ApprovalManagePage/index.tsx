@@ -960,7 +960,7 @@ type PageTableProps<
   containerHeight: number;
   selectedRows: ApprovalSpenderItemToBeRevoked[];
   onClickRow?: HandleClickTableRow<T>;
-  vGridRef: React.RefObject<VGrid>;
+  vGridRef: React.RefObject<any>;
   className?: string;
   toggleAllAssetRevoke?: (list: AssetApprovalSpender[]) => void;
   toggleAllContractRevoke?: (list: ContractApprovalItem[]) => void;
@@ -1156,7 +1156,7 @@ function TableByEIP7702({
   containerHeight: number;
   selectedRows: EIP7702Delegated[];
   onClickRow?: HandleClickTableRow<EIP7702Delegated>;
-  vGridRef: React.RefObject<VGrid>;
+  vGridRef: React.RefObject<any>;
   className?: string;
   toggleSelectAll: () => void;
   isActive?: boolean;

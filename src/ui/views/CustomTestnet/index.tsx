@@ -134,7 +134,7 @@ export const CustomTestnet = ({
 
   useMount(async () => {
     const cache = await wallet.getPageStateCache();
-    if (cache?.path === history.location.pathname) {
+    if (cache?.path === history.location.pathname && cache?.states) {
       setState({
         ...(cache.states as any),
       });

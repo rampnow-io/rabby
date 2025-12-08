@@ -17,19 +17,11 @@ interface ConnectionItemProps {
   onPin?(item: ConnectedSite): void;
 }
 
+type ConnectionItemPropsWithRest = ConnectionItemProps & Record<string, any>;
+
 export const Item = memo(
-  forwardRef(
-    (
-      {
-        item,
-        onClick,
-        onRemove,
-        onPin,
-        className,
-        ...rest
-      }: ConnectionItemProps & Record<string, any>,
-      ref: React.ForwardedRef<any>
-    ) => {
+  forwardRef<any, ConnectionItemPropsWithRest>(
+    ({ item, onClick, onRemove, onPin, className, ...rest }, ref) => {
       const chainItem = findChainByEnum(item.chain);
       return (
         <div

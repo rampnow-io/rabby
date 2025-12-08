@@ -48,14 +48,10 @@ const useClearClipboardToast = () => {
   return clearClipboardToast;
 };
 
-const MatrixWrapper = styled.div.withConfig<{
-  rowCount?: number;
-  totalCount?: number;
-}>({
-  shouldForwardProp: (prop, defaultValidatorFn) => {
-    return !['rowCount'].includes(prop) && defaultValidatorFn(prop);
-  },
-})`
+const MatrixWrapper = styled.div<{
+  $rowCount?: number;
+  $totalCount?: number;
+}>`
   background-color: var(--r-neutral-card-3, #f7fafc);
   display: flex;
   flex-wrap: wrap;
@@ -122,8 +118,8 @@ const MatrixWrapper = styled.div.withConfig<{
     border-bottom: 1px solid var(--r-neutral-line);
 
     ${(props) => {
-      const rowCount = props.rowCount || ROW_COUNT;
-      const totalCount = props.totalCount || DEFAULT_MEMONICS_COUNT;
+      const rowCount = props.$rowCount || ROW_COUNT;
+      const totalCount = props.$totalCount || DEFAULT_MEMONICS_COUNT;
 
       return css`
         width: ${(1 / rowCount) * 100}%;
@@ -480,7 +476,7 @@ function MnemonicsInputs({
                       >
                         I have a
                         <b style={{ color: 'var(--r-blue-default, #7084ff)' }}>
-                          {{ count }}
+                          {count}
                         </b>
                         -word phrase
                       </Trans>
@@ -515,7 +511,7 @@ function MnemonicsInputs({
                                 color: 'var(--r-blue-default, #7084ff)',
                               }}
                             >
-                              {{ count }}
+                              {count}
                             </b>
                             -word phrase and Passphrase
                           </Trans>
@@ -595,7 +591,7 @@ function MnemonicsInputs({
                 >
                   I have a
                   <b style={{ color: 'var(--r-blue-default, #7084ff)' }}>
-                    {{ mnemonicsCount }}
+                    {mnemonicsCount}
                   </b>
                   -word phrase and Passphrase
                 </Trans>
@@ -655,8 +651,8 @@ function MnemonicsInputs({
           newUserImport && 'new-user-import',
           className
         )}
-        rowCount={rowCount}
-        totalCount={mnemonicsCount}
+        $rowCount={rowCount}
+        $totalCount={mnemonicsCount}
       >
         {wordPlaceHolders.map((_, idx) => {
           const word = inputTexts[idx] || '';
