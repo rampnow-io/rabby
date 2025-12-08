@@ -226,7 +226,7 @@ export const CustomTestnetAssetListContainer: React.FC<Props> = ({
           setIsShowAddTestnetModal(false);
           refreshAsync();
         }}
-        height={500}
+        height="65%"
         maskStyle={
           isDarkTheme
             ? {

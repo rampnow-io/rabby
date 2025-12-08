@@ -56,7 +56,8 @@ const Container = styled.div`
     }
     &.is-empty {
       .site-icon {
-        width: 20px;
+        width: 24px;
+        height: 24px;
         border-radius: none;
       }
       .site-content {

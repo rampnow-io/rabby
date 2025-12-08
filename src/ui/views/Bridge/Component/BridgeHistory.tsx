@@ -283,7 +283,7 @@ export const BridgeTxHistory = ({
     <Popup
       visible={visible}
       title={t('page.bridge.history')}
-      height={494}
+      height="70%"
       onClose={onClose}
       closable
       bodyStyle={{

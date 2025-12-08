@@ -111,8 +111,8 @@ export const TokenDetailPopup = ({
   return (
     <Popup
       visible={visible}
+      height="70%"
       closable={true}
-      height={popupHeight}
       onClose={onClose}
       className="token-detail-popup"
       push={false}

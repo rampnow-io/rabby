@@ -219,7 +219,7 @@ const ChainSelectorModal = ({
       <Drawer
         title={title || t('page.bridge.select-chain')}
         width="400px"
-        height={height}
+        height='70%'
         closable={showClosableIcon}
         placement={'bottom'}
         visible={visible}

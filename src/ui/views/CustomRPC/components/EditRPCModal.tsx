@@ -136,7 +136,7 @@ const EditRPCModal = ({
 
   return (
     <Popup
-      height={440}
+      height="70%"
       visible={visible}
       onCancel={onCancel}
       bodyStyle={{

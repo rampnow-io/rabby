@@ -255,7 +255,7 @@ export const AddCustomTokenPopup = ({ visible, onClose, onConfirm }: Props) => {
       <Popup
         visible={visible}
         closable={false}
-        height={500}
+        height="70%"
         onClose={onClose}
         className="add-custom-token-popup"
         push={false}
