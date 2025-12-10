@@ -1,12 +1,12 @@
-"use client"
+'use client';
 
-import type { ReactNode } from "react"
-import { useFileUploadContext } from "../file-upload-context"
+import type { ReactNode } from 'react';
+import { useFileUploadContext } from '../file-upload-context';
 
 interface FileUploadTriggerProps {
-  index: number
-  children: ReactNode
-  className?: string
+  index: number;
+  children: ReactNode;
+  className?: string;
 }
 
 /**
@@ -18,22 +18,22 @@ export function FileUploadTrigger({
   children,
   className,
 }: FileUploadTriggerProps) {
-  const { triggerFileInput } = useFileUploadContext()
+  const { triggerFileInput } = useFileUploadContext();
 
   return (
     <div
-      role='button'
+      role="button"
       tabIndex={0}
       className={className}
       onClick={() => triggerFileInput(index)}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault()
-          triggerFileInput(index)
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          triggerFileInput(index);
         }
       }}
     >
       {children}
     </div>
-  )
+  );
 }

@@ -2,7 +2,6 @@
 
 import { cn } from "@repo/utils"
 import { ExternalLink } from "lucide-react"
-import { default as NextLink } from "next/link"
 import { type ReactNode } from "react"
 
 export enum LinkType {
@@ -21,28 +20,36 @@ export interface LinkProps {
 export function Link(props: LinkProps) {
   if (props.linkType === LinkType.EXTERNAL) {
     return (
-      <NextLink
+      <a
         href={props.href}
         target='_blank'
+        rel='noopener noreferrer'
         className={cn("flex items-center gap-1", props.className)}
       >
         {props.children}
         <span className='flex h-5 items-center justify-center hover:bg-gray-200'>
           <ExternalLink className='h-3 w-3' />
         </span>
-      </NextLink>
+      </a>
     )
   }
 
   return (
-    <NextLink
+    <a
       href={props.href}
       className={cn(
         "flex items-center gap-1 transition-colors hover:text-blue-600",
         props.className,
       )}
+      onClick={(e) => {
+        if (props.linkType === LinkType.INTERNAL) {
+          e.preventDefault()
+          window.history.pushState({}, '', props.href)
+          window.dispatchEvent(new PopStateEvent('popstate'))
+        }
+      }}
     >
       {props.children}
-    </NextLink>
+    </a>
   )
 }

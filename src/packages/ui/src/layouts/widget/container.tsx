@@ -1,5 +1,5 @@
-import { cn } from "@repo/utils"
-import React from "react"
+import { cn } from '@repo/utils';
+import React from 'react';
 
 const Container = React.forwardRef<
   HTMLDivElement,
@@ -8,13 +8,13 @@ const Container = React.forwardRef<
   return (
     <div
       ref={ref}
-      className={cn("flex h-full flex-col bg-[#FFFFFF]", className)}
+      className={cn('flex h-full flex-col bg-[#FFFFFF]', className)}
       {...props}
     >
       {children}
     </div>
-  )
-})
-Container.displayName = "Container"
+  );
+});
+Container.displayName = 'Container';
 
-export default Container
+export default Container;

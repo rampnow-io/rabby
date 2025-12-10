@@ -1,2 +1,2 @@
-export * from "./currency-route"
-export * from "./quote-details-modal"
+export * from './currency-route';
+export * from './quote-details-modal';

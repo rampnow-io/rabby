@@ -1,14 +1,14 @@
-"use client"
+'use client';
 
-import { useCallback, useRef } from "react"
+import { useCallback, useRef } from 'react';
 
 // https://github.com/reactjs/rfcs/blob/useevent/text/0000-useevent.md
 export default function useEvent<Handler extends (...args: any) => any>(
-  handler: Handler,
+  handler: Handler
 ): (...args: Parameters<Handler>) => ReturnType<Handler> {
-  const handlerRef = useRef<Handler>(handler)
+  const handlerRef = useRef<Handler>(handler);
 
-  handlerRef.current = handler
+  handlerRef.current = handler;
 
-  return useCallback((...args: any[]) => handlerRef.current(...args), [])
+  return useCallback((...args: any[]) => handlerRef.current(...args), []);
 }

@@ -201,7 +201,7 @@ export const useBridge = () => {
     SelectedBridgeQuote | undefined
   >();
 
-  const expiredTimer = useRef<NodeJS.Timeout>();
+  const expiredTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const inSufficient = useMemo(
     () =>

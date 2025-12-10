@@ -162,8 +162,23 @@ const config = {
           },
         ],
       },
+      // Pre-built CSS from UI package (skip PostCSS processing)
       {
         test: /\.css$/,
+        include: path.resolve(__dirname, '../src/packages/ui/dist'),
+        use: [
+          {
+            loader: 'style-loader',
+          },
+          {
+            loader: 'css-loader',
+          },
+        ],
+      },
+      // Other CSS files (process with PostCSS)
+      {
+        test: /\.css$/,
+        exclude: path.resolve(__dirname, '../src/packages/ui/dist'),
         use: [
           {
             loader: 'style-loader',
@@ -321,6 +336,7 @@ const config = {
       moment: require.resolve('dayjs'),
       '@debank/common': require.resolve('@debank/common/dist/index-rabby'),
       'react-window': paths.rootResolve('src/utils/react-window-shim.ts'),
+      '@repo/ui/styles.css': paths.rootResolve('src/packages/ui/dist/index.css'),
     },
     plugins: [new TSConfigPathsPlugin()],
     fallback: {

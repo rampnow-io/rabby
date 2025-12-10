@@ -23,7 +23,7 @@
       "consts/*": ["./src/constant/*"],
       "assets": ["./src/ui/assets"],
       "changeLogs": ["./changeLogs"],
-      "react-window": ["./src/utils/react-window-shim.ts"]
+      "react-window": ["./src/utils/react-window-shim.ts"],
     },
     "jsx": "react-jsx",
     "types": ["chrome", "node", "jest"],

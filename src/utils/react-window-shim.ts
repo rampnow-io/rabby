@@ -21,7 +21,10 @@ export const Grid = ReactWindowGrid;
 export const getScrollbarSize = reactWindowGetScrollbarSize;
 
 // Export areEqual utility - shallow comparison for React.memo
-export const areEqual = <P extends object>(prevProps: P, nextProps: P): boolean => {
+export const areEqual = <P extends object>(
+  prevProps: P,
+  nextProps: P
+): boolean => {
   const prevKeys = Object.keys(prevProps) as Array<keyof P>;
   const nextKeys = Object.keys(nextProps) as Array<keyof P>;
 

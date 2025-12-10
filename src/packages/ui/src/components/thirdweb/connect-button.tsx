@@ -1,26 +1,26 @@
-"use client"
+'use client';
 
-import { Chain, ChainConfigMap } from "@repo/utils"
-import { ThirdwebClient } from "thirdweb"
-import { ConnectButton, ConnectButtonProps } from "thirdweb/react"
-import { client as thirdwebClient, ThirdWebConfig } from "./config"
+import { Chain, ChainConfigMap } from '@repo/utils';
+import { ThirdwebClient } from 'thirdweb';
+import { ConnectButton, ConnectButtonProps } from 'thirdweb/react';
+import { client as thirdwebClient, ThirdWebConfig } from './config';
 
 type ThridWebConnectButtonProps = {
-  chain?: string
-  client?: ThirdwebClient
-  children?: React.ReactNode
-}
+  chain?: string;
+  client?: ThirdwebClient;
+  children?: React.ReactNode;
+};
 
 const commonProps: Partial<ConnectButtonProps> = {
-  connectModal: { size: "compact" as const },
+  connectModal: { size: 'compact' as const },
   appMetadata: {
-    name: "Rampnow",
-    url: "https://rampnow.io",
-    logoUrl: "https://rampnow.io/favicon.ico",
-    description: "Rampnow - Onramp and Offramp",
+    name: 'Rampnow',
+    url: 'https://rampnow.io',
+    logoUrl: 'https://rampnow.io/favicon.ico',
+    description: 'Rampnow - Onramp and Offramp',
   },
   autoConnect: true,
-  theme: "light",
+  theme: 'light',
   detailsModal: {
     hideSendFunds: true,
     hideBuyFunds: true,
@@ -32,7 +32,7 @@ const commonProps: Partial<ConnectButtonProps> = {
       allowLinkingProfiles: false,
     },
   },
-}
+};
 
 export const ThridWebConnectButton = ({
   chain = Chain.BASE,
@@ -49,14 +49,14 @@ export const ThridWebConnectButton = ({
       }}
       client={client}
       connectButton={{
-        style: { display: "none" },
+        style: { display: 'none' },
       }}
       detailsButton={{
-        style: { display: "none" },
+        style: { display: 'none' },
         render: () => <>{children}</>,
       }}
     />
-  )
-}
+  );
+};
 
-export default ThridWebConnectButton
+export default ThridWebConnectButton;

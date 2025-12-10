@@ -1,5 +1,6 @@
 const colors = require('tailwindcss/colors');
 const tinycolor2 = require('tinycolor2');
+const uiConfig = require('./src/packages/ui/tailwind.config.ts');
 
 const {
   themeColors,
@@ -43,8 +44,11 @@ const rabbyAppColors = getRabbyColors(appThemeColors, rabbyAppCssPrefix);
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  mode: 'jit',
-  purge: ['./src/ui/**/*.{ts,tsx,html}'],
+  content: [
+    './src/**/*.{js,ts,jsx,tsx,html,css,less}',
+    './src/packages/ui/dist/**/*.css',
+  ],
+  presets: [uiConfig],
   theme: {
     spacing: [
       0,
@@ -72,39 +76,6 @@ module.exports = {
     screens: {
       sm: { max: '600px' },
       lg: { min: '600px' },
-    },
-    colors: {
-      transparent: 'transparent',
-      current: 'currentColor',
-      blue: {
-        from: '#8A78FD',
-        to: '#796BFD',
-        light: rabbyColors.light['blue-default'],
-        DEFAULT: '#796BFD',
-        purple: '#5F75FF',
-      },
-      black: '#707280',
-      green: '#27C193',
-      white: colors.white,
-      yellow: '#F29C1B',
-      orange: '#FFB020',
-      pink: '#F24822',
-      red: {
-        light: '#F24822',
-        DEFAULT: '#AF160E',
-        forbidden: '#EC5151',
-      },
-      gray: {
-        bg2: '#F5F6FA',
-        bg: '#F5F6FA',
-        divider: '#E5E9EF',
-        comment: '#B4BDCC',
-        content: '#707280',
-        subTitle: '#4B4D59',
-        title: '#13141A',
-        light: '#707880',
-        common: '#666666',
-      },
     },
     fontSize: {
       12: [

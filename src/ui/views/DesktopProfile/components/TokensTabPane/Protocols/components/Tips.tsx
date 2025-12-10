@@ -18,7 +18,7 @@ const TipsWrapper = styled.span`
 `;
 
 type Props = {
-  title: string | JSX.Element;
+  title: string | React.ReactElement;
   className?: string;
   iconClassName?: string;
   overlayClassName?: string;

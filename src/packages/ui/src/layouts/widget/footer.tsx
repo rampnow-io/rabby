@@ -1,15 +1,15 @@
-import { cn } from "@repo/utils"
-import React from "react"
+import { cn } from '@repo/utils';
+import React from 'react';
 
 const Footer = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
   <div
-    className={cn("flex flex-row justify-center py-2", className)}
+    className={cn('flex flex-row justify-center py-2', className)}
     {...props}
   />
-))
-Footer.displayName = "Footer"
+));
+Footer.displayName = 'Footer';
 
-export default Footer
+export default Footer;

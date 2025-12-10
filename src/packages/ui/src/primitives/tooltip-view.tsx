@@ -1,17 +1,17 @@
-import React from "react"
+import React from 'react';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "./tooltip"
+} from './tooltip';
 
 export interface TooltipProps {
-  children: React.ReactNode
-  content: React.ReactNode
-  side?: "top" | "right" | "bottom" | "left"
-  variant?: "light" | "dark"
-  className?: string
+  children: React.ReactNode;
+  content: React.ReactNode;
+  side?: 'top' | 'right' | 'bottom' | 'left';
+  variant?: 'light' | 'dark';
+  className?: string;
 }
 
 function TooltipView({
@@ -19,7 +19,7 @@ function TooltipView({
   content,
   side,
   className,
-  variant = "light",
+  variant = 'light',
 }: TooltipProps) {
   return (
     <TooltipProvider>
@@ -30,7 +30,7 @@ function TooltipView({
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  )
+  );
 }
 
-export { TooltipView }
+export { TooltipView };

@@ -1,16 +1,16 @@
-"use client"
+'use client';
 
-import { json } from "@codemirror/lang-json"
-import { githubLight } from "@uiw/codemirror-theme-github"
-import CodeMirror from "@uiw/react-codemirror"
+import { json } from '@codemirror/lang-json';
+import { githubLight } from '@uiw/codemirror-theme-github';
+import CodeMirror from '@uiw/react-codemirror';
 
 export interface Props {
-  data: string | object
-  onChange?: (value: string) => void
+  data: string | object;
+  onChange?: (value: string) => void;
 }
 
 function TextAreaEditor({ data, onChange }: Props) {
-  const value = typeof data === "string" ? data : JSON.stringify(data, null, 2)
+  const value = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
 
   return (
     <CodeMirror
@@ -18,12 +18,12 @@ function TextAreaEditor({ data, onChange }: Props) {
       theme={githubLight}
       extensions={[json()]}
       onChange={(value) => {
-        onChange?.(value)
+        onChange?.(value);
       }}
     />
-  )
+  );
 }
 
-TextAreaEditor.displayName = "TextAreaEditor"
+TextAreaEditor.displayName = 'TextAreaEditor';
 
-export default TextAreaEditor
+export default TextAreaEditor;

@@ -1,27 +1,27 @@
-import { cn } from "@repo/utils"
-import { Search as SearchIcon } from "lucide-react"
-import type { InputHTMLAttributes, ReactNode } from "react"
-import { Input } from "../primitives"
+import { cn } from '@repo/utils';
+import { Search as SearchIcon } from 'lucide-react';
+import type { InputHTMLAttributes, ReactNode } from 'react';
+import { Input } from '../primitives';
 
 interface SearchProps extends InputHTMLAttributes<HTMLInputElement> {
-  className?: string
-  iconRight?: ReactNode
+  className?: string;
+  iconRight?: ReactNode;
 }
 
 export function Search({
   className,
   iconRight = <></>,
-  placeholder = "Search",
+  placeholder = 'Search',
   ...props
 }: SearchProps) {
   return (
     <Input
-      type='search'
+      type="search"
       placeholder={placeholder}
       iconLeft={<SearchIcon />}
       iconRight={iconRight}
-      className={cn("md:w-[100px] lg:w-[300px]", className)}
+      className={cn('md:w-[100px] lg:w-[300px]', className)}
       {...props}
     />
-  )
+  );
 }

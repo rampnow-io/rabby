@@ -1,2 +1,2 @@
-export * from "./currency"
-export * from "./parser"
+export * from './currency';
+export * from './parser';

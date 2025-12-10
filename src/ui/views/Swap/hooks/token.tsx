@@ -115,6 +115,7 @@ export const useTokenPair = (userAddress: string) => {
     },
     [dispatch?.swap?.setSelectedChain]
   );
+
   const [refreshTokenId, updateRefreshTokenId] = useState(0);
   const refreshTokensInfo = useCallback(
     () => updateRefreshTokenId((e) => e + 1),
@@ -173,6 +174,12 @@ export const useTokenPair = (userAddress: string) => {
   );
 
   const [bestQuoteDex, setBestQuoteDex] = useState<string>('');
+
+  // SINGLE declaration of expiredTimer (timeout handle)
+  const expiredTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Declare gasPriceRef BEFORE any usage - holds a gas price (number), not a timeout handle.
+  const gasPriceRef = useRef<number | undefined>(undefined);
 
   const setActiveProvider: React.Dispatch<
     React.SetStateAction<QuoteProvider | undefined>
@@ -297,8 +304,6 @@ export const useTokenPair = (userAddress: string) => {
     QuoteProvider | undefined
   >();
 
-  const expiredTimer = useRef<NodeJS.Timeout>();
-
   const exchangeToken = useCallback(() => {
     setPayToken(receiveToken);
     setReceiveToken(payToken);
@@ -345,9 +350,9 @@ export const useTokenPair = (userAddress: string) => {
   );
 
   const [gasLevel, setGasLevel] = useState<GasLevelType>('normal');
-  const gasPriceRef = useRef<number>();
 
   const { value: gasList, loading: isGasMarketLoading } = useAsync(() => {
+    // reset existing "cached" gasPriceRef when fetching new list
     gasPriceRef.current = undefined;
     setGasLevel('normal');
     return wallet.gasMarketV2({ chainId: findChainByEnum(chain)!.serverId });
@@ -384,7 +389,13 @@ export const useTokenPair = (userAddress: string) => {
         gasPriceRef.current = undefined;
       }
     }
-  }, [payTokenIsNativeToken, gasList, gasLimit, payToken?.raw_amount_hex_str]);
+  }, [
+    payTokenIsNativeToken,
+    gasList,
+    gasLimit,
+    payToken?.raw_amount_hex_str,
+    normalGasPrice,
+  ]);
 
   const handleSlider100 = useCallback(() => {
     if (
@@ -483,13 +494,6 @@ export const useTokenPair = (userAddress: string) => {
       if (id === fetchIdRef.current) {
         setQuotesList((e) => {
           const index = e.findIndex((q) => q.name === quote.name);
-          // setActiveProvider((activeQuote) => {
-          //   if (activeQuote?.name === quote.name) {
-          //     return undefined;
-          //   }
-          //   return activeQuote;
-          // });
-
           const v: TDexQuoteData = { ...quote, loading: false };
           if (index === -1) {
             return [...e, v];
@@ -722,7 +726,6 @@ export const useTokenPair = (userAddress: string) => {
     receiveToken?.id,
     receiveToken?.chain,
     inSufficient,
-
     pending,
   ]);
 

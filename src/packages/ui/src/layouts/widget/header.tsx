@@ -1,7 +1,7 @@
-"use client"
+'use client';
 
-import { cn } from "@repo/utils"
-import React from "react"
+import { cn } from '@repo/utils';
+import React from 'react';
 
 const Header = React.forwardRef<
   HTMLDivElement,
@@ -10,12 +10,12 @@ const Header = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "text-[24px] font-medium leading-[29px] text-primary-foreground",
-      className,
+      'text-[24px] font-medium leading-[29px] text-primary-foreground',
+      className
     )}
     {...props}
   />
-))
-Header.displayName = "Header"
+));
+Header.displayName = 'Header';
 
-export default Header
+export default Header;

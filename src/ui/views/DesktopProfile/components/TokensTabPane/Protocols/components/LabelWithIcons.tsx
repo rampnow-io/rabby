@@ -3,8 +3,8 @@ import React from 'react';
 import styled from 'styled-components';
 
 type Props = {
-  label: string | JSX.Element | undefined;
-  icon: JSX.Element;
+  label: string | React.ReactElement | undefined;
+  icon: React.ReactElement;
   maxWidth?: number;
   style?: React.CSSProperties;
   textHidden?: boolean;

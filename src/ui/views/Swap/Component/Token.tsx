@@ -101,7 +101,7 @@ export const SwapTokenItem = (props: SwapTokenItemProps) => {
 
   const { t } = useTranslation();
 
-  const inputRef = useRef<InputRef>();
+  const inputRef = useRef<InputRef | undefined>(undefined);
 
   const isFrom = type === 'from';
 

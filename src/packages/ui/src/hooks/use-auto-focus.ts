@@ -1,21 +1,21 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef } from 'react';
 
 export default function useAutoFocus(timeout = 100, preventScroll = true) {
-  const ref = useRef<HTMLInputElement | null>(null)
+  const ref = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
-    const element = ref.current
+    const element = ref.current;
     if (!element) {
-      return
+      return;
     }
 
     const timeoutId = setTimeout(() => {
-      element.focus({ preventScroll })
-    }, timeout)
+      element.focus({ preventScroll });
+    }, timeout);
 
     return () => {
-      clearTimeout(timeoutId)
-    }
-  }, [])
+      clearTimeout(timeoutId);
+    };
+  }, []);
 
-  return ref
+  return ref;
 }

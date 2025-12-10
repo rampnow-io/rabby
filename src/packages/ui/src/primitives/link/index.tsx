@@ -1,6 +1,6 @@
-import React from "react"
+import React from 'react';
 
-export * from "./link"
+export * from './link';
 
 /**
  * Substitute placeholders in text with anchor tags as React elements using a map.
@@ -16,19 +16,19 @@ export * from "./link"
 
 export function substituteLinks(
   text: string,
-  linkMap: Record<string, string>,
+  linkMap: Record<string, string>
 ): (string | React.JSX.Element)[] {
-  const parts: (string | React.JSX.Element)[] = []
-  const regex = /\{([^}]+)\}/g
-  let lastIndex = 0
-  let match
+  const parts: (string | React.JSX.Element)[] = [];
+  const regex = /\{([^}]+)\}/g;
+  let lastIndex = 0;
+  let match;
 
   while ((match = regex.exec(text)) !== null) {
-    const [placeholder, key] = match
-    const url = linkMap[key]
+    const [placeholder, key] = match;
+    const url = linkMap[key];
 
     if (match.index > lastIndex) {
-      parts.push(text.slice(lastIndex, match.index))
+      parts.push(text.slice(lastIndex, match.index));
     }
 
     if (url) {
@@ -36,22 +36,22 @@ export function substituteLinks(
         <a
           href={url}
           key={key}
-          target='_blank'
-          rel='noopener noreferrer'
-          className='underline'
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
         >
           {key}
-        </a>,
-      )
+        </a>
+      );
     } else {
-      parts.push(placeholder)
+      parts.push(placeholder);
     }
-    lastIndex = regex.lastIndex
+    lastIndex = regex.lastIndex;
   }
 
   if (lastIndex < text.length) {
-    parts.push(text.slice(lastIndex))
+    parts.push(text.slice(lastIndex));
   }
 
-  return parts
+  return parts;
 }

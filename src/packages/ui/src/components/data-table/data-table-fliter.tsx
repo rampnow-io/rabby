@@ -1,6 +1,6 @@
-"use client"
+'use client';
 
-import { useState } from "react"
+import { useState } from 'react';
 import {
   Button,
   ButtonType,
@@ -9,30 +9,30 @@ import {
   DialogContent,
   DialogFooter,
   DialogTitle,
-} from "../../primitives"
-import { Search } from "../search-input"
+} from '../../primitives';
+import { Search } from '../search-input';
 
 interface FilterItem {
-  label: string
-  filterComponent: React.ReactNode
+  label: string;
+  filterComponent: React.ReactNode;
 }
 
 interface Props {
-  filterItemRow: FilterItem[]
-  filterTitle: string
+  filterItemRow: FilterItem[];
+  filterTitle: string;
 }
 
 function DataTableFilter({ filterItemRow, filterTitle }: Props) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
-    <div className='flex justify-between border-b p-5'>
-      <Search className='h-9 rounded-2xl' />
-      <div className='flex items-center gap-3'>
+    <div className="flex justify-between border-b p-5">
+      <Search className="h-9 rounded-2xl" />
+      <div className="flex items-center gap-3">
         <Button
           buttonType={ButtonType.SECONDARY}
           onClick={() => {
-            setIsDialogOpen(true)
+            setIsDialogOpen(true);
           }}
         >
           Filter
@@ -40,31 +40,31 @@ function DataTableFilter({ filterItemRow, filterTitle }: Props) {
         <Button>Download</Button>
       </div>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className='sm:max-w-md'>
+        <DialogContent className="sm:max-w-md">
           <div>
             <DialogTitle>{filterTitle}</DialogTitle>
           </div>
-          <div className='flex items-center space-x-2'>
-            <div className='grid w-full flex-1 grid-cols-3 gap-3'>
+          <div className="flex items-center space-x-2">
+            <div className="grid w-full flex-1 grid-cols-3 gap-3">
               {filterItemRow.map((data) => {
                 return (
-                  <div className='flex flex-col gap-1'>
+                  <div className="flex flex-col gap-1">
                     {data.label}
                     {data.filterComponent}
                   </div>
-                )
+                );
               })}
             </div>
           </div>
-          <DialogFooter className='sm:justify-end'>
+          <DialogFooter className="sm:justify-end">
             <DialogClose asChild>
-              <Button type='button'>Close</Button>
+              <Button type="button">Close</Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
 
-export { DataTableFilter }
+export { DataTableFilter };

@@ -105,7 +105,7 @@ export const BridgeToken = ({
 
   const isMaxRef = useRef(false);
 
-  const inputRef = useRef<InputRef>();
+  const inputRef = useRef<InputRef | undefined>(undefined);
 
   const fromTokenIsNativeToken = useMemo(() => {
     if (isFromToken && token && chain) {

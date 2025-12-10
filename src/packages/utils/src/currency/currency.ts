@@ -1,4 +1,4 @@
-import { formatCurrency as coingeckoFormatCurrency } from "@coingecko/cryptoformat"
+import { formatCurrency as coingeckoFormatCurrency } from '@coingecko/cryptoformat';
 import {
   AssetConfig,
   ChainConfig,
@@ -6,101 +6,101 @@ import {
   CryptoAssetConfigMap,
   CurrencyConfig,
   CurrencyConfigMap,
-} from "../../constants"
-import { toTitleCase } from "../string"
+} from '../../constants';
+import { toTitleCase } from '../string';
 
 export function parseFillAmount(fillAmount: string, amount: string): string {
   if (parseFloat(fillAmount) > 0) {
-    return fillAmount
+    return fillAmount;
   }
 
   if (parseFloat(amount) > 0) {
-    return amount
+    return amount;
   }
 
-  return "0"
+  return '0';
 }
 
 export function getAsset(chain?: string, currency?: string): string {
-  return `${currency}:${chain}`
+  return `${currency}:${chain}`;
 }
 
 export function parseAsset(assetCode?: string): [string, string] {
   if (!assetCode) {
-    return ["", ""]
+    return ['', ''];
   }
 
-  const [currency, chain] = assetCode.split(":")
-  return [currency, chain]
+  const [currency, chain] = assetCode.split(':');
+  return [currency, chain];
 }
 
 export function parseAssetCurrency(assetCode?: string): string {
-  const [currency] = parseAsset(assetCode)
-  return currency
+  const [currency] = parseAsset(assetCode);
+  return currency;
 }
 
 export function parseAssetChain(assetCode?: string): string {
-  const [, chain] = parseAsset(assetCode)
-  return chain
+  const [, chain] = parseAsset(assetCode);
+  return chain;
 }
 
 export function getAssetConfig(
   chain: string,
-  currency: string,
+  currency: string
 ): AssetConfig | undefined {
-  const asset = getAsset(chain, currency)
-  return CryptoAssetConfigMap[asset as keyof typeof CryptoAssetConfigMap]
+  const asset = getAsset(chain, currency);
+  return CryptoAssetConfigMap[asset as keyof typeof CryptoAssetConfigMap];
 }
 
 export function getAssetName(code?: string): string {
   let name =
-    CryptoAssetConfigMap[code as keyof typeof CryptoAssetConfigMap]?.name
+    CryptoAssetConfigMap[code as keyof typeof CryptoAssetConfigMap]?.name;
 
   if (name) {
-    return name
+    return name;
   }
 
   if (!Boolean(code)) {
-    return "unknown"
+    return 'unknown';
   }
 
-  const parts = code?.split(":") ?? ["", ""]
+  const parts = code?.split(':') ?? ['', ''];
   const chainName =
     ChainConfigMap[parts[1] as keyof typeof ChainConfigMap]?.name ??
-    toTitleCase(parts[1])
+    toTitleCase(parts[1]);
 
-  return `${parts[0]} (${chainName})`
+  return `${parts[0]} (${chainName})`;
 }
 
 export function getCurrencyConfig(
-  currency: string,
+  currency: string
 ): CurrencyConfig | undefined {
-  return CurrencyConfigMap[currency as keyof typeof CurrencyConfigMap]
+  return CurrencyConfigMap[currency as keyof typeof CurrencyConfigMap];
 }
 
 export function getChainConfig(
-  chain: string | undefined,
+  chain: string | undefined
 ): ChainConfig | undefined {
   if (!chain) {
-    return
+    return;
   }
 
-  return ChainConfigMap[chain as keyof typeof ChainConfigMap]
+  return ChainConfigMap[chain as keyof typeof ChainConfigMap];
 }
 
 export function deprecatedFormatCurrency(
   amount: string | number | undefined,
-  currency: string | undefined,
+  currency: string | undefined
 ): string {
   if (!amount) {
-    return "0"
+    return '0';
   }
 
   if (!currency) {
-    return String(amount)
+    return String(amount);
   }
 
-  return coingeckoFormatCurrency(Number(amount), currency)
+  return coingeckoFormatCurrency(Number(amount), currency);
 }
 
 /**
@@ -110,46 +110,46 @@ export function deprecatedFormatCurrency(
  * @returns The rounded number.
  */
 export function ceilToPrecision(value: number, precision: number): number {
-  if (value === 0) return 0
-  const factor = Math.pow(10, precision)
-  return Math.ceil(value * factor) / factor
+  if (value === 0) return 0;
+  const factor = Math.pow(10, precision);
+  return Math.ceil(value * factor) / factor;
 }
 
 export interface formatCurrencyOptions {
-  noSymbol?: boolean
-  noRoundOff?: boolean
+  noSymbol?: boolean;
+  noRoundOff?: boolean;
 }
 
 export function formatCurrency(
   amount: string | number | undefined,
   currency: string | undefined,
-  opts?: formatCurrencyOptions,
+  opts?: formatCurrencyOptions
 ): string {
-  let processedAmount = amount
+  let processedAmount = amount;
 
   if (amount === undefined || isNaN(Number(amount))) {
-    processedAmount = ""
+    processedAmount = '';
   }
 
   if (
-    processedAmount != "" &&
+    processedAmount != '' &&
     currency &&
     !Boolean(opts?.noRoundOff) &&
     Object.keys(CurrencyConfigMap).includes(currency)
   ) {
-    const precision = CurrencyConfigMap[currency].displayPrecision
-    const numericValue = Number(processedAmount)
-    const roundedValue = ceilToPrecision(numericValue, precision).toString()
+    const precision = CurrencyConfigMap[currency].displayPrecision;
+    const numericValue = Number(processedAmount);
+    const roundedValue = ceilToPrecision(numericValue, precision).toString();
     processedAmount = roundedValue
-      .replace(/(?:\.\d*?)0+$/, "")
-      .replace(/\.$/, "")
+      .replace(/(?:\.\d*?)0+$/, '')
+      .replace(/\.$/, '');
   }
 
   if (opts?.noSymbol || !currency) {
-    return String(processedAmount)
+    return String(processedAmount);
   }
 
-  const tokenCode = CurrencyConfigMap[currency].tokenCode || currency
+  const tokenCode = CurrencyConfigMap[currency].tokenCode || currency;
 
-  return `${String(processedAmount)} ${tokenCode}`
+  return `${String(processedAmount)} ${tokenCode}`;
 }

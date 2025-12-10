@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import {  Drawer, Input, InputRef, Button, Form, DrawerProps  } from 'antd';
+import { Drawer, Input, InputRef, Button, Form, DrawerProps } from 'antd';
 import { useWallet } from 'ui/utils';
 import { UIContactBookItem } from 'background/service/contactBook';
 import { Divide } from '@/ui/views/Approval/components/Divide';

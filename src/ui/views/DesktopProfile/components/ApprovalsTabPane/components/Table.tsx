@@ -125,7 +125,7 @@ const TableCellProto = <RecordType extends object = any>({
     const rendered = colGroupConfig.render!(cellValue, record, rowIndex);
     cellNode =
       rendered && typeof rendered === 'object' && 'props' in rendered
-        ? rendered.props.children
+        ? (rendered as any).props.children
         : rendered || null;
   }
 

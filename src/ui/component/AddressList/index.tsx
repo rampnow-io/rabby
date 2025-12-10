@@ -173,7 +173,7 @@ const AddressList: any = forwardRef(
             itemSize: 64,
             itemKey: itemKey,
             ref: fixedList,
-            onItemsRendered: onItemsRendered
+            onItemsRendered: onItemsRendered,
           } as any)}
         >
           {Row as any}

@@ -1,15 +1,15 @@
-"use client"
+'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import type { FileUploadConfig, FileUploadContext } from "./types"
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { FileUploadConfig, FileUploadContext } from './types';
 
-const ACCEPTED_FORMATS = ["image/jpeg", "image/png", "application/pdf"]
+const ACCEPTED_FORMATS = ['image/jpeg', 'image/png', 'application/pdf'];
 /**
  * Headless hook for file upload logic
  * Manages state and provides actions for file selection
  */
 export function useFileUpload(
-  config: FileUploadConfig = {},
+  config: FileUploadConfig = {}
 ): FileUploadContext {
   const {
     maxFiles = 1,
@@ -17,128 +17,128 @@ export function useFileUpload(
     maxSizeKb,
     onFileSelect,
     initialFiles = [],
-  } = config
+  } = config;
 
   // Create a ref that holds an array of input element refs
-  const inputRefsArray = useRef<(HTMLInputElement | null)[]>([])
+  const inputRefsArray = useRef<(HTMLInputElement | null)[]>([]);
 
   // Create stable ref objects that point to array indices
   const inputRefs = useMemo(() => {
     return Array.from({ length: maxFiles }, (_, index) => ({
       get current() {
-        return inputRefsArray.current[index] || null
+        return inputRefsArray.current[index] || null;
       },
       set current(element: HTMLInputElement | null) {
-        inputRefsArray.current[index] = element
+        inputRefsArray.current[index] = element;
       },
-    })) as React.RefObject<HTMLInputElement>[]
-  }, [maxFiles])
+    })) as React.RefObject<HTMLInputElement>[];
+  }, [maxFiles]);
 
-  const [files, setFiles] = useState<File[]>(initialFiles.slice(0, maxFiles))
-  const [dragActiveIndex, setDragActiveIndex] = useState<number | null>(null)
+  const [files, setFiles] = useState<File[]>(initialFiles.slice(0, maxFiles));
+  const [dragActiveIndex, setDragActiveIndex] = useState<number | null>(null);
 
   // Call onFileSelect when files change (outside of render)
   useEffect(() => {
-    onFileSelect?.(files.filter((f) => f !== null))
-  }, [files, onFileSelect])
+    onFileSelect?.(files.filter((f) => f !== null));
+  }, [files, onFileSelect]);
 
   const updateFiles = useCallback((updater: (prev: File[]) => File[]) => {
-    setFiles((prev) => updater(prev))
-  }, [])
+    setFiles((prev) => updater(prev));
+  }, []);
 
   const selectFile = useCallback(
     (index: number, file: File | null) => {
-      if (index < 0 || index >= maxFiles) return
+      if (index < 0 || index >= maxFiles) return;
 
       if (file && maxSizeKb && file.size > maxSizeKb * 1024) {
-        console.warn(`File size exceeds ${maxSizeKb}KB limit`)
-        return
+        console.warn(`File size exceeds ${maxSizeKb}KB limit`);
+        return;
       }
 
       updateFiles((prev) => {
-        const newFiles = [...prev]
-        newFiles[index] = file as File
-        return newFiles
-      })
+        const newFiles = [...prev];
+        newFiles[index] = file as File;
+        return newFiles;
+      });
     },
-    [maxFiles, maxSizeKb, updateFiles],
-  )
+    [maxFiles, maxSizeKb, updateFiles]
+  );
 
   const clearFile = useCallback(
     (index: number) => {
       if (index < 0 || index >= maxFiles) {
-        return
+        return;
       }
 
       updateFiles((prev) => {
-        const newFiles = [...prev]
-        newFiles[index] = null as any
-        return newFiles.filter((f) => f !== null)
-      })
+        const newFiles = [...prev];
+        newFiles[index] = null as any;
+        return newFiles.filter((f) => f !== null);
+      });
 
-      const ref = inputRefs[index]
-      if (ref?.current) ref.current.value = ""
+      const ref = inputRefs[index];
+      if (ref?.current) ref.current.value = '';
     },
-    [maxFiles, inputRefs, updateFiles],
-  )
+    [maxFiles, inputRefs, updateFiles]
+  );
 
   const triggerFileInput = useCallback(
     (index: number) => {
       if (index < 0 || index >= maxFiles) {
-        return
+        return;
       }
-      inputRefs[index]?.current?.click()
+      inputRefs[index]?.current?.click();
     },
-    [maxFiles, inputRefs],
-  )
+    [maxFiles, inputRefs]
+  );
 
   const handleDragOver = useCallback((event: React.DragEvent) => {
-    event.preventDefault()
-    event.stopPropagation()
-  }, [])
+    event.preventDefault();
+    event.stopPropagation();
+  }, []);
 
   const handleDragEnter = useCallback((index: number) => {
-    setDragActiveIndex(index)
-  }, [])
+    setDragActiveIndex(index);
+  }, []);
 
   const handleDragLeave = useCallback((index: number) => {
-    setDragActiveIndex(null)
-  }, [])
+    setDragActiveIndex(null);
+  }, []);
 
   const handleDrop = useCallback(
     (index: number, event: React.DragEvent) => {
-      event.preventDefault()
-      event.stopPropagation()
-      setDragActiveIndex(null)
+      event.preventDefault();
+      event.stopPropagation();
+      setDragActiveIndex(null);
 
-      if (index < 0 || index >= maxFiles) return
+      if (index < 0 || index >= maxFiles) return;
 
-      const droppedFiles = Array.from(event.dataTransfer.files)
-      if (droppedFiles.length === 0) return
+      const droppedFiles = Array.from(event.dataTransfer.files);
+      if (droppedFiles.length === 0) return;
 
-      const file = droppedFiles[0]
+      const file = droppedFiles[0];
 
       // Check file type if acceptedFormats is specified
       if (acceptedFormats && acceptedFormats.length > 0) {
         const isValidType = acceptedFormats.some((type) => {
-          if (type.endsWith("/*")) {
+          if (type.endsWith('/*')) {
             // Handle mime type wildcards like "image/*"
-            const baseType = type.split("/")[0]
-            return file.type.startsWith(baseType + "/")
+            const baseType = type.split('/')[0];
+            return file.type.startsWith(baseType + '/');
           }
-          return file.type === type
-        })
+          return file.type === type;
+        });
 
         if (!isValidType) {
-          console.warn(`File type ${file.type} not accepted`)
-          return
+          console.warn(`File type ${file.type} not accepted`);
+          return;
         }
       }
 
-      selectFile(index, file)
+      selectFile(index, file);
     },
-    [maxFiles, acceptedFormats, selectFile],
-  )
+    [maxFiles, acceptedFormats, selectFile]
+  );
 
   return {
     // State
@@ -155,5 +155,5 @@ export function useFileUpload(
     handleDragOver,
     handleDragEnter,
     handleDragLeave,
-  }
+  };
 }

@@ -1,5 +1,5 @@
-import { cn } from "@repo/utils"
-import React from "react"
+import { cn } from '@repo/utils';
+import React from 'react';
 
 const Description = React.forwardRef<
   HTMLParagraphElement,
@@ -8,12 +8,12 @@ const Description = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "text-[14px] leading-[17px] text-secondary-foreground",
-      className,
+      'text-[14px] leading-[17px] text-secondary-foreground',
+      className
     )}
     {...props}
   />
-))
-Description.displayName = "Description"
+));
+Description.displayName = 'Description';
 
-export { Description }
+export { Description };

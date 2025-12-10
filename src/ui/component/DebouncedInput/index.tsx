@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {  Input, InputRef, InputProps  } from 'antd';
+import { Input, InputRef, InputProps } from 'antd';
 import useDebounceValue from '@/ui/hooks/useDebounceValue';
 
 /**

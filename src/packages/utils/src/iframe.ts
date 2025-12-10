@@ -1,7 +1,7 @@
 export const isInIframe = () => {
   try {
-    return window.self !== window.top
+    return window.self !== window.top;
   } catch {
-    return true
+    return true;
   }
-}
+};

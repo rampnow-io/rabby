@@ -1,4 +1,4 @@
-import {  Button, Form, Input, InputRef, Modal  } from 'antd';
+import { Button, Form, Input, InputRef, Modal } from 'antd';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';

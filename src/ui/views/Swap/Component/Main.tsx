@@ -176,7 +176,7 @@ export const Main = () => {
     [chain, originPreferMEVGuarded]
   );
 
-  const inputRef = useRef<InputRef>();
+  const inputRef = useRef<InputRef | undefined>(undefined);
 
   useLayoutEffect(() => {
     if (payToken?.id) {

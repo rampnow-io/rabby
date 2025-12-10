@@ -12,44 +12,44 @@
  */
 export function matchDynamicPath(
   pattern: string,
-  actualPath: string,
+  actualPath: string
 ): Record<string, string> | null {
   // Escape slashes and replace [param] with a capture group
   const regexPattern = pattern
-    .replace(/\//g, "\\/") // escape forward slashes
-    .replace(/\[(?:[^\]]+)\]/g, "([^/]+)") // match anything that's not a slash
+    .replace(/\//g, '\\/') // escape forward slashes
+    .replace(/\[(?:[^\]]+)\]/g, '([^/]+)'); // match anything that's not a slash
 
-  const regex = new RegExp(`^${regexPattern}$`)
-  const match = actualPath.match(regex)
+  const regex = new RegExp(`^${regexPattern}$`);
+  const match = actualPath.match(regex);
 
   if (!match) {
-    return null
+    return null;
   }
 
-  const paramNames = getPathParamNames(pattern)
+  const paramNames = getPathParamNames(pattern);
 
   // Build params object
-  const params: Record<string, string> = {}
+  const params: Record<string, string> = {};
   paramNames.forEach((name, index) => {
-    params[name] = match[index + 1] // first capture group is index 1
-  })
+    params[name] = match[index + 1]; // first capture group is index 1
+  });
 
-  return params
+  return params;
 }
 
 export function getPathParamNames(pattern: string): string[] {
-  const paramNames: string[] = []
+  const paramNames: string[] = [];
   // eslint-disable-next-line prefer-named-capture-group -- Capture group needed to extract parameter names
-  const regex = /\[([^\]]+)\]/g
+  const regex = /\[([^\]]+)\]/g;
 
-  let match: RegExpExecArray | null
+  let match: RegExpExecArray | null;
   while ((match = regex.exec(pattern)) !== null) {
-    paramNames.push(match[1])
+    paramNames.push(match[1]);
   }
 
-  return paramNames
+  return paramNames;
 }
 
 export function isPathMatch(pattern: string, path: string): boolean {
-  return pattern === path || matchDynamicPath(pattern, path) !== null
+  return pattern === path || matchDynamicPath(pattern, path) !== null;
 }

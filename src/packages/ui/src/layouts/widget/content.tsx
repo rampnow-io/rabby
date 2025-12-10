@@ -1,5 +1,5 @@
-import { cn } from "@repo/utils"
-import React from "react"
+import { cn } from '@repo/utils';
+import React from 'react';
 
 const Content = React.forwardRef<
   HTMLDivElement,
@@ -9,15 +9,15 @@ const Content = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "flex h-full flex-shrink flex-grow flex-col overflow-y-auto overflow-x-visible px-6 py-2",
-        className,
+        'flex h-full flex-shrink flex-grow flex-col overflow-y-auto overflow-x-visible px-6 py-2',
+        className
       )}
       {...props}
     >
       {children}
     </div>
-  )
-})
-Content.displayName = "Content"
+  );
+});
+Content.displayName = 'Content';
 
-export default Content
+export default Content;

@@ -5,27 +5,27 @@ import {
   getChainName,
   getCurrencyIcon,
   getCurrencyName,
-} from "@repo/utils"
-import React from "react"
-import { Image } from "../../primitives"
-import { CellText } from "../data-table/data-table-cell"
+} from '@repo/utils';
+import React from 'react';
+import { Image } from '../../primitives';
+import { CellText } from '../data-table/data-table-cell';
 
 export enum DisplayVariant {
-  DEFAULT = "default",
-  INLINE = "inline",
+  DEFAULT = 'default',
+  INLINE = 'inline',
 }
 
 export interface DisplayAmountProps {
-  currency?: string
-  chain?: string
-  amount?: string
-  variant?: DisplayVariant
-  className?: string
+  currency?: string;
+  chain?: string;
+  amount?: string;
+  variant?: DisplayVariant;
+  className?: string;
 }
 
 export const getChainSubtext = (chain?: string, currency?: string) => {
   const subText =
-    chain !== Chain.FIAT ? getChainName(chain) : getCurrencyName(currency)
+    chain !== Chain.FIAT ? getChainName(chain) : getCurrencyName(currency);
 
   return (
     <>
@@ -40,10 +40,10 @@ export const getChainSubtext = (chain?: string, currency?: string) => {
           />
         </>
       )}
-      <span className='text-nowrap overflow-hidden'>{subText}</span>
+      <span className="text-nowrap overflow-hidden">{subText}</span>
     </>
-  )
-}
+  );
+};
 
 export const DisplayAmount: React.FC<DisplayAmountProps> = ({
   currency,
@@ -51,17 +51,17 @@ export const DisplayAmount: React.FC<DisplayAmountProps> = ({
   amount,
   variant = DisplayVariant.DEFAULT,
 }) => {
-  const icon = getCurrencyIcon(currency)
+  const icon = getCurrencyIcon(currency);
 
   if (variant === DisplayVariant.INLINE) {
     return (
-      <div className='flex items-center space-x-2'>
+      <div className="flex items-center space-x-2">
         {icon ? <Image src={icon} alt={icon} width={18} height={18} /> : null}
-        <span className='text-weight-500 text-sm'>
+        <span className="text-weight-500 text-sm">
           {formatCurrency(amount, currency)}
         </span>
       </div>
-    )
+    );
   }
 
   return (
@@ -74,9 +74,9 @@ export const DisplayAmount: React.FC<DisplayAmountProps> = ({
           alt={icon}
           width={30}
           height={30}
-          className='rounded-full'
+          className="rounded-full"
         />
       }
     />
-  )
-}
+  );
+};

@@ -29,7 +29,7 @@ export const useQuoteMethods = () => {
   const walletController = useWallet();
   const walletOpenapi = walletController.openapi;
 
-  const nativeTokenPriceRef = useRef<Promise<TokenItem>>();
+  const nativeTokenPriceRef = useRef<Promise<TokenItem> | null>(null);
 
   const validSlippage = React.useCallback(
     async ({

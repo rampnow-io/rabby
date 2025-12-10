@@ -27,7 +27,7 @@ export const CopyChecked = ({
   const [copied, setCopied] = useState(false);
   const handleCopy: React.MouseEventHandler = (e) => {
     e.stopPropagation();
-    copyAddress(addr);
+    void copyAddress(addr);
     setCopied(true);
     if (timerRef.current) {
       clearTimeout(timerRef.current);

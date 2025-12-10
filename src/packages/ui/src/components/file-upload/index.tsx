@@ -50,9 +50,9 @@
  * ```
  */
 
-export { useFileUploadContext } from "./file-upload-context"
-export { FileUploadController } from "./file-upload-controller"
-export { useFileUpload } from "./use-file-upload"
+export { useFileUploadContext } from './file-upload-context';
+export { FileUploadController } from './file-upload-controller';
+export { useFileUpload } from './use-file-upload';
 
 // Primitives for building custom designs
 export {
@@ -60,29 +60,29 @@ export {
   FileUploadDropZone,
   FileUploadInput,
   FileUploadTrigger,
-} from "./primitives"
+} from './primitives';
 
 // Pre-built designs
-export { FileUploadCard } from "./designs/file-upload-card"
-export { FileUploadMinimal } from "./designs/file-upload-minimal"
+export { FileUploadCard } from './designs/file-upload-card';
+export { FileUploadMinimal } from './designs/file-upload-minimal';
 
 // Types
 export type {
   FileUploadActions,
   FileUploadConfig,
   FileUploadContext,
-} from "./types"
+} from './types';
 
 // Compound component export
-import { FileUploadCard } from "./designs/file-upload-card"
-import { FileUploadMinimal } from "./designs/file-upload-minimal"
-import { FileUploadController } from "./file-upload-controller"
+import { FileUploadCard } from './designs/file-upload-card';
+import { FileUploadMinimal } from './designs/file-upload-minimal';
+import { FileUploadController } from './file-upload-controller';
 import {
   FileUploadClear,
   FileUploadDropZone,
   FileUploadInput,
   FileUploadTrigger,
-} from "./primitives"
+} from './primitives';
 
 export const FileUpload = {
   Controller: FileUploadController,
@@ -92,4 +92,4 @@ export const FileUpload = {
   Trigger: FileUploadTrigger,
   Clear: FileUploadClear,
   DropZone: FileUploadDropZone,
-}
+};

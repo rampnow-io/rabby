@@ -1,10 +1,10 @@
-"use client"
+'use client';
 
-import { useFileUploadContext } from "../file-upload-context"
+import { useFileUploadContext } from '../file-upload-context';
 
 interface FileUploadInputProps {
-  index: number
-  className?: string
+  index: number;
+  className?: string;
 }
 
 /**
@@ -12,22 +12,22 @@ interface FileUploadInputProps {
  * Primitive component that renders the actual <input type="file">
  */
 export function FileUploadInput({ index, className }: FileUploadInputProps) {
-  const { inputRefs, acceptedFormats, selectFile } = useFileUploadContext()
+  const { inputRefs, acceptedFormats, selectFile } = useFileUploadContext();
 
-  const inputRef = inputRefs[index]
+  const inputRef = inputRefs[index];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null
-    selectFile(index, file)
-  }
+    const file = e.target.files?.[0] || null;
+    selectFile(index, file);
+  };
 
   return (
     <input
       ref={inputRef}
-      type='file'
-      accept={acceptedFormats.join(",")}
-      className={className || "hidden"}
+      type="file"
+      accept={acceptedFormats.join(',')}
+      className={className || 'hidden'}
       onChange={handleChange}
     />
-  )
+  );
 }

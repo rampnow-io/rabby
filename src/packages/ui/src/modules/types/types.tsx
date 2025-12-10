@@ -1,7 +1,7 @@
 export interface UidParams {
-  params: Promise<{ uid: string }>
+  params: Promise<{ uid: string }>;
 }
 
 export interface GidParams {
-  params: Promise<{ gid: string }>
+  params: Promise<{ gid: string }>;
 }

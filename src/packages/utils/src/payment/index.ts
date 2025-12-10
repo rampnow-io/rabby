@@ -1,2 +1,2 @@
-export * from "./apple-pay"
-export * from "./utils"
+export * from './apple-pay';
+export * from './utils';

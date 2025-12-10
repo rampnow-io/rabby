@@ -29,14 +29,12 @@ export const usePollSwapPendingNumber = (timer = 10000) => {
     );
   }, [refetchCount]);
 
-  const timerRef = useRef<NodeJS.Timeout>();
+  const timerRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
-    if ((!loading && value !== undefined) || error) {
-      timerRef.current = setTimeout(() => {
-        setRefetchCount((e) => e + 1);
-      }, timer);
-    }
+    timerRef.current = window.setTimeout(() => {
+      setRefetchCount((e) => e + 1);
+    }, timer);
 
     return () => {
       timerRef.current && clearTimeout(timerRef.current);

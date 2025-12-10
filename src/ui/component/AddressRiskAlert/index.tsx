@@ -1,13 +1,14 @@
-import { 
+import {
   Button,
   Drawer,
   DrawerProps,
   Form,
-  Input, InputRef,
+  Input,
+  InputRef,
   Skeleton,
   Switch,
   Tooltip,
- } from 'antd';
+} from 'antd';
 import React, { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';

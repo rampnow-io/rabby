@@ -1,4 +1,4 @@
-import {  Button, DrawerProps, Form, Input, InputRef, Tooltip  } from 'antd';
+import { Button, DrawerProps, Form, Input, InputRef, Tooltip } from 'antd';
 import clsx from 'clsx';
 import {
   BRAND_ALIAN_TYPE_TEXT,

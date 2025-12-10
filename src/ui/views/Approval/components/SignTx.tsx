@@ -488,7 +488,7 @@ const SignTx = ({ params, origin, account: $account }: SignTxProps) => {
   );
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollRefSize = useSize(scrollRef);
-  const scrollInfo = useScroll(scrollRef);
+  const scrollInfo = useScroll(scrollRef as React.RefObject<HTMLElement>);
   const [getApproval, resolveApproval, rejectApproval] = useApproval();
   const dispatch = useRabbyDispatch();
   const wallet = useWallet();

@@ -1,149 +1,189 @@
+// Type declarations for ApplePayJS
+declare global {
+  interface Window {
+    ApplePaySession?: typeof ApplePaySession;
+  }
+}
+
+// Minimal ApplePayJS type definitions
+interface ApplePayValidateMerchantEvent {
+  validationURL: string;
+}
+
+interface ApplePayPaymentToken {
+  paymentData: object;
+  paymentMethod: object;
+  transactionIdentifier: string;
+}
+
+interface ApplePayPayment {
+  token: ApplePayPaymentToken;
+  billingContact?: object;
+  shippingContact?: object;
+}
+
+interface ApplePayPaymentAuthorizedEvent {
+  payment: ApplePayPayment;
+}
+
+interface ApplePaySessionInterface {
+  onvalidatemerchant: ((event: ApplePayValidateMerchantEvent) => void) | null;
+  onpaymentauthorized: ((event: ApplePayPaymentAuthorizedEvent) => void) | null;
+  oncancel: (() => void) | null;
+  completeMerchantValidation(sessionData: any): void;
+  completePayment(result: { status: number }): void;
+  begin(): void;
+}
+
 interface ApplePayProps {
-  amount: string
-  country: string
-  currency: string
-  allowedCardSchemes: string[]
+  amount: string;
+  country: string;
+  currency: string;
+  allowedCardSchemes: string[];
   getApplePaySessionData: (
-    validationUrl: string,
-  ) => Promise<Record<string, unknown>>
+    validationUrl: string
+  ) => Promise<Record<string, unknown>>;
   processPayment: (
     paymentData: { token: string },
-    onComplete: (result: boolean) => void,
-  ) => void
+    onComplete: (result: boolean) => void
+  ) => void;
 }
 
 const forceError = (error: unknown): Error => {
-  return new Error(error instanceof Error ? error.message : String(error))
-}
+  return new Error(error instanceof Error ? error.message : String(error));
+};
 
 const processApplePaySdk = (props: ApplePayProps): Promise<number> => {
   return new Promise((resolve, reject) => {
-    const version = 3
+    const version = 3;
     const data = {
       countryCode: props.country,
       currencyCode: props.currency,
       supportedNetworks: props.allowedCardSchemes,
-      merchantCapabilities: ["supports3DS"],
+      merchantCapabilities: ['supports3DS'],
       total: {
-        label: "Rampnow Pay",
-        type: "final",
+        label: 'Rampnow Pay',
+        type: 'final',
         amount: props.amount,
       },
-    }
+    };
 
-    // @ts-expect-error - ApplePaySession constructor is not fully typed
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- Apple Pay constructor requires unsafe call
-    const session = new window.ApplePaySession(version, data) as ApplePaySession
+    const session = new (window.ApplePaySession as any)(
+      version,
+      data
+    ) as ApplePaySessionInterface;
 
-    session.onvalidatemerchant = (
-      event: ApplePayJS.ApplePayValidateMerchantEvent,
-    ) => {
+    session.onvalidatemerchant = (event: ApplePayValidateMerchantEvent) => {
       props
         .getApplePaySessionData(event.validationURL)
         .then((sessionData) => {
-          session.completeMerchantValidation(sessionData)
+          session.completeMerchantValidation(sessionData);
         })
         .catch((error: unknown) => {
-          reject(forceError(error))
-        })
-    }
+          reject(forceError(error));
+        });
+    };
 
-    session.onpaymentauthorized = (
-      event: ApplePayJS.ApplePayPaymentAuthorizedEvent,
-    ) => {
+    session.onpaymentauthorized = (event: ApplePayPaymentAuthorizedEvent) => {
+      const STATUS_SUCCESS =
+        (window.ApplePaySession as any)?.STATUS_SUCCESS ?? 0;
+      const STATUS_FAILURE =
+        (window.ApplePaySession as any)?.STATUS_FAILURE ?? 1;
+
       const onPaymentProcessed = (result: boolean): void => {
-        const status = result
-          ? ApplePaySession.STATUS_SUCCESS
-          : ApplePaySession.STATUS_FAILURE
-        session.completePayment({ status })
-        resolve(status)
-      }
+        const status = result ? STATUS_SUCCESS : STATUS_FAILURE;
+        session.completePayment({ status });
+        resolve(status);
+      };
 
       try {
         props.processPayment(
           { token: JSON.stringify(event.payment.token) },
-          onPaymentProcessed,
-        )
+          onPaymentProcessed
+        );
       } catch (error) {
-        session.completePayment({ status: ApplePaySession.STATUS_FAILURE })
-        reject(forceError(error))
+        session.completePayment({ status: STATUS_FAILURE });
+        reject(forceError(error));
       }
-    }
+    };
 
     session.oncancel = (): void => {
-      resolve(ApplePaySession.STATUS_FAILURE)
-    }
+      const STATUS_FAILURE =
+        (window.ApplePaySession as any)?.STATUS_FAILURE ?? 1;
+      resolve(STATUS_FAILURE);
+    };
 
-    session.begin()
-  })
-}
+    session.begin();
+  });
+};
 
 const processApplePayW3c = (props: ApplePayProps): Promise<number> => {
   return new Promise((resolve, reject) => {
     try {
       const paymentMethodData = [
         {
-          supportedMethods: "https://apple.com/apple-pay",
+          supportedMethods: 'https://apple.com/apple-pay',
           data: {
-            merchantCapabilities: ["supports3DS"],
+            merchantCapabilities: ['supports3DS'],
             supportedNetworks: props.allowedCardSchemes,
             countryCode: props.country,
           },
         },
-      ]
+      ];
 
       const paymentDetails = {
         total: {
-          label: "Rampnow Pay",
+          label: 'Rampnow Pay',
           amount: {
             value: props.amount,
             currency: props.currency,
           },
         },
-      }
+      };
 
-      const request = new PaymentRequest(paymentMethodData, paymentDetails)
+      const request = new PaymentRequest(paymentMethodData, paymentDetails);
 
       // @ts-expect-error - onmerchantvalidation is not recognized by TypeScript
       request.onmerchantvalidation = (event: {
-        validationUrl: string
-        complete: (data: unknown) => void
+        validationUrl: string;
+        complete: (data: unknown) => void;
       }) => {
         void props
           .getApplePaySessionData(event.validationUrl)
           .then((sessionData) => {
-            event.complete(sessionData)
-          })
-      }
+            event.complete(sessionData);
+          });
+      };
 
       void request
         .show()
         .then((response: PaymentResponse) => {
-          const token = JSON.stringify(response.details)
+          const token = JSON.stringify(response.details);
 
           props.processPayment({ token }, (result) => {
-            const status: PaymentComplete = result ? "success" : "fail"
-            void response.complete(status)
+            const status: PaymentComplete = result ? 'success' : 'fail';
+            void response.complete(status);
 
             if (result) {
-              resolve(ApplePaySession.STATUS_SUCCESS)
+              const STATUS_SUCCESS =
+                (window.ApplePaySession as any)?.STATUS_SUCCESS ?? 0;
+              resolve(STATUS_SUCCESS);
             } else {
-              reject(new Error("Payment failed"))
+              reject(new Error('Payment failed'));
             }
-          })
+          });
         })
         .catch((error: unknown) => {
-          reject(forceError(error))
-        })
+          reject(forceError(error));
+        });
     } catch (error) {
-      reject(forceError(error))
+      reject(forceError(error));
     }
-  })
-}
+  });
+};
 
 export const processApplePay = (props: ApplePayProps): Promise<number> => {
-  // @ts-expect-error - ApplePaySession is not recognized by TypeScript
-  return typeof window.ApplePaySession !== "undefined"
+  return typeof window.ApplePaySession !== 'undefined'
     ? processApplePaySdk(props)
-    : processApplePayW3c(props)
-}
+    : processApplePayW3c(props);
+};

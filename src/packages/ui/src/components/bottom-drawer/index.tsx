@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 // import dynamic from "next/dynamic"
 // const DynamicBottomDrawer: any = dynamic(() => import("./bottom-drawer"))

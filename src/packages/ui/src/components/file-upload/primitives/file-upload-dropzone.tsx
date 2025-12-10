@@ -1,13 +1,13 @@
-"use client"
+'use client';
 
-import { cn } from "@repo/utils"
-import { useFileUploadContext } from "../file-upload-context"
+import { cn } from '@repo/utils';
+import { useFileUploadContext } from '../file-upload-context';
 
 export interface FileUploadDropZoneProps {
-  index: number
-  children: React.ReactNode
-  className?: string
-  activeClassName?: string
+  index: number;
+  children: React.ReactNode;
+  className?: string;
+  activeClassName?: string;
 }
 
 /**
@@ -26,9 +26,9 @@ export function FileUploadDropZone({
     handleDragEnter,
     handleDragLeave,
     dragActiveIndex,
-  } = useFileUploadContext()
+  } = useFileUploadContext();
 
-  const isActive = dragActiveIndex === index
+  const isActive = dragActiveIndex === index;
 
   return (
     <div
@@ -40,5 +40,5 @@ export function FileUploadDropZone({
     >
       {children}
     </div>
-  )
+  );
 }

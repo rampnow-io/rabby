@@ -1,24 +1,21 @@
-"use client"
+'use client';
 
-import { ArrowLeftIcon } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { ArrowLeftIcon } from 'lucide-react';
 
 function BackButton() {
-  const router = useRouter()
-
   return (
     <button
       onClick={() => {
-        router.back()
+        window.history.back();
       }}
-      aria-label='Go back'
-      className='flex items-center'
+      aria-label="Go back"
+      className="flex items-center"
     >
-      <ArrowLeftIcon className='h-6 w-6' />
+      <ArrowLeftIcon className="h-6 w-6" />
     </button>
-  )
+  );
 }
 
-BackButton.displayName = "BackButton"
+BackButton.displayName = 'BackButton';
 
-export { BackButton }
+export { BackButton };

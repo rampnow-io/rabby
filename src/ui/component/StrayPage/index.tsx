@@ -56,7 +56,7 @@ const StrayPage = ({
           </div>
         )}
       </div>
-      {footerRender && footerRender({})}
+      {footerRender && <>{footerRender({})}</>}
     </Spin>
   </div>
 );
@@ -68,7 +68,7 @@ interface StrayPageWithButtonProps {
   formProps?: FormProps;
   initialValues?: any;
   onSubmit?(values: any): any;
-  children;
+  children: React.ReactNode;
   className?: string;
   backgroundClassName?: StrayPageProps['backgroundClassName'];
   spinning?: boolean;

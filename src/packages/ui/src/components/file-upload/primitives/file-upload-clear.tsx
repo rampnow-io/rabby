@@ -1,12 +1,12 @@
-"use client"
+'use client';
 
-import type { ReactNode } from "react"
-import { useFileUploadContext } from "../file-upload-context"
+import type { ReactNode } from 'react';
+import { useFileUploadContext } from '../file-upload-context';
 
 interface FileUploadClearProps {
-  index: number
-  children: ReactNode
-  className?: string
+  index: number;
+  children: ReactNode;
+  className?: string;
 }
 
 /**
@@ -18,22 +18,22 @@ export function FileUploadClear({
   children,
   className,
 }: FileUploadClearProps) {
-  const { clearFile } = useFileUploadContext()
+  const { clearFile } = useFileUploadContext();
 
   return (
     <div
-      role='button'
+      role="button"
       tabIndex={0}
       className={className}
       onClick={() => clearFile(index)}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault()
-          clearFile(index)
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          clearFile(index);
         }
       }}
     >
       {children}
     </div>
-  )
+  );
 }

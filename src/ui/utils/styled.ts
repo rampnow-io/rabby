@@ -9,7 +9,7 @@ export const getStyledComponentId = (
     | ((
         | React.Component<any, any>
         | React.FC<any>
-        | ((...args: any[]) => JSX.Element)
+        | ((...args: any[]) => React.ReactElement)
       ) & {
         styledComponentId?: string;
       })
