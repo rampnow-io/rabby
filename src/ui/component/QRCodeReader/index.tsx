@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { BrowserQRCodeReader } from '@zxing/browser';
-import './style.less';
 import { openInternalPageInTab } from 'ui/utils';
 import clsx from 'clsx';
 import { message } from 'antd';

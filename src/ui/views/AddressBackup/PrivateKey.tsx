@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Copy, PageHeader } from 'ui/component';
 import { useWallet } from 'ui/utils';
-import './style.less';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import QRCode from 'qrcode.react';
 import { Button } from 'antd';

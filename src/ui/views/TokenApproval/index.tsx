@@ -19,7 +19,6 @@ import {
 import { Loading } from './components/Loading';
 import PopupApprovalCard from './components/PopupApprovalCard';
 import PopupSearch from './components/PopupSearch';
-import './style.less';
 import { findChainByEnum } from '@/utils/chain';
 
 const TokenApproval = () => {

@@ -4,7 +4,6 @@ import { Chain } from '@debank/common';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from 'ui/component';
-import './style.less';
 
 const List = ({ list }: { list: Chain[] }) => {
   return (

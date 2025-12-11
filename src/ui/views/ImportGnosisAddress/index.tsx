@@ -11,7 +11,6 @@ import IconBack from 'ui/assets/icon-back.svg';
 import IconGnosis from 'ui/assets/walletlogo/safe.svg';
 import { useWallet } from 'ui/utils';
 import { useRepeatImportConfirm } from '@/ui/utils/useRepeatImportConfirm';
-import './style.less';
 import { safeJSONParse } from '@/utils';
 import clsx from 'clsx';
 import { UI_TYPE } from '@/constant/ui';
@@ -109,13 +108,13 @@ const ImportGnosisAddress: React.FC<{ isInModal?: boolean }> = ({
   return (
     <div
       className={clsx(
-        'import-gnosis h-full relative',
+        'overflow-auto bg-r-neutral-bg-2 h-full relative',
         isInModal ? 'h-[600px] overflow-auto' : ''
       )}
     >
       {contextHolder}
-      <header className="header h-[180px] relative dark:bg-r-blue-disable">
-        <div className="rabby-container pt-[40px]">
+      <header className="bg-r-blue-default h-[180px] relative dark:bg-r-blue-disable">
+        <div className="flex flex-col pt-[40px] px-[20px]">
           <img
             src={IconBack}
             className="mb-0 absolute z-10 top-[20px] left-[20px] cursor-pointer"
@@ -128,7 +127,7 @@ const ImportGnosisAddress: React.FC<{ isInModal?: boolean }> = ({
             }}
           />
           <img
-            className="unlock-logo w-[60px] h-[60px] mb-[16px] mx-auto"
+            className="border border-white rounded-full w-[60px] h-[60px] mb-[16px] mx-auto"
             src={IconGnosis}
           />
           <p className="text-[17px] leading-[20px] mt-0 text-white text-center font-bold">
@@ -136,7 +135,7 @@ const ImportGnosisAddress: React.FC<{ isInModal?: boolean }> = ({
           </p>
         </div>
       </header>
-      <div className="rabby-container">
+      <div className="flex flex-col px-[20px]">
         <div className="relative p-20">
           <Form
             form={form}
@@ -179,29 +178,34 @@ const ImportGnosisAddress: React.FC<{ isInModal?: boolean }> = ({
             </Form.Item>
           </Form>
           {loading ? (
-            <div className="loading">
+            <div className="mt-[20px] text-[13px] leading-[15px] text-r-neutral-body flex items-center gap-[4px]">
               <LoadingOutlined /> {t('page.importSafe.loading')}
             </div>
           ) : (
             <>
               {errorMessage ? (
-                <div className="error">{errorMessage}</div>
+                <div className="mt-[12px] text-[13px] leading-[15px] text-[#ec5151]">
+                  {errorMessage}
+                </div>
               ) : (
                 !!chainList?.length && (
-                  <div className="chain-list-container">
+                  <div className="mt-[16px] p-[12px] rounded-[6px] bg-r-neutral-card-2">
                     <div className="desc">
                       {t('page.importSafe.gnosisChainDesc', {
                         count: chainList?.length,
                       })}
                     </div>
-                    <div className="chain-list">
+                    <div className="flex flex-wrap gap-y-[20px] gap-x-[12px]">
                       {chainList?.map((chain) => {
                         return (
-                          <div className="chain-list-item" key={chain.id}>
+                          <div
+                            className="flex items-center gap-[6px] text-[13px] font-medium text-r-neutral-title1"
+                            key={chain.id}
+                          >
                             <img
                               src={chain.logo}
                               alt=""
-                              className="chain-logo"
+                              className="w-[20px] h-[20px] rounded-full"
                             />
                             {chain.name}
                           </div>
@@ -215,11 +219,11 @@ const ImportGnosisAddress: React.FC<{ isInModal?: boolean }> = ({
           )}
         </div>
       </div>
-      <footer className="footer fixed bottom-0 left-0 right-0 p-[20px]">
+      <footer className="fixed bottom-0 left-0 right-0 p-[20px] border-t border-r-neutral-line bg-r-neutral-card-1">
         <Button
           type="primary"
           size="large"
-          className="w-full h-[42px]"
+          className="w-full h-[42px] disabled:bg-[#8998ff] disabled:opacity-40 disabled:rounded-[6px]"
           disabled={loading || !!errorMessage || !chainList?.length}
           onClick={() =>
             handleNext(

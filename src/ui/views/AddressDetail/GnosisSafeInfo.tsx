@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { isSameAddress, useWallet } from 'ui/utils';
-import './style.less';
 import { CHAINS } from '@/constant';
 import { useRabbySelector } from '@/ui/store';
 import { sortAccountsByBalance } from '@/ui/utils/account';
@@ -132,7 +131,7 @@ export const GnonisSafeInfo = ({
           <div className="rabby-list-item-content border-0">
             <div>
               {t('page.addressDetail.admins')}
-              <div className="tabs-container">
+              <div className="flex items-center gap-[8px] mt-[12px] p-[4px] bg-r-neutral-card-2 rounded-[6px]">
                 <div className="tabs">
                   {safeInfo?.map((item) => {
                     return (

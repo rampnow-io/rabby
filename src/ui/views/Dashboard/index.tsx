@@ -8,7 +8,6 @@ import remarkGfm from 'remark-gfm';
 import { Modal } from 'ui/component';
 import { connectStore, useRabbyDispatch, useRabbySelector } from 'ui/store';
 import { useWallet } from 'ui/utils';
-import './style.less';
 
 import PendingApproval from './components/PendingApproval';
 

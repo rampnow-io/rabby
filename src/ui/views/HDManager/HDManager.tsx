@@ -1,4 +1,3 @@
-import './index.less';
 import { useWallet } from '@/ui/utils';
 import React from 'react';
 import {

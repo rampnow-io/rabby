@@ -4,8 +4,6 @@ import cx from 'clsx';
 import { SvgIconCross } from 'ui/assets';
 import { ReactComponent as RcIconCloseCC } from 'ui/assets/component/close-cc.svg';
 
-import './index.less';
-
 const closeIcon = (
   <SvgIconCross className="w-14 fill-current text-r-neutral-foot" />
 );

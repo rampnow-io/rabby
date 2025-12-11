@@ -17,7 +17,7 @@ import { DesktopHistoryItem } from './DesktopHistoryItem';
 const PAGE_COUNT = 20;
 
 interface TransactionsTabPaneProps {
-  scrollContainerRef?: React.RefObject<HTMLElement>;
+  scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
   selectChainId?: string;
 }
 

@@ -3,7 +3,6 @@ import { Popup } from '@/ui/component';
 import { isSameAddress, useWallet } from '@/ui/utils';
 import React from 'react';
 import { useRabbyDispatch } from 'ui/store';
-import './style.less';
 import { CustomTestnetTokenDetail } from './CustomTestnetTokenDetail';
 import { useMemoizedFn, useRequest } from 'ahooks';
 

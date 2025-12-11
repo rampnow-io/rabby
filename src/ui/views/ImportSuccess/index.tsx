@@ -17,7 +17,6 @@ import {
 } from 'consts';
 import { IconImportSuccess } from 'ui/assets';
 import SuccessLogo from 'ui/assets/success-logo.svg';
-import './index.less';
 import { useMedia } from 'react-use';
 import { connectStore, useRabbyDispatch } from '@/ui/store';
 import { Chain } from '@debank/common';
@@ -146,7 +145,7 @@ const ImportSuccess = ({
           </header>
         ) : (
           <div className="create-new-header create-password-header h-[200px] dark:bg-r-blue-disable">
-            <div className="rabby-container">
+            <div className="flex flex-col px-[20px]">
               <img
                 className="w-[80px] h-[80px] mx-auto mb-[16px] mt-[-4px]"
                 src={SuccessLogo}
@@ -189,7 +188,7 @@ const ImportSuccess = ({
           )}
           <div
             className={clsx(
-              'pt-20 success-import',
+              'pt-20 overflow-y-auto',
               !isPopup && 'lg:h-[200px] lg:w-[460px]'
             )}
           >
@@ -217,17 +216,24 @@ const ImportSuccess = ({
               />
             ))}
             {!!state?.supportChainList?.length && (
-              <div className="chain-list-container">
-                <div className="desc">
+              <div className="mt-[16px] p-[12px] rounded-[6px] bg-r-neutral-card-2">
+                <div className="text-[14px] text-r-neutral-body mb-[8px]">
                   {t('page.importSuccess.gnosisChainDesc', {
                     count: state?.supportChainList?.length || 0,
                   })}
                 </div>
-                <div className="chain-list">
+                <div className="flex flex-wrap gap-[12px]">
                   {state?.supportChainList?.map((chain) => {
                     return (
-                      <div className="chain-list-item" key={chain.id}>
-                        <img src={chain.logo} alt="" className="chain-logo" />
+                      <div
+                        className="flex items-center gap-[6px] text-[13px] text-r-neutral-title1"
+                        key={chain.id}
+                      >
+                        <img
+                          src={chain.logo}
+                          alt=""
+                          className="w-[20px] h-[20px] rounded-full"
+                        />
                         {chain.name}
                       </div>
                     );

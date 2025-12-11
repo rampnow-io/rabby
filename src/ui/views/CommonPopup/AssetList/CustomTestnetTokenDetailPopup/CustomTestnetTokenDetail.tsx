@@ -22,7 +22,6 @@ import {
   useWallet,
 } from 'ui/utils';
 import { CustomizedButton } from './CustomizedButton';
-import './style.less';
 import { getAddressScanLink } from '@/utils';
 import { BlockedTopTips } from '@/ui/views/Dashboard/components/TokenDetailPopup/BlockedTopTips';
 import { TokenCharts } from '@/ui/component/TokenChart';

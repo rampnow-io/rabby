@@ -104,24 +104,32 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
   };
 
   return (
-    <div className={clsx('onekey-carousel', className)}>
+    <div
+      className={clsx(
+        'absolute top-[8%] right-[-80%] -translate-y-1/2 z-10 w-[228px] h-[192px] select-none max-[768px]:hidden',
+        className
+      )}
+    >
       <div className="absolute">
         <img src="images/onekey-usb-connect-background.svg" />
       </div>
       <div
-        className="onekey-carousel-bubble"
+        className="relative w-[192px] h-[192px] overflow-hidden"
         onMouseDown={(e) => handleDragStart(e.clientX)}
         onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
       >
-        <div className="onekey-carousel-content">
+        <div className="relative w-full h-full overflow-hidden rounded-full">
           {images.map((image, index) => (
             <div
               key={index}
-              className={clsx('onekey-carousel-slide', {
-                active: index === currentIndex,
-                prev: index < currentIndex,
-                next: index > currentIndex,
-              })}
+              className={clsx(
+                'absolute flex items-center justify-center transition-transform duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] translate-x-full select-none',
+                {
+                  active: index === currentIndex,
+                  prev: index < currentIndex,
+                  next: index > currentIndex,
+                }
+              )}
             >
               <img
                 src={image}
@@ -131,13 +139,16 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
             </div>
           ))}
         </div>
-        <div className="onekey-carousel-dots">
+        <div className="absolute top-[12%] left-1/2 -translate-x-1/2 flex gap-[8px]">
           {images.map((_, index) => (
             <div
               key={index}
-              className={clsx('onekey-carousel-dot', {
-                active: index === currentIndex,
-              })}
+              className={clsx(
+                'w-[6px] h-[6px] rounded-full bg-[#8D8D93] &.active:bg-[#262627]',
+                {
+                  active: index === currentIndex,
+                }
+              )}
               onClick={() => goToSlide(index)}
             />
           ))}

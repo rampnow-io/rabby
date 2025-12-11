@@ -6,7 +6,6 @@ import { Account } from '@/background/service/preference';
 import { useBrandIcon } from '@/ui/hooks/useBrandIcon';
 import clsx from 'clsx';
 import { AccountSelectorModal } from './AccountSelectorModal';
-import './style.less';
 
 interface Props {
   value?: Account | null;
@@ -57,8 +56,10 @@ export const AccountSelector = forwardRef<HTMLDivElement, Props>(
       <>
         <div
           className={clsx(
-            'global-account-selector',
-            disabled ? 'is-disabled' : '',
+            'flex items-center gap-[8px] px-[12px] py-[10px] rounded-[6px]',
+            'bg-r-neutral-card-1 cursor-pointer transition-colors',
+            'hover:bg-r-neutral-bg-1',
+            disabled && 'opacity-50 cursor-not-allowed',
             className
           )}
           onClick={handleClickSelector}
@@ -102,7 +103,11 @@ const CurrentAccount = ({ account }: { account: Account }) => {
   return (
     <>
       <div className="mr-6">
-        <img src={addressTypeIcon} className="brand-icon" alt="" />
+        <img
+          src={addressTypeIcon}
+          className="w-[20px] h-[20px] rounded-full"
+          alt=""
+        />
       </div>
       <span className="flex-1 whitespace-nowrap overflow-hidden overflow-ellipsis">
         {alias}

@@ -10,7 +10,10 @@ export const Loading = ({ count = 1, active = false }: LoadingProps) => {
     <div>
       {new Array(count).fill(null).map((_, index) => {
         return (
-          <div className="txs-history-loading" key={index}>
+          <div
+            className="bg-r-neutral-card-1 rounded-[6px] pt-[8px] px-[14px] pb-[16px]"
+            key={index}
+          >
             <Skeleton.Button
               active={active}
               className="h-14 mb-12 block"

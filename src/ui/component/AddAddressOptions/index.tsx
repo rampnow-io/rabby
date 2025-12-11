@@ -35,8 +35,6 @@ import IconWatchPurple, {
 
 import { ReactComponent as IconAddFromCurrentSeedPhrase } from 'ui/assets/address/add-from-current-seed-phrase.svg';
 
-import './style.less';
-
 import {
   IS_CHROME,
   WALLET_BRAND_CONTENT,

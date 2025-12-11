@@ -5,6 +5,6 @@
 // DynamicBottomDrawer.displayName = "DynamicBottomDrawer"
 // export default DynamicBottomDrawer
 
-import BottomDrawer from "./bottom-drawer"
-BottomDrawer.displayName = "BottomDrawer"
-export default BottomDrawer
+import BottomDrawer from './bottom-drawer';
+BottomDrawer.displayName = 'BottomDrawer';
+export default BottomDrawer;

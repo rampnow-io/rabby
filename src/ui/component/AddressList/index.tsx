@@ -13,7 +13,7 @@ import { DisplayedKeryring } from 'background/service/keyring';
 import { KEYRING_TYPE } from 'consts';
 
 import AddressItem, { AddressItemProps } from './AddressItem';
-import './style.less';
+
 type ACTION = 'management' | 'switch';
 
 interface AddressListProps {
@@ -25,12 +25,13 @@ interface AddressListProps {
   currentAccount?: any;
   alianNames?: any;
 }
+
 interface RowProps {
   data: any;
   index: number;
   style?: any;
-  others?: any;
 }
+
 const SORT_WEIGHT = {
   [KEYRING_TYPE.HdKeyring]: 1,
   [KEYRING_TYPE.SimpleKeyring]: 2,
@@ -38,6 +39,7 @@ const SORT_WEIGHT = {
   [KEYRING_TYPE.WalletConnectKeyring]: 4,
   [KEYRING_TYPE.WatchAddressKeyring]: 5,
 };
+
 const Row: React.FC<RowProps> = memo((props) => {
   const { data, index, style } = props;
   const { combinedList, others } = data;
@@ -50,16 +52,18 @@ const Row: React.FC<RowProps> = memo((props) => {
     setStopEditing,
     editIndex,
   } = others;
+
   const account = combinedList[index];
+
   return (
     <li
       className={clsx(
-        'address-wrap',
-        !currentAccount && 'address-wrap-with-padding'
+        'py-3 border-b border-r-neutral-line last:border-b-0',
+        !currentAccount && 'py-4'
       )}
       style={style}
     >
-      <ul className="addresses">
+      <ul className="flex flex-col">
         <AddressItem
           key={account.address + account.brandName}
           account={{ ...account, type: account.type }}
@@ -100,23 +104,17 @@ const AddressList: any = forwardRef(
     const [stopEditing, setStopEditing] = useState(false);
     const addressItems = useRef(new Array(list.length));
     const fixedList = useRef<any>(null);
+
     const combinedList = list
-      .sort((a, b) => {
-        return SORT_WEIGHT[a.type] - SORT_WEIGHT[b.type];
-      })
-      .map((group) => {
-        const templist = group.accounts.map(
-          (item) =>
-            (item = {
-              ...item,
-              alianName: alianNamesList[item.address.toLowerCase()],
-              type: group.type,
-              keyring: group.keyring,
-            })
-        );
-        return templist;
-      })
-      .flat(1);
+      .sort((a, b) => SORT_WEIGHT[a.type] - SORT_WEIGHT[b.type])
+      .flatMap((group) =>
+        group.accounts.map((item) => ({
+          ...item,
+          alianName: alianNamesList[item.address.toLowerCase()],
+          type: group.type,
+          keyring: group.keyring,
+        }))
+      );
 
     const itemKey = useCallback(
       (index: number, data: any) =>
@@ -148,7 +146,13 @@ const AddressList: any = forwardRef(
 
     return (
       <ul
-        className={`address-group-list ${action}`}
+        className={clsx(
+          'address-group-list',
+          action,
+          '[&>li]:mb-2 [&>li:last-child]:mb-0',
+          '[&>li>.subtitle]:mb-2',
+          '[&>li>.subtitle>a]:text-current [&>li>.subtitle>a]:ml-[2px]'
+        )}
         onClick={() => setStopEditing(true)}
       >
         <VirtualFixedList
@@ -156,7 +160,7 @@ const AddressList: any = forwardRef(
             height: currentAccount ? switchAddressHeight : 500,
             width: '100%',
             itemData: {
-              combinedList: combinedList,
+              combinedList,
               others: {
                 ActionButton,
                 onClick,
@@ -171,9 +175,9 @@ const AddressList: any = forwardRef(
             },
             itemCount: combinedList.length,
             itemSize: 64,
-            itemKey: itemKey,
+            itemKey,
             ref: fixedList,
-            onItemsRendered: onItemsRendered,
+            onItemsRendered,
           } as any)}
         >
           {Row as any}

@@ -83,7 +83,7 @@ export const GnosisTransactionQueue = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="tabs-container top-0">
+      <div className="sticky top-0 z-10 bg-r-neutral-bg-1 px-[20px] py-[16px] border-b border-rabby-neutral-line">
         <div className="tabs">
           {tabs?.map((tab) => {
             return (

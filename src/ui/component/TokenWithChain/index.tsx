@@ -3,7 +3,6 @@ import { CHAINS } from 'consts';
 import { getTokenSymbol } from 'ui/utils/token';
 import { TokenItem } from 'background/service/openapi';
 import IconUnknown from 'ui/assets/token-default.svg';
-import './style.less';
 import clsx from 'clsx';
 import { TooltipWithMagnetArrow } from '../Tooltip/TooltipWithMagnetArrow';
 import { findChain } from '@/utils/chain';
@@ -45,11 +44,18 @@ const TokenWithChain = ({
   );
   return (
     <div
-      className={clsx('token-with-chain', noRound && 'no-round', className)}
+      className={clsx(
+        'relative inline-flex',
+        !noRound && 'rounded-full',
+        className
+      )}
       style={{ width, height }}
     >
       <img
-        className={clsx('token-symbol', noRound && 'no-round')}
+        className={clsx(
+          'w-full h-full object-cover',
+          !noRound && 'rounded-full'
+        )}
         src={token.logo_url || IconUnknown}
         alt={getTokenSymbol(token)}
         style={{ width, height, minWidth: width }}
@@ -59,17 +65,23 @@ const TokenWithChain = ({
         (isShowChainTooltip ? (
           <TooltipWithMagnetArrow
             title={chain?.name}
-            className={clsx('chain-symbol', chainClassName)}
+            className={clsx(
+              'absolute -bottom-[2px] -right-[2px] rounded-full border-2 border-r-neutral-card-1',
+              chainClassName
+            )}
           >
             <img
-              className="chain-symbol"
+              className="rounded-full"
               style={chainStyle}
               src={chain?.logo || IconUnknown}
             />
           </TooltipWithMagnetArrow>
         ) : (
           <img
-            className={clsx('chain-symbol', chainClassName)}
+            className={clsx(
+              'absolute -bottom-[2px] -right-[2px] rounded-full border-2 border-r-neutral-card-1',
+              chainClassName
+            )}
             style={chainStyle}
             src={chain?.logo || IconUnknown}
           />

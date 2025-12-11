@@ -9,13 +9,13 @@ import { pickKeyringThemeIcon } from '@/utils/account';
 import { useWallet, isSameAddress, formatTokenAmount } from 'ui/utils';
 import { useThemeMode } from '@/ui/hooks/usePreference';
 import { KEYRING_TYPE, WALLET_BRAND_CONTENT, CHAINS } from 'consts';
-import './style.less';
 import { CommonSignal } from '../ConnectStatus/CommonSignal';
 import { useWalletConnectIcon } from '../WalletConnect/useWalletConnectIcon';
 import { findChain } from '@/utils/chain';
 import { ReactComponent as RcIconEmpty } from '@/ui/assets/empty-cc.svg';
 import clsx from 'clsx';
 import { sortBy } from 'lodash';
+import { cn } from '@repo/utils/string';
 
 interface AccountSelectDrawerProps {
   onChange(account: Account): void;
@@ -106,26 +106,30 @@ export const AccountItem = ({
 
   return (
     <FieldCheckbox
-      className="item"
+      className="flex items-center gap-3 p-3 rounded-md hover:bg-r-neutral-card-2 cursor-pointer"
       showCheckbox={!!account.type}
       onChange={(checked) => checked && onSelect(account)}
       checked={checked}
     >
-      <div className="icon icon-keyring relative">
+      <div className="icon-keyring relative w-[28px] h-[28px]">
         <img width={24} height={24} src={addressTypeIcon} />
         <CommonSignal
           type={account.type}
           brandName={account.brandName}
           address={account.address}
-          className="bottom-[2px] right-0"
+          className="absolute bottom-[2px] right-0"
         />
       </div>
-      <div className="flex w-full item-container">
+      <div className="flex w-full justify-between items-center">
         <div>
-          <p className="alian-name">{alianName}</p>
+          <p className="text-[15px] font-medium text-r-neutral-title1 mb-[4px]">
+            {alianName}
+          </p>
+
           <AddressViewer address={account.address} showArrow={false} />
         </div>
-        <div className="text-12 text-r-neutral-body native-token-balance">
+
+        <div className="text-xs text-r-neutral-body pr-3 flex items-center">
           {nativeTokenBalance !== null &&
             `${formatTokenAmount(nativeTokenBalance)} ${nativeTokenSymbol}`}
         </div>
@@ -186,19 +190,29 @@ const AccountSelectDrawer = ({
   return (
     <Drawer
       height="60%"
-      className="account-select is-support-darkmode"
       visible={visible}
       placement="bottom"
       maskClosable
       onClose={onCancel}
       getContainer={getContainer}
+      className={cn(
+        'account-select is-support-darkmode',
+        '[&_.ant-drawer-content-wrapper]:rounded-t-[16px]',
+        '[&_.ant-drawer-content-wrapper]:overflow-hidden',
+        '[&_.ant-drawer-close]:hidden',
+        '[&_.ant-drawer-body]:flex',
+        '[&_.ant-drawer-body]:flex-col'
+      )}
     >
-      <div className="title">{title}</div>
-      <div className="list">
+      <div className="text-[20px] font-medium text-r-neutral-title1 mb-4 px-5 pt-5">
+        {title}
+      </div>
+
+      <div className="flex-1 overflow-auto px-5 list">
         {accounts.map((account) => (
           <AccountItem
-            account={account}
             key={`${account.type}-${account.address}`}
+            account={account}
             onSelect={handleSelectAccount}
             networkId={networkId}
             checked={
@@ -209,24 +223,25 @@ const AccountSelectDrawer = ({
             }
           />
         ))}
-        {!accounts?.length ? (
+
+        {!accounts.length && (
           <div className="flex flex-col items-center justify-center h-full text-r-neutral-foot">
-            <div className="w-[32px] h-[32px] mb-[16px]">
+            <div className="w-8 h-8 mb-4">
               <RcIconEmpty />
             </div>
             <div className="text-[14px] leading-[24px]">
               No available address
             </div>
           </div>
-        ) : null}
+        )}
       </div>
-      <div className="footer">
+
+      <div className="fixed bottom-0 left-0 right-0 p-5 bg-r-neutral-bg-1 border-t border-rabby-neutral-line flex gap-4">
         <Button
           onClick={onCancel}
           type="ghost"
           className={clsx(
-            'text-r-blue-default',
-            'border-blue-light',
+            'text-r-blue-default border-blue-light',
             'hover:bg-[#8697FF1A] active:bg-[#0000001A]',
             'disabled:bg-transparent disabled:opacity-40 disabled:hover:bg-transparent',
             'before:content-none'

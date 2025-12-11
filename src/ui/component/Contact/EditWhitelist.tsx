@@ -83,7 +83,7 @@ const EditWhitelist = ({
             <p className="text-r-neutral-body text-center text-15 mb-[52px]">
               {t('component.Contact.EditWhitelist.backModalContent')}
             </p>
-            <div className="footer">
+            <div className="flex gap-[16px]">
               <Button
                 type="primary"
                 block

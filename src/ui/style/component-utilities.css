@@ -1,0 +1,357 @@
+/* Component-specific utility classes extracted from LESS files */
+
+/* Page Header - Now using inline Tailwind classes */
+
+/* Account Selector */
+.account-selector {
+  @apply rounded-[8px] bg-r-neutral-card-1;
+}
+
+/* Chain Selector */
+.chain-selector {
+  @apply flex items-center gap-[6px] px-[8px] py-[6px] rounded-[4px];
+  @apply bg-r-neutral-card-1 cursor-pointer;
+}
+
+/* Field Component */
+.field {
+  @apply rounded-[6px] px-[12px] py-[16px];
+  @apply text-[14px] leading-[18px] font-normal;
+}
+
+.field-label {
+  @apply text-r-neutral-foot text-[14px] leading-[17px] mb-[8px];
+}
+
+/* Token Amount Input */
+.token-amount-input {
+  @apply flex items-center gap-[12px] p-[16px] rounded-[6px];
+  @apply bg-r-neutral-card-1 border border-transparent;
+}
+
+.token-amount-input:hover {
+  @apply border-r-blue-default;
+}
+
+/* Address Viewer */
+.address-viewer {
+  @apply inline-flex items-center gap-[4px];
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  @apply fixed inset-0 flex items-center justify-center;
+  @apply bg-black bg-opacity-50 z-50;
+}
+
+/* Empty State */
+.empty-state {
+  @apply flex flex-col items-center justify-center py-[40px];
+}
+
+.empty-state-icon {
+  @apply w-[52px] h-[52px] mb-[12px] opacity-40;
+}
+
+.empty-state-text {
+  @apply text-r-neutral-foot text-[13px] leading-[16px];
+}
+
+/* Checkbox */
+.rabby-checkbox {
+  @apply w-[16px] h-[16px] rounded-full;
+  @apply border-2 border-r-neutral-line;
+  @apply flex items-center justify-center cursor-pointer;
+}
+
+.rabby-checkbox.checked {
+  @apply bg-r-blue-default border-r-blue-default;
+}
+
+/* Progress */
+.progress-bar {
+  @apply w-full h-[4px] bg-r-neutral-line rounded-full overflow-hidden;
+}
+
+.progress-bar-fill {
+  @apply h-full bg-r-blue-default transition-all duration-300;
+}
+
+/* Modal */
+.rabby-modal-content {
+  @apply rounded-[6px] p-[20px];
+}
+
+/* Popup */
+.rabby-popup {
+  @apply rounded-[8px] bg-r-neutral-card-1;
+  @apply border border-r-neutral-line;
+}
+
+/* Navbar */
+.navbar {
+  @apply flex items-center justify-between px-[20px] py-[12px];
+  @apply bg-r-neutral-card-1 border-b border-r-neutral-line;
+}
+
+/* Token Selector */
+.token-selector {
+  @apply flex items-center gap-[8px] p-[12px];
+  @apply rounded-[6px] cursor-pointer;
+  @apply hover:bg-r-neutral-bg-1;
+}
+
+/* Contact */
+.contact-item {
+  @apply flex items-center gap-[12px] p-[12px];
+  @apply rounded-[6px] cursor-pointer;
+  @apply hover:bg-r-neutral-bg-1;
+}
+
+/* TX History */
+.tx-history-item {
+  @apply flex items-center justify-between p-[12px];
+  @apply border-b border-r-neutral-line;
+}
+
+/* Add Address Options */
+.add-address-option {
+  @apply flex flex-col gap-[8px] p-[16px];
+  @apply rounded-[6px] bg-r-neutral-card-1;
+  @apply cursor-pointer hover:bg-r-neutral-bg-1;
+}
+
+/* Chain Card */
+.chain-card {
+  @apply flex items-center gap-[12px] p-[16px];
+  @apply rounded-[8px] bg-r-neutral-card-1;
+  @apply border border-transparent;
+  @apply cursor-pointer hover:border-r-blue-default;
+}
+
+/* Token with Chain */
+.token-with-chain {
+  @apply flex items-center gap-[8px];
+}
+
+/* Multi Select Address List */
+.multi-select-address-item {
+  @apply flex items-center justify-between p-[12px];
+  @apply rounded-[6px] cursor-pointer;
+  @apply hover:bg-r-neutral-bg-1;
+}
+
+/* QR Code Reader */
+.qr-code-reader {
+  @apply relative w-full aspect-square;
+  @apply rounded-[8px] overflow-hidden;
+}
+
+/* NFT Number Input */
+.nft-number-input {
+  @apply flex items-center gap-[8px] p-[12px];
+  @apply rounded-[6px] bg-r-neutral-card-1;
+}
+
+/* Pills Switch */
+.pills-switch {
+  @apply inline-flex gap-[4px] p-[2px];
+  @apply rounded-full bg-r-neutral-bg-1;
+}
+
+.pills-switch-item {
+  @apply px-[16px] py-[6px] rounded-full;
+  @apply text-[13px] font-medium cursor-pointer;
+  @apply transition-all duration-200;
+}
+
+.pills-switch-item.active {
+  @apply bg-r-neutral-card-1 text-r-neutral-title-1;
+}
+
+.pills-switch-item:not(.active) {
+  @apply text-r-neutral-body;
+}
+
+/* Name and Address */
+.name-and-address {
+  @apply flex flex-col gap-[4px];
+}
+
+.name-and-address-name {
+  @apply text-r-neutral-title-1 text-[15px] font-medium;
+}
+
+.name-and-address-address {
+  @apply text-r-neutral-body text-[13px] font-mono;
+}
+
+/* Account Search Input */
+.account-search-input {
+  @apply flex items-center gap-[8px] px-[12px] py-[10px];
+  @apply rounded-[6px] bg-r-neutral-card-1;
+  @apply border border-transparent;
+}
+
+.account-search-input:focus-within {
+  @apply border-r-blue-default;
+}
+
+/* Fallback Site Logo */
+.fallback-site-logo {
+  @apply w-[28px] h-[28px] rounded-full;
+  @apply bg-r-neutral-line flex items-center justify-center;
+  @apply text-r-neutral-body text-[12px] font-medium;
+}
+
+/* Desktop Select Account List */
+.desktop-select-account-list {
+  @apply flex flex-col gap-[8px];
+}
+
+/* Word Matrix / Mnemonics Inputs */
+.mnemonics-grid {
+  @apply grid grid-cols-3 gap-[12px];
+}
+
+.mnemonic-word {
+  @apply flex items-center gap-[8px] p-[12px];
+  @apply rounded-[6px] bg-r-neutral-card-1;
+  @apply border border-r-neutral-line;
+}
+
+.mnemonic-word-index {
+  @apply text-r-neutral-foot text-[12px] min-w-[24px];
+}
+
+.mnemonic-word-text {
+  @apply text-r-neutral-title-1 text-[14px] flex-1;
+}
+
+/* Common Layout Classes */
+.stray-page-layout {
+  @apply min-h-screen bg-r-neutral-bg-2 p-[20px];
+}
+
+.page-content {
+  @apply flex flex-col gap-[20px];
+}
+
+.section-header {
+  @apply text-r-neutral-title-1 text-[15px] font-medium mb-[12px];
+}
+
+.divider {
+  @apply h-[0.5px] bg-r-neutral-line my-[12px];
+}
+
+/* Button Variants (complementing Ant Design) */
+.btn-outline {
+  @apply border border-r-blue-default text-r-blue-default;
+  @apply hover:bg-r-blue-light-1;
+}
+
+.btn-ghost {
+  @apply border-none bg-transparent text-r-blue-default;
+  @apply hover:bg-r-blue-light-1;
+}
+
+.btn-danger {
+  @apply bg-r-red-default text-white;
+  @apply hover:bg-opacity-90;
+}
+
+/* Card */
+.card {
+  @apply rounded-[8px] bg-r-neutral-card-1 p-[16px];
+  @apply border border-r-neutral-line;
+}
+
+.card-header {
+  @apply flex items-center justify-between mb-[16px];
+}
+
+.card-title {
+  @apply text-r-neutral-title-1 text-[15px] font-medium;
+}
+
+.card-body {
+  @apply flex flex-col gap-[12px];
+}
+
+/* List Item */
+.list-item {
+  @apply flex items-center justify-between py-[12px];
+  @apply border-b border-r-neutral-line last:border-b-0;
+}
+
+.list-item-content {
+  @apply flex items-center gap-[12px] flex-1;
+}
+
+.list-item-action {
+  @apply flex items-center gap-[8px];
+}
+
+/* Tag */
+.tag {
+  @apply inline-flex items-center gap-[4px] px-[8px] py-[4px];
+  @apply rounded-[4px] text-[12px] font-medium;
+}
+
+.tag-primary {
+  @apply bg-r-blue-light-1 text-r-blue-default;
+}
+
+.tag-success {
+  @apply bg-r-green-light text-r-green-default;
+}
+
+.tag-warning {
+  @apply bg-r-orange-light text-r-orange-default;
+}
+
+.tag-danger {
+  @apply bg-r-red-light text-r-red-default;
+}
+
+/* Badge */
+.badge {
+  @apply inline-flex items-center justify-center;
+  @apply min-w-[16px] h-[16px] px-[4px];
+  @apply rounded-full bg-r-red-default;
+  @apply text-white text-[10px] font-medium;
+}
+
+/* Avatar */
+.avatar {
+  @apply w-[32px] h-[32px] rounded-full;
+  @apply flex items-center justify-center;
+  @apply bg-r-neutral-line;
+}
+
+.avatar-sm {
+  @apply w-[24px] h-[24px];
+}
+
+.avatar-lg {
+  @apply w-[48px] h-[48px];
+}
+
+/* Skeleton */
+.skeleton {
+  @apply bg-gradient-to-r from-r-neutral-line to-r-neutral-line;
+  @apply animate-pulse rounded-[4px];
+}
+
+.skeleton-text {
+  @apply h-[14px] my-[4px];
+}
+
+.skeleton-avatar {
+  @apply w-[32px] h-[32px] rounded-full;
+}
+
+.skeleton-button {
+  @apply h-[40px] w-[100px];
+}

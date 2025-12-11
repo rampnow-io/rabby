@@ -6,7 +6,6 @@ import { IExtractFromPromise } from '@/ui/utils/type';
 import { ApprovalUtilsProvider } from './hooks/useApprovalUtils';
 import * as ApprovalComponent from './components';
 
-import './style.less';
 import clsx from 'clsx';
 
 const Approval: React.FC<{

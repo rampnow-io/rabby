@@ -2,7 +2,6 @@ import { Drawer, DrawerProps } from 'antd';
 import clsx from 'clsx';
 import React, { ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.less';
 import { ReactComponent as RcIconCloseCC } from 'ui/assets/component/close-cc.svg';
 
 const closeIcon = (

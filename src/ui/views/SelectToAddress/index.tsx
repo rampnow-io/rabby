@@ -26,7 +26,6 @@ import TabWhitelist from './components/TabWhitelist';
 const unimportedBalancesCache: Record<string, number> = {};
 const queue = new PQueue({ interval: 1000, intervalCap: 8, concurrency: 8 }); // 每秒最多5个
 
-import './style.less';
 import TabImported from './components/TabImported';
 import { useThemeMode } from '@/ui/hooks/usePreference';
 import { query2obj } from '@/ui/utils/url';

@@ -21,7 +21,6 @@ import {
 import { getChain } from '@/utils';
 import { HistoryItem } from './HistoryItem';
 import { Loading } from './Loading';
-import './style.less';
 import { ellipsisOverflowedText } from 'ui/utils';
 import { getTokenSymbol } from '@/ui/utils/token';
 import { BlockedButton } from './BlockedButton';

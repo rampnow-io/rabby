@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
 import { AddressViewer } from 'ui/component';
 
-// import './style.less';
 import { useRabbyDispatch } from '@/ui/store';
 import clsx from 'clsx';
 
@@ -32,7 +31,6 @@ import { RcIconCopyCC } from '@/ui/assets/desktop/common';
 import { useEventBusListener } from '@/ui/hooks/useEventBusListener';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
-import './styles.less';
 import { RcIconAddWalletCC, RcIconMoreCC } from '@/ui/assets/desktop/profile';
 import { ReactComponent as RcIconPinned } from 'ui/assets/icon-pinned.svg';
 import { ReactComponent as RcIconPinnedFill } from 'ui/assets/icon-pinned-fill.svg';

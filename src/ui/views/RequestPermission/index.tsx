@@ -11,7 +11,6 @@ import { HARDWARE_KEYRING_TYPES, WALLET_BRAND_TYPES } from 'consts';
 import IconSuccess from 'ui/assets/success-large.svg';
 import { LedgerHDPathType as HDPathType } from '@/ui/utils/ledger';
 const KEYSTONE_TYPE = HARDWARE_KEYRING_TYPES.Keystone.type;
-import './style.less';
 import { useKeystoneUSBErrorCatcher } from '@/ui/utils/keystone';
 import { getImKeyFirstImKeyDevice } from '@/ui/utils/imKey';
 import { getOneKeyFirstOneKeyDevice } from '@/ui/utils/onekey';
@@ -21,13 +20,15 @@ const RequestPermission = () => {
   const qs = query2obj(window.location.href);
   const type = qs.type;
   const from = qs.from;
+  const isReconnect = !!qs.reconnect;
+
   const { t } = useTranslation();
   const history = useHistory();
   const wallet = useWallet();
+
+  const keystoneErrorCatcher = useKeystoneUSBErrorCatcher();
   const needConfirm = ['ledger', 'keystone', 'imkey', 'onekey'].includes(type);
   const [loading, setLoading] = useState(false);
-  const keystoneErrorCatcher = useKeystoneUSBErrorCatcher();
-  const isReconnect = !!qs.reconnect;
 
   const PERMISSIONS = {
     camera: {
@@ -59,60 +60,63 @@ const RequestPermission = () => {
   const init = async () => {
     if (type === 'camera') {
       navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
-        stream.getTracks().forEach((track) => {
-          track.stop();
-        });
+        stream.getTracks().forEach((track) => track.stop());
         window.close();
       });
     }
+
     if (type === 'ledger') {
       const parent = window.opener;
       try {
         const transport = await TransportWebHID.create();
         await transport.close();
         await wallet.authorizeLedgerHIDPermission();
+
         if (isReconnect) {
           wallet.activeFirstApproval();
           window.close();
           return;
         }
 
-        if (from && from === 'approval') {
+        if (from === 'approval') {
           setShowSuccess(true);
           return;
         }
+
         if (parent) {
           window.postMessage({ success: true }, '*');
-        } else {
-          history.push({
-            pathname: '/import/select-address',
-            state: {
-              keyring: HARDWARE_KEYRING_TYPES.Ledger.type,
-              isWebHID: true,
-              ledgerLive: false,
-            },
-          });
+          return;
         }
+
+        history.push({
+          pathname: '/import/select-address',
+          state: {
+            keyring: HARDWARE_KEYRING_TYPES.Ledger.type,
+            isWebHID: true,
+            ledgerLive: false,
+          },
+        });
       } catch (e) {
-        if (parent) {
-          window.postMessage({ success: false }, '*');
-        }
+        if (parent) window.postMessage({ success: false }, '*');
       }
     }
+
     if (type === 'imkey') {
       try {
         await getImKeyFirstImKeyDevice();
         await wallet.authorizeImKeyHIDPermission();
+
         if (isReconnect) {
           wallet.activeFirstApproval();
           window.close();
           return;
         }
 
-        if (from && from === 'approval') {
+        if (from === 'approval') {
           setShowSuccess(true);
           return;
         }
+
         history.push({
           pathname: '/import/select-address',
           state: {
@@ -123,6 +127,7 @@ const RequestPermission = () => {
         console.error(e);
       }
     }
+
     if (type === 'keystone') {
       try {
         setLoading(true);
@@ -134,7 +139,7 @@ const RequestPermission = () => {
           return;
         }
 
-        if (from && from === 'approval') {
+        if (from === 'approval') {
           setShowSuccess(true);
           return;
         }
@@ -153,9 +158,7 @@ const RequestPermission = () => {
         );
 
         let search = `?hd=${KEYSTONE_TYPE}&brand=${WALLET_BRAND_TYPES.KEYSTONE}`;
-        if (stashKeyringId) {
-          search += `&keyringId=${stashKeyringId}`;
-        }
+        if (stashKeyringId) search += `&keyringId=${stashKeyringId}`;
 
         history.push({
           pathname: '/import/select-address',
@@ -172,20 +175,23 @@ const RequestPermission = () => {
         setLoading(false);
       }
     }
+
     if (type === 'onekey') {
       try {
         await getOneKeyFirstOneKeyDevice();
         await wallet.authorizeOneKeyHIDPermission();
+
         if (isReconnect) {
           wallet.activeFirstApproval();
           window.close();
           return;
         }
 
-        if (from && from === 'approval') {
+        if (from === 'approval') {
           setShowSuccess(true);
           return;
         }
+
         history.push({
           pathname: '/import/select-address',
           state: {
@@ -208,7 +214,7 @@ const RequestPermission = () => {
   };
 
   useEffect(() => {
-    !needConfirm && init();
+    if (!needConfirm) init();
   }, []);
 
   return (
@@ -216,40 +222,48 @@ const RequestPermission = () => {
       header={
         showSuccess
           ? undefined
-          : {
-              title: PERMISSIONS[type].title,
-              center: true,
-            }
+          : { title: PERMISSIONS[type].title, center: true }
       }
       spinning={loading}
       headerClassName="mb-28"
-      className="request-permission-wrapper"
+      className="min-h-[395px] pt-[118px]"
       backgroundClassName="bg-r-neutral-card-2"
     >
       {showSuccess ? (
-        <div className="authorize-success">
-          <img src={IconSuccess} className="icon icon-success" />
-          <h1>{t('page.newAddress.ledger.permissionsAuthorized')}</h1>
-          <p>
+        <div className="flex flex-col items-center">
+          <img src={IconSuccess} className="w-[48px] mb-[16px]" />
+          <h1 className="text-[#27C193] mb-[24px] text-center">
+            {t('page.newAddress.ledger.permissionsAuthorized')}
+          </h1>
+          <p className="mb-[60px] text-[15px] leading-[20px] text-center text-[#4B4D59]">
             {t('page.newAddress.ledger.nowYouCanReInitiateYourTransaction')}
           </p>
-          <Button type="primary" size="large" onClick={() => window.close()}>
+          <Button type="primary" size="large" className="w-[224px]" onClick={() => window.close()}>
             {t('global.ok')}
           </Button>
         </div>
       ) : (
         <>
-          <ul className="request-permission">
-            {PERMISSIONS[type].desc.map((content, index) => {
-              return <li key={index}>· {content}</li>;
-            })}
+          <ul
+            className="
+              bg-r-blue-light-1 border border-r-blue-default
+              px-[16px] py-[8px] w-[470px]
+              font-medium text-[15px] leading-[24px]
+              text-r-blue-default rounded-[4px]
+            "
+          >
+            {PERMISSIONS[type].desc.map((content, index) => (
+              <li key={index}>· {content}</li>
+            ))}
           </ul>
           {PERMISSIONS[type].tip && (
-            <p className="permission-tip">{PERMISSIONS[type].tip}</p>
+            <p className="text-[13px] leading-[20px] text-r-neutral-body w-[470px] mt-[20px]">
+              {PERMISSIONS[type].tip}
+            </p>
           )}
           {needConfirm && (
-            <div className="btn-footer">
-              <Button type="primary" size="large" onClick={init}>
+            <div className="w-[470px] flex justify-center mt-[120px]">
+              <Button type="primary" size="large" className="w-[224px]" onClick={init}>
                 {t('page.newAddress.ledger.allow')}
               </Button>
             </div>

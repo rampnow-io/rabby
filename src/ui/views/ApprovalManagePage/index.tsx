@@ -6,7 +6,6 @@ import type { ColumnType, TableProps } from 'antd/lib/table';
 import { InfoCircleOutlined } from '@ant-design/icons';
 
 import { formatUsdValue, isSameAddress, useWallet } from 'ui/utils';
-import './style.less';
 
 import { Chain, CHAINS_ENUM } from '@debank/common';
 import { findChainByEnum, findChainByServerID } from '@/utils/chain';

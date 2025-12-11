@@ -10,7 +10,6 @@ import AccountItem from './AccountItem';
 import { UIContactBookItem } from 'background/service/contactBook';
 import { isSameAddress, useWallet } from 'ui/utils';
 import IconSuccess from 'ui/assets/success.svg';
-import './style.less';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 

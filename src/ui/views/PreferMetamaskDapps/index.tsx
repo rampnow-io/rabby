@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as RcIconDelete } from 'ui/assets/prefer-metamask-dapps/delete.svg';
 import { Empty, FallbackSiteLogo, PageHeader, Popup } from 'ui/component';
 import { useWallet } from 'ui/utils';
-import './style.less';
 import contextMenuImage from 'ui/assets/prefer-metamask-dapps/context-menu.png';
 
 const DappCard = (props: {
@@ -15,17 +14,19 @@ const DappCard = (props: {
 }) => {
   const { data, onRemove } = props;
   return (
-    <div className="dapp-card">
+    <div className="flex items-center gap-[12px] p-[16px] bg-r-neutral-card-1 rounded-[8px] mb-[12px]">
       <FallbackSiteLogo
-        className="dapp-card-icon"
+        className="w-[24px] h-[24px] rounded-full"
         url={data.icon}
         origin={data?.origin}
         width="24px"
       />
-      <div className="dapp-card-content">{data.origin}</div>
-      <div className="dapp-card-action">
+      <div className="flex-1 text-[15px] text-r-neutral-title1 truncate">
+        {data.origin}
+      </div>
+      <div className="flex items-center">
         <RcIconDelete
-          className="dapp-card-action-delete"
+          className="w-[20px] h-[20px] cursor-pointer text-r-neutral-body hover:text-r-red-default transition-colors"
           viewBox="0 0 20 20"
           onClick={() => {
             onRemove(data);
@@ -67,15 +68,22 @@ export const PreferMetamaskDapps = () => {
   };
 
   return (
-    <div className="page-prefer-metamask-dapps">
-      <header className="header">
+    <div  className="
+    flex flex-col
+    px-[20px] pb-[20px] pt-0
+    text-[12px] leading-[14px]
+    h-screen overflow-auto
+    bg-r-neutral-bg-2
+    relative
+  ">
+      <header >
         <PageHeader canBack={false} closeable>
           {t('page.preferMetamaskDapps.title')}
         </PageHeader>
-        <div className="desc">{t('page.preferMetamaskDapps.desc')}</div>
+        <div className="font-normal text-[14px] leading-[18px] text-r-neutral-body my-[18px]">{t('page.preferMetamaskDapps.desc')}</div>
       </header>
       {sites?.length ? (
-        <div className="content">
+        <div className="flex-1 overflow-auto pb-[80px]">
           {(sites || []).map((item) => {
             return (
               <DappCard

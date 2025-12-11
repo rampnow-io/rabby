@@ -125,7 +125,7 @@ export const SelectChainItem = forwardRef(
                   <img
                     src={data.logo}
                     alt=""
-                    className="select-chain-item-icon"
+                    className="w-[28px] h-[28px] rounded-full mr-[12px]"
                   />
                 ) : (
                   <TestnetChainLogo
@@ -154,10 +154,12 @@ export const SelectChainItem = forwardRef(
                   )}
                 </>
               )}
-              <div className="select-chain-item-info">
-                <div className="select-chain-item-name">{data.name}</div>
+              <div className="flex-1 flex flex-col gap-[4px]">
+                <div className="text-[15px] font-medium text-r-neutral-title1">
+                  {data.name}
+                </div>
                 {!!chainBalanceItem?.usd_value && (
-                  <div className="select-chain-item-balance">
+                  <div className="flex items-center text-[13px] text-r-neutral-body">
                     <ThemeIcon
                       className="w-[14px] h-[14px] mt-2"
                       src={RcIconChainBalance}
@@ -182,7 +184,7 @@ export const SelectChainItem = forwardRef(
               }}
             />
             {value === data.enum ? (
-              <img className="select-chain-item-checked" src={IconCheck}></img>
+              <img className="w-[20px] h-[20px] ml-[8px]" src={IconCheck}></img>
             ) : null}
           </div>
           {!!shortReason && (

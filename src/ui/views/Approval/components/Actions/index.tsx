@@ -131,7 +131,7 @@ const ActionItem = ({
         </div>
       </div>
       <Divide />
-      <div className="container">
+      <div className="px-[16px] py-[12px]">
         <Col>
           <Row isTitle>{t('page.signTx.chain')}</Row>
           <Row>

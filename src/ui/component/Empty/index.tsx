@@ -1,6 +1,5 @@
 import clsx from 'clsx';
 import React, { ReactNode } from 'react';
-import './style.less';
 
 interface EmptyProps {
   className?: string;
@@ -12,11 +11,26 @@ interface EmptyProps {
 
 const Empty = ({ className, style, children, title, desc }: EmptyProps) => {
   return (
-    <div className={clsx('rabby-empty', className)} style={style}>
-      <img className="rabby-empty-image" src="./images/nodata-tx.png" />
-      <div className="rabby-empty-content">
-        {title && <div className="rabby-empty-title">{title}</div>}
-        <div className="rabby-empty-desc">{children ? children : desc}</div>
+    <div
+      className={clsx(
+        'flex flex-col items-center justify-center py-[40px]',
+        className
+      )}
+      style={style}
+    >
+      <img
+        className="w-[52px] h-[52px] mb-[12px] opacity-40"
+        src="./images/nodata-tx.png"
+      />
+      <div className="text-center">
+        {title && (
+          <div className="text-r-neutral-title-1 text-[15px] font-medium mb-[8px]">
+            {title}
+          </div>
+        )}
+        <div className="text-r-neutral-foot text-[13px] leading-[16px]">
+          {children ? children : desc}
+        </div>
       </div>
     </div>
   );

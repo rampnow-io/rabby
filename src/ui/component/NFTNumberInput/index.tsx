@@ -3,7 +3,6 @@ import { Input, Tooltip } from 'antd';
 import type { InputRef as AntdInputRef } from 'antd';
 import clsx from 'clsx';
 import { NFTItem } from '@/background/service/openapi';
-import './style.less';
 import { useTranslation } from 'react-i18next';
 
 interface Props {
@@ -55,7 +54,7 @@ const NumberInput = forwardRef<InputRef, Props>(
     const { t } = useTranslation();
 
     return (
-      <div className="number-input">
+      <div className="flex items-center gap-[8px] p-[12px] border border-rabby-neutral-line rounded-[6px]">
         <div
           className={clsx('action left', { disabled: value && value <= min })}
           onClick={handleMinus}

@@ -6,7 +6,6 @@ import { Trans, useTranslation } from 'react-i18next';
 import { matomoRequestEvent } from '@/utils/matomo-request';
 import { openInTab, useWallet } from 'ui/utils';
 import ConnectionList from './ConnectionList';
-import './style.less';
 import { useRabbyDispatch, useRabbySelector } from 'ui/store';
 import clsx from 'clsx';
 import { SvgIconCross } from '@/ui/assets';

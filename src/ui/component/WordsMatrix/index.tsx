@@ -150,7 +150,7 @@ function WordsMatrix({
 
             {clearable && (
               <div
-                className="close-icon-wrapper"
+                className="absolute right-[8px] top-[50%] translate-y-[-50%] cursor-pointer flex items-center justify-center w-[16px] h-[16px]"
                 onClick={(evt) => {
                   onCloseWord?.({ word: word, index: idx });
                   evt.stopPropagation();

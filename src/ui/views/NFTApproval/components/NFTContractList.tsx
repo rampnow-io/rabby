@@ -21,16 +21,25 @@ const NFTContractList = ({
 }: ApprovalCardProps) => {
   const { t } = useTranslation();
   return (
-    <div className="list">
-      <div className="search" onClick={onSearch}>
+    <div className="rounded-[6px] bg-white">
+      <div 
+        className="border border-transparent border-b-rabby-neutral-line px-[12px] py-[10px] flex items-center gap-[8px] cursor-pointer hover:border-r-blue-default hover:rounded-[6px]" 
+        onClick={onSearch}
+      >
         <img src={IconSearch} alt="" />
-        <div className="placeholder">{t('Search Contracts  / NFTs')}</div>
+        <div className="text-[13px] leading-[15px] text-r-neutral-foot opacity-40">
+          {t('Search Contracts  / NFTs')}
+        </div>
       </div>
-      <div className="list-header">
-        <div className="column-title">{t('NFT Contracts')}</div>
-        <div className="column-title">{t('Approved to')}</div>
+      <div className="flex justify-between">
+        <div className="px-[12px] py-[12px] text-[12px] leading-[14px] text-r-neutral-foot">
+          {t('NFT Contracts')}
+        </div>
+        <div className="px-[12px] py-[12px] text-[12px] leading-[14px] text-r-neutral-foot">
+          {t('Approved to')}
+        </div>
       </div>
-      <div className="list-body">
+      <div className="h-[295px] overflow-auto">
         {loading && <Loading />}
 
         {!loading && (!data || data.length <= 0) && (

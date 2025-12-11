@@ -209,13 +209,13 @@ const BalanceChange = ({
 
   if (version === 'v1' && data?.error) {
     return (
-      <div className="token-balance-change">
+      <div className="border border-rabby-neutral-line rounded-[6px] bg-r-neutral-card-2">
         <HeadlineStyled>
           {isSuccess
             ? t('page.signTx.balanceChange.successTitle')
             : t('page.signTx.balanceChange.failedTitle')}
         </HeadlineStyled>
-        <div className="token-balance-change-content">
+        <div className="px-[16px] pb-[16px]">
           <Table>
             <Col className="py-10">
               <Row isTitle>
@@ -235,7 +235,7 @@ const BalanceChange = ({
   }
 
   return (
-    <div className="token-balance-change">
+    <div className="border border-rabby-neutral-line rounded-[6px] bg-r-neutral-card-2">
       <HeadlineStyled>
         <span>{t('page.signTx.balanceChange.successTitle')}</span>
         {showUsdValueDiff && (
@@ -246,7 +246,7 @@ const BalanceChange = ({
           </span>
         )}
       </HeadlineStyled>
-      <div className="token-balance-change-content">
+      <div className="px-[16px] pb-[16px]">
         <Table>
           {!hasChange && isSuccess && (
             <Col className="py-10">

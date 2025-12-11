@@ -124,7 +124,7 @@ export default function RateModal() {
         borderTopRightRadius: '16px',
       }}
       destroyOnClose
-      className="settings-popup-wrapper"
+      className="flex flex-col"
       isSupportDarkMode
     >
       {!wantFeedback ? (

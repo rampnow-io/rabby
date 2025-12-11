@@ -21,7 +21,9 @@ export const TxId = React.memo(({ chain, id }: TxIdProps) => {
   }, [info]);
   return (
     <div className="ui tx-id-container">
-      <span className="tx-id-chain">{info?.name || 'Unknown'}</span>
+      <span className="text-[12px] text-r-neutral-foot mr-[4px]">
+        {info?.name || 'Unknown'}
+      </span>
       <a className="tx-id" onClick={handleScanClick}>
         {ellipsis(id)}
       </a>

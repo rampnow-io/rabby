@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FieldCheckbox } from 'ui/component';
 import { ellipsis } from 'ui/utils/address';
-import './style.less';
 
 export interface ISelectAccountItem {
   address: string;

@@ -130,8 +130,8 @@ const CancelTx = ({
     <Wrapper>
       {requireData.pendingTxs.length > 0 && (
         <>
-          <div className="container">
-            <div className="internal-transaction">
+          <div className="px-[16px] py-[12px]">
+            <div className="relative mb-[12px] text-[13px] text-r-neutral-body">
               {t('page.signTx.cancelTx.txToBeCanceled')}
               <div className="bg"></div>
             </div>

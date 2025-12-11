@@ -17,28 +17,35 @@ const NFTContractListItem = ({ item, onDecline }: NFTContractListItemProps) => {
   const currentAccount = useRabbySelector((s) => s.account.currentAccount);
 
   return (
-    <div className="list-item">
-      <div className="list-item-body">
-        <div className="list-item-title">
+    <div className="flex items-center px-[8px] pl-[12px] py-[10px] border border-transparent rounded-[6px] gap-[8px] overflow-hidden cursor-pointer hover:bg-r-blue-light1 hover:border-r-blue-default group">
+      <div className="flex-1">
+        <div className="text-[15px] font-medium text-r-neutral-title1 mb-[4px]">
           {item.contract_name || 'Unknown NFT'} (
           {getAmountText(item?.amount || 0)})
         </div>
-        <div className="list-item-desc">{ellipsis(item.contract_id)}</div>
+        <div className="text-[13px] text-r-neutral-body">
+          {ellipsis(item.contract_id)}
+        </div>
       </div>
-      <div className="list-item-extra">
-        <div className="list-item-title text-right">
+      <div className="flex flex-col items-end gap-[4px] ml-auto text-right">
+        <div className="text-[15px] font-medium text-r-neutral-title1 text-right group-hover:hidden">
           {item.spender?.protocol?.name}
           {!item.spender?.protocol && (
-            <span className={'nft-approval-tag'}>Unknown Contract</span>
+            <span className="bg-rabby-neutral-line rounded-[2px] text-[12px] leading-[14px] text-r-neutral-foot px-[4px] py-[2px] font-normal">
+              Unknown Contract
+            </span>
           )}
         </div>
-        <div className="list-item-desc">{ellipsis(item.spender.id)}</div>
+        <div className="text-[13px] text-r-neutral-body group-hover:hidden">
+          {ellipsis(item.spender.id)}
+        </div>
         <Button
           type="primary"
           danger
           ghost
           shape="round"
           size="small"
+          className="hidden group-hover:block !bg-[rgba(236,81,81,0.1)] !border-[#ec5151] !rounded-[20px] !text-[#ec5151] !text-[12px] !leading-[14px] !font-normal !shadow-none before:!hidden"
           onClick={() => {
             matomoRequestEvent({
               category: 'Security',

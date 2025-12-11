@@ -15,7 +15,6 @@ import { PageHeader } from 'ui/component';
 import ChainIcon from 'ui/component/ChainIcon';
 import ChainSelectorModal from 'ui/component/ChainSelector/Modal';
 import EditRPCModal from './components/EditRPCModal';
-import './style.less';
 import { useHistory, useLocation } from 'react-router-dom';
 import { useMemoizedFn } from 'ahooks';
 

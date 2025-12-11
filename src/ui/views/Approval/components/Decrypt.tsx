@@ -78,20 +78,26 @@ const GetEncryptionPublicKey = ({ params, account }: ConnectProps) => {
   }, []);
 
   return (
-    <div className="approval-decrypt">
+    <div className="p-[20px]">
       <AccountCard account={account}></AccountCard>
-      <div className="content">
-        <div className="desc">
+      <div className="mt-[20px]">
+        <div className="text-[14px] text-r-neutral-body mb-[16px]">
           This website requires you to decrypt the following text in order to
           complete the operation
         </div>
         <div className="data">
           {!result ? (
             <>
-              <div style={{ filter: 'blur(3px)' }} className="data-content">
+              <div
+                style={{ filter: 'blur(3px)' }}
+                className="p-[12px] bg-r-neutral-card-2 rounded-[6px] text-[14px] text-r-neutral-body break-words max-h-[200px] overflow-auto"
+              >
                 {msg}
               </div>
-              <div className="data-mask" onClick={handleDecrypt}>
+              <div
+                className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer"
+                onClick={handleDecrypt}
+              >
                 <IconRcMask
                   width={44}
                   height={44}
@@ -102,8 +108,14 @@ const GetEncryptionPublicKey = ({ params, account }: ConnectProps) => {
             </>
           ) : (
             <>
-              <div className="data-content">{result}</div>
-              <Copy icon={IconCopy} data={result} className="icon-copy"></Copy>
+              <div className="p-[12px] bg-r-neutral-card-2 rounded-[6px] text-[14px] text-r-neutral-body break-words max-h-[200px] overflow-auto">
+                {result}
+              </div>
+              <Copy
+                icon={IconCopy}
+                data={result}
+                className="absolute top-[12px] right-[12px] cursor-pointer"
+              ></Copy>
             </>
           )}
         </div>

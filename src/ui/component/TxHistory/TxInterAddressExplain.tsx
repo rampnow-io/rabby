@@ -36,7 +36,7 @@ export const TxInterAddressExplain = ({
 
   if (isCancel) {
     interAddressExplain = (
-      <div className="tx-explain-title">
+      <div className="text-[15px] font-medium text-r-neutral-title1 mb-[4px]">
         {t('page.transactions.explain.cancel')}
       </div>
     );
@@ -59,11 +59,11 @@ export const TxInterAddressExplain = ({
   } else {
     interAddressExplain = (
       <>
-        <div className="tx-explain-title">
+        <div className="text-[15px] font-medium text-r-neutral-title1 mb-[4px]">
           {cateDict[data.cate_id || '']?.name ??
             (data.tx?.name || t('page.transactions.explain.unknown'))}
         </div>
-        <div className="tx-explain-desc">{projectName}</div>
+        <div className="text-[13px] text-r-neutral-body">{projectName}</div>
       </>
     );
   }
@@ -73,9 +73,9 @@ export const TxInterAddressExplain = ({
       <TxAvatar
         src={projectDict[data.project_id as string]?.logo_url}
         cateId={data.cate_id}
-        className="tx-icon"
+        className="w-[28px] h-[28px] rounded-full mr-[12px] flex-shrink-0"
       ></TxAvatar>
-      <div className="tx-explain-body">{interAddressExplain}</div>
+      <div className="flex-1">{interAddressExplain}</div>
     </div>
   );
 };

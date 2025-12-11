@@ -11,7 +11,6 @@ import {
 import QRCode from 'qrcode.react';
 import IconCopy from 'ui/assets/component/icon-copy.svg';
 import IconPen from 'ui/assets/editpen.svg';
-import './style.less';
 import { copyAddress } from '@/ui/utils/clipboard';
 import { useForm } from 'antd/lib/form/Form';
 import {

@@ -13,7 +13,6 @@ import IconBack from 'ui/assets/back.svg';
 import { ReactComponent as RcIconClose } from 'ui/assets/component/close-cc.svg';
 import { AccountSelectorModal } from '../AccountSelector/AccountSelectorModal';
 import ThemeIcon from '../ThemeMode/ThemeIcon';
-import './style.less';
 import { KEYRING_TYPE } from '@/constant';
 const isTab = getUiType().isTab;
 
@@ -62,19 +61,29 @@ const PageHeader = ({
     <>
       <div
         className={clsx(
-          'page-header',
-          isShowAccount && 'switch-account',
+          'flex text-r-neutral-title-1 font-medium text-20 leading-24 pt-20 mb-20 relative items-center',
+          isShowAccount && 'pt-[9px] pb-[6px]',
           !fixed && className
         )}
       >
         {(forceShowBack || (canBack && history.length > 1)) && (
           <ThemeIcon
             src={keepBackLightVersion ? IconBack : RcIconBackNew}
-            className={clsx('icon icon-back', invertBack && 'filter invert')}
+            className={clsx(
+              'icon w-20 h-20 cursor-pointer absolute left-0 bottom-0',
+              isShowAccount && 'top-1/2 -translate-y-1/2',
+              invertBack && 'filter invert'
+            )}
             onClick={onBack || (() => history.goBack())}
           />
         )}
-        <div className="header-content">
+        <div
+          className={clsx(
+            'w-full text-center leading-none',
+            isShowAccount &&
+              'text-r-neutral-title1 text-center text-20 font-medium leading-24'
+          )}
+        >
           {children}
           {isShowAccount && currentAccount ? (
             <AccountSwitchInner
@@ -89,7 +98,7 @@ const PageHeader = ({
           <ThemeIcon
             src={RcIconClose}
             className={clsx(
-              'icon-close text-r-neutral-body',
+              'icon-close text-r-neutral-body absolute w-20 h-20 bottom-0 right-0 cursor-pointer',
               invertBack && 'filter invert',
               closeCn
             )}
@@ -108,8 +117,13 @@ const PageHeader = ({
     </>
   );
   return fixed ? (
-    <div className={clsx('page-header-container', className)}>
-      <div className={clsx('page-header-wrap', wrapperClassName)}>
+    <div className={clsx('h-[64px] flex-shrink-0', className)}>
+      <div
+        className={clsx(
+          'fixed top-0 left-0 right-0 z-10 bg-r-neutral-bg-2 px-20 min-h-[64px]',
+          wrapperClassName
+        )}
+      >
         {Content}
       </div>
     </div>

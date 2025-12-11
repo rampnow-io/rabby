@@ -1053,7 +1053,7 @@ const GasSelectorHeader = ({
               </div>
             ) : gas.error || !gas.success ? (
               <>
-                <div className="gas-selector-card-error">
+                <div className="text-[14px] text-r-red-default">
                   {t('page.signTx.failToFetchGasCost')}
                 </div>
               </>
@@ -1212,12 +1212,12 @@ const GasSelectorHeader = ({
       >
         <div className="mb-20 -mt-4">
           {disabled ? (
-            <div className="gas-selector-modal-amount">
+            <div className="text-[20px] font-medium text-r-neutral-title1 text-center">
               {t('page.signTx.noGasRequired')}
             </div>
           ) : gas.error || !gas.success ? (
             <>
-              <div className="gas-selector-modal-error">
+              <div className="text-[20px] font-medium text-r-red-default text-center">
                 {t('page.signTx.failToFetchGasCost')}
               </div>
               {version === 'v2' && gas.error ? (
@@ -1230,8 +1230,10 @@ const GasSelectorHeader = ({
             </>
           ) : (
             <>
-              <div className="gas-selector-modal-amount">{gasCostUsdStr}</div>
-              <div className="gas-selector-modal-usd">
+              <div className="text-[20px] font-medium text-r-neutral-title1 text-center">
+                {gasCostUsdStr}
+              </div>
+              <div className="flex items-center justify-center gap-[6px] text-[14px] text-r-neutral-body mt-[8px]">
                 <img
                   src={chain.nativeTokenLogo || IconUnknown}
                   className="w-16 h-16 rounded-full"
@@ -1241,7 +1243,7 @@ const GasSelectorHeader = ({
             </>
           )}
         </div>
-        <div className="card-container">
+        <div className="mt-[16px] p-[16px] rounded-[8px] bg-r-neutral-card-1 border border-rabby-neutral-line">
           <div
             className={clsx('card-container-title', {
               disabled: disabled,
@@ -1361,7 +1363,7 @@ const GasSelectorHeader = ({
                   'opacity-50': maxPriorityFee === undefined,
                 })}
               >
-                <p className="priority-slider-header">
+                <p className="flex items-center text-[14px] text-r-neutral-title1 font-medium mb-[12px]">
                   {t('page.signTx.maxPriorityFee')}
                   <Tooltip
                     title={
@@ -1383,7 +1385,7 @@ const GasSelectorHeader = ({
                   }
                   overlayClassName="rectangle"
                 >
-                  <div className="priority-slider-body">
+                  <div className="flex items-center gap-[12px]">
                     <Input
                       onFocus={(e) => e.target.select()}
                       value={maxPriorityFee}

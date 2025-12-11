@@ -110,7 +110,7 @@ export const CoboDelegatedDrawer = ({
   }, []);
 
   return (
-    <div className="gnosis-drawer-container">
+    <div className="flex flex-col p-[20px] bg-r-neutral-card-1 rounded-[8px]">
       {ownerAccounts.length ? (
         <div className="title mb-[16px]">
           {t('page.signTx.importedDelegatedAddress')}

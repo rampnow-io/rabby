@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Tabs } from 'antd';
 import { PageHeader } from 'ui/component';
 
-import './style.less';
 import TransactionHistory from '../TransactionHistory';
 import SignedTextHistory from '../SignedTextHistory';
 import PillsSwitch from '@/ui/component/PillsSwitch';

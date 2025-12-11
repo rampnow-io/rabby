@@ -2,7 +2,6 @@ import { TokenItem } from '@/background/service/openapi';
 import { Popup } from '@/ui/component';
 import React from 'react';
 import TokenDetail from './TokenDetail';
-import './style.less';
 import { getUiType, isSameAddress, useWallet } from '@/ui/utils';
 import { Account, Token } from '@/background/service/preference';
 import { useRabbyDispatch } from 'ui/store';

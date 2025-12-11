@@ -5,7 +5,6 @@ import { useWallet } from 'ui/utils';
 import { UIContactBookItem } from 'background/service/contactBook';
 import { Divide } from '@/ui/views/Approval/components/Divide';
 import clsx from 'clsx';
-import './style.less';
 
 interface EditModalProps {
   address: string;

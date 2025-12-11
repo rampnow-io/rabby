@@ -8,7 +8,6 @@ import { useWallet, hex2Text, sinceTime } from 'ui/utils';
 import { openInTab } from 'ui/utils/webapi';
 import IconCopy from 'ui/assets/copy-gray.svg';
 import IconSuccess from 'ui/assets/success.svg';
-import './style.less';
 import { Account } from '@/background/service/preference';
 import { INTERNAL_REQUEST_ORIGIN } from '@/constant';
 import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';

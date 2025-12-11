@@ -13,7 +13,6 @@ import IconSuccess from 'ui/assets/success.svg';
 import { PageHeader } from 'ui/component';
 import { CustomTestnetItem } from './components/CustomTestnetItem';
 import { EditCustomTestnetModal } from './components/EditTestnetModal';
-import './style.less';
 import { Emtpy } from './components/Empty';
 import { useHistory } from 'react-router-dom';
 import { sortBy } from 'lodash';

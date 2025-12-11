@@ -28,7 +28,6 @@ import { PageHeader, AddressViewer, Copy } from 'ui/component';
 import NumberInput from '@/ui/component/NFTNumberInput';
 import NFTAvatar from 'ui/views/Dashboard/components/NFT/NFTAvatar';
 import { ReactComponent as RcIconSwitchCC } from '@/ui/assets/send-token/switch-cc.svg';
-import './style.less';
 import { getKRCategoryByType } from '@/utils/transaction';
 import { filterRbiSource, useRbiSource } from '@/ui/utils/ga-event';
 import { ReactComponent as RcIconExternal } from 'ui/assets/icon-share-currentcolor.svg';

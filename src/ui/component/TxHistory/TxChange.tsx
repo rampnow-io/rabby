@@ -41,7 +41,7 @@ export const TokenChange = ({
 
         return (
           <div
-            className="token-change-item"
+            className="flex items-center gap-[8px] py-[4px]"
             title={name}
             data-id={v.token_id}
             data-name={name}
@@ -70,7 +70,7 @@ export const TokenChange = ({
             >
               -
             </span>
-            <span className="token-change-item-text">
+            <span className="text-[13px] text-r-neutral-body truncate">
               {isNft ? v.amount : numberWithCommasIsLtOne(v.amount, 2)}
             </span>
             <TokenLabel

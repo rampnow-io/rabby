@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import './style.less';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import IconMaskIcon from '@/ui/assets/create-mnemonics/mask-lock.svg';

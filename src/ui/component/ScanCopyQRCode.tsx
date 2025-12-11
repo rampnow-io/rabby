@@ -103,7 +103,7 @@ const ScanCopyQRCode: React.FC<Props> = ({
           )}
           {isHovering && (
             <div className="refresh-container">
-              <div className="refresh-wrapper">
+              <div className="flex items-center justify-center w-[40px] h-[40px] rounded-full bg-r-neutral-bg-1 cursor-pointer">
                 <img
                   className="qrcode-refresh"
                   src={IconQRCodeRefresh}

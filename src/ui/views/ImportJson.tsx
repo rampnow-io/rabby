@@ -65,7 +65,7 @@ const ImportJson: React.FC<{ isInModal?: boolean }> = ({ isInModal }) => {
       >
         {t('page.newAddress.importYourKeystore')}
       </Navbar>
-      <div className="rabby-container widget-has-ant-input">
+      <div className="flex flex-col widget-has-ant-input">
         <div className="px-20">
           <Form.Item
             className="mx-auto mt-[32px] mb-[24px]"

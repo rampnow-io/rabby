@@ -13,7 +13,6 @@ import { isSameAddress, useWallet } from 'ui/utils';
 import { SkipNonceAlert } from './components/SkipNonceAlert';
 import { TransactionItem } from './components/TransactionItem';
 import { useLoadTxRequests } from './hooks';
-import './style.less';
 import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 
 const TransactionHistory = () => {

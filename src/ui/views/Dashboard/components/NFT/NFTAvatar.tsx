@@ -8,7 +8,6 @@ import IconNFTDefault from 'ui/assets/nft-default.svg';
 import IconUnknown from 'ui/assets/token-default.svg';
 import IconZoom from 'ui/assets/zoom.svg';
 import { getChain } from '@/utils';
-import './style.less';
 
 type AvatarProps = {
   content?: string;

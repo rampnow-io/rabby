@@ -11,8 +11,6 @@ import { ReactComponent as RcIconAddAddress } from '@/ui/assets/address/new-addr
 import { ReactComponent as RcIconRight } from '@/ui/assets/address/right.svg';
 import { ReactComponent as RcNoMatchedAddress } from '@/ui/assets/address/no-matched-addr.svg';
 
-import './style.less';
-
 import { obj2query } from '@/ui/utils/url';
 import { useRabbyDispatch, useRabbySelector } from '@/ui/store';
 
@@ -385,7 +383,7 @@ const AddressManagement: React.FC = () => {
           {addressSortStore.sortType === 'addressType'
             ? (filteredAccounts as IDisplayedAccountWithBalance[][]).map(
                 (group, gIndex) => (
-                  <div key={gIndex} className="address-type-container p-[8px]">
+                  <div key={gIndex} className="flex flex-col gap-[8px] p-[8px]">
                     {group.map((acc) => renderAddressRow(acc))}
                     {gIndex === filteredAccounts.length - 1 && (
                       <div className="mx-20">{AddNewAddressColumn}</div>

@@ -16,7 +16,6 @@ import { useWallet } from 'ui/utils';
 import NFTContractList from './components/NFTContractList';
 import NFTList from './components/NFTList';
 import PopupSearch from './components/PopupSearch';
-import './style.less';
 import { getAmountText } from './utils';
 import { findChainByEnum } from '@/utils/chain';
 const { TabPane } = Tabs;
@@ -146,18 +145,20 @@ const NFTApproval = () => {
   }
 
   return (
-    <div className="nft-approval">
+    <div className="px-[16px] relative pb-[20px]">
       <PageHeader onBack={handleClickBack} forceShowBack fixed>
         {t('NFT Approval')}
       </PageHeader>
       <div>
-        <TagChainSelector
-          value={chain}
-          onChange={handleChainChanged}
-          showModal={showChainsModal}
-        />
-        <div className="card-risk-amount relative">
-          <div className="card-risk-amount-title">
+        <div className="mb-[-10px]">
+          <TagChainSelector
+            value={chain}
+            onChange={handleChainChanged}
+            showModal={showChainsModal}
+          />
+        </div>
+        <div className="relative p-[20px] bg-r-neutral-card-1 rounded-[8px] mb-[20px]">
+          <div className="flex items-center gap-[6px] text-[14px] text-r-neutral-body mb-[12px]">
             <span>{t('Total risk exposure')}</span>
             <Tooltip
               align={{ offset: [55, 0] }}
@@ -172,11 +173,11 @@ const NFTApproval = () => {
               </div>
             </Tooltip>
           </div>
-          <div className="card-risk-amount-content">
+          <div className="text-[24px] font-medium text-r-neutral-title1">
             {getAmountText(data?.total || 0)}
           </div>
         </div>
-        <Tabs>
+        <Tabs className="[&_.ant-tabs-tab]:py-[6px] [&_.ant-tabs-tab]:px-0 [&_.ant-tabs-tab]:font-medium [&_.ant-tabs-tab]:text-[13px] [&_.ant-tabs-tab]:leading-[15px] [&_.ant-tabs-tab]:text-r-neutral-foot [&_.ant-tabs-nav]:mb-[12px] [&_.ant-tabs-nav::before]:hidden">
           <TabPane tab={t('By Contract')} key="1">
             <NFTContractList
               data={data?.contracts}

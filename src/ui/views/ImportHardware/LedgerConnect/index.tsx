@@ -5,7 +5,6 @@ import TransportWebHID from '@ledgerhq/hw-transport-webhid';
 import { StrayPageWithButton } from 'ui/component';
 import { hasConnectedLedgerDevice } from '@/ui/utils';
 import { HARDWARE_KEYRING_TYPES } from 'consts';
-import './style.less';
 import { query2obj } from '@/ui/utils/url';
 import { LedgerBanner } from './LedgerBanner';
 
@@ -65,20 +64,20 @@ const LedgerConnect = () => {
         title: t('page.newAddress.ledger.title'),
         center: true,
       }}
-      className="stray-page-wide ledger-page"
+      className="max-w-[1000px] mx-auto px-[20px]"
       backgroundClassName="bg-r-neutral-card2"
       headerClassName="mb-40 text-r-neutral-title1"
       onSubmit={onSubmit}
       hasBack={false}
       footerFixed={false}
     >
-      <div className="connect-ledger">
-        <ul className="list-decimal w-[180px] pl-[20px] m-auto text-r-neutral-title1 text-14 leading-[20px] mb-[50px]">
+      <div className="w-[306px]">
+        <ul className="w-[180px] pl-[5px] m-auto text-r-neutral-body text-[14px] leading-[20px] mb-[50px]">
           <li>{t('page.dashboard.hd.ledger.doc1')}</li>
           <li>{t('page.dashboard.hd.ledger.doc2')}</li>
           <li>{t('page.dashboard.hd.ledger.doc3')}</li>
         </ul>
-        <img src="/images/ledger-plug.png" className="ledger-plug" />
+        <img src="/images/ledger-plug.png" className="mb-[50px]" />
       </div>
       <LedgerBanner className="ledger-banner" />
     </StrayPageWithButton>

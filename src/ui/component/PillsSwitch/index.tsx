@@ -1,8 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
 
-import './index.less';
-
 type Option = {
   key: string;
   label: string;

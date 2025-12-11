@@ -124,44 +124,6 @@ const config = {
           },
         ],
       },
-      {
-        test: /\.less$/,
-        use: [
-          'style-loader',
-          {
-            loader: 'css-loader',
-            options: {
-              importLoaders: 3,
-            },
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              postcssOptions: {
-                config: path.resolve(__dirname, '../postcss.config.js'),
-              },
-            },
-          },
-          {
-            loader: 'less-loader',
-            options: {
-              lessOptions: {
-                javascriptEnabled: true,
-              },
-            },
-          },
-          {
-            loader: 'style-resources-loader',
-            options: {
-              patterns: [
-                path.resolve(__dirname, '../src/ui/style/var.less'),
-                path.resolve(__dirname, '../src/ui/style/mixin.less'),
-              ],
-              injector: 'append',
-            },
-          },
-        ],
-      },
       // Pre-built CSS from UI package (skip PostCSS processing)
       {
         test: /\.css$/,

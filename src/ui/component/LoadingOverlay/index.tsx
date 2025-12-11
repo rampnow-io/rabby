@@ -1,7 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
 import { SvgIconLoading } from 'ui/assets';
-import './style.less';
 import { useTranslation } from 'react-i18next';
 
 const LoadingOverlay = ({ hidden }: { hidden: boolean }) => {

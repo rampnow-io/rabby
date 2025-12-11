@@ -11,7 +11,7 @@ export const OneKeyBanner: React.FC<Props> = ({ className }) => {
       <div
         className={clsx(
           'bg-r-neutral-card-2 rounded-[12px]',
-          'onekey-banner-content',
+          'flex items-center justify-between w-[880px] h-[100px] px-[96px] max-[600px]:flex-col max-[600px]:items-center',
           'flex items-center justify-between'
         )}
       >

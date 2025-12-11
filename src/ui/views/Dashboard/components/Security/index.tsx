@@ -7,7 +7,6 @@ import IconArrowRight from 'ui/assets/arrow-right-gray.svg';
 import IconTokenApproval from 'ui/assets/icon-token-approval.svg';
 import IconNFTApproval from 'ui/assets/nft-approval.svg';
 import { Field, Popup } from 'ui/component';
-import './style.less';
 import { connectStore, useRabbyDispatch, useRabbySelector } from '@/ui/store';
 import { getKRCategoryByType } from '@/utils/transaction';
 

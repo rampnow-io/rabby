@@ -7,7 +7,6 @@ import { ReactComponent as ArrowDownSVG } from '@/ui/assets/dashboard/arrow-down
 import ChainSelectorModal from './Modal';
 import ChainIcon from '../ChainIcon';
 
-import './style.less';
 import clsx from 'clsx';
 import { findChainByEnum } from '@/utils/chain';
 import { Account } from '@/background/service/preference';
@@ -69,7 +68,12 @@ const ChainSelector = ({
   return (
     <>
       <div
-        className={clsx('chain-selector', className, isHovering && 'hover')}
+        className={clsx(
+          'flex items-center gap-[6px] px-[8px] py-[6px] rounded-[4px]',
+          'bg-r-neutral-card-1 cursor-pointer transition-colors',
+          isHovering && 'bg-r-neutral-bg-1',
+          className
+        )}
         onClick={handleClickSelector}
         {...hoverProps}
       >
@@ -84,7 +88,9 @@ const ChainSelector = ({
         <span className="flex-1 whitespace-nowrap overflow-hidden overflow-ellipsis">
           {findChainByEnum(value)?.name}
         </span>
-        <ArrowDownSVG className={clsx('icon')} />
+        <ArrowDownSVG
+          className={clsx('w-[14px] h-[14px] text-r-neutral-foot')}
+        />
       </div>
       <ChainSelectorModal
         title={title}

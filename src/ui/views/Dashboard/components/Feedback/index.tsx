@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 
 import IconArrowRight from 'ui/assets/arrow-right-gray.svg';
 import { Field, PageHeader } from 'ui/component';
-import './style.less';
 import { ReactComponent as RcIconDirectMessage } from 'ui/assets/feedback-popup/entry-hi.svg';
 import { ReactComponent as RcIconProposal } from 'ui/assets/feedback-popup/entry-proposal.svg';
 import { ReactComponent as RcIconItemLink } from 'ui/assets/feedback-popup/item-link.svg';

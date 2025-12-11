@@ -266,7 +266,7 @@ const ImportWatchAddress: React.FC<{ isInModal?: boolean }> = ({
           </div>
         </div>
       </header>
-      <div className="rabby-container widget-has-ant-input">
+      <div className="flex flex-col widget-has-ant-input">
         <div className="relative">
           <Form.Item
             className="pt-32 px-20"

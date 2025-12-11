@@ -114,7 +114,7 @@ const GnosisDrawer = ({
   }, [confirmations]);
 
   return (
-    <div className="gnosis-drawer-container">
+    <div className="flex flex-col p-[20px] bg-r-neutral-card-1 rounded-[8px]">
       <div className="text-[18px] leading-[21px] font-medium text-r-neutral-title1 text-center mb-[16px]">
         {safeInfo.threshold - signatures.length > 0
           ? t('page.signTx.moreSafeSigNeeded', [

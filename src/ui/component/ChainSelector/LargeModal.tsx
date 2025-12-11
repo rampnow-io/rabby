@@ -206,7 +206,9 @@ export const ChainSelectorLargeModal = ({
     >
       <Warper>
         <header>
-          <div className="modal-title">{title}</div>
+          <div className="text-[20px] font-medium text-r-neutral-title1 mb-[16px]">
+            {title}
+          </div>
           {isShowTestnet && (
             <NetSwitchTabs
               value={selectedTab}
@@ -225,11 +227,11 @@ export const ChainSelectorLargeModal = ({
           />
         </header>
         {isLoading ? (
-          <div className="chain-selector-large-modal-content">
+          <div className="flex-1 overflow-auto px-[20px] py-[16px]">
             <LoadingBalances loading={isLoading} />
           </div>
         ) : (
-          <div className="chain-selector-large-modal-content">
+          <div className="flex-1 overflow-auto px-[20px] py-[16px]">
             <SelectChainList
               supportChains={supportChains}
               data={matteredList}

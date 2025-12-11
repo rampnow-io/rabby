@@ -1,7 +1,6 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { PageHeader } from 'ui/component';
-import './style.less';
 import { CollectionCard } from './CollectionCard';
 import { Modal, Tabs } from 'antd';
 import { useRabbySelector } from '@/ui/store';
@@ -108,7 +107,7 @@ export const NFTView: React.FC<{
   return (
     <div
       className={clsx(
-        'nft-view px-20 pb-20 bg-r-neutral-bg-2 h-screen',
+        ' px-20 pb-20 bg-r-neutral-bg-2 h-screen',
         isInModal ? 'is-in-modal' : ''
       )}
     >

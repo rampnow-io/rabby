@@ -5,7 +5,6 @@ import React from 'react';
 import { ModalCloseIcon } from '../TokenDetailModal';
 
 // fix: wallet connect popup style
-import '@/ui/views/WalletConnect/style.less';
 
 export const AddressDetailModal: React.FC<ModalProps> = (props) => {
   return (

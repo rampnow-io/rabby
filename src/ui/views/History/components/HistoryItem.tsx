@@ -59,7 +59,7 @@ function ViewMessageTriggerForEoa({
 
   return (
     <Tooltip
-      overlayClassName="rectangle J_tipInputData text-r-neutral-title-2 text-[12px]"
+      overlayClassName="rectangle [&_.ant-tooltip-inner]:px-[6px] [&_.ant-tooltip-inner]:py-[8px] [&_.ant-tooltip-inner]:bg-r-neutral-title1 text-r-neutral-title-2 text-[12px]"
       placement="topLeft"
       arrowPointAtCenter
       // The transaction includes a message
@@ -121,7 +121,7 @@ function ViewMessageTriggerForContract({
       )}
       {!isLoadingExplain && explain?.abi && (
         <Tooltip
-          overlayClassName="rectangle J_tipInputData text-r-neutral-title-2 text-[12px]"
+          overlayClassName="rectangle [&_.ant-tooltip-inner]:px-[6px] [&_.ant-tooltip-inner]:py-[8px] [&_.ant-tooltip-inner]:bg-r-neutral-title1 text-r-neutral-title-2 text-[12px]"
           placement="topLeft"
           arrowPointAtCenter
           // The transaction includes a message
@@ -250,14 +250,29 @@ export const HistoryItem = ({
   }
 
   return (
-    <div className={clsx('txs-history-card')}>
-      <div className="txs-history-card-header">
+    <div
+      className="
+    txs-history-card relative bg-r-neutral-card-1
+    rounded-[6px] px-[12px] mb-[12px]
+    [&.is-gray]:opacity-50
+  "
+    >
+      <div
+        className="flex items-center py-[9px] min-h-[38px]
+  gap-y-[9px] gap-x-[12px] flex-wrap"
+      >
         {isScam && (
           <TooltipWithMagnetArrow
             title={t('page.transactions.txHistory.scamToolTip')}
             className="rectangle w-[max-content] max-w-[340px]"
           >
-            <div className="tag-scam opacity-50">{t('global.scamTx')}</div>
+            <div
+              className="tag-scam text-[12px] leading-[14px] font-normal
+  text-r-neutral-foot bg-r-neutral-line
+  px-[6px] py-[3px] rounded-[2px] opacity-50"
+            >
+              {t('global.scamTx')}
+            </div>
           </TooltipWithMagnetArrow>
         )}
         <div
@@ -292,7 +307,7 @@ export const HistoryItem = ({
       </div>
       <div
         className={clsx(
-          'txs-history-card-body',
+          'pt-[8px] pb-[20px] flex items-center gap-[8px]',
           (isScam || isFailed) && 'opacity-50'
         )}
       >

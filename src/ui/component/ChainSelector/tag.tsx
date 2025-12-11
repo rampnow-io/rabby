@@ -3,7 +3,6 @@ import { CHAINS_ENUM, CHAINS } from 'consts';
 import { SvgIconArrowDownTriangle } from 'ui/assets';
 import Modal from './Modal';
 
-import './style.less';
 import { SelectChainListProps } from './components/SelectChainList';
 import { useRabbySelector } from '@/ui/store';
 import { DEX_SUPPORT_CHAINS } from '@/constant/dex-swap';
@@ -48,7 +47,10 @@ const ChainSelector = ({
 
   return (
     <>
-      <div className="chain-tag-selector" onClick={handleClickSelector}>
+      <div
+        className="inline-flex items-center gap-[4px] px-[8px] py-[4px] rounded-[4px] bg-r-neutral-card-2 cursor-pointer hover:bg-r-neutral-card-1"
+        onClick={handleClickSelector}
+      >
         On{' '}
         <span className="chain-tag-selector__name flex-1">
           {findChainByEnum(value)?.name || ''}

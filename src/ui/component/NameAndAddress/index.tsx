@@ -16,7 +16,6 @@ import { copyAddress } from '@/ui/utils/clipboard';
 
 import IconAddressCopy from 'ui/assets/icon-copy-2.svg';
 import IconExternal from 'ui/assets/icon-share.svg';
-import './index.less';
 import { useTranslation } from 'react-i18next';
 import { getAddressScanLink } from '@/utils';
 import ThemeIcon from '../ThemeMode/ThemeIcon';

@@ -1,13 +1,12 @@
 import React from 'react';
 import { AddAddressOptions, BlueHeader } from 'ui/component';
-import './style.less';
 import { useTranslation } from 'react-i18next';
 
 const NoAddress = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="no-address">
+    <div className="pt-0 px-[20px] pb-[30px]">
       <BlueHeader
         fixed
         showBackIcon={false}

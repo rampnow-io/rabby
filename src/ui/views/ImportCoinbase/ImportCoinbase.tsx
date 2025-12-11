@@ -7,7 +7,6 @@ import IconBack from 'ui/assets/icon-back.svg';
 import { ScanCopyQRCode } from 'ui/component';
 import eventBus from '@/eventBus';
 import { EVENTS, WALLET_BRAND_CONTENT } from 'consts';
-import './style.less';
 import { useSessionStatus } from '@/ui/component/WalletConnect/useSessionStatus';
 import { SESSION_STATUS_MAP } from '@rabby-wallet/eth-coinbase-keyring/dist/type';
 import clsx from 'clsx';
@@ -142,24 +141,27 @@ export const ImportCoinbase: React.FC<{ isInModal?: boolean }> = ({
   return (
     <div
       className={clsx(
-        'import-coinbase pb-0',
-        isInModal ? 'min-h-0 h-[600px] overflow-auto' : ''
+        'w-full h-full bg-r-neutral-bg-2 overflow-auto pb-[36px]',
+        isInModal && 'min-h-0 h-[600px]'
       )}
     >
-      <div className="create-new-header create-password-header h-[180px] py-[20px] dark:bg-r-blue-disable">
+      <div className="h-[180px] py-[20px] bg-r-blue-disable relative">
         <img
           src={IconBack}
-          className="icon-back mb-0 relative z-10"
+          className="w-[24px] h-[24px] absolute top-[20px] left-[20px] cursor-pointer z-20"
           onClick={handleClickBack}
         />
-        <div className="relative w-[60px] h-[60px] mb-16 mx-auto mt-[-4px]">
-          <img className="unlock-logo w-full h-full" src={COINBASE.image} />
+
+        <div className="w-[60px] h-[60px] mx-auto mt-[20px] mb-[16px] relative">
+          <img src={COINBASE.image} className="w-full h-full" />
         </div>
-        <p className="text-[17px] leading-none mb-8 mt-0 text-white text-center font-bold">
+
+        <p className="text-[17px] mt-0 mb-0 text-white text-center font-bold leading-none">
           {t('page.newAddress.walletConnect.connectYour')} {COINBASE.name}{' '}
           Wallet
         </p>
       </div>
+
       <ScanCopyQRCode
         showURL={showURL}
         changeShowURL={setShowURL}

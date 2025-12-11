@@ -87,11 +87,11 @@ const PopupSearch = ({
       title="Search"
       height={580}
       closable
-      className="nft-approval-popup-search"
+      className="[&_.ant-drawer-body]:pt-0"
     >
       {visible && (
         <>
-          <header>
+          <header className="sticky top-0 pt-[12px] pb-[20px] bg-white z-[1]">
             <Input
               size="large"
               prefix={<img src={IconSearch} />}
@@ -99,15 +99,16 @@ const PopupSearch = ({
               onChange={handleInputChange}
               autoFocus
               ref={inputRef}
+              className="!px-[12px] !py-[12px] !rounded-[6px] !border !border-rabby-neutral-line !bg-rabby-neutral-bg transition-colors hover:!border-r-blue-default focus:!border-r-blue-default focus:!bg-r-blue-light1 [&_.ant-input]:!rounded-0 [&_.ant-input]:!bg-transparent [&.ant-input-affix-wrapper::before]:h-[16px]"
             />
           </header>
           {!!filterData?.contracts.length && (
-            <div className="approval-card">
-              <div className="approval-card-header">
-                <div className="column-title">{t('NFT Contracts')}</div>
-                <div className="column-title">{t('Approved to')}</div>
+            <div className="bg-white border border-rabby-neutral-line rounded-[6px] mb-[20px]">
+              <div className="bg-[#e5e9ef] rounded-t-[6px] flex justify-between px-[12px] py-[12px]">
+                <div className="font-normal text-[12px] leading-[14px] text-r-neutral-foot">{t('NFT Contracts')}</div>
+                <div className="font-normal text-[12px] leading-[14px] text-r-neutral-foot">{t('Approved to')}</div>
               </div>
-              <div className="approval-card-body">
+              <div className="p-[16px] space-y-[12px]">
                 {filterData?.contracts.map((item) => (
                   <NFTContractListItem
                     item={item}
@@ -119,12 +120,12 @@ const PopupSearch = ({
             </div>
           )}
           {!!filterData?.tokens.length && (
-            <div className="approval-card">
-              <div className="approval-card-header">
-                <div className="column-title">{t('NFTs')}</div>
-                <div className="column-title">{t('Approved to')}</div>
+            <div className="bg-white border border-rabby-neutral-line rounded-[6px] mb-[20px]">
+              <div className="bg-[#e5e9ef] rounded-t-[6px] flex justify-between px-[12px] py-[12px]">
+                <div className="font-normal text-[12px] leading-[14px] text-r-neutral-foot">{t('NFTs')}</div>
+                <div className="font-normal text-[12px] leading-[14px] text-r-neutral-foot">{t('Approved to')}</div>
               </div>
-              <div className="approval-card-body">
+              <div className="p-[16px] space-y-[12px]">
                 {filterData?.tokens.map((item) => (
                   <NFTListItem
                     item={item}

@@ -59,19 +59,21 @@ const GetEncryptionPublicKey = ({ params, account }: ConnectProps) => {
   }, []);
 
   return (
-    <div className="approval-public-key">
+    <div className="p-[20px]">
       <AccountCard account={account}></AccountCard>
-      <div className="content">
-        <div className="site">
+      <div className="mt-[20px]">
+        <div className="flex flex-col items-center mb-[20px]">
           <FallbackSiteLogo
-            className="site-icon"
+            className="w-[44px] h-[44px] rounded-full mb-[12px]"
             url={icon}
             origin={origin}
             width="44px"
           />
-          <div className="site-origin">{origin}</div>
+          <div className="text-[16px] text-r-neutral-title1 font-medium">
+            {origin}
+          </div>
         </div>
-        <div className="desc">
+        <div className="text-[14px] text-r-neutral-body leading-[20px]">
           This website would like your public encryption key. By consenting,
           this site will be able to compose encrypted messages to you.
         </div>

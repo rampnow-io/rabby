@@ -3,7 +3,6 @@ import cx from 'clsx';
 import { getMainDomain } from '@/utils';
 import { getOriginName, hashCode } from 'ui/utils';
 import { EXTERNAL_RESOURCE_DOMAIN_BLACK_LIST } from '@/constant';
-import './style.less';
 
 const bgColorList = [
   '#F69373',
@@ -71,7 +70,10 @@ const FallbackImage = ({
 
   return (
     <div
-      className={cx('fallback-site-logo', className)}
+      className={cx(
+        'w-[28px] h-[28px] rounded-full flex items-center justify-center overflow-hidden',
+        className
+      )}
       onClick={onClick}
       style={{
         width,
@@ -80,9 +82,9 @@ const FallbackImage = ({
       }}
     >
       <div
-        className="img-wrapper"
+        className="w-full h-full bg-center bg-cover bg-no-repeat"
         style={{
-          '--background': loadSuccess ? `url(${logoUrl})` : bgColor,
+          background: loadSuccess ? `url(${logoUrl})` : bgColor,
         }}
       >
         {!loadFaild && (

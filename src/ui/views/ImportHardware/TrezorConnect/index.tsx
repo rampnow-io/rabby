@@ -2,7 +2,6 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StrayPageWithButton } from 'ui/component';
 import { openInternalPageInTab } from '@/ui/utils';
-import './style.less';
 import { TrezorBanner } from './Bannder';
 
 const TrezorConnect = () => {
@@ -18,7 +17,7 @@ const TrezorConnect = () => {
         title: t('page.newAddress.trezor.title'),
         center: true,
       }}
-      className="stray-page-wide ledger-page"
+      className="max-w-[1000px] mx-auto px-[20px]"
       backgroundClassName="bg-r-neutral-card2"
       headerClassName="mb-40 text-r-neutral-title1"
       onSubmit={onSubmit}

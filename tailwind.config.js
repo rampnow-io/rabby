@@ -1,6 +1,7 @@
 const colors = require('tailwindcss/colors');
 const tinycolor2 = require('tinycolor2');
 const uiConfig = require('./src/packages/ui/tailwind.config.ts');
+const rabbyUtilities = require('./src/ui/style/tailwind-utilities');
 
 const {
   themeColors,
@@ -137,4 +138,5 @@ module.exports = {
   // see https://v2.tailwindcss.com/docs/dark-mode
   darkMode: 'class',
   important: true,
+  plugins: [rabbyUtilities],
 };

@@ -131,7 +131,7 @@ const AccountItem = ({
         }
       />
       <div className="account-info flex-1">
-        <p className="name">
+        <p className="text-[15px] font-medium text-r-neutral-title1 mb-[4px]">
           <div className="flex items-center gap-4">
             <span className="inline-block max-w-[180px] overflow-hidden overflow-ellipsis whitespace-nowrap text-r-neutral-title-1">
               {account.alianName}
@@ -152,7 +152,9 @@ const AccountItem = ({
           title={account.address}
           ref={addressElement}
         >
-          <div className="addr">{ellipsis(account.address)}</div>
+          <div className="text-[13px] text-r-neutral-body">
+            {ellipsis(account.address)}
+          </div>
 
           <CopyChecked addr={account.address} className="icon icon-copy" />
         </p>

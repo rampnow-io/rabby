@@ -37,7 +37,6 @@ import { ReactComponent as RcIconServerCC } from 'ui/assets/server-cc.svg';
 import IconSuccess from 'ui/assets/success.svg';
 import { Checkbox, Field, PageHeader, Popup } from 'ui/component';
 import { openInTab, openInternalPageInTab, useWallet } from 'ui/utils';
-import './style.less';
 
 import IconCheck from 'ui/assets/check-2.svg';
 import { ReactComponent as RcIconSettingsFeatureConnectedDapps } from 'ui/assets/dashboard/settings/connected-dapps.svg';

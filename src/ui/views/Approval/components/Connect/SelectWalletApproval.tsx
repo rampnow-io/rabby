@@ -7,7 +7,6 @@ import { useApproval, useWallet } from 'ui/utils';
 import clsx from 'clsx';
 import Connect from '.';
 import { ApprovalUtilsProvider } from '../../hooks/useApprovalUtils';
-import '../../style.less';
 
 export const ConnectApproval: React.FC<{
   className?: string;

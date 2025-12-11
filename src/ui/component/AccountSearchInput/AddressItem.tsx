@@ -80,7 +80,7 @@ const AddressItem = memo(
           }
         }}
       >
-        <div className={clsx('searched-account-item-left mr-[8px]')}>
+        <div className={clsx('mr-[8px]')}>
           <div className="relative">
             <ThemeIcon src={addressTypeIcon} className={'w-[24px] h-[24px]'} />
             <CommonSignal
@@ -92,16 +92,14 @@ const AddressItem = memo(
           </div>
         </div>
 
-        <div className={clsx('searched-account-item-content')}>
+        <div>
           {
-            <div className="searched-account-item-title" ref={titleRef}>
+            <div
+              className="flex items-center justify-start text-[13px] font-medium text-r-neutral-title1 pb-[2px]"
+              ref={titleRef}
+            >
               <>
-                <div
-                  className={clsx('searched-account-item-alias')}
-                  title={alias}
-                >
-                  {alias}
-                </div>
+                <div title={alias}>{alias}</div>
                 {whitelistEnable && isInWhiteList && (
                   <Tooltip
                     overlayClassName="rectangle"

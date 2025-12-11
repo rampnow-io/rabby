@@ -206,7 +206,10 @@ const OneKeyConnect = () => {
   };
   return (
     <StrayPageWithButton
-      className="stray-page-wide onekey-page"
+      className="stray-page-wide relative 
+    sm:top-[calc(50%-80px)] 
+    sm:w-[880px] 
+    sm:h-[700px]"
       backgroundClassName="bg-r-neutral-card2"
       onSubmit={connectType === ConnectType.USB ? onConnectViaUSB : undefined}
       hasBack={false}
@@ -292,20 +295,21 @@ const OneKeyConnect = () => {
             )}
           </div>
         ) : (
-          <div className="connect-onekey mt-[20px]">
-            <ul className="w-[240px] pl-[20px] m-auto text-r-neutral-title1 text-[20px] leading-[28px] mb-[35px] font-medium">
+          <div className="connect-onekey mx-auto w-[432px] flex flex-col items-center mt-[20px]">
+            <ul className="w-[240px] pl-[20px] m-auto text-r-neutral-title1 text-[20px] leading-[28px] mb-[35px] font-medium list-decimal">
               <li>{t('page.newUserImport.importOneKey.tip1')}</li>
               <li>{t('page.newUserImport.importOneKey.tip2')}</li>
               <li>{t('page.newUserImport.importOneKey.tip3')}</li>
             </ul>
+
             <img
               src="/images/onekey-usb-connect.png"
-              className="onekey-plug pt-[20px] w-[240px] mx-auto"
+              className="onekey-plug mb-[32px] pt-[20px] w-[240px] mx-auto"
             />
           </div>
         )}
 
-        <OneKeyBanner className="onekey-banner" />
+        <OneKeyBanner className="absolute top-[665px] left-0 w-full sm:w-[880px]" />
       </main>
     </StrayPageWithButton>
   );

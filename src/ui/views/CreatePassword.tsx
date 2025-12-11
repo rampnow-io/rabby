@@ -119,7 +119,7 @@ const CreatePassword = () => {
 
   return (
     <Spin spinning={loading} wrapperClassName={spinClass} size="large">
-      <div className="rabby-container h-full bg-r-neutral-card2">
+      <div className="h-full bg-r-neutral-card2 flex flex-col">
         <Form
           className="h-full"
           onFinish={({ password }) => run(password.trim())}

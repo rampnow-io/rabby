@@ -95,20 +95,22 @@ export default function ModalPreviewNFTItem({
         props.className
       )}
     >
-      <PreviewCard className="nft-txpreview-card">
+      <PreviewCard className="p-[20px] bg-r-neutral-card-1 rounded-[8px]">
         <NFTAvatar
           thumbnail={false}
           content={nft?.content}
           type={nft?.content_type}
           amount={nft?.amount}
         ></NFTAvatar>
-        <div className="nft-txpreview-title">{nft?.name || '-'}</div>
+        <div className="text-[18px] font-medium text-r-neutral-title1 mt-[16px] mb-[12px]">
+          {nft?.name || '-'}
+        </div>
         <div className="nft-txpreview-properties">
-          <div className="nft-txpreview-property">
+          <div className="flex justify-between py-[8px] border-b border-rabby-neutral-line">
             <div className="nft-txpreview-property-label">
               {t('component.ModalPreviewNFTItem.FieldLabel.Collection')}
             </div>
-            <div className="nft-txpreview-property-value">
+            <div className="text-[14px] font-medium text-r-neutral-title1">
               {collectProperty?.name || '-'}
             </div>
           </div>

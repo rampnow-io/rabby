@@ -15,7 +15,6 @@ import useTypingMnemonics from '@/ui/hooks/useTypingMnemonics';
 import DebouncedInput from '../DebouncedInput';
 import { TooltipWithMagnetArrow } from '../Tooltip/TooltipWithMagnetArrow';
 
-import './MnemonicsInputs.less';
 import { Trans, useTranslation } from 'react-i18next';
 import { clearClipboard } from '@/ui/utils/clipboard';
 
@@ -468,7 +467,7 @@ function MnemonicsInputs({
                       onSlip39Change(false);
                     }}
                   >
-                    <div className="text-wrapper">
+                    <div className="text-[14px] leading-[20px] text-r-neutral-title1">
                       <Trans
                         t={t}
                         i18nKey="page.newAddress.seedPhrase.wordPhrase"

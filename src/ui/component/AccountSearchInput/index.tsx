@@ -12,8 +12,6 @@ import { useThemeMode } from '@/ui/hooks/usePreference';
 import cx from 'clsx';
 
 import AddressItem from './AddressItem';
-
-import './index.less';
 import type { IDisplayedAccountWithBalance } from '@/ui/models/accountToDisplay';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as RcNoMatchedAddress } from '@/ui/assets/address/no-matched-addr.svg';
@@ -49,6 +47,7 @@ function useSearchAccount(searchKeyword?: string) {
         restAccounts.splice(idx, 1);
       }
     });
+
     const data = groupBy(restAccounts, (e) =>
       e.type === KEYRING_CLASS.WATCH ? '1' : '0'
     );
@@ -59,8 +58,8 @@ function useSearchAccount(searchKeyword?: string) {
     );
 
     return [
-      highlightedAccounts.concat(data['0'] || []).filter((e) => !!e),
-      watchModeHighlightedAccounts.concat(data['1'] || []).filter((e) => !!e),
+      highlightedAccounts.concat(data['0'] || []).filter(Boolean),
+      watchModeHighlightedAccounts.concat(data['1'] || []).filter(Boolean),
     ];
   }, [accountsList, highlightedAddresses]);
 
@@ -81,18 +80,16 @@ function useSearchAccount(searchKeyword?: string) {
       noAnyAccount: false,
       noAnySearchedAccount: false,
     };
+
     result.filteredAccounts = [...result.accountList];
 
     if (debouncedSearchKeyword) {
       const lKeyword = debouncedSearchKeyword.toLowerCase();
-
       result.filteredAccounts = result.accountList.filter((account) => {
         const aliasName = account.alianName?.toLowerCase();
         let addrIncludeKw = false;
         if (lKeyword.replace(/^0x/, '').length >= 2) {
-          addrIncludeKw = account.address
-            .toLowerCase()
-            .includes(lKeyword.toLowerCase());
+          addrIncludeKw = account.address.toLowerCase().includes(lKeyword);
         }
         return aliasName?.includes(lKeyword) || addrIncludeKw;
       });
@@ -126,9 +123,9 @@ function useSearchAccount(searchKeyword?: string) {
 function NoSearchedAddressUI() {
   const { t } = useTranslation();
   return (
-    <div className="no-matched-address h-[120px]">
+    <div className="flex flex-col items-center justify-center h-[120px]">
       <ThemeIcon className="w-[28px] h-[28px]" src={RcNoMatchedAddress} />
-      <p className="text-13 mt-[10px] text-r-neutral-body">
+      <p className="text-[13px] mt-[10px] text-r-neutral-body">
         {t('component.AccountSearchInput.noMatchAddress')}
       </p>
     </div>
@@ -156,60 +153,63 @@ const AccountSearchInput = React.forwardRef<any, AccountSearchInputProps>(
     const { isDarkTheme } = useThemeMode();
 
     const [inputFocusing, setInputFocusing] = useState(false);
-
-    const isInputAddrLike = useMemo(() => {
-      return searchKeyword?.startsWith('0x') && searchKeyword?.length === 42;
-    }, [searchKeyword]);
+    const isInputAddrLike = useMemo(
+      () => searchKeyword?.startsWith('0x') && searchKeyword?.length === 42,
+      [searchKeyword]
+    );
 
     const wrapperRef = useRef<HTMLDivElement>(null);
 
     useClickAway(wrapperRef, (event: MouseEvent) => {
-      const targetEl = event.target as HTMLElement;
-      const inComponent = wrapperRef.current?.contains(targetEl);
-      if (!inComponent) {
+      if (!wrapperRef.current?.contains(event.target as HTMLElement)) {
         setInputFocusing(false);
       }
     });
 
     return (
-      <div ref={wrapperRef} className="account-search-input-wrapper">
+      <div ref={wrapperRef} className="w-full">
         <Popover
           trigger={['none']}
           visible={!!searchKeyword && !isInputAddrLike && inputFocusing}
           placement="bottom"
           className="account-search-popover-input"
-          overlayClassName={cx('account-search-input-overlay', {
-            'dark-mode': isDarkTheme,
-          })}
-          align={{
-            targetOffset: [0, 10],
-          }}
+          overlayClassName={cx(
+            'w-[336px]',
+            '[&_.ant-popover-arrow]:hidden',
+            '[&_.ant-popover-inner-content]:rounded-md',
+            '[&_.ant-popover-inner-content]:p-1',
+            '[&_.ant-popover-inner-content]:max-h-[194px]',
+            '[&_.ant-popover-inner-content]:overflow-auto',
+            '[&_.ant-popover-inner-content]:border',
+            '[&_.ant-popover-inner-content]:border-[var(--r-neutral-line,#d3d8e0)]',
+            '[&_.ant-popover-inner-content]:bg-[var(--r-neutral-bg-1,#fff)]',
+            {
+              'dark:[&_.ant-popover-inner]:shadow-[0_8px_24px_rgba(0,0,0,0.4)]': isDarkTheme,
+            }
+          )}
+          align={{ targetOffset: [0, 10] }}
           getPopupContainer={() => wrapperRef.current || document.body}
           destroyTooltipOnHide
           content={
-            <div className="account-search-input-results">
+            <div className="max-h-[400px] overflow-auto py-[8px]">
               {noAnySearchedAccount ? (
                 <NoSearchedAddressUI />
               ) : (
-                filteredAccounts.map((account, idx) => {
-                  return (
-                    <div
-                      key={`account-search-item-${account.brandName}-${account.address}-${idx}`}
-                      className="account-search-item"
-                    >
-                      <AddressItem
-                        balance={account.balance}
-                        address={account.address}
-                        type={account.type}
-                        brandName={account.brandName}
-                        alias={account.alianName}
-                        onConfirm={() => {
-                          onSelectedAccount?.(account);
-                        }}
-                      />
-                    </div>
-                  );
-                })
+                filteredAccounts.map((account, idx) => (
+                  <div
+                    key={`account-${account.brandName}-${account.address}-${idx}`}
+                    className="px-4 py-2 hover:bg-r-neutral-card-2 cursor-pointer transition-colors"
+                  >
+                    <AddressItem
+                      balance={account.balance}
+                      address={account.address}
+                      type={account.type}
+                      brandName={account.brandName}
+                      alias={account.alianName}
+                      onConfirm={() => onSelectedAccount?.(account)}
+                    />
+                  </div>
+                ))
               )}
             </div>
           }
@@ -222,6 +222,11 @@ const AccountSearchInput = React.forwardRef<any, AccountSearchInputProps>(
             {...inputProps}
             ref={ref}
             value={searchKeyword}
+            className={cx(
+              'border transition-colors',
+              'hover:border-[var(--r-blue-default,#7084ff)]',
+              'focus:border-[var(--r-blue-default,#7084ff)]'
+            )}
             onChange={onChange}
             onFocus={(e) => {
               setInputFocusing(true);

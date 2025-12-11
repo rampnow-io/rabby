@@ -28,7 +28,7 @@ const ETHSign = ({ params }: { params: AddAssetProps }) => {
 
   return (
     <>
-      <div className="approval-add-asset">
+      <div className="flex flex-col items-center p-[20px]">
         <>
           <img
             src={IconWarning}

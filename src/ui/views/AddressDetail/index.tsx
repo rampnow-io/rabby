@@ -10,7 +10,6 @@ import { isSameAddress, useAddressSource, useWallet } from 'ui/utils';
 import { AddressBackup } from './AddressBackup';
 import { AddressDelete } from './AddressDelete';
 import { AddressInfo } from './AddressInfo';
-import './style.less';
 import clsx from 'clsx';
 import { usePopupContainer } from '@/ui/hooks/usePopupContainer';
 

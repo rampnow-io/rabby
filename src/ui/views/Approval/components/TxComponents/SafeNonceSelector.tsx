@@ -366,9 +366,9 @@ const OptionList = ({
 
   if (error) {
     return (
-      <div className="alert-error">
+      <div className="flex items-center gap-[8px] p-[12px] bg-r-red-light rounded-[6px] text-[13px] text-r-red-default">
         <img src={IconFind} alt="" />
-        <div className="alert-error-message">
+        <div className="flex-1">
           <Trans i18nKey="page.signTx.SafeNonceSelector.error.pendingList">
             Fail to load pending transactions,{' '}
             <span
@@ -386,10 +386,10 @@ const OptionList = ({
   }
 
   return (
-    <div className="nonce-select-option-list">
+    <div className="max-h-[400px] overflow-auto">
       {recommendNonce != null ? (
         <div>
-          <div className="nonce-select-option-group-title pt-[10px]">
+          <div className="pt-[10px] px-[16px] text-[13px] text-r-neutral-foot font-medium">
             {t('page.signTx.SafeNonceSelector.optionGroup.recommendTitle')}
           </div>
           <OptionListItem
@@ -404,7 +404,7 @@ const OptionList = ({
       ) : null}
       {pendingList?.length ? (
         <div>
-          <div className="nonce-select-option-group-title">
+          <div className="px-[16px] py-[10px] text-[13px] text-r-neutral-foot font-medium">
             {t('page.signTx.SafeNonceSelector.optionGroup.replaceTitle')}
           </div>
           {pendingOptionlist?.map((item) => {

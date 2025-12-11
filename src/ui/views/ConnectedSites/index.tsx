@@ -5,7 +5,6 @@ import { PageHeader, Field, FallbackSiteLogo } from 'ui/component';
 import { SvgIconCross } from 'ui/assets';
 import { useWallet } from 'ui/utils';
 import { ConnectedSite } from 'background/service/permission';
-import './style.less';
 
 const ConnectedSites = () => {
   const [sites, setSites] = useState<ConnectedSite[]>([]);

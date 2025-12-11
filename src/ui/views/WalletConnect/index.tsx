@@ -13,7 +13,6 @@ import {
   WALLET_BRAND_CATEGORY,
   KEYRING_CLASS,
 } from 'consts';
-import './style.less';
 import clsx from 'clsx';
 import IconWalletConnect from 'ui/assets/walletlogo/walletconnect.svg';
 import { useSessionStatus } from '@/ui/component/WalletConnect/useSessionStatus';

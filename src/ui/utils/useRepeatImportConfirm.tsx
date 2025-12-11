@@ -5,7 +5,6 @@ import { useHistory } from 'react-router-dom';
 import { isSameAddress, useWallet } from '@/ui/utils';
 import { AccountItem } from '@/ui/component/AccountSelector/AccountItem';
 import { useRabbyDispatch, useRabbySelector } from '@/ui/store';
-import './confirmPopup.less';
 import { UI_TYPE } from '@/constant/ui';
 
 type NullFunction = () => void;

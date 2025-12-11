@@ -1,7 +1,6 @@
 import React from 'react';
 import cx from 'clsx';
 import { SvgIconArrowDown } from 'ui/assets';
-import './style.less';
 
 interface AddressViewProps {
   address: string;
@@ -35,7 +34,11 @@ export default ({
         className={cx('address-viewer-text', className)}
         title={address?.toLowerCase()}
       >
-        {showIndex && index >= 0 && <div className="number-index">{index}</div>}
+        {showIndex && index >= 0 && (
+          <div className="w-[20px] h-[20px] rounded-full bg-r-blue-light-1 text-r-blue-default text-[12px] flex items-center justify-center mr-[8px]">
+            {index}
+          </div>
+        )}
         {ellipsis
           ? `${address
               ?.toLowerCase()

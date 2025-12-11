@@ -574,7 +574,7 @@ const SignText = ({
 
   return (
     <>
-      <div className="approval-text">
+      <div className="p-[20px]">
         {isLoading && (
           <Skeleton.Input
             active
@@ -660,7 +660,7 @@ const SignText = ({
         </Drawer>
       )}
 
-      <footer className="approval-text__footer">
+      <footer>
         <FooterBar
           hasShadow={footerShowShadow}
           securityLevel={securityLevel}

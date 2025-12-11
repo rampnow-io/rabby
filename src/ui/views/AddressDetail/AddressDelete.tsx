@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Popup } from 'ui/component';
 import { useWallet } from 'ui/utils';
 import AuthenticationModalPromise from 'ui/component/AuthenticationModal';
-import './style.less';
 import { ReactComponent as IconArrowRight } from 'ui/assets/arrow-right-gray.svg';
 import { Button, message } from 'antd';
 import {

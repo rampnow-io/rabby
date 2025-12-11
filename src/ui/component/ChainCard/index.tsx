@@ -4,7 +4,6 @@ import clsx from 'clsx';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Chain } from 'background/service/openapi';
-import './style.less';
 import IconAddChain from 'ui/assets/addchain.png';
 import IconChainDelete from 'ui/assets/chain-delete.png';
 
@@ -53,9 +52,11 @@ const ChainCard = ({
   return (
     <div
       className={clsx(
-        'chain-card-wrapper',
-        isHovering && 'hover',
-        !plus && 'pinned',
+        'relative flex items-center gap-[12px] p-[16px]',
+        'rounded-[8px] bg-r-neutral-card-1 border border-transparent',
+        'cursor-pointer transition-all',
+        isHovering && 'border-r-blue-default',
+        !plus && 'pr-[48px]',
         className
       )}
       {...hoverProps}
@@ -65,20 +66,30 @@ const ChainCard = ({
       onClick={onClick}
     >
       {!plus ? (
-        <div className={clsx('chain-card', 'cursor-pointer')} {...listeners}>
-          <img src={chain?.logo} className="chain-logo" />
-          <p className="chain-name">{chain?.name}</p>
+        <div
+          className={clsx('flex items-center gap-[12px] flex-1 cursor-pointer')}
+          {...listeners}
+        >
+          <img src={chain?.logo} className="w-[32px] h-[32px] rounded-full" />
+          <p className="text-r-neutral-title-1 text-[15px] font-medium flex-1">
+            {chain?.name}
+          </p>
         </div>
       ) : (
-        <div className={clsx('chain-card', 'cursor-pointer')} onClick={save}>
-          <img src={chain?.logo} className="chain-logo" />
-          <p className="chain-name">{chain?.name}</p>
+        <div
+          className={clsx('flex items-center gap-[12px] flex-1 cursor-pointer')}
+          onClick={save}
+        >
+          <img src={chain?.logo} className="w-[32px] h-[32px] rounded-full" />
+          <p className="text-r-neutral-title-1 text-[15px] font-medium flex-1">
+            {chain?.name}
+          </p>
         </div>
       )}
       {showIcon && (
         <img
           src={plus ? IconAddChain : IconChainDelete}
-          className="chain-add"
+          className="absolute right-[16px] w-[20px] h-[20px] cursor-pointer"
           onClick={plus ? save : remove}
         />
       )}

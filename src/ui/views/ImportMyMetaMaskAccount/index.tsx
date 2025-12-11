@@ -8,7 +8,6 @@ import { ReactComponent as RcIconMnemonics } from 'ui/assets/import/mnemonics-cu
 import { ReactComponent as RcIconPrivatekey } from 'ui/assets/import/privatekey-currentcolor.svg';
 import IconTinRightArrow from 'ui/assets/address/tiny-arrow-right.svg';
 
-import './style.less';
 import clsx from 'clsx';
 import { UI_TYPE } from '@/constant/ui';
 import qs from 'qs';
@@ -45,11 +44,11 @@ export const ImportMyMetaMaskAccount: React.FC<{
   return (
     <div
       className={clsx(
-        'add-metamask',
+        'px-[20px] pb-[12px] pt-0',
         isInModal ? 'min-h-0 h-[600px] overflow-auto' : ''
       )}
     >
-      <BlueHeader className="mx-[-20px]">
+      <BlueHeader className="mx-[-20px] bg-gradient-to-r from-[#8ba8ff] to-[#8c96ff]">
         {t('page.newAddress.importMyMetamaskAccount')}
       </BlueHeader>
       <div

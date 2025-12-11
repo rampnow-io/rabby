@@ -1,7 +1,6 @@
 import React from 'react';
 import AuthenticationModalPromise from 'ui/component/AuthenticationModal';
 import { useWallet } from 'ui/utils';
-import './style.less';
 import { ReactComponent as IconArrowRight } from 'ui/assets/arrow-right-gray.svg';
 import { useForm } from 'antd/lib/form/Form';
 import { useHistory } from 'react-router-dom';

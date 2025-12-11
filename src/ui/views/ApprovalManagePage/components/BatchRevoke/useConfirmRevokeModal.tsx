@@ -1,6 +1,5 @@
 import { Button } from 'antd';
 import React from 'react';
-import './style.less';
 import clsx from 'clsx';
 import { Modal } from '@/ui/component';
 import { useTranslation } from 'react-i18next';

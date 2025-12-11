@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { StrayPageWithButton } from 'ui/component';
 import { hasConnectedImKeyDevice } from '@/ui/utils';
 import { HARDWARE_KEYRING_TYPES } from 'consts';
-import './style.less';
 import { query2obj } from '@/ui/utils/url';
 
 export const ImKeyConnect = () => {
@@ -48,19 +47,20 @@ export const ImKeyConnect = () => {
         title: t('page.newAddress.imkey.title'),
         center: true,
       }}
-      className="stray-page-wide"
+      className="max-w-[1000px] mx-auto px-[20px]"
       backgroundClassName="bg-r-neutral-card2"
       headerClassName="mb-40 text-r-neutral-title1"
       onSubmit={onSubmit}
       hasBack={false}
       footerFixed={false}
     >
-      <div className="connect-ledger">
-        <ul className="list-decimal w-[180px] pl-[20px] m-auto text-r-neutral-title1 text-14 leading-[20px] mb-[50px]">
+      <div className="w-[306px] mx-auto">
+        <ul className="mb-[50px] pl-[5px] text-[14px] leading-[20px] text-r-neutral-body">
           <li>{t('page.dashboard.hd.imkey.doc1')}</li>
           <li>{t('page.dashboard.hd.imkey.doc2')}</li>
         </ul>
-        <img src="/images/imkey-plug.svg" className="ledger-plug" />
+
+        <img src="/images/imkey-plug.svg" className="mb-[50px]" />
       </div>
     </StrayPageWithButton>
   );

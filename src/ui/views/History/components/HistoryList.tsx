@@ -117,7 +117,12 @@ export const HistoryList = ({
       {loading ? (
         <div className={isFilterScam ? 'pt-[20px]' : ''}>
           {isFilterScam ? (
-            <div className="filter-scam-loading-text">
+            <div
+              className="
+ text-r-neutral-body text-center
+  text-[12px] font-normal fixed top-[55px] left-0 right-0 z-[100]
+"
+            >
               {t('page.transactions.filterScam.loading')}
             </div>
           ) : null}

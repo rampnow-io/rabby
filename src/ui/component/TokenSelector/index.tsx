@@ -19,7 +19,6 @@ import {
   formatUsdValue,
 } from 'ui/utils/number';
 import { getTokenSymbol } from 'ui/utils/token';
-import './style.less';
 import BigNumber from 'bignumber.js';
 import stats from '@/stats';
 import { CHAINS_ENUM, Chain } from '@debank/common';
@@ -522,7 +521,7 @@ const TokenSelector = ({
           />
         </div>
         {chainItem && showChainFilter && (
-          <div className="filters-wrapper">
+          <div className="flex items-center gap-[8px] px-[12px] py-[8px] border-t border-rabby-neutral-line">
             <div className="filter-item__chain px-10">
               <img
                 className="filter-item__chain-logo"

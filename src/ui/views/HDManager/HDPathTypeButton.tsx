@@ -1,7 +1,6 @@
 import { LedgerHDPathType, LedgerHDPathTypeLabel } from '@/ui/utils/ledger';
 import clsx from 'clsx';
 import React from 'react';
-import './index.less';
 
 export import HDPathType = LedgerHDPathType;
 export const HDPathTypeLabel = LedgerHDPathTypeLabel;

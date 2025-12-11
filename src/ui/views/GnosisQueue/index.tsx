@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 import { PageHeader } from 'ui/component';
 import { useWallet } from 'ui/utils';
 import { GnosisTransactionQueue } from './components/GnosisTransactionQueue';
-import './style.less';
 import { GnosisMessageQueue } from './components/GnosisMessageQueue';
 import { useGnosisPendingMessages } from '@/ui/hooks/useGnosisPendingMessages';
 import { useSyncGnosisNetworks } from '@/ui/hooks/useSyncGnonisNetworks';

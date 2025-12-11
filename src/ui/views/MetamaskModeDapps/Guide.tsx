@@ -11,7 +11,6 @@ import { ReactComponent as RcIconDown } from 'ui/assets/metamask-mode-dapps/arro
 import { Empty, FallbackSiteLogo, PageHeader } from 'ui/component';
 import { getCurrentTab, useWallet } from 'ui/utils';
 import { Link } from 'react-router-dom';
-import './style.less';
 import { getOriginFromUrl } from '@/utils';
 import clsx from 'clsx';
 import IconDapps from 'ui/assets/dapps.svg';
@@ -63,7 +62,12 @@ export const MetamaskModeDappsGuide = () => {
   });
 
   return (
-    <div className="page-metamask-mode-dapps-guide pb-[24px]">
+    <div className="flex flex-col 
+    px-[20px] pb-[20px] 
+    text-[12px] leading-[14px]
+    h-screen overflow-auto 
+    bg-r-neutral-bg-2 
+    relative">
       <header className="header mb-[15px]">
         <PageHeader canBack={false} closeable>
           <div className="text-[15px] font-medium leading-[18px] text-r-neutral-title1">

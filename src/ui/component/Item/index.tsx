@@ -208,7 +208,9 @@ export const BlueHeader = ({
           </div>
         )}
 
-        <div className="title">{children}</div>
+        <div className="text-[20px] font-medium text-white mb-[16px]">
+          {children}
+        </div>
       </BlueHeaderWrapper>
       {rest.fixed && <PolyfillHeightBox className={fillClassName} />}
     </>

@@ -556,7 +556,7 @@ export const AddressRiskAlert = ({
           <div className="relative pb-[20px]">
             <div className="absolute left-[-20px] right-[-20px] h-[1px] bg-r-neutral-line" />
           </div>
-          <div className="btn-wrapper w-[100%] flex justify-center">
+          <div className="w-full flex justify-center">
             <Form className="w-full" onFinish={handleSubmit} form={form}>
               {shouldPassword && (
                 <AuthFormItemWrapper $hasError={passwordError}>

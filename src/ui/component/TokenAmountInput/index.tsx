@@ -19,7 +19,6 @@ import { formatUsdValue, splitNumberByStep, useWallet } from 'ui/utils';
 import { abstractTokenToTokenItem, getTokenSymbol } from 'ui/utils/token';
 import TokenSelector, { TokenSelectorProps } from '../TokenSelector';
 import TokenWithChain from '../TokenWithChain';
-import './style.less';
 import { INPUT_NUMBER_RE, filterNumber } from '@/constant/regexp';
 import { MaxButton } from '@/ui/views/SendToken/components/MaxButton';
 import { useTranslation } from 'react-i18next';
@@ -296,7 +295,10 @@ const TokenAmountInput = ({
         </div>
       </div>
       <div className="flex flex-col justify-between gap-[13px] items-end">
-        <div className="left" onClick={handleSelectToken}>
+        <div
+          className="flex items-center gap-[6px] cursor-pointer hover:opacity-80"
+          onClick={handleSelectToken}
+        >
           {initLoading ? (
             <>
               <Skeleton.Avatar className="bg-r-neutral-line w-[24px] h-[24px] rounded-full" />

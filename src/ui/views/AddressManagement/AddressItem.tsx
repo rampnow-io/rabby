@@ -145,7 +145,7 @@ const AddressItem = memo(
     return (
       <div className={clsx(className, 'rabby-address-item-container relative')}>
         {canFastDeleteAccount && (
-          <div className="absolute icon-delete-container w-[20px] left-[-20px] h-full top-0  justify-center items-center">
+          <div className="absolute flex w-[20px] left-[-20px] h-full top-0 justify-center items-center">
             <RcIconDeleteAddress
               className="cursor-pointer w-[16px] h-[16px] icon icon-delete"
               onClick={deleteAccount}

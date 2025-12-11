@@ -1,7 +1,6 @@
 import React, { ReactNode, SyntheticEvent, useEffect, useState } from 'react';
 import cx from 'clsx';
 import IconCheck from 'ui/assets/check.svg';
-import './style.less';
 import clsx from 'clsx';
 import ThemeIcon from '../ThemeMode/ThemeIcon';
 
@@ -47,22 +46,34 @@ const Checkbox = ({
 
   return (
     <div
-      className={cx('rabby-checkbox__wrapper', className, {
-        checked: checkState,
-      })}
+      className={cx(
+        'flex items-center gap-[8px] cursor-pointer',
+        checkState && 'checked',
+        className
+      )}
       onClick={(e) => handleValueChange(e, !checkState)}
     >
       <div
-        className={clsx('rabby-checkbox', type, checkBoxClassName)}
+        className={clsx(
+          'flex items-center justify-center flex-shrink-0',
+          type === 'circle' ? 'rounded-full' : 'rounded-[4px]',
+          checkBoxClassName
+        )}
         style={{
           width,
           height,
           backgroundColor: checkState ? background : unCheckBackground,
         }}
       >
-        {checkIcon ?? <ThemeIcon src={IconCheck} className="icon icon-check" />}
+        {checkIcon ?? (
+          <ThemeIcon src={IconCheck} className="w-[12px] h-[12px]" />
+        )}
       </div>
-      {children && <div className="rabby-checkbox__label">{children}</div>}
+      {children && (
+        <div className="flex-1 text-[14px] text-r-neutral-title-1">
+          {children}
+        </div>
+      )}
     </div>
   );
 };

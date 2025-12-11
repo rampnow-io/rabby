@@ -27,8 +27,6 @@ import IconSuccess from 'ui/assets/success.svg';
 import { IconClearCC } from '@/ui/assets/component/IconClear';
 import { ReactComponent as RcIconContactCC } from '@/ui/assets/contact-cc.svg';
 
-import './styles.less';
-
 const isTab = getUiType().isTab;
 const isDesktop = getUiType().isDesktop;
 const getContainer =
