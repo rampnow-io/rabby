@@ -1,5 +1,5 @@
 import { matomoRequestEvent } from '@/utils/matomo-request';
-import { Button, DrawerProps, Form, Input, message, Modal, Switch } from 'antd';
+import { DrawerProps, Form, Input, message, Modal, Switch } from 'antd';
 import clsx from 'clsx';
 import {
   INITIAL_OPENAPI_URL,
@@ -8,7 +8,7 @@ import {
   ThemeIconType,
   ThemeModes,
 } from 'consts';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { ReactComponent as RcIconActivities } from 'ui/assets/dashboard/activities.svg';
@@ -66,6 +66,8 @@ import { EcosystemBanner } from './components/EcosystemBanner';
 import { useMemoizedFn } from 'ahooks';
 import RateModalTriggerOnSettings from '@/ui/component/RateModal/RateModalTriggerOnSettings';
 import { useMakeMockDataForRateGuideExposure } from '@/ui/component/RateModal/hooks';
+import { BottomDrawer } from '@repo/ui';
+import { Button, ButtonType } from '@repo/ui/primitives';
 
 const useAutoLockOptions = () => {
   const { t } = useTranslation();
@@ -99,7 +101,7 @@ const useAutoLockOptions = () => {
 
 interface SettingsProps {
   visible?: boolean;
-  onClose?: DrawerProps['onClose'];
+  onClose?: () => void;
 }
 
 const { confirm } = Modal;
@@ -189,18 +191,13 @@ const OpenApiModal = ({
         </Form.Item>
         {form.getFieldValue('host') !== INITIAL_OPENAPI_URL && (
           <div className="flex justify-end">
-            <Button type="link" onClick={restoreInitial} className="restore">
+            <Button onClick={restoreInitial} className="restore">
               {t('page.dashboard.settings.reset')}
             </Button>
           </div>
         )}
         <div className="flex justify-center mt-24 popup-footer">
-          <Button
-            type="primary"
-            size="large"
-            htmlType="submit"
-            className="w-[200px]"
-          >
+          <Button type="submit" className="w-[200px]">
             {t('page.dashboard.settings.save')}
           </Button>
         </div>
@@ -266,8 +263,6 @@ const DappAccountModal = ({
       </div>
       <footer>
         <Button
-          type="primary"
-          block
           className="h-[48px] rounded-[8px] text-[16px]"
           onClick={handleSubmit}
         >
@@ -380,14 +375,7 @@ const ResetAccountModal = ({
             </Checkbox>
           </div>
 
-          <Button
-            type="primary"
-            size="large"
-            block
-            onClick={handleResetAccount}
-          >
-            {t('global.confirm')}
-          </Button>
+          <Button onClick={handleResetAccount}>{t('global.confirm')}</Button>
         </div>
       </div>
     </div>
@@ -1071,8 +1059,7 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
           rightIcon: (
             <div className="flex items-center justify-end gap-8">
               <Button
-                type="link"
-                danger
+                buttonType={ButtonType.LINK}
                 onClick={(evt) => {
                   evt.preventDefault();
                   mockExposureRateGuide();
@@ -1085,8 +1072,7 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
                 Mock
               </Button>
               <Button
-                type="primary"
-                ghost
+                buttonType={ButtonType.GHOST}
                 onClick={(evt) => {
                   evt.preventDefault();
                   resetExposureRateGuide();
@@ -1335,10 +1321,10 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
     history.push('/unlock');
   };
 
-  const handleClose: DrawerProps['onClose'] = (e) => {
+  const handleClose = () => {
     setShowOpenApiModal(false);
     setShowResetAccountModal(false);
-    onClose && onClose(e);
+    onClose && onClose();
   };
 
   useEffect(() => {
@@ -1478,17 +1464,13 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
 const Settings = (props: SettingsProps) => {
   const { visible, onClose } = props;
   return (
-    <Popup
-      visible={visible}
-      onClose={onClose}
-      height="65%"
-      bodyStyle={{ height: '100%', padding: '20px 20px 0 20px' }}
-      destroyOnClose
-      className="settings-popup-wrapper"
-      isSupportDarkMode
-    >
-      <SettingsInner {...props} />
-    </Popup>
+    <Fragment>
+      {visible && (
+        <BottomDrawer secondaryAnimation close={onClose}>
+          <SettingsInner {...props} />
+        </BottomDrawer>
+      )}
+    </Fragment>
   );
 };
 

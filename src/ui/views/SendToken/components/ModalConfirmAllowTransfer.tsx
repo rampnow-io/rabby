@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useLayoutEffect } from 'react';
 
 import styled from 'styled-components';
-import { Button, DrawerProps, Form, Input, InputRef } from 'antd';
+import { DrawerProps, Form, Input, InputRef } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -13,6 +13,7 @@ import clsx from 'clsx';
 
 import IconCheckboxChecked from 'ui/assets/send-token/modal/checkbox-checked.svg';
 import IconCheckboxUnchecked from 'ui/assets/send-token/modal/checkbox-unchecked.svg';
+import { Button } from '@repo/ui/primitives';
 
 interface ConfirmAllowTransferModalProps extends WrappedComponentProps {
   toAddr: string;
@@ -160,19 +161,13 @@ function ModalConfirmAllowTransfer({
         >
           {cancelText && (
             <Button
-              size="large"
-              type="primary"
               className="w-[172px] rabby-btn-ghost"
-              ghost
               onClick={handleCancel}
             >
               {cancelText}
             </Button>
           )}
           <Button
-            type="primary"
-            size="large"
-            htmlType="submit"
             className={clsx(cancelText ? 'w-[172px]' : 'w-[200px]')}
             disabled={false}
           >

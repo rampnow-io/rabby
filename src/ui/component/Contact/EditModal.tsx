@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Drawer, Input, InputRef, Button, Form, DrawerProps } from 'antd';
+import { Drawer, Input, InputRef, Form, DrawerProps } from 'antd';
 import { useWallet } from 'ui/utils';
 import { UIContactBookItem } from 'background/service/contactBook';
 import { Divide } from '@/ui/views/Approval/components/Divide';
 import clsx from 'clsx';
+import { Button, ButtonType } from '@repo/ui/primitives';
 
 interface EditModalProps {
   address: string;
@@ -101,8 +102,7 @@ const EditModal = ({
       <Divide className="bg-r-neutral-line absolute left-0" />
       <div className="text-center flex gap-x-16 pt-20">
         <Button
-          size="large"
-          type="ghost"
+          buttonType={ButtonType.GHOST}
           onClick={onCancel}
           className={clsx(
             'w-[200px]',
@@ -114,13 +114,7 @@ const EditModal = ({
         >
           {t('global.Cancel')}
         </Button>
-        <Button
-          type="primary"
-          className="w-[200px]"
-          onClick={handleConfirm}
-          size="large"
-          disabled={!name}
-        >
+        <Button className="w-[200px]" onClick={handleConfirm} disabled={!name}>
           {t('global.Confirm')}
         </Button>
       </div>

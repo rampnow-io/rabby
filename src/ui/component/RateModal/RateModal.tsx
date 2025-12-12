@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import { Button, Input, message } from 'antd';
+import { Input, message } from 'antd';
 import { TextAreaRef } from 'antd/lib/input/TextArea';
 import { useTranslation } from 'react-i18next';
 import { useMount } from 'react-use';
@@ -24,6 +24,7 @@ import { ReactComponent as RabbyLogo } from './icons/rabby-logo.svg';
 import { ReactComponent as ChromeLogo } from './icons/chrome.svg';
 import clsx from 'clsx';
 import { useRabbyDispatch, useRabbySelector } from '@/ui/store';
+import { Button } from '@repo/ui/primitives';
 
 const DASHED_LINE_STYLE = {
   opacity: 0.5,
@@ -163,20 +164,17 @@ export default function RateModal() {
                 ...DASHED_LINE_STYLE,
               }}
             />
-            <span className="text-[24px] text-r-neutral-title-1 text-[600]">
+            <span className="text-[24px] text-r-neutral-title-1 font-[600]">
               😊 {t('page.dashboard.settings.rateModal.thxTitle')}
             </span>
 
-            <span className="mt-[21px] text-[18px] text-center text-r-neutral-title-1 text-[500]">
+            <span className="mt-[21px] text-[18px] text-center text-r-neutral-title-1 font-[500]">
               {t('page.dashboard.settings.rateModal.thxDesc')}
             </span>
           </div>
           <footer className="flex w-[100%] px-[20px] pb-[23px]">
             <Button
-              type="primary"
-              size="large"
-              className="w-[100%] flex flex-row justify-center items-center"
-              block
+              className="w-full flex flex-row justify-center items-center"
               onClick={() => {
                 openAppRateUrl();
                 pushRateDetails({ totalBalanceText }).finally(() => {
@@ -225,7 +223,7 @@ export default function RateModal() {
               }}
             />
 
-            <span className="mb-[16px] text-[18px] text-center text-r-neutral-title-1 text-[500]">
+            <span className="mb-[16px] text-[18px] text-center text-r-neutral-title-1 font-[500]">
               {t('page.dashboard.settings.rateModal.feedbackDesc')}
             </span>
 
@@ -264,11 +262,7 @@ export default function RateModal() {
           <footer className="flex w-[100%] p-[16px] border-t-[0.5px] border-rabby-neutral-line border-solid pb-[16px]">
             <Button
               disabled={disableSubmit}
-              loading={isSubmitting}
-              type="primary"
-              size="large"
-              className="w-[100%] flex flex-row justify-center items-center"
-              block
+              className="w-full flex flex-row justify-center items-center"
               onClick={() => {
                 pushRateDetails({ totalBalanceText })
                   .then(() => {

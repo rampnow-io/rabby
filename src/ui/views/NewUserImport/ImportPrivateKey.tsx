@@ -1,6 +1,6 @@
 import { Card } from '@/ui/component/NewUserImport';
 import { useMemoizedFn, useRequest } from 'ahooks';
-import { Button, Form, Input, message } from 'antd';
+import { Form, Input, message } from 'antd';
 import clsx from 'clsx';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +10,7 @@ import { clearClipboard } from '@/ui/utils/clipboard';
 import IconSuccess from 'ui/assets/success.svg';
 import styled from 'styled-components';
 import { useWallet } from '@/ui/utils';
+import { Button } from '@repo/ui/primitives';
 
 const Container = styled.div`
   .ant-input {
@@ -123,8 +124,6 @@ export const NewUserImportPrivateKey = () => {
 
         <Button
           onClick={handleSubmit}
-          block
-          type="primary"
           disabled={!!error || loading || !value}
           className={clsx(
             'mt-[48px] h-[56px] shadow-none rounded-[8px]',

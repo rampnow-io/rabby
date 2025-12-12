@@ -1,6 +1,7 @@
 import { TestnetChain } from '@/background/service/customTestnet';
 import { findChain } from '@/utils/chain';
-import { Button, Modal } from 'antd';
+import { Button } from '@repo/ui/primitives';
+import { Modal } from 'antd';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -65,21 +66,10 @@ export const ConfirmModifyRpcModal = ({
           </div>
         </div>
         <div className="flex items-center gap-[12px] p-[20px]">
-          <Button
-            type="primary"
-            size="large"
-            className="rabby-btn-ghost w-[172px]"
-            ghost
-            onClick={onCancel}
-          >
+          <Button className="rabby-btn-ghost w-[172px]" onClick={onCancel}>
             {t('global.Cancel')}
           </Button>
-          <Button
-            type="primary"
-            size="large"
-            className="w-[172px]"
-            onClick={onConfirm}
-          >
+          <Button className="w-[172px]" onClick={onConfirm}>
             {t('global.Confirm')}
           </Button>
         </div>

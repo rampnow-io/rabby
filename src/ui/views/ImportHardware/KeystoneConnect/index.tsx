@@ -17,8 +17,8 @@ import QRCodeCheckerDetail from 'ui/views/QRCodeCheckerDetail';
 import clsx from 'clsx';
 import Progress from '@/ui/component/Progress';
 import PillsSwitch from '@/ui/component/PillsSwitch';
-import { Button } from 'antd';
 import { query2obj } from '@/ui/utils/url';
+import { Button } from '@repo/ui/primitives';
 
 const KEYSTONE_TYPE = HARDWARE_KEYRING_TYPES.Keystone.type;
 
@@ -283,9 +283,7 @@ export const KeystoneConnect = () => {
             />
 
             <Button
-              type="primary"
-              size="large"
-              htmlType="submit"
+              type="submit"
               className="w-[200px]"
               onClick={onConnectViaUSB}
             >

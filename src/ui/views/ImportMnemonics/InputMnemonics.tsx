@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Button, Form, Input } from 'antd';
+import { Form, Input } from 'antd';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import clsx from 'clsx';
@@ -10,6 +10,7 @@ import WordsMatrix from '@/ui/component/WordsMatrix';
 import { KEYRING_CLASS } from '@/constant';
 import { useTranslation } from 'react-i18next';
 import { Card } from '@/ui/component/NewUserImport';
+import { Button } from '@repo/ui/primitives';
 
 const FormItemWrapper = styled.div`
   .mnemonics-with-error,
@@ -220,12 +221,10 @@ const ImportMnemonics = () => {
         </FormItemWrapper>
 
         <Button
-          htmlType="submit"
+          type="submit"
           disabled={disabledButton}
-          block
-          type="primary"
           className={clsx(
-            'mt-auto h-[56px] shadow-none rounded-[8px]',
+            'mt-auto h-[56px] shadow-none rounded-[8px] w-full',
             'text-[17px] font-medium'
           )}
         >

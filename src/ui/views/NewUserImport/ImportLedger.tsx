@@ -4,12 +4,13 @@ import { useWallet } from '@/ui/utils';
 import { isLedgerLockError, LedgerHDPathType } from '@/ui/utils/ledger';
 import TransportWebHID from '@ledgerhq/hw-transport-webhid';
 import { useMemoizedFn, useMount, useRequest } from 'ahooks';
-import { Button, message } from 'antd';
+import { message } from 'antd';
 import clsx from 'clsx';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { useNewUserGuideStore } from './hooks/useNewUserGuideStore';
+import { Button } from '@repo/ui/primitives';
 
 const RcLogo = NEXT_KEYRING_ICONS[HARDWARE_KEYRING_TYPES.Ledger.type].rcLight;
 
@@ -120,9 +121,6 @@ export const NewUserImportLedger = () => {
 
       <Button
         onClick={runHandleSubmit}
-        block
-        loading={loading}
-        type="primary"
         className={clsx(
           'mt-[24px] h-[56px] shadow-none rounded-[8px]',
           'text-[17px] font-medium'

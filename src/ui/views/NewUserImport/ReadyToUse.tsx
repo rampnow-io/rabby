@@ -9,8 +9,8 @@ import UserGuide2 from '@/ui/assets/new-user-import/guide-2.png';
 import LongArrowPng from '@/ui/assets/new-user-import/long-arrow.png';
 import { ReactComponent as UserGuide1Icon } from '@/ui/assets/new-user-import/guide1.svg';
 import { ReactComponent as UserGuide2Icon } from '@/ui/assets/new-user-import/guide2.svg';
-import { Button } from 'antd';
 import { debounce } from 'lodash';
+import { Button } from '@repo/ui/primitives';
 
 export const ReadyToUse = () => {
   const { t } = useTranslation();
@@ -98,8 +98,6 @@ export const ReadyToUse = () => {
         />
         <Button
           onClick={() => window.close()}
-          block
-          type="primary"
           className={clsx(
             'mt-auto h-[56px] shadow-none rounded-[8px]',
             'text-[17px] font-medium'

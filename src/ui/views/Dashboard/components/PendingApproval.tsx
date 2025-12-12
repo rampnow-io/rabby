@@ -1,9 +1,9 @@
 import React from 'react';
-import { Button } from 'antd';
 import styled from 'styled-components';
 import LessPalette from '@/ui/style/var-defs';
 import { useWallet } from '@/ui/utils';
 import { useTranslation } from 'react-i18next';
+import { Button } from '@repo/ui/primitives';
 
 const Overlay = styled.div`
   width: 100vw;
@@ -83,7 +83,6 @@ const PendingApproval = ({
         </TextContent>
         <Button
           className="w-[200px] h-[40px] rounded"
-          type="primary"
           onClick={handleActiveApproval}
         >
           {count === 1

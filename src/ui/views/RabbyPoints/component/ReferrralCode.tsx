@@ -1,5 +1,5 @@
 import { Popup } from '@/ui/component';
-import { Button, Input, InputRef, message } from 'antd';
+import { Input, InputRef, message } from 'antd';
 import clsx from 'clsx';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -8,6 +8,7 @@ import { useRabbyPointsInvitedCodeCheck } from '../hooks';
 import { customAlphabet } from 'nanoid';
 import { useTranslation } from 'react-i18next';
 import useDebounceValue from '@/ui/hooks/useDebounceValue';
+import { Button } from '@repo/ui/primitives';
 
 const StyledInput = styled(Input)`
   border-radius: 8px;
@@ -139,7 +140,6 @@ export const SetReferralCode = ({
         </span>
       </div>
       <Button
-        type="primary"
         className="w-[120px] h-[34px] text-r-neutral-title2 text-[15] font-medium"
         onClick={openPopup}
       >
@@ -205,7 +205,6 @@ export const SetReferralCode = ({
 
           <Button
             disabled={disabled}
-            type="primary"
             className="mt-auto w-full h-[52px] text-[15] font-medium text-r-neutral-title2"
             onClick={submitReferralCode}
           >

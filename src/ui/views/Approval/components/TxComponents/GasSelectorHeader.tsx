@@ -1,4 +1,4 @@
-import { Button, DrawerProps, Input, InputRef, Skeleton, Tooltip } from 'antd';
+import { DrawerProps, Input, InputRef, Skeleton, Tooltip } from 'antd';
 import { matomoRequestEvent } from '@/utils/matomo-request';
 import { ValidateStatus } from 'antd/lib/form/FormItem';
 import { GasLevel, Tx, TxPushType } from 'background/service/openapi';
@@ -54,6 +54,7 @@ import {
   useGetShowMoreGasSelectVisible,
   useSetGasInfoByUI,
 } from '@/ui/views/Bridge/Component/ShowMoreGasModal';
+import { Button } from '@repo/ui/primitives';
 
 export interface GasSelectorResponse extends GasLevel {
   gasLimit: number;
@@ -1413,9 +1414,7 @@ const GasSelectorHeader = ({
 
         <div className="flex justify-center mt-32 popup-footer">
           <Button
-            type="primary"
             className="w-full mx-20"
-            size="large"
             onClick={handleModalConfirmGas}
             disabled={
               !isReady ||

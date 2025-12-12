@@ -7,7 +7,7 @@ import { formatAmount, useWallet } from '@/ui/utils';
 import { findChain, getChainList } from '@/utils/chain';
 import { CHAINS_ENUM } from '@debank/common';
 import { useRequest, useSetState } from 'ahooks';
-import { Button, Form, Input, InputRef, Spin, message } from 'antd';
+import { Form, Input, InputRef, Spin, message } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import React, {
   useCallback,
@@ -31,6 +31,7 @@ import {
 } from '@/ui/hooks/useSearchToken';
 import { TokenItem } from '@rabby-wallet/rabby-api/dist/types';
 import { AbstractPortfolioToken } from '@/ui/utils/portfolio/types';
+import { Button, ButtonType } from '@repo/ui/primitives';
 
 interface Props {
   visible?: boolean;
@@ -381,22 +382,17 @@ export const AddCustomTokenPopup = ({ visible, onClose, onConfirm }: Props) => {
           </Form>
           <Footer>
             <Button
-              type="primary"
-              size="large"
+              buttonType={ButtonType.GHOST}
               className="rabby-btn-ghost w-[172px]"
-              ghost
               onClick={onClose}
             >
               {t('global.Cancel')}
             </Button>
             <Button
-              type="primary"
-              size="large"
               className="w-[172px]"
               disabled={Boolean(
                 !token || error || isSearchingToken || !checked
               )}
-              loading={isSubmitting}
               onClick={handleConfirm}
             >
               {t('global.Confirm')}

@@ -4,7 +4,7 @@ import Popup, { PopupProps } from '@/ui/component/Popup';
 import { formatUsdValue, useWallet } from '@/ui/utils';
 import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 import { useAsync } from 'react-use';
-import { Button, Space, Tooltip } from 'antd';
+import { Space, Tooltip } from 'antd';
 import clsx from 'clsx';
 import { ReactComponent as RcIconArrow } from 'ui/assets/perps/IconArrow.svg';
 import { ReactComponent as RcIconLoginLoading } from 'ui/assets/perps/IconLoginLoading.svg';
@@ -23,6 +23,7 @@ import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { PerpsBlueBorderedButton } from '../components/BlueBorderedButton';
 import { useThemeMode } from '@/ui/hooks/usePreference';
+import { Button } from '@repo/ui/primitives';
 
 export type TokenSelectPopupProps = PopupProps & {
   onSelect: (token: TokenItem) => void;
@@ -124,9 +125,6 @@ export const TokenSelectPopup: React.FC<TokenSelectPopupProps> = ({
                   </div>
                   <div className="flex items-center justify-center w-full gap-12 mt-20">
                     <Button
-                      size="large"
-                      block
-                      type="primary"
                       onClick={async () => {
                         await changeAccount();
                         history.push(
@@ -190,9 +188,6 @@ export const TokenSelectPopup: React.FC<TokenSelectPopupProps> = ({
                   </div>
                   <div className="flex items-center justify-center w-full gap-12 mt-20">
                     <Button
-                      size="large"
-                      block
-                      type="primary"
                       onClick={async () => {
                         await changeAccount();
                         history.push(

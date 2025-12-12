@@ -5,7 +5,7 @@ import React, {
   useRef,
   useCallback,
 } from 'react';
-import { Input, InputRef, Form, Button } from 'antd';
+import { Input, InputRef, Form } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { isValidAddress } from '@ethereumjs/util';
 import { debounce, flatten } from 'lodash';
@@ -24,6 +24,7 @@ import { AddressTypeCard } from '@/ui/component/AddressRiskAlert';
 import { KEYRING_TYPE } from '@/constant';
 import { ellipsisAddress } from '@/ui/utils/address';
 import { useRabbyDispatch, useRabbySelector } from '@/ui/store';
+import { Button } from '@repo/ui/primitives';
 
 const StyledInputWrapper = styled.div<{ $hasError?: boolean }>`
   border-radius: 8px;
@@ -331,9 +332,7 @@ export const EnterAddress = ({
             <div className="btn-wrapper w-[100%] px-[16px] flex justify-center">
               <Button
                 disabled={disableSubmit}
-                type="primary"
-                htmlType="submit"
-                size="large"
+                type="submit"
                 className="w-[100%] h-[48px] text-[16px]"
               >
                 {t('global.confirm')}

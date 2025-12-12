@@ -3,7 +3,8 @@ import { CANCEL_TX_TYPE } from '@/constant';
 import { PageHeader, Popup } from '@/ui/component';
 import { TooltipWithMagnetArrow } from '@/ui/component/Tooltip/TooltipWithMagnetArrow';
 import { usePopupContainer } from '@/ui/hooks/usePopupContainer';
-import { Button, DrawerProps } from 'antd';
+import { Button, ButtonType } from '@repo/ui/primitives';
+import { DrawerProps } from 'antd';
 import clsx from 'clsx';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -58,25 +59,13 @@ export const CancelTxConfirmPopup = ({
         )}
       >
         <Button
-          type="ghost"
-          size="large"
+          buttonType={ButtonType.GHOST}
           onClick={onClose}
-          className={clsx(
-            'w-[172px]',
-            'text-blue-light',
-            'border-blue-light',
-            'hover:bg-[#8697FF1A] active:bg-[#0000001A]',
-            'before:content-none'
-          )}
+          className={clsx('w-[172px]', 'text-blue-light', 'border-blue-light')}
         >
           {t('global.Cancel')}
         </Button>
-        <Button
-          type="primary"
-          size="large"
-          className="w-[172px]"
-          onClick={onConfirm}
-        >
+        <Button className="w-[172px]" onClick={onConfirm}>
           {t('global.confirm')}
         </Button>
       </div>

@@ -9,7 +9,7 @@ import React, {
 import { useRabbySelector } from '@/ui/store';
 import { CHAINS, CHAINS_ENUM } from '@debank/common';
 import { useDetectLoss, useTokenPair } from '../hooks/token';
-import { Alert, Button, Input, InputRef, Modal } from 'antd';
+import { Alert, Input, InputRef, Modal } from 'antd';
 import BigNumber from 'bignumber.js';
 import {
   getUiType,
@@ -60,6 +60,7 @@ import { supportedDirectSign } from '@/ui/hooks/useMiniApprovalDirectSign';
 import { PendingTxItem } from './PendingTxItem';
 import { useTwoStepSwap } from '../hooks/twoStepSwap';
 import { MINI_SIGN_ERROR } from '@/ui/component/MiniSignV2/state/SignatureManager';
+import { Button } from '@repo/ui/primitives';
 
 const isTab = getUiType().isTab;
 const isDesktop = getUiType().isDesktop;
@@ -990,12 +991,8 @@ export const Main = () => {
               />
             ) : (
               <Button
-                type="primary"
-                block
-                size="large"
-                className="h-[48px] text-white text-[16px] font-medium"
-                loading={isSubmitLoading}
-                onClick={() => {
+                className="h-[48px] text-white text-[16px] font-medium w-full"
+                onClick={async () => {
                   if (!isSupportedChain && externalDapps.length > 0) {
                     setSwapDappOpen(true);
                     return;

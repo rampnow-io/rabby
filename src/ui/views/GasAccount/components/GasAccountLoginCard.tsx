@@ -4,13 +4,13 @@ import { GasAccountWrapperBg } from './WrapperBg';
 import { ReactComponent as RcIconQuoteStart } from '@/ui/assets/gas-account/quote-start.svg';
 import { ReactComponent as RcIconQuoteEnd } from '@/ui/assets/gas-account/quote-end.svg';
 import { useTranslation } from 'react-i18next';
-import { Button } from 'antd';
 import { useRabbySelector, useRabbyDispatch } from 'ui/store';
 import { formatUsdValue, useWallet } from 'ui/utils';
 import { useGasAccountMethods } from '../hooks';
 import { ReactComponent as IconGift } from '@/ui/assets/gift-18.svg';
 import clsx from 'clsx';
 import GasAccountNewUserProcessPopup from './NewUserProcessPopup';
+import { Button } from '@repo/ui/primitives';
 
 export const GasAccountLoginCard = ({
   onLoginPress,
@@ -74,9 +74,6 @@ export const GasAccountLoginCard = ({
         <div className="w-full mt-auto">
           <Button
             onClick={handleClick}
-            type="primary"
-            block
-            loading={isLoading}
             className={clsx(
               'h-[48px] text-15 font-medium leading-normal text-r-neutral-title2',
               'flex items-center justify-center',

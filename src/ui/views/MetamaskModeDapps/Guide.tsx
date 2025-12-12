@@ -62,12 +62,14 @@ export const MetamaskModeDappsGuide = () => {
   });
 
   return (
-    <div className="flex flex-col 
+    <div
+      className="flex flex-col 
     px-[20px] pb-[20px] 
     text-[12px] leading-[14px]
     h-screen overflow-auto 
     bg-r-neutral-bg-2 
-    relative">
+    relative"
+    >
       <header className="header mb-[15px]">
         <PageHeader canBack={false} closeable>
           <div className="text-[15px] font-medium leading-[18px] text-r-neutral-title1">

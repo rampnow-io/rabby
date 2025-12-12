@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import { Modal, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -18,6 +17,7 @@ import { TooltipWithMagnetArrow } from '@/ui/component/Tooltip/TooltipWithMagnet
 import { MarginInput } from '../components/MarginInput';
 import { MarketData } from '@/ui/models/perps';
 import { PERPS_MARGIN_SIGNIFICANT_DIGITS } from '../constants';
+import { Button } from '@repo/ui/primitives';
 
 export interface EditMarginPopupProps {
   visible: boolean;
@@ -309,9 +309,6 @@ export const EditMarginPopup: React.FC<EditMarginPopupProps> = ({
               )}
             >
               <Button
-                block
-                size="large"
-                type="primary"
                 className="h-[48px] text-15 font-medium"
                 disabled
                 onClick={handleConfirm}
@@ -321,10 +318,6 @@ export const EditMarginPopup: React.FC<EditMarginPopupProps> = ({
             </TooltipWithMagnetArrow>
           ) : (
             <Button
-              block
-              size="large"
-              type="primary"
-              loading={loading}
               className="h-[48px] text-15 font-medium"
               disabled={!marginValidation.isValid || loading}
               onClick={handleConfirm}

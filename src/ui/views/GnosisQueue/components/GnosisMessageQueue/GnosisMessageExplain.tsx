@@ -5,11 +5,12 @@ import { getActionTypeText } from '@/ui/views/Approval/components/TextActions/ut
 import { parseAction } from '@rabby-wallet/rabby-action';
 import { SafeMessage } from '@rabby-wallet/gnosis-sdk';
 import { useRequest } from 'ahooks';
-import { Button, Skeleton } from 'antd';
+import { Skeleton } from 'antd';
 import { isString } from 'lodash';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import IconUnknown from 'ui/assets/icon-unknown.svg';
+import { Button } from '@repo/ui/primitives';
 
 export const GnosisMessageExplain = ({
   onView,
@@ -73,12 +74,7 @@ export const GnosisMessageExplain = ({
       {/* todo icon */}
       <img className="icon icon-explain" src={IconUnknown} />
       <span>{content}</span>
-      <Button
-        type="primary"
-        className="tx-explain__view"
-        loading={isViewLoading}
-        onClick={onView}
-      >
+      <Button className="tx-explain__view" onClick={onView}>
         {t('page.safeQueue.viewBtn')}
       </Button>
     </div>

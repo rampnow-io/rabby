@@ -4,7 +4,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { isValidAddress } from '@ethereumjs/util';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
-import { Button, message } from 'antd';
+import { message } from 'antd';
 import { groupBy } from 'lodash';
 import PQueue from 'p-queue';
 
@@ -27,6 +27,7 @@ import { ReactComponent as RcIconAddWhitelist } from '@/ui/assets/address/add-wh
 import { ReactComponent as RcIconDeleteAddress } from 'ui/assets/address/delete.svg';
 import { ReactComponent as IconAdd } from '@/ui/assets/address/add.svg';
 import IconSuccess from 'ui/assets/success.svg';
+import { Button } from '@repo/ui/primitives';
 
 const unimportedBalancesCache: Record<string, number> = {};
 const queue = new PQueue({ interval: 1000, intervalCap: 8, concurrency: 8 }); // 每秒最多5个
@@ -447,7 +448,6 @@ const SendPoly = () => {
               <div>
                 <Button
                   onClick={handleGotoWhitelistInput}
-                  type="primary"
                   className={`
                   bg-r-neutral-card1 mt-[12px] w-full shadow-none h-[48px] border-transparent 
                   hover:border-rabby-blue-default hover:bg-r-blue-light-1 hover:before:hidden`}

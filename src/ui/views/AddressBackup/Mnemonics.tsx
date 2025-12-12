@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { InfoCircleOutlined } from '@ant-design/icons';
-import { Button } from 'antd';
 import IconMaskIcon from '@/ui/assets/create-mnemonics/mask-lock.svg';
 import { ReactComponent as RcIconCopyCC } from 'ui/assets/component/icon-copy-cc.svg';
 import IconSuccess from 'ui/assets/success.svg';
@@ -17,6 +16,7 @@ import { Popup } from '@/ui/component';
 import QRCode from 'qrcode.react';
 import { ReactComponent as RcIconQrCode } from 'ui/assets/qrcode-cc.svg';
 import { usePopupContainer } from '@/ui/hooks/usePopupContainer';
+import { Button } from '@repo/ui/primitives';
 
 const AddressBackupMnemonics: React.FC<{
   isInModal?: boolean;
@@ -164,12 +164,7 @@ const AddressBackupMnemonics: React.FC<{
         </div>
       </div>
       <div className="footer pb-[20px] z-20">
-        <Button
-          type="primary"
-          className="w-full"
-          size="large"
-          onClick={() => history.goBack()}
-        >
+        <Button className="w-full" onClick={() => history.goBack()}>
           {t('global.Done')}
         </Button>
       </div>

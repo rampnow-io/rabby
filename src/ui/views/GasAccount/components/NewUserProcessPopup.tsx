@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Button, Tooltip } from 'antd';
 import Popup, { PopupProps } from '@/ui/component/Popup';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
@@ -11,6 +10,7 @@ import { ReactComponent as RcIconGasAccountTipDark2 } from 'ui/assets/gas-accoun
 import { ReactComponent as RcIconGasAccountTip3 } from 'ui/assets/gas-account/tip3.svg';
 import { ReactComponent as RcIconGasAccountTip4 } from 'ui/assets/gas-account/tip4.svg';
 import { useThemeMode } from '@/ui/hooks/usePreference';
+import { Button } from '@repo/ui/primitives';
 
 interface NewUserProcessProps extends Omit<PopupProps, 'onConfirm'> {
   onComplete?: () => void;
@@ -172,9 +172,6 @@ export const GasAccountNewUserProcessPopup: React.FC<NewUserProcessProps> = ({
 
         <div className="border-t-[0.5px] border-solid border-rabby-neutral-line px-20 py-16">
           <Button
-            block
-            size="large"
-            type="primary"
             className="h-[48px] text-15 font-medium flex-1"
             onClick={handleNext}
           >

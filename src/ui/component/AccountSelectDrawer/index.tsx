@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Drawer, Button, DrawerProps } from 'antd';
+import { Drawer, DrawerProps } from 'antd';
 import BN from 'bignumber.js';
 import { useTranslation } from 'react-i18next';
 import FieldCheckbox from 'ui/component/FieldCheckbox';
@@ -16,6 +16,7 @@ import { ReactComponent as RcIconEmpty } from '@/ui/assets/empty-cc.svg';
 import clsx from 'clsx';
 import { sortBy } from 'lodash';
 import { cn } from '@repo/utils/string';
+import { Button, ButtonType } from '@repo/ui/primitives';
 
 interface AccountSelectDrawerProps {
   onChange(account: Account): void;
@@ -239,22 +240,15 @@ const AccountSelectDrawer = ({
       <div className="fixed bottom-0 left-0 right-0 p-5 bg-r-neutral-bg-1 border-t border-rabby-neutral-line flex gap-4">
         <Button
           onClick={onCancel}
-          type="ghost"
-          className={clsx(
-            'text-r-blue-default border-blue-light',
-            'hover:bg-[#8697FF1A] active:bg-[#0000001A]',
-            'disabled:bg-transparent disabled:opacity-40 disabled:hover:bg-transparent',
-            'before:content-none'
-          )}
+          buttonType={ButtonType.GHOST}
+          className="w-full"
         >
           {t('component.AccountSelectDrawer.btn.cancel')}
         </Button>
 
         <Button
-          type="primary"
           onClick={() => checkedAccount && onChange(checkedAccount)}
           disabled={!checkedAccount}
-          loading={isLoading}
         >
           {t('component.AccountSelectDrawer.btn.proceed')}
         </Button>

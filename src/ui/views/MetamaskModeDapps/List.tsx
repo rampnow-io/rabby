@@ -13,22 +13,25 @@ const DappCard = (props: {
 }) => {
   const { data, onRemove } = props;
   return (
-    <div   className="
+    <div
+      className="
     flex items-center 
     bg-r-neutral-card-1 
     rounded-[6px] 
     py-[14px] pr-[16px] pl-[18px]
     gap-[12px]
     mb-[12px]
-  ">
+  "
+    >
       <FallbackSiteLogo
         className="w-[24px] h-[24px] shrink-0"
         url={data.icon}
         origin={data?.origin}
         width="24px"
       />
-<div className="truncate flex-1 text-[13px] leading-[15px] font-medium text-r-neutral-title1">
-{data.origin}</div>
+      <div className="truncate flex-1 text-[13px] leading-[15px] font-medium text-r-neutral-title1">
+        {data.origin}
+      </div>
       <div className="mr-auto shrink-0">
         <Switch
           className="bg-r-blue-default"
@@ -59,13 +62,15 @@ export const MetamaskModeDappsList = () => {
   };
 
   return (
-    <div className="
+    <div
+      className="
     flex flex-col 
     px-[20px] pb-[20px] 
     text-[12px] leading-[14px] 
     h-screen overflow-auto 
     bg-r-neutral-bg-2 
-  ">
+  "
+    >
       <header className="font-normal text-[14px] leading-[18px] text-r-neutral-body my-[18px]">
         <PageHeader canBack={true}>
           {t('page.metamaskModeDapps.title')}

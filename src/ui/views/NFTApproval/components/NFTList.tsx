@@ -23,8 +23,8 @@ const NFTList = ({ data, loading, onSearch, onDecline }: ApprovalCardProps) => {
 
   return (
     <div className="rounded-[6px] bg-white">
-      <div 
-        className="border border-transparent border-b-rabby-neutral-line px-[12px] py-[10px] flex items-center gap-[8px] cursor-pointer hover:border-r-blue-default hover:rounded-[6px]" 
+      <div
+        className="border border-transparent border-b-rabby-neutral-line px-[12px] py-[10px] flex items-center gap-[8px] cursor-pointer hover:border-r-blue-default hover:rounded-[6px]"
         onClick={onSearch}
       >
         <img src={IconSearch} alt="" />

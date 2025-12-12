@@ -1,10 +1,10 @@
 import React from 'react';
 import { Modal } from '@/ui/component';
 import { useTranslation } from 'react-i18next';
-import { Button } from 'antd';
 import clsx from 'clsx';
 import { GasACcountCurrentAddress } from './LoginPopup';
 import { useRabbySelector } from '@/ui/store';
+import { Button } from '@repo/ui/primitives';
 
 export const SwitchLoginAddrBeforeDepositModal = ({
   className,
@@ -47,7 +47,6 @@ export const SwitchLoginAddrBeforeDepositModal = ({
         </div>
 
         <Button
-          type="primary"
           className="mt-auto w-full h-40 text-15 font-medium"
           onClick={onCancel}
         >

@@ -1,4 +1,4 @@
-import { Button, DrawerProps, Form, Input, InputRef, Tooltip } from 'antd';
+import { DrawerProps, Form, Input, InputRef, Tooltip } from 'antd';
 import clsx from 'clsx';
 import {
   BRAND_ALIAN_TYPE_TEXT,
@@ -28,6 +28,7 @@ import { ReactComponent as IconEditPen } from 'ui/assets/edit-pen-cc.svg';
 import { Exchange } from '@/ui/models/exchange';
 import { useForm } from 'antd/lib/form/Form';
 import styled from 'styled-components';
+import { Button, ButtonType } from '@repo/ui/primitives';
 
 export interface AddressItemProps {
   balance: number;
@@ -222,8 +223,7 @@ export const AccountItem = memo(
               </Form.Item>
               <div className="text-center flex gap-x-16">
                 <Button
-                  size="large"
-                  type="ghost"
+                  buttonType={ButtonType.GHOST}
                   onClick={() => destroy()}
                   className={clsx(
                     'w-[200px]',
@@ -236,10 +236,9 @@ export const AccountItem = memo(
                   {t('global.Cancel')}
                 </Button>
                 <Button
-                  type="primary"
-                  size="large"
+                  buttonType={ButtonType.PRIMARY}
                   className="w-[200px]"
-                  htmlType="submit"
+                  type="submit"
                 >
                   {t('global.confirm')}
                 </Button>

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as ImgDeleteWarning } from 'ui/assets/perps/ImgDeleteWarning.svg';
-import { Button, message, Modal } from 'antd';
+import { message, Modal } from 'antd';
 import clsx from 'clsx';
 import { PerpsBlueBorderedButton } from './BlueBorderedButton';
 import { useThemeMode } from '@/ui/hooks/usePreference';
+import { Button } from '@repo/ui/primitives';
 
 interface PerpsModalProps {
   visible: boolean;
@@ -48,9 +49,6 @@ export const PerpsModal = ({
           </div>
           <div className="flex-1">
             <Button
-              size="large"
-              block
-              type="primary"
               onClick={async () => {
                 setIsLoading(true);
                 await onConfirm();
@@ -58,7 +56,6 @@ export const PerpsModal = ({
                 onClose();
                 setIsLoading(false);
               }}
-              loading={isLoading}
             >
               {t('page.manageAddress.confirm')}
             </Button>

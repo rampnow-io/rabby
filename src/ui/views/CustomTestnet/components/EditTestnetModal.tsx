@@ -4,7 +4,7 @@ import {
 } from '@/background/service/customTestnet';
 import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
 import { useRequest } from 'ahooks';
-import { Button, Form, Modal } from 'antd';
+import { Form, Modal } from 'antd';
 import clsx from 'clsx';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +19,7 @@ import { matomoRequestEvent } from '@/utils/matomo-request';
 import { ConfirmModifyRpcModal } from './ConfirmModifyRpcModal';
 import { useHistory } from 'react-router-dom';
 import { usePopupContainer } from '@/ui/hooks/usePopupContainer';
+import { Button } from '@repo/ui/primitives';
 
 const Wrapper = styled.div`
   height: 100%;
@@ -184,22 +185,10 @@ export const EditCustomTestnetModal = ({
           />
         </div>
         <Footer>
-          <Button
-            type="primary"
-            size="large"
-            className="rabby-btn-ghost w-[172px]"
-            ghost
-            onClick={onCancel}
-          >
+          <Button className="rabby-btn-ghost w-[172px]" onClick={onCancel}>
             {t('global.Cancel')}
           </Button>
-          <Button
-            type="primary"
-            loading={loading}
-            size="large"
-            className="w-[172px]"
-            onClick={handleSubmit}
-          >
+          <Button className="w-[172px]" onClick={handleSubmit}>
             {loading ? t('global.Loading') : t('global.Confirm')}
           </Button>
         </Footer>

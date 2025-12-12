@@ -1,11 +1,11 @@
 import React from 'react';
 import browser, { Tabs, Windows } from 'webextension-polyfill';
 import { t } from 'i18next';
-import { Button } from 'antd';
 import { getUITypeName, WalletController, WalletControllerType } from './index';
 import { getOriginFromUrl } from '@/utils';
 import Modal from '../component/Modal';
 import { ReactComponent as ExternalLinkAlert } from 'ui/assets/component/external-link-alert.svg';
+import { Button } from '@repo/ui/primitives';
 
 export const getCurrentTab = async (): Promise<Tabs.Tab> => {
   const tabs = await browser.tabs.query({ active: true, currentWindow: true });
@@ -103,8 +103,6 @@ export const openExternalWebsiteInTab = async (
           </p>
           <div className="footer">
             <Button
-              type="primary"
-              block
               className="h-40 text-15 font-medium"
               onClick={async () => {
                 const tab = await browser.tabs.create({

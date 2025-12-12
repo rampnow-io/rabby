@@ -1,5 +1,4 @@
 import {
-  Button,
   Drawer,
   DrawerProps,
   Form,
@@ -36,6 +35,7 @@ import { ReactComponent as RcWhitelistGuardBordered } from '@/ui/assets/componen
 import { ReactComponent as RcIconCloseCC } from 'ui/assets/component/close-cc.svg';
 import { ReactComponent as IconEditPen } from 'ui/assets/edit-pen-cc.svg';
 import { useForm } from 'antd/lib/form/Form';
+import { Button, ButtonType } from '@repo/ui/primitives';
 
 interface AddressRiskAlertProps {
   visible: boolean;
@@ -197,8 +197,7 @@ export const AddressTypeCard = ({
             </Form.Item>
             <div className="text-center flex gap-x-16">
               <Button
-                size="large"
-                type="ghost"
+                buttonType={ButtonType.GHOST}
                 onClick={() => destroy()}
                 className={clsx(
                   'w-[200px]',
@@ -210,12 +209,7 @@ export const AddressTypeCard = ({
               >
                 {t('global.Cancel')}
               </Button>
-              <Button
-                type="primary"
-                size="large"
-                className="w-[200px]"
-                htmlType="submit"
-              >
+              <Button className="w-[200px]" type="submit">
                 {t('global.confirm')}
               </Button>
             </div>
@@ -591,10 +585,8 @@ export const AddressRiskAlert = ({
 
               <Button
                 disabled={disableSubmit}
-                type="primary"
-                htmlType="submit"
-                size="large"
-                className="w-[100%] h-[48px] text-[16px]"
+                type="submit"
+                className="w-full h-[48px] text-[16px]"
               >
                 {t('global.confirm')}
               </Button>

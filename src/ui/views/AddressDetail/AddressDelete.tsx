@@ -4,7 +4,7 @@ import { Popup } from 'ui/component';
 import { useWallet } from 'ui/utils';
 import AuthenticationModalPromise from 'ui/component/AuthenticationModal';
 import { ReactComponent as IconArrowRight } from 'ui/assets/arrow-right-gray.svg';
-import { Button, message } from 'antd';
+import { message } from 'antd';
 import {
   KEYRING_TYPE,
   WALLET_BRAND_CONTENT,
@@ -15,6 +15,7 @@ import IconSuccess from 'ui/assets/success.svg';
 import { useHistory } from 'react-router-dom';
 import { usePopupContainer } from '@/ui/hooks/usePopupContainer';
 import { UI_TYPE } from '@/constant/ui';
+import { Button, ButtonType } from '@repo/ui/primitives';
 
 type AddressDeleteProps = {
   brandName?: string;
@@ -167,17 +168,8 @@ const AddressDeleteModal = ({
         {t('page.addressDetail.direct-delete-desc', { renderBrand })}
       </div>
       <footer className="footer flex gap-[16px]">
-        <Button type="primary" size="large" block onClick={onClose}>
-          {t('global.Cancel')}
-        </Button>
-        <Button
-          onClick={onSubmit}
-          type="primary"
-          ghost
-          size="large"
-          className={'rabby-btn-ghost'}
-          block
-        >
+        <Button onClick={onClose}>{t('global.Cancel')}</Button>
+        <Button onClick={onSubmit} buttonType={ButtonType.GHOST}>
           {t('page.manageAddress.confirm-delete')}
         </Button>
       </footer>

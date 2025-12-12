@@ -1,4 +1,4 @@
-import { Button } from 'antd';
+import { Button, ButtonType } from '@repo/ui/primitives';
 import clsx from 'clsx';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -19,30 +19,26 @@ export const RevokeActionButton: React.FC<{
   return (
     <div className="flex justify-center mt-40">
       {task.status === 'idle' && (
-        <Button type="primary" className={buttonBaseClass} onClick={task.start}>
+        <Button className={buttonBaseClass} onClick={task.start}>
           {t('page.approvals.revokeModal.signAndStartRevoke')}
         </Button>
       )}
 
       {task.status === 'completed' && (
-        <Button type="primary" className={buttonBaseClass} onClick={onDone}>
+        <Button className={buttonBaseClass} onClick={onDone}>
           {t('page.approvals.revokeModal.done')}
         </Button>
       )}
 
       {task.status === 'paused' && (
-        <Button
-          type="primary"
-          className={buttonBaseClass}
-          onClick={task.continue}
-        >
+        <Button className={buttonBaseClass} onClick={task.continue}>
           {t('page.approvals.revokeModal.resume')}
         </Button>
       )}
 
       {task.status === 'active' && (
         <Button
-          type="ghost"
+          buttonType={ButtonType.GHOST}
           className={clsx(
             buttonBaseClass,
             'border-blue-light text-blue-light',

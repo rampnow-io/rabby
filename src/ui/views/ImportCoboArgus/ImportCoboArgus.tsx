@@ -2,7 +2,7 @@ import { CHAINS, CHAINS_ENUM, KEYRING_CLASS, KEYRING_TYPE } from '@/constant';
 import React from 'react';
 import { ChainList } from './ChainList';
 import { AddressInput } from './AddressInput';
-import { Button, message } from 'antd';
+import { message } from 'antd';
 import clsx from 'clsx';
 import { Header } from './Header';
 import { useApproval, useWallet } from '@/ui/utils';
@@ -15,6 +15,7 @@ import { useRepeatImportConfirm } from '@/ui/utils/useRepeatImportConfirm';
 import { safeJSONParse } from '@/utils';
 import { UI_TYPE } from '@/constant/ui';
 import qs from 'qs';
+import { Button } from '@repo/ui/primitives';
 
 type Type = 'select-chain' | 'add-address' | 'select-address';
 
@@ -187,9 +188,7 @@ export const ImportCoboArgus: React.FC<{ isInModal?: boolean }> = ({
             (step === 'add-address' && !inputAddress)
           }
           className="w-full h-[44px] m-auto"
-          type="primary"
           onClick={hasImportError ? handleClose : handleNext}
-          loading={isLoading}
         >
           {hasImportError ? t('global.ok') : t('global.next')}
         </Button>

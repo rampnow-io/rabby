@@ -1,4 +1,4 @@
-import { Button, message, Tooltip } from 'antd';
+import { message, Tooltip } from 'antd';
 import clsx from 'clsx';
 import { KEYRING_TYPE } from 'consts';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -8,6 +8,7 @@ import { FallbackSiteLogo } from 'ui/component';
 import { useApproval, useWallet } from 'ui/utils';
 import AccountCard from './AccountCard';
 import { Account } from '@/background/service/preference';
+import { Button } from '@repo/ui/primitives';
 
 interface ConnectProps {
   params: {
@@ -80,21 +81,11 @@ const GetEncryptionPublicKey = ({ params, account }: ConnectProps) => {
       </div>
       <footer className="footer p-[20px]">
         <div className="action-buttons flex justify-between mt-4">
-          <Button
-            type="primary"
-            size="large"
-            className="w-[172px]"
-            onClick={handleCancel}
-          >
+          <Button className="w-[172px]" onClick={handleCancel}>
             {t('Cancel')}
           </Button>
           {canProcess ? (
-            <Button
-              type="primary"
-              size="large"
-              className="w-[172px]"
-              onClick={() => handleAllow()}
-            >
+            <Button className="w-[172px]" onClick={() => handleAllow()}>
               {t('Provide')}
             </Button>
           ) : (
@@ -106,18 +97,14 @@ const GetEncryptionPublicKey = ({ params, account }: ConnectProps) => {
               placement="topRight"
             >
               <Button
-                type="primary"
-                size="large"
                 className="w-[172px]"
                 onClick={() => handleAllow()}
                 disabled
-                icon={
-                  <img
-                    src={IconInfo}
-                    className={clsx('absolute right-[40px] top-[14px]')}
-                  />
-                }
               >
+                <img
+                  src={IconInfo}
+                  className={clsx('absolute right-[40px] top-[14px]')}
+                />{' '}
                 {t('Provide')}
               </Button>
             </Tooltip>

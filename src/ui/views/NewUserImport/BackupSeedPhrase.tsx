@@ -2,7 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { useHistory } from 'react-router-dom';
 import { Card } from '@/ui/component/NewUserImport';
-import { Button, message } from 'antd';
+import { message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import WordsMatrix from '@/ui/component/WordsMatrix';
 import { copyTextToClipboard } from '@/ui/utils/clipboard';
@@ -10,6 +10,7 @@ import IconSuccess from '@/ui/assets/success.svg';
 import { useNewUserGuideStore } from './hooks/useNewUserGuideStore';
 import { IconCopyCC } from 'ui/assets/component/IconCopyCC';
 import { useThemeMode } from '@/ui/hooks/usePreference';
+import { Button } from '@repo/ui/primitives';
 
 export const BackupSeedPhrase = () => {
   const { t } = useTranslation();
@@ -90,15 +91,7 @@ export const BackupSeedPhrase = () => {
         <span>{t('page.newAddress.seedPhrase.copy')}</span>
       </div>
 
-      <Button
-        onClick={handleNext}
-        block
-        type="primary"
-        className={clsx(
-          'h-[56px] shadow-none rounded-[8px]',
-          'text-[17px] font-medium bg-r-blue-default'
-        )}
-      >
+      <Button onClick={handleNext} className="w-full">
         {t('page.newAddress.seedPhrase.saved')}
       </Button>
     </Card>

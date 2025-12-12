@@ -1,5 +1,5 @@
 import { useCommonPopupView } from '@/ui/utils';
-import { Button } from 'antd';
+import { Button } from '@repo/ui/primitives';
 import React from 'react';
 import { useInterval } from 'react-use';
 
@@ -36,7 +36,6 @@ export const FooterDoneButton: React.FC<Props> = ({ onDone, hide }) => {
     <div className="mb-24">
       <Button
         className="w-[180px] h-[40px] bg-green border-green shadow-none"
-        type="primary"
         onClick={onDone}
       >
         Done {counter < 0 ? '' : `(${counter}s)`}

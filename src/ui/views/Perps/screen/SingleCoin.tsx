@@ -3,7 +3,7 @@ import { PageHeader } from '@/ui/component';
 import { useParams, useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { formatUsdValue, splitNumberByStep, useWallet } from '@/ui/utils';
-import { Button, Switch, message } from 'antd';
+import { Switch, message } from 'antd';
 import clsx from 'clsx';
 import { PerpsChart } from '../components/Chart';
 import { PERPS_MAX_NTL_VALUE, PERPS_BUILDER_INFO } from '../constants';
@@ -44,6 +44,7 @@ import { SearchPerpsPopup } from '../popup/SearchPerpsPopup';
 import DistanceToLiquidationTag from '../components/DistanceToLiquidationTag';
 import { EditTpSlTag } from '../components/EditTpSlTag';
 import { useThemeMode } from '@/ui/hooks/usePreference';
+import { Button } from '@repo/ui/primitives';
 
 export const formatPercent = (value: number, decimals = 8) => {
   return `${(value * 100).toFixed(decimals)}%`;
@@ -719,9 +720,6 @@ export const PerpsSingleCoin = () => {
             <div className="fixed bottom-0 left-0 right-0 border-t-[0.5px] border-solid border-rabby-neutral-line px-20 py-16 bg-r-neutral-bg2">
               {hasPosition ? (
                 <Button
-                  block
-                  type="primary"
-                  size="large"
                   className="h-[48px] bg-blue-500 border-blue-500 text-white text-15 font-medium rounded-[8px]"
                   onClick={() => {
                     setClosePositionVisible(true);
@@ -734,8 +732,6 @@ export const PerpsSingleCoin = () => {
               ) : hasPermission ? (
                 <div className="flex gap-12 justify-center">
                   <Button
-                    size="large"
-                    type="primary"
                     className="h-[48px] border-none text-15 font-medium rounded-[8px] flex-1 bg-r-green-default text-r-neutral-title-2"
                     onClick={() => {
                       setPositionDirection('Long');
@@ -745,8 +741,6 @@ export const PerpsSingleCoin = () => {
                     {t('page.perps.long')}
                   </Button>
                   <Button
-                    size="large"
-                    type="primary"
                     className="h-[48px] border-none text-15 font-medium rounded-[8px] flex-1 bg-r-red-default text-r-neutral-title-2 "
                     onClick={() => {
                       setPositionDirection('Short');

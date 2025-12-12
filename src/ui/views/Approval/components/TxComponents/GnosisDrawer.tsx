@@ -1,5 +1,5 @@
 import { BasicSafeInfo, SafeMessage } from '@rabby-wallet/gnosis-sdk';
-import { Button } from 'antd';
+import { Button, ButtonType } from '@repo/ui/primitives';
 import { Account } from 'background/service/preference';
 import clsx from 'clsx';
 import { groupBy } from 'lodash';
@@ -146,8 +146,7 @@ const GnosisDrawer = ({
       </div>
       <div className="footer mx-[-20px] mb-[-24px] py-[16px] px-[20px] border-t-[1px] border-t-r-neutral-card2 bg-r-neutral-card1">
         <Button
-          type="primary"
-          ghost
+          buttonType={ButtonType.GHOST}
           onClick={onCancel}
           className={clsx(
             'h-[48px]',
@@ -160,7 +159,6 @@ const GnosisDrawer = ({
           {t('global.backButton')}
         </Button>
         <Button
-          type="primary"
           onClick={handleConfirm}
           disabled={
             !checkedAccount ||
@@ -168,7 +166,6 @@ const GnosisDrawer = ({
               isSameAddress(sig.signer, checkedAccount.address)
             )
           }
-          loading={isLoading}
           className="h-[48px]"
         >
           {t('global.proceedButton')}

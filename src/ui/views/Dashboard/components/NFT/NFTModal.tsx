@@ -1,5 +1,5 @@
 import { NFTItem } from '@/background/service/openapi';
-import { Button, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { getChain } from '@/utils';
@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { openNFTLinkFromChainItem } from '@/ui/views/ApprovalManagePage/utils';
 import { findChainByServerID } from '@/utils/chain';
 import { UI_TYPE } from '@/constant/ui';
+import { Button } from '@repo/ui/primitives';
 
 interface ContentProps {
   data?: NFTItem;
@@ -128,9 +129,6 @@ const NFTModal = ({ onClose, data, collectionName }: ContentProps) => {
         overlayClassName="rectangle"
       >
         <Button
-          block
-          size="large"
-          type="primary"
           onClick={handleClickSend}
           disabled={!data?.is_erc1155 && !data?.is_erc721}
         >

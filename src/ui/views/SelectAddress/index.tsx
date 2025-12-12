@@ -20,18 +20,18 @@ const SelectAddress = () => {
   const { state = {} as State, search } = useLocation<State>();
   const query = new URLSearchParams(search);
 
-  state.keyring = state.keyring || (query.get("hd") as string);
-  state.brand = state.brand || (query.get("brand") as string);
+  state.keyring = state.keyring || (query.get('hd') as string);
+  state.brand = state.brand || (query.get('brand') as string);
 
-  if (query.get("keyringId") && !state.keyringId) {
-    state.keyringId = Number(query.get("keyringId"));
+  if (query.get('keyringId') && !state.keyringId) {
+    state.keyringId = Number(query.get('keyringId'));
   }
 
   if (!state) {
     if (getUiType().isTab) {
       history.length ? history.goBack() : window.close();
     } else {
-      history.replace("/dashboard");
+      history.replace('/dashboard');
     }
     return null;
   }
@@ -59,7 +59,6 @@ const SelectAddress = () => {
 
   return (
     <div className="w-full overflow-hidden">
-
       <HDManager
         keyringId={keyringId.current ?? null}
         keyring={state.keyring}

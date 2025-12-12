@@ -1,6 +1,6 @@
 import { BasicSafeInfo } from '@rabby-wallet/gnosis-sdk';
 import { SafeTransactionItem } from '@rabby-wallet/gnosis-sdk/dist/api';
-import { Button, Skeleton, Tooltip, message } from 'antd';
+import { Skeleton, Tooltip, message } from 'antd';
 import {
   ApproveAction,
   ParseTxResponse,
@@ -41,6 +41,7 @@ import { ReplacePopup } from './ReplacePopup';
 import { numberToHex } from 'viem';
 import { usePopupContainer } from '@/ui/hooks/usePopupContainer';
 import { UI_TYPE } from '@/constant/ui';
+import { Button } from '@repo/ui/primitives';
 
 interface TransactionConfirmationsProps {
   confirmations: SafeTransactionItem['confirmations'];
@@ -263,12 +264,7 @@ const TransactionExplain = ({
     <p className="tx-explain">
       {icon || <img className="icon icon-explain" src={IconUnknown} />}
       <span>{content || t('page.safeQueue.unknownTx')}</span>
-      <Button
-        type="primary"
-        className="tx-explain__view"
-        onClick={onView}
-        loading={isViewLoading}
-      >
+      <Button className="tx-explain__view" onClick={onView}>
         {t('page.safeQueue.viewBtn')}
       </Button>
     </p>
@@ -482,8 +478,6 @@ const GnosisTransactionItem = ({
           >
             <div>
               <Button
-                type="primary"
-                size="large"
                 className="submit-btn"
                 onClick={() => onSubmit(data)}
                 disabled={
@@ -496,9 +490,6 @@ const GnosisTransactionItem = ({
             </div>
           </Tooltip>
           <Button
-            type="primary"
-            size="large"
-            ghost
             className="replace-btn"
             onClick={() => setIsShowReplacePopup(true)}
           >

@@ -1,4 +1,4 @@
-import { Button } from 'antd';
+import { Button } from '@repo/ui/primitives';
 import clsx from 'clsx';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -42,9 +42,7 @@ const ETHSign = ({ params }: { params: AddAssetProps }) => {
       <footer className="connect-footer p-[20px]">
         <div className={clsx(['action-buttons flex mt-4', 'justify-center'])}>
           <Button
-            type="primary"
-            size="large"
-            className="w-[200px]"
+            className="w-[200px] h-[40px]"
             onClick={() => rejectApproval()}
           >
             {t('global.ok')}

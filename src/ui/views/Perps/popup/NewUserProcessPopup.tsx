@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Button, Tooltip } from 'antd';
 import Popup, { PopupProps } from '@/ui/component/Popup';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
@@ -9,6 +8,7 @@ import { ReactComponent as RcIconPerpsLong } from 'ui/assets/perps/ImgGoLong.svg
 import { ReactComponent as RcIconPerpsShort } from 'ui/assets/perps/ImgGoShort.svg';
 import { ReactComponent as RcIconPerpsLeverage } from 'ui/assets/perps/ImgLeverage.svg';
 import { ReactComponent as RcIconPerpsLiquidation } from 'ui/assets/perps/ImgLiquidation.svg';
+import { Button } from '@repo/ui/primitives';
 
 interface NewUserProcessProps extends Omit<PopupProps, 'onConfirm'> {
   onComplete?: () => void;
@@ -180,9 +180,6 @@ export const NewUserProcessPopup: React.FC<NewUserProcessProps> = ({
 
         <div className="border-t-[0.5px] border-solid border-rabby-neutral-line px-20 py-16">
           <Button
-            block
-            size="large"
-            type="primary"
             className="h-[48px] text-15 font-medium flex-1"
             onClick={handleNext}
           >

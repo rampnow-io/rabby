@@ -2,7 +2,7 @@ import { Card } from '@/ui/component/NewUserImport';
 import { useWallet } from '@/ui/utils';
 import { LoadingOutlined } from '@ant-design/icons';
 import { useMemoizedFn, useMount, useRequest } from 'ahooks';
-import { Button, Form, Input } from 'antd';
+import { Form, Input } from 'antd';
 import clsx from 'clsx';
 import { isValidAddress } from '@ethereumjs/util';
 import React, { useState } from 'react';
@@ -11,6 +11,7 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { useNewUserGuideStore } from './hooks/useNewUserGuideStore';
 import { GnosisChainList } from './GnosisChainList';
+import { Button } from '@repo/ui/primitives';
 
 const Container = styled.div`
   .ant-input {
@@ -205,8 +206,6 @@ export const NewUserImportGnosisAddress = () => {
         <Button
           onClick={handleNext}
           disabled={!!errorMessage || loading || !chainList?.length}
-          block
-          type="primary"
           className={clsx(
             'mt-[48px] h-[56px] shadow-none rounded-[8px]',
             'text-[17px] font-medium'

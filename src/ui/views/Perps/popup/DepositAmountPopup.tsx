@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { Button, Skeleton, Tooltip } from 'antd';
+import { Skeleton, Tooltip } from 'antd';
 import Popup, { PopupProps } from '@/ui/component/Popup';
 import { useTranslation } from 'react-i18next';
 import { useAsync, useDebounce } from 'react-use';
@@ -34,6 +34,7 @@ import { getPerpsSDK } from '../sdkManager';
 import { useMiniSigner } from '@/ui/hooks/useSigner';
 import { MINI_SIGN_ERROR } from '@/ui/component/MiniSignV2/state/SignatureManager';
 import TokenSelectPopup from './TokenSelectPopup';
+import { Button } from '@repo/ui/primitives';
 
 export type PerpsDepositAmountPopupProps = PopupProps & {
   type: 'deposit' | 'withdraw';
@@ -572,15 +573,11 @@ export const PerpsDepositAmountPopup: React.FC<PerpsDepositAmountPopupProps> = (
             ))}
           {type === 'deposit' ? (
             <Button
-              block
               disabled={
                 !isValidAmount ||
                 Boolean(quoteError) ||
                 (!isDirectDeposit && quoteLoading)
               }
-              size="large"
-              type="primary"
-              loading={isPreparingSign}
               className="h-[48px] text-r-neutral-title2 text-15 font-medium"
               style={{
                 height: 48,
@@ -626,11 +623,7 @@ export const PerpsDepositAmountPopup: React.FC<PerpsDepositAmountPopupProps> = (
             </Button>
           ) : (
             <Button
-              block
               disabled={!isValidAmount}
-              size="large"
-              type="primary"
-              loading={isWithdrawLoading}
               className="h-[48px] text-r-neutral-title2 text-15 font-medium"
               style={{
                 height: 48,

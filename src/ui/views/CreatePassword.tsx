@@ -1,37 +1,70 @@
-import React, { useCallback, useEffect, useState } from 'react';
+'use client';
+
+import React, { useEffect, useState, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
-import { Trans, useTranslation } from 'react-i18next';
-import { Input, Form, Spin, Button, Drawer } from 'antd';
-import { openInTab, useWallet, useWalletRequest } from 'ui/utils';
+import { useTranslation, Trans } from 'react-i18next';
+import { useWallet, useWalletRequest, openInTab } from 'ui/utils';
 import UnlockLogo from 'ui/assets/unlock-logo.svg';
 import IconCheck from 'ui/assets/check.svg';
 import clsx from 'clsx';
-import { useCss, useToggle } from 'react-use';
 import ReactMarkdown from 'react-markdown';
-import TermOfUse from '@/constant/term-of-use.md';
 import remarkGfm from 'remark-gfm';
+import TermOfUse from '@/constant/term-of-use.md';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import {
+  Button,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+  Input,
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@repo/ui/primitives';
 
 const MINIMUM_PASSWORD_LENGTH = 8;
 
-const CreatePassword = () => {
+const schema = z
+  .object({
+    password: z.string().min(MINIMUM_PASSWORD_LENGTH, 'Password is too short'),
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'Passwords do not match',
+  });
+
+export default function CreatePassword() {
   const history = useHistory();
   const location = useLocation<{ handle: (h: typeof history) => void }>();
-  const wallet = useWallet();
   const { t } = useTranslation();
-  const [form] = Form.useForm();
+  const wallet = useWallet();
+
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    mode: 'onChange',
+    defaultValues: {
+      password: '',
+      confirmPassword: '',
+    },
+  });
+
+  const { watch } = form;
 
   const [run, loading] = useWalletRequest(wallet.boot, {
     onSuccess() {
-      const { handle } = location.state;
+      const { handle } = location.state || {};
       handle?.(history);
     },
     onError(err) {
-      form.setFields([
-        {
-          name: 'password',
-          errors: [err?.message || t('incorrect password')],
-        },
-      ]);
+      form.setError('password', {
+        message: err?.message || t('incorrect password'),
+      });
     },
   });
 
@@ -48,182 +81,133 @@ const CreatePassword = () => {
     }
   };
 
-  const [agreeTerm, toggleAgreeTerm] = useToggle(true);
-
-  const [visible, toggleVisible] = useToggle(false);
-
-  const isInvalidForm = useCallback(
-    () =>
-      form.getFieldsError().some((e) => e.errors.length > 0) ||
-      !form.getFieldValue('password') ||
-      form.getFieldValue('password')?.length < 8 ||
-      form.getFieldValue('password') !== form.getFieldValue('confirmPassword'),
-    [form]
-  );
-
-  const [invalidForm, setInValidForm] = useState(isInvalidForm);
-
-  const disable = !agreeTerm || invalidForm;
-
-  const gotoTermsOfUse = () => {
-    openInTab('https://rabby.io/docs/terms-of-use');
-  };
-
-  const gotoPrivacy = () => {
-    openInTab('https://rabby.io/docs/privacy');
-  };
-
-  const drawClassName = useCss({
-    '& .ant-drawer-content': {
-      boxShadow: '0px -12px 20px rgba(82, 86, 115, 0.1)',
-      borderRadius: '16px 16px 0px 0',
-    },
-    '& .ant-drawer-body': {
-      'h1,h2': {
-        fontSize: '15px',
-        fontWeight: '700',
-        color: 'var(--r-neutral-title1)',
-        margin: '20px 0',
-      },
-      p: {
-        margin: '0 0 10px 0',
-      },
-      li: {
-        marginTop: '4px',
-      },
-      'p,li': {
-        fontSize: '14px',
-        color: 'var(--r-neutral-body)',
-      },
-      'ol, ul': {
-        listStyle: 'disc outside none',
-        paddingLeft: '14px ',
-      },
-    },
-  });
-  const spinClass = useCss({
-    '&.ant-spin-nested-loading ,& .ant-spin-container': {
-      height: '100%',
-    },
-    '& .ant-form-item-control > div:last-child.ant-form-item-control-input': {
-      margin: '0 0 26px 0',
-    },
-    '& .ant-form-item-control > div:last-child.ant-form-item-explain.ant-form-item-explain-error': {
-      margin: '8px 0 4px 0',
-    },
-  });
-
   useEffect(() => {
     init();
   }, []);
 
+  // Terms agree toggle
+  const [agreeTerm, setAgreeTerm] = useState(false);
+  const [visible, setVisible] = useState(false);
+
+  const password = watch('password');
+  const confirmPassword = watch('confirmPassword');
+
+  const disable =
+    !agreeTerm ||
+    !password ||
+    !confirmPassword ||
+    password.length < MINIMUM_PASSWORD_LENGTH ||
+    password !== confirmPassword;
+
+  const gotoTermsOfUse = () => openInTab('https://rabby.io/docs/terms-of-use');
+  const gotoPrivacy = () => openInTab('https://rabby.io/docs/privacy');
+
+  const onSubmit = ({ password }: z.infer<typeof schema>) => {
+    run(password.trim());
+  };
+
   return (
-    <Spin spinning={loading} wrapperClassName={spinClass} size="large">
-      <div className="h-full bg-r-neutral-card2 flex flex-col">
-        <Form
-          className="h-full"
-          onFinish={({ password }) => run(password.trim())}
-          form={form}
-          onChange={() => {
-            setInValidForm(isInvalidForm);
-          }}
-        >
+    <div className="h-full bg-r-neutral-card2 flex flex-col relative">
+      {loading && (
+        <div className="absolute inset-0 bg-black/20 flex items-center justify-center z-50">
+          <div className="animate-spin h-8 w-8 border-2 border-white rounded-full border-t-transparent" />
+        </div>
+      )}
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="h-full">
           <header className="create-new-header create-password-header h-[234px]">
             <img
-              className="unlock-logo w-[100px] h-[100px] mx-auto mb-[16px]"
               src={UnlockLogo}
+              className="unlock-logo w-[100px] h-[100px] mx-auto mb-[16px]"
             />
-            <p className="text-24 mb-8 mt-0 text-r-neutral-title2 text-center font-bold">
+            <p className="text-24 mb-8 text-r-neutral-title2 text-center font-bold">
               {t('page.createPassword.title')}
             </p>
-            <p className="text-13 mb-0 text-r-neutral-title2 opacity-80 text-center">
+            <p className="text-13 text-center text-r-neutral-title2 opacity-80">
               It will be used to unlock your wallet and encrypt local data
             </p>
+
             <img src="/images/create-password-mask.png" className="mask" />
           </header>
-          <div className="p-32 min-h-[232px] max-h-[232px] overflow-hidden widget-has-ant-input-withborder">
-            <Form.Item
-              className="mb-0 overflow-hidden"
+
+          <div className="p-32 min-h-[232px] max-h-[232px] overflow-hidden">
+            <FormField
               name="password"
-              validateTrigger={['onChange', 'submit']}
-              rules={[
-                {
-                  required: true,
-                  message: t('page.createPassword.passwordRequired'),
-                },
-                {
-                  min: MINIMUM_PASSWORD_LENGTH,
-                  message: t('page.createPassword.passwordMin'),
-                },
-              ]}
-            >
-              <Input
-                className={'h-[52px]'}
-                size="large"
-                placeholder={t('page.createPassword.passwordPlaceholder')}
-                type="password"
-                autoFocus
-                spellCheck={false}
-              />
-            </Form.Item>
-            <Form.Item
-              className="mb-0 "
+              control={form.control}
+              render={({ field }) => (
+                <FormItem className="mb-0">
+                  <FormControl>
+                    <Input
+                      value={field.value || ''}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      type="password"
+                      className="h-[52px]"
+                      placeholder={t('page.createPassword.passwordPlaceholder')}
+                      autoComplete="new-password"
+                      inputMode="text"
+                      spellCheck={false}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
               name="confirmPassword"
-              validateTrigger={['onChange', 'onsubmit']}
-              rules={[
-                {
-                  required: true,
-                  message: t('page.createPassword.confirmRequired'),
-                },
-                ({ getFieldValue }) => ({
-                  validator(_, value: string) {
-                    if (!value || getFieldValue('password') === value) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(
-                      new Error(t('page.createPassword.confirmError'))
-                    );
-                  },
-                }),
-              ]}
-            >
-              <Input
-                className="h-[52px]"
-                size="large"
-                placeholder={t('page.createPassword.confirmPlaceholder')}
-                type="password"
-                spellCheck={false}
-              />
-            </Form.Item>
+              control={form.control}
+              render={({ field }) => (
+                <FormItem className="mb-0 mt-3">
+                  <FormControl>
+                    <Input
+                      value={field.value || ''}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      type="password"
+                      className="h-[52px]"
+                      placeholder={t('page.createPassword.confirmPlaceholder')}
+                      autoComplete="new-password"
+                      inputMode="text"
+                      spellCheck={false}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
+
           <div
             className="flex justify-center mb-[24px] cursor-pointer mx-32"
-            onClick={toggleAgreeTerm}
+            onClick={(e) => {
+              e.preventDefault();
+              setAgreeTerm(!agreeTerm);
+            }}
           >
             <div
               className={clsx(
-                'relative top-[3px]',
-                'w-[15px] h-[15px] mr-[6px] flex items-center justify-center  rounded-full overflow-hidden',
+                'w-[15px] h-[15px] mr-[6px] flex items-center justify-center rounded-full pointer-events-none',
                 agreeTerm ? 'bg-r-blue-default' : 'bg-r-neutral-foot'
               )}
             >
-              <img src={IconCheck} className="w-[10px]" />
+              {agreeTerm && <img src={IconCheck} className="w-[10px]" />}
             </div>
-            <span className="flex-1 text-[13px] text-r-neutral-body">
+
+            <span className="text-[13px] text-r-neutral-body">
               <Trans t={t} i18nKey="page.createPassword.agree">
                 have read and agree to the{' '}
                 <span
-                  className="text-r-blue-default cursor-pointer"
+                  className="text-r-blue-default"
                   onClick={(e) => {
                     e.stopPropagation();
                     gotoTermsOfUse();
                   }}
                 >
                   Terms of Use
-                </span>
-                and
+                </span>{' '}
+                and{' '}
                 <span
-                  className="text-r-blue-default cursor-pointer"
+                  className="text-r-blue-default"
                   onClick={(e) => {
                     e.stopPropagation();
                     gotoPrivacy();
@@ -234,50 +218,31 @@ const CreatePassword = () => {
               </Trans>
             </span>
           </div>
+
           <div className="p-32 pt-0">
-            <Button
-              type="primary"
-              size="large"
-              block
-              htmlType="submit"
-              disabled={disable}
-            >
+            <Button disabled={disable} className="w-full">
               Next
             </Button>
           </div>
-        </Form>
-      </div>
+        </form>
+      </Form>
 
-      <Drawer
-        placement="bottom"
-        width={'100%'}
-        visible={visible}
-        onClose={toggleVisible}
-        className={clsx(drawClassName, 'is-support-darkmode')}
-        contentWrapperStyle={{
-          boxShadow: '0px -12px 20px rgba(82, 86, 115, 0.1)',
-          borderRadius: '16px 16px 0px 0',
-          height: 580,
-        }}
-      >
-        <header className="text-r-neutral-title1 mb-[20px] text-20 font-medium leading-[20px] text-center">
-          Rabby Term of Use
-        </header>
-        <div
-          className="overflow-scroll"
-          style={{
-            maxHeight: 496,
-          }}
-        >
-          <ReactMarkdown
-            className="markdown-body"
-            children={TermOfUse}
-            remarkPlugins={[remarkGfm]}
-          />
-        </div>
-      </Drawer>
-    </Spin>
+      <Sheet open={visible} onOpenChange={setVisible}>
+        <SheetContent side="bottom" className="h-[580px] rounded-t-2xl p-6">
+          <SheetHeader>
+            <SheetTitle className="text-center">Rabby Terms of Use</SheetTitle>
+          </SheetHeader>
+
+          <div className="overflow-y-scroll mt-4 h-[500px]">
+            <ReactMarkdown
+              className="markdown-body"
+              remarkPlugins={[remarkGfm]}
+            >
+              {TermOfUse}
+            </ReactMarkdown>
+          </div>
+        </SheetContent>
+      </Sheet>
+    </div>
   );
-};
-
-export default CreatePassword;
+}

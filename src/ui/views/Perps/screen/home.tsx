@@ -17,7 +17,7 @@ import {
 import { ReactComponent as RcIconArrowRight } from '@/ui/assets/dashboard/settings/icon-right-arrow-cc.svg';
 import { ReactComponent as RcIconBackTopCC } from '@/ui/assets/perps/IconBackTopCC.svg';
 import { AssetPosition, HyperliquidSDK } from '@rabby-wallet/hyperliquid-sdk';
-import { Button, message, Modal } from 'antd';
+import { message, Modal } from 'antd';
 import { PerpsLoginPopup } from '../popup/LoginPopup';
 import { PerpsLogoutPopup } from '../popup/LogoutPopup';
 import { usePerpsDeposit } from '../hooks/usePerpsDeposit';
@@ -55,6 +55,7 @@ import { PerpsHeaderRight } from '../components/PerpsHeaderRight';
 import { SearchPerpsPopup } from '../popup/SearchPerpsPopup';
 import { ExplorePerpsHeader } from '../components/ExplorePerpsHeader';
 import { BackToTopButton } from '../components/BackToTopButton';
+import { Button } from '@repo/ui/primitives';
 
 export const Perps: React.FC = () => {
   const history = useHistory();
@@ -355,9 +356,6 @@ export const Perps: React.FC = () => {
                 {t('page.manageAddress.cancel')}
               </PerpsBlueBorderedButton>
               <Button
-                size="large"
-                block
-                type="primary"
                 onClick={async () => {
                   handleCloseAllPosition();
                   modal.destroy();
@@ -461,9 +459,6 @@ export const Perps: React.FC = () => {
                   </PerpsBlueBorderedButton>
                 </TooltipWithMagnetArrow>
                 <Button
-                  block
-                  size="large"
-                  type="primary"
                   className="h-[44px] text-r-neutral-title2 text-15 font-medium"
                   style={{
                     height: 44,
@@ -569,13 +564,10 @@ export const Perps: React.FC = () => {
         {isLogin && hasPermission && (
           <div className="fixed bottom-0 left-0 right-0 border-t-[0.5px] border-solid border-rabby-neutral-line px-20 py-16 bg-r-neutral-bg2 z-20">
             <Button
-              block
-              type="primary"
               onClick={() => {
                 setSearchPopupVisible(true);
                 setOpenFromSource('openPosition');
               }}
-              size="large"
               className="h-[48px] bg-blue-500 border-blue-500 text-white text-15 font-medium rounded-[8px]"
             >
               {t('page.perps.searchPerpsPopup.openPosition')}

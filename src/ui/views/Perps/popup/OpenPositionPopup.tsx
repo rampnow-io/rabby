@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Input, Button, Slider, Switch, Tooltip, message } from 'antd';
+import { Input, Slider, Switch, Tooltip, message } from 'antd';
 import Popup, { PopupProps } from '@/ui/component/Popup';
 import { useTranslation } from 'react-i18next';
 import { formatNumber, formatUsdValue, splitNumberByStep } from '@/ui/utils';
@@ -18,6 +18,7 @@ import { AssetPriceInfo } from '../components/AssetPriceInfo';
 import { MarketData } from '@/ui/models/perps';
 import { WsActiveAssetCtx } from '@rabby-wallet/hyperliquid-sdk';
 import { MarginInput } from '../components/MarginInput';
+import { Button } from '@repo/ui/primitives';
 
 interface OpenPositionPopupProps extends Omit<PopupProps, 'onCancel'> {
   direction: 'Long' | 'Short';
@@ -418,10 +419,7 @@ export const PerpsOpenPositionPopup: React.FC<OpenPositionPopupProps> = ({
 
         <div className="fixed bottom-0 left-0 right-0 border-t-[0.5px] border-solid border-rabby-neutral-line px-20 py-16">
           <Button
-            block
             disabled={!isValidAmount}
-            size="large"
-            type="primary"
             className="h-[48px] text-15 font-medium"
             onClick={handleReview}
           >
@@ -574,12 +572,8 @@ export const PerpsOpenPositionPopup: React.FC<OpenPositionPopupProps> = ({
         {/* Action Buttons */}
         <div className="fixed bottom-0 left-0 right-0 border-t-[0.5px] border-solid border-rabby-neutral-line px-20 py-16">
           <Button
-            block
-            size="large"
-            type="primary"
             className="h-[48px] text-15 font-medium flex-1"
             onClick={openPosition}
-            loading={loading}
           >
             {direction === 'Long'
               ? t('page.perps.openLong')

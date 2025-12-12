@@ -75,7 +75,7 @@ export default function RateModalTriggerOnSettings({
       <div className="absolute self-center left-0">
         <RabbySilhouette height={90} />
       </div>
-      <span className="text-[15px] text-r-neutral-title-1 text-[600]">
+      <span className="text-[15px] text-r-neutral-title-1 font-[600]">
         {t('page.dashboard.settings.rateModalTriggerOnHome.description')}
       </span>
       <div

@@ -7,7 +7,7 @@ import { ReactComponent as EmptySVG } from '@/ui/assets/dashboard/empty.svg';
 import { TokenTable } from './TokenTable';
 import { useCommonPopupView } from '@/ui/utils';
 import { useTranslation } from 'react-i18next';
-import { Button } from 'antd';
+import { Button } from '@repo/ui/primitives';
 
 interface TokenButtonPopupProps {
   visible?: boolean;
@@ -69,11 +69,7 @@ export function SpecialTokenListPopup({
               </div>
             )}
             {buttonText && (
-              <Button
-                onClick={onClickButton}
-                type="primary"
-                className="w-[200px] h-[44px]"
-              >
+              <Button onClick={onClickButton} className="w-[200px] h-[44px]">
                 {buttonText}
               </Button>
             )}

@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { Button, Drawer } from 'antd';
+import { Drawer } from 'antd';
 import { useTranslation } from 'react-i18next';
 import IconArrowRight from 'ui/assets/arrow-right-gray.svg';
+import { Button } from '@repo/ui/primitives';
 
 const QRCodeCheckerDetail = ({
   visible,
@@ -47,12 +48,8 @@ const QRCodeCheckerDetail = ({
         <div className="container">{t(data)}</div>
         <div className="footer">
           <div className="buttons">
-            <Button type="primary" onClick={onCancel} size="large">
-              {cancelText}
-            </Button>
-            <Button type="primary" onClick={onOk} size="large">
-              {okText}
-            </Button>
+            <Button onClick={onCancel}>{cancelText}</Button>
+            <Button onClick={onOk}>{okText}</Button>
           </div>
         </div>
       </div>

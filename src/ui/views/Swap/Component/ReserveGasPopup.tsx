@@ -2,7 +2,7 @@ import { Checkbox, Popup } from '@/ui/component';
 import { formatTokenAmount } from '@/ui/utils';
 import { CHAINS_ENUM } from '@debank/common';
 import { GasLevel } from '@rabby-wallet/rabby-api/dist/types';
-import { Button, Skeleton } from 'antd';
+import { Skeleton } from 'antd';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -11,6 +11,7 @@ import { ReactComponent as RcIconCheckedCC } from '@/ui/assets/icon-checked-cc.s
 import { ReactComponent as RcIconUnCheckedCC } from '@/ui/assets/icon-unchecked-cc.svg';
 import { PopupProps } from '@/ui/component/Popup';
 import { findChain } from '@/utils/chain';
+import { Button } from '@repo/ui/primitives';
 
 export type GasLevelType = keyof typeof SORT_SCORE;
 interface ReserveGasContentProps {
@@ -203,10 +204,8 @@ const ReserveGasContent = React.forwardRef<
           )}
         >
           <Button
-            type="primary"
-            block
             disabled={isLoading}
-            className="h-[44px] text-15 text-r-neutral-title2"
+            className="h-[44px] text-15 text-r-neutral-title2 w-full"
             onClick={() => {
               if (gasLevel) {
                 onGasChange(gasLevel);
@@ -335,10 +334,8 @@ export const SendReserveGasPopup = (
               )}
             >
               <Button
-                type="primary"
-                block
                 disabled
-                className="h-[44px] text-15 text-r-neutral-title2"
+                className="h-[44px] text-15 text-r-neutral-title2 w-full"
               >
                 {t('global.Confirm')}
               </Button>

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Switch } from 'antd';
+import { Switch } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { Popup, Checkbox } from 'ui/component';
 import {
@@ -20,6 +20,7 @@ import IconDisable from 'ui/assets/sign/security-engine/disable-big.svg';
 import IconQuestionMark from 'ui/assets/sign/tx/question-mark.svg';
 import { TooltipWithMagnetArrow } from '@/ui/component/Tooltip/TooltipWithMagnetArrow';
 import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
+import { Button } from '@repo/ui/primitives';
 
 const RuleDrawerWrapper = styled.div`
   border-radius: 8px;
@@ -582,7 +583,6 @@ const RuleDrawer = ({
                 )}
                 <div {...hoverProps}>
                   <Button
-                    type="primary"
                     className="button-ignore"
                     style={{
                       backgroundColor: ignoreButtonContent.color,

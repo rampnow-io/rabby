@@ -1,7 +1,7 @@
 import { NFTApproval } from '@/background/service/openapi';
 import { ellipsis } from '@/ui/utils/address';
 import NFTAvatar from '@/ui/views/Dashboard/components/NFT/NFTAvatar';
-import { Button } from 'antd';
+import { Button, ButtonType } from '@repo/ui/primitives';
 import React from 'react';
 
 interface NFTListItemProps {
@@ -40,11 +40,7 @@ const NFTListItem = ({ item, onDecline }: NFTListItemProps) => {
           {ellipsis(item.spender.id)}
         </div>
         <Button
-          type="primary"
-          danger
-          ghost
-          shape="round"
-          size="small"
+          buttonType={ButtonType.GHOST}
           className="hidden group-hover:block !bg-[rgba(236,81,81,0.1)] !border-[#ec5151] !rounded-[20px] !text-[#ec5151] !text-[12px] !leading-[14px] !font-normal !shadow-none before:!hidden"
           onClick={() => {
             onDecline(item);

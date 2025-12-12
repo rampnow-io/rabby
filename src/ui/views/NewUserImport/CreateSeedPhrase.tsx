@@ -3,12 +3,12 @@ import clsx from 'clsx';
 import { useHistory } from 'react-router-dom';
 import { Card } from '@/ui/component/NewUserImport';
 import { ReactComponent as IconDotCC } from '@/ui/assets/new-user-import/dot-cc.svg';
-import { Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useWallet } from '@/ui/utils';
 import { useAsync } from 'react-use';
 import { useNewUserGuideStore } from './hooks/useNewUserGuideStore';
 import { ReactComponent as RcIconTips } from '@/ui/assets/new-user-import/tips.svg';
+import { Button } from '@repo/ui/primitives';
 
 export const CreateSeedPhrase = () => {
   const { t } = useTranslation();
@@ -69,15 +69,7 @@ export const CreateSeedPhrase = () => {
         ))}
       </div>
 
-      <Button
-        onClick={showSeedPhrase}
-        block
-        type="primary"
-        className={clsx(
-          'mt-[76px] h-[56px] shadow-none rounded-[8px]',
-          'text-[17px] font-medium bg-r-blue-default'
-        )}
-      >
+      <Button onClick={showSeedPhrase} className="w-full">
         {t('page.newUserImport.createNewAddress.showSeedPhrase')}
       </Button>
     </Card>

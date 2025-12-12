@@ -6,8 +6,9 @@ import ImgMetaMask from '@/ui/assets/swap/metamask.png';
 import ImgPhantom from '@/ui/assets/swap/phantom.png';
 import ImgRabbyWallet from '@/ui/assets/swap/rabby-wallet.png';
 import clsx from 'clsx';
-import { Button, DrawerProps } from 'antd';
+import { DrawerProps } from 'antd';
 import { DEX } from '@/constant';
+import { Button } from '@repo/ui/primitives';
 
 const swapFee = [
   {
@@ -143,9 +144,6 @@ export const RabbyFeePopup = ({
       <SwapAggregatorFee dexName={dexName} feeDexDesc={feeDexDesc} />
 
       <Button
-        type="primary"
-        block
-        size="large"
         className="mt-[auto] h-[48px] text-16 font-medium text-r-neutral-title2"
         onClick={onClose}
       >

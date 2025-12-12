@@ -1,5 +1,5 @@
 import { ReactComponent as IconRcMask } from '@/ui/assets/create-mnemonics/mask-lock.svg';
-import { Button, message, Tooltip } from 'antd';
+import { message, Tooltip } from 'antd';
 import clsx from 'clsx';
 import { KEYRING_TYPE } from 'consts';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -10,6 +10,7 @@ import { Copy } from 'ui/component';
 import { useApproval, useWallet } from 'ui/utils';
 import AccountCard from './AccountCard';
 import { Account } from '@/background/service/preference';
+import { Button } from '@repo/ui/primitives';
 
 interface ConnectProps {
   params: {
@@ -122,21 +123,11 @@ const GetEncryptionPublicKey = ({ params, account }: ConnectProps) => {
       </div>
       <footer className={clsx('footer')}>
         <div className="action-buttons flex justify-between mt-4 p-[20px]">
-          <Button
-            type="primary"
-            size="large"
-            className="w-[172px]"
-            onClick={handleCancel}
-          >
+          <Button className="w-[172px]" onClick={handleCancel}>
             {t('Cancel')}
           </Button>
           {canProcess ? (
-            <Button
-              type="primary"
-              size="large"
-              className="w-[172px]"
-              onClick={() => handleAllow()}
-            >
+            <Button className="w-[172px]" onClick={() => handleAllow()}>
               {t('Decrypt')}
             </Button>
           ) : (
@@ -148,18 +139,14 @@ const GetEncryptionPublicKey = ({ params, account }: ConnectProps) => {
               placement="topRight"
             >
               <Button
-                type="primary"
-                size="large"
                 className="w-[172px]"
                 onClick={() => handleAllow()}
                 disabled
-                icon={
-                  <img
-                    src={IconInfo}
-                    className={clsx('absolute right-[40px] top-[14px]')}
-                  />
-                }
               >
+                <img
+                  src={IconInfo}
+                  className={clsx('absolute right-[40px] top-[14px]')}
+                />{' '}
                 {t('Decrypt')}
               </Button>
             </Tooltip>

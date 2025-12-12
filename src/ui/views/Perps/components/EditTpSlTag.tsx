@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { message, Modal, Input, Button } from 'antd';
+import { message, Modal, Input } from 'antd';
 import { formatUsdValue, splitNumberByStep } from '@/ui/utils';
 import { ReactComponent as RcIconEdit } from 'ui/assets/perps/IconEditCC.svg';
 import { ReactComponent as RcIconDelete } from 'ui/assets/perps/IconTagCloseCC.svg';
@@ -14,6 +14,7 @@ import { AssetPriceInfo } from './AssetPriceInfo';
 import { MarketData } from '@/ui/models/perps';
 import { WsActiveAssetCtx } from '@rabby-wallet/hyperliquid-sdk';
 import { useThemeMode } from '@/ui/hooks/usePreference';
+import { Button } from '@repo/ui/primitives';
 interface EditTpSlTagProps {
   coin: string;
   entryPrice?: number;
@@ -451,12 +452,8 @@ export const EditTpSlTag: React.FC<EditTpSlTagProps> = ({
           </div>
 
           <Button
-            block
-            size="large"
-            type="primary"
             className="h-[48px] mt-16 text-15 font-medium"
             disabled={!isValidPrice || loading}
-            loading={loading}
             onClick={handleConfirm}
           >
             {t('global.confirm')}

@@ -1,5 +1,4 @@
 import { Modal } from '@/ui/component';
-import { Button } from 'antd';
 import clsx from 'clsx';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +8,7 @@ import { SelectAddressItem } from './SelectAddressItem';
 import { IDisplayedAccountWithBalance } from '@/ui/models/accountToDisplay';
 import { isSameAccount, SYNC_KEYRING_TYPES } from '@/utils/account';
 import { HARDWARE_KEYRING_TYPES, KEYRING_CLASS } from '@/constant';
+import { Button } from '@repo/ui/primitives';
 
 interface Props {
   visible: boolean;
@@ -137,9 +137,7 @@ export const SelectAddressModal: React.FC<Props> = ({
         )}
       >
         <Button
-          block
-          className="h-[56px] text-[17px] rounded-[8px]"
-          type="primary"
+          className="h-[56px] text-[17px] w-full rounded-[8px]"
           disabled={selected?.length === 0}
           onClick={() => onConfirm?.(selected)}
         >

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { groupBy } from 'lodash';
-import { Button } from 'antd';
+import { Button } from '@repo/ui/primitives';
 import { Account } from 'background/service/preference';
 import { useWallet, isSameAddress } from 'ui/utils';
 import { ownerPriority } from './DrawerAddressItem';
@@ -141,15 +141,8 @@ export const CoboDelegatedDrawer = ({
         )}
       </ListStyled>
       <div className="footer">
-        <Button type="primary" onClick={onCancel}>
-          {t('global.Cancel')}
-        </Button>
-        <Button
-          type="primary"
-          onClick={handleConfirm}
-          disabled={!checkedAccount}
-          loading={isLoading}
-        >
+        <Button onClick={onCancel}>{t('global.Cancel')}</Button>
+        <Button onClick={handleConfirm} disabled={!checkedAccount}>
           {t('global.proceedButton')}
         </Button>
       </div>

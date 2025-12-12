@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { connectStore, useRabbyDispatch } from 'ui/store';
-import { Button } from 'antd';
+import { Button } from '@repo/ui/primitives';
 import { Card } from '@/ui/component/NewUserImport';
 import { ReactComponent as RcIconTips } from '@/ui/assets/new-user-import/tips.svg';
 import { ReactComponent as IconDotCC } from '@/ui/assets/new-user-import/dot-cc.svg';
@@ -62,11 +62,10 @@ const RiskCheck = () => {
 
       <Button
         onClick={() => dispatch.createMnemonics.stepTo('display')}
-        block
-        type="primary"
         className={clsx(
           'mt-[76px] h-[56px] shadow-none rounded-[8px]',
-          'text-[17px] font-medium bg-r-blue-default'
+          'text-[17px] font-medium bg-r-blue-default',
+          'w-full'
         )}
       >
         {t('page.newUserImport.createNewAddress.showSeedPhrase')}

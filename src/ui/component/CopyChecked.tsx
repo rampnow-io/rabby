@@ -23,7 +23,7 @@ export const CopyChecked = ({
   checkedClassName?: string;
   copyIcon?: React.FC<React.SVGProps<SVGSVGElement>>;
 }) => {
-  const timerRef = useRef<NodeJS.Timeout>();
+  const timerRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const [copied, setCopied] = useState(false);
   const handleCopy: React.MouseEventHandler = (e) => {
     e.stopPropagation();

@@ -46,7 +46,6 @@ import {
 import { PageHeader } from 'ui/component';
 // import { ReactComponent as RcIconSwitchCC } from '@/ui/assets/send-token/switch-cc.svg';
 
-import './style.less';
 import { getKRCategoryByType } from '@/utils/transaction';
 import { filterRbiSource, useRbiSource } from '@/ui/utils/ga-event';
 import { findChain, findChainByEnum, findChainByID } from '@/utils/chain';

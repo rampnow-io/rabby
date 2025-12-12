@@ -7,7 +7,6 @@ import { useWallet } from '@/ui/utils';
 import { LedgerHDPathType as HDPathType } from '@/ui/utils/ledger';
 import { URDecoder } from '@ngraveio/bc-ur';
 import * as Sentry from '@sentry/browser';
-import { Button } from 'antd';
 import clsx from 'clsx';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +20,7 @@ import { ImageCarousel } from '../ImportHardware/OneKeyConnect/ImageCarousel';
 import { useHDWalletUnlockAndRedirect } from './hooks/useHardWareUnlockAddress';
 import { useAsyncFn } from 'react-use';
 import { getOneKeyFirstOneKeyDevice } from '@/ui/utils/onekey';
+import { Button } from '@repo/ui/primitives';
 
 const KEYSTONE_TYPE = HARDWARE_KEYRING_TYPES.Keystone.type;
 
@@ -258,9 +258,6 @@ export const NewUserImportOneKey = () => {
               />
               <Button
                 onClick={runHandleConnect}
-                loading={loading}
-                block
-                type="primary"
                 className={clsx(
                   'mt-[32px] h-[56px] shadow-none rounded-[8px]',
                   'text-[17px] font-medium'

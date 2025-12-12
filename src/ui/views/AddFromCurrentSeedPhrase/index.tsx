@@ -5,13 +5,13 @@ import { UseSeedPhrase } from './hooks';
 import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
 import { useWalletConnectIcon } from '@/ui/component/WalletConnect/useWalletConnectIcon';
 import { formatUsdValue } from '@/ui/utils';
-import { Button } from 'antd';
 import { DisplayedAccount, TypeKeyringGroup } from '../ManageAddress/hooks';
 import { pickKeyringThemeIcon } from '@/utils/account';
 import { KEYRING_ICONS, WALLET_BRAND_CONTENT } from '@/constant';
 import { useThemeMode } from '@/ui/hooks/usePreference';
 import { ReactComponent as IconAdd } from '@/ui/assets/address/add.svg';
 import clsx from 'clsx';
+import { Button } from '@repo/ui/primitives';
 
 export const AddFromCurrentSeedPhrase: React.FC<{
   isInModal?: boolean;
@@ -63,9 +63,8 @@ const Group = ({
 
       <Button
         onClick={() => onAdd(data.publicKey!)}
-        type="primary"
         className={clsx(
-          'bg-rabby-blue-light1 w-full shadow-none h-[40px] border-transparent hover:border-rabby-blue-default hover:bg-r-blue-light-2 hover:before:hidden',
+          'w-full shadow-none h-[40px] ',
           data.list.length ? 'mt-[20px]' : 'mt-[6px]'
         )}
       >

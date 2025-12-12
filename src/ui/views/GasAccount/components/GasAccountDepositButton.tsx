@@ -1,6 +1,6 @@
 import { DirectSignToConfirmBtn } from '@/ui/component/ToConfirmButton';
 import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
-import { Button } from 'antd';
+import { Button } from '@repo/ui/primitives';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -32,9 +32,6 @@ export const GasAccountDepositButton = ({
   ) : (
     <Button
       onClick={onSignPage}
-      block
-      size="large"
-      type="primary"
       className="h-[48px] text-r-neutral-title2 text-15 font-medium"
       disabled={disabled}
     >

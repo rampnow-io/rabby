@@ -5,7 +5,7 @@ import {
   HDManagerStateProvider,
   StateProviderProps,
 } from './utils';
-import { Button, Spin, message } from 'antd';
+import { Spin, message } from 'antd';
 import {
   HARDWARE_KEYRING_TYPES,
   KEYRING_CLASS,
@@ -37,6 +37,7 @@ import { useMemoizedFn, useRequest } from 'ahooks';
 import { useRabbyDispatch } from '@/ui/store';
 import { account } from '@/ui/models/account';
 import { useNewUserGuideStore } from '../NewUserImport/hooks/useNewUserGuideStore';
+import { Button } from '@repo/ui/primitives';
 
 const LOGO_MAP = {
   [HARDWARE_KEYRING_TYPES.Ledger.type]: LedgerSVG,
@@ -277,10 +278,8 @@ const DoneButton = ({ onClick }: { onClick?(): void }) => {
     <div className="absolute bottom-[40px] left-0 right-0 text-center">
       {isLazyImport ? (
         <Button
-          type="primary"
           className="w-[280px] h-[60px] text-20"
           onClick={handleLazyAdd}
-          loading={loading}
           disabled={!selectedAccounts.length}
         >
           {t('page.newAddress.hd.importBtn', {
@@ -289,7 +288,6 @@ const DoneButton = ({ onClick }: { onClick?(): void }) => {
         </Button>
       ) : (
         <Button
-          type="primary"
           className="w-[280px] h-[60px] text-20"
           onClick={onClick}
           disabled={!currentAccounts.length}

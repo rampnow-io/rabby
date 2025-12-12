@@ -11,7 +11,6 @@ import { query2obj } from '@/ui/utils/url';
 import { TransportWebUSB } from '@keystonehq/hw-transport-webusb';
 import { URDecoder } from '@ngraveio/bc-ur';
 import * as Sentry from '@sentry/browser';
-import { Button } from 'antd';
 import clsx from 'clsx';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +20,7 @@ import QRCodeCheckerDetail from 'ui/views/QRCodeCheckerDetail';
 import { useNewUserGuideStore } from './hooks/useNewUserGuideStore';
 import { useMount, useRequest } from 'ahooks';
 import qs from 'qs';
+import { Button } from '@repo/ui/primitives';
 
 const KEYSTONE_TYPE = HARDWARE_KEYRING_TYPES.Keystone.type;
 
@@ -311,9 +311,6 @@ export const NewUserImportKeystone = () => {
               />
               <Button
                 onClick={runHandleConnect}
-                loading={loading}
-                block
-                type="primary"
                 className={clsx(
                   'mt-[32px] h-[56px] shadow-none rounded-[8px]',
                   'text-[17px] font-medium'

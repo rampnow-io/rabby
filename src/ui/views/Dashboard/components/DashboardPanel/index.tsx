@@ -7,7 +7,6 @@ import { findChainByID } from '@/utils/chain';
 import { appIsDev } from '@/utils/env';
 import { ga4 } from '@/utils/ga4';
 import { matomoRequestEvent } from '@/utils/matomo-request';
-import { Badge, Col, Row, Skeleton, Tooltip, Tabs } from 'antd';
 import clsx from 'clsx';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -56,6 +55,7 @@ import { RecentConnectionsPopup } from '../RecentConnections';
 import { useScroll, useSize } from 'ahooks';
 import { useThemeMode } from '@/ui/hooks/usePreference';
 import { useCheckBridgePendingItem } from '@/ui/views/Bridge/hooks/history';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/primitives';
 
 const Container = styled.div`
   position: relative;
@@ -153,81 +153,23 @@ const Container = styled.div`
 export const DashboardPanel: React.FC<{ onSettingClick?(): void }> = ({
   onSettingClick,
 }) => {
-  const { t } = useTranslation();
-  const history = useHistory();
-
-  const [activeTab, setActiveTab] = useState('tokens');
-  const [selectedChainId, setSelectedChainId] = useState<string | null>(null);
-  const [approvalChain, setApprovalChain] = useState<CHAINS_ENUM | undefined>(
-    undefined
-  );
-
-  const [badgeModalVisible, setBadgeModalVisible] = useState(false);
-
-  type IPanelItem = {
-    icon: ThemeIconType;
-    content: string;
-    onClick: import('react').MouseEventHandler<HTMLElement>;
-    badge?: number;
-    badgeAlert?: boolean;
-    badgeClassName?: string;
-    iconSpin?: boolean;
-    hideForGnosis?: boolean;
-    showAlert?: boolean;
-    disabled?: boolean;
-    commingSoonBadge?: boolean;
-    disableReason?: string;
-    eventKey: string;
-    iconClassName?: string;
-    subContent?: React.ReactNode;
-    isFullscreen?: boolean;
-  };
-
-  const giftUsdValue = useRabbySelector((s) => s.gift.giftUsdValue);
-  const hasClaimedGift = useRabbySelector((s) => s.gift.hasClaimedGift);
-
-  const hasGiftEligibility = useMemo(() => {
-    return giftUsdValue > 0 && !hasClaimedGift;
-  }, [giftUsdValue, hasClaimedGift]);
-
-  const ref = useRef<HTMLDivElement | null>(null);
-  const scroll = useScroll(ref);
-  const scrollRatio = useMemo(() => {
-    const top = scroll?.top ?? 0;
-    const height = ref.current?.getBoundingClientRect()?.height ?? 0;
-    const scrollHeight = ref.current?.scrollHeight ?? 440;
-    const ratio = top / (scrollHeight - height);
-    return ratio;
-  }, [scroll?.top]);
-  const { isDarkTheme } = useThemeMode();
-
   return (
     <div className="relative px-[16px] pt-[14px] pb-[12px]">
-      <Tabs
-        activeKey={activeTab}
-        onChange={setActiveTab}
-        className="dashboard-panel-tabs"
-        tabBarStyle={{
-          marginBottom: 16,
-        }}
-      >
-        <Tabs.TabPane tab="Tokens" key="tokens">
-          <div className="bg-r-neutral-card-1 p-[10px] rounded-[8px] overflow-auto max-h-[500px]">
-            <AssetList visible={activeTab === 'tokens'} onClose={() => {}} />
-          </div>
-        </Tabs.TabPane>
-
-        <Tabs.TabPane tab="Transactions" key="transactions">
-          <div className="bg-r-neutral-card-1 p-[10px] overflow-auto rounded-[8px]  max-h-[500px]">
-            <TransactionHistory />
-          </div>
-        </Tabs.TabPane>
-
-        <Tabs.TabPane tab="Approvals" key="approvals">
-          <div className="bg-r-neutral-card-1 p-[10px] rounded-[8px] overflow-auto max-h-[500px]">
-            <ApprovalsTabPane isDesktop={false} desktopChain={approvalChain} />
-          </div>
-        </Tabs.TabPane>
+      <Tabs defaultValue="tokens">
+        <TabsList>
+          <TabsTrigger value="tokens">Tokens</TabsTrigger>
+          <TabsTrigger value="transactions">Transactions</TabsTrigger>
+          <TabsTrigger value="approvals">Approvals</TabsTrigger>
+        </TabsList>
+        <TabsContent value="tokens">
+          <AssetList visible={true} onClose={() => {}} />
+        </TabsContent>
+        <TabsContent value="transactions">
+          <TransactionHistory />
+        </TabsContent>
+        <TabsContent value="approvals">
+          <ApprovalsTabPane isDesktop={false} />
+        </TabsContent>
       </Tabs>
       <RateModal />
     </div>

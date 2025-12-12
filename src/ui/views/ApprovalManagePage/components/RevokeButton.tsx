@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useLayoutEffect } from 'react';
-import { Button, Modal } from 'antd';
+import { Modal } from 'antd';
 import { Trans, useTranslation } from 'react-i18next';
 import { RevokeSummary } from '@/utils/approve';
 import { modalCloseIcon20 } from '@/ui/component/Modal';
 import { useWallet } from '@/ui/utils';
+import { Button } from '@repo/ui/primitives';
 
 interface Props {
   isLoading?: boolean;
@@ -106,10 +107,7 @@ export const RevokeButton: React.FC<Props> = ({
         <div className="mt-[16px] h-[16px] mb-[16px]"> </div>
       )}
       <Button
-        loading={isRevokeLoading}
         className="w-[280px] h-[60px] text-[20px] am-revoke-btn"
-        type="primary"
-        size="large"
         disabled={!revokeTxCount}
         onClick={handleRevoke}
       >
@@ -148,10 +146,7 @@ export const RevokeEIP7702Button = ({
   return (
     <>
       <Button
-        loading={isRevokeLoading}
         className="w-[280px] h-[60px] text-[20px] am-revoke-btn"
-        type="primary"
-        size="large"
         disabled={!selectedCount}
         onClick={handleOnRevoke}
       >

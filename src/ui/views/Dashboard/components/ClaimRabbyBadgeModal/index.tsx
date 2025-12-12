@@ -15,7 +15,7 @@ import { ReactComponent as RcIconClose } from '@/ui/assets/badge/close.svg';
 import ImgLink from '@/ui/assets/badge/link.svg';
 
 import { useAccount } from '@/ui/store-hooks';
-import { Button, Input, Skeleton } from 'antd';
+import { Input, Skeleton } from 'antd';
 
 import clsx from 'clsx';
 
@@ -28,6 +28,7 @@ import { useHistory } from 'react-router';
 import { useAsync, useAsyncFn } from 'react-use';
 import * as animationData from './success.json';
 import { useThemeMode } from '@/ui/hooks/usePreference';
+import { Button } from '@repo/ui/primitives';
 
 const RABBY_BADGE_URL = 'https://debank.com/official-badge/2';
 
@@ -333,12 +334,9 @@ const ClaimRabbyBadge = ({ onClaimed }: { onClaimed?: () => void }) => {
             )}
           </div>
           <Button
-            type="primary"
-            size="large"
             className="btn"
             disabled={!code || !!error || swapTips}
             onClick={handleClaim}
-            loading={mintLoading}
           >
             {t('page.dashboard.rabbyBadge.claim')}
           </Button>
@@ -356,11 +354,7 @@ const ClaimRabbyBadge = ({ onClaimed }: { onClaimed?: () => void }) => {
         ) : (
           <>
             <div>{t('page.dashboard.rabbyBadge.noCode')} </div>
-            <Button
-              type="primary"
-              className="btn more"
-              onClick={gotoDeBankRabbyBadge}
-            >
+            <Button className="btn more" onClick={gotoDeBankRabbyBadge}>
               <span>{t('page.dashboard.rabbyBadge.learnMoreOnDebank')}</span>
               <img src={ImgLink} className="ml-4 w-20 h-20" />
             </Button>
@@ -447,7 +441,7 @@ const ClaimSuccess = ({ num }: { num: number }) => {
       </div>
       <div className="title">{t('page.dashboard.rabbyBadge.claimSuccess')}</div>
       <CurrentAccount className="account" />
-      <Button type="primary" className="btn" onClick={gotoDeBankRabbyBadge}>
+      <Button className="btn" onClick={gotoDeBankRabbyBadge}>
         <span>{t('page.dashboard.rabbyBadge.viewOnDebank')}</span>
         <img src={ImgLink} className="ml-4 w-20 h-20" />
       </Button>

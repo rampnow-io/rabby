@@ -1,4 +1,4 @@
-import { Button } from 'antd';
+import { Button, ButtonType } from '@repo/ui/primitives';
 import clsx from 'clsx';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -64,7 +64,7 @@ export const ActionsContainer: React.FC<
     <div className="flex gap-[12px] relative justify-end">
       {children}
       <Button
-        type="ghost"
+        buttonType={ButtonType.GHOST}
         className={clsx(
           'w-[102px] h-[48px] border-blue-light text-blue-light',
           'hover:bg-[#8697FF1A] active:bg-[#0000001A]',

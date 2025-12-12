@@ -1,12 +1,12 @@
 import React from 'react';
 import { Card } from '@/ui/component/NewUserImport';
 import rabbyLogo from '@/ui/assets/unlock/rabby.svg';
-import { Button } from 'antd';
 import clsx from 'clsx';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import BackgroundSVG from '@/ui/assets/new-user-import/background.svg';
 import { useThemeMode } from '@/ui/hooks/usePreference';
+import { Button, ButtonType } from '@repo/ui/primitives';
 
 export const Guide = () => {
   const { t } = useTranslation();
@@ -34,7 +34,7 @@ export const Guide = () => {
             }
       }
     >
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col w-full items-center">
         <img src={rabbyLogo} className="mt-[100px] w-[100px] h-[100px]" />
         <div className="my-12 text-24 font-medium text-r-neutral-title1">
           {t('page.newUserImport.guide.title')}
@@ -43,29 +43,14 @@ export const Guide = () => {
           {t('page.newUserImport.guide.desc')}
         </div>
 
-        <Button
-          onClick={gotoCreate}
-          block
-          type="primary"
-          className={clsx(
-            'mt-[85px] mb-16',
-            'h-[56px] shadow-none rounded-[8px]',
-            'text-[17px] font-medium bg-r-blue-default'
-          )}
-        >
+        <Button onClick={gotoCreate} className="w-full">
           {t('page.newUserImport.guide.createNewAddress')}
         </Button>
 
         <Button
           onClick={gotoImport}
-          block
-          type="primary"
-          ghost
-          className={clsx(
-            'h-[56px] shadow-none rounded-[8px]',
-            'text-[17px] font-medium',
-            'hover:bg-light-r-blue-light1 hover:before:hidden hover:border-rabby-blue-default hover:text-r-blue-default'
-          )}
+          buttonType={ButtonType.SECONDARY}
+          className="w-full"
         >
           {t('page.newUserImport.guide.importAddress')}
         </Button>

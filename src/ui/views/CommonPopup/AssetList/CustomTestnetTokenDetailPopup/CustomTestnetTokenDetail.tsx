@@ -5,7 +5,7 @@ import { TooltipWithMagnetArrow } from '@/ui/component/Tooltip/TooltipWithMagnet
 import { useRabbySelector } from '@/ui/store';
 import IconNoFind from 'ui/assets/tokenDetail/IconNoFind.svg';
 import { findChain } from '@/utils/chain';
-import { Button, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 import clsx from 'clsx';
 import { Image } from 'antd';
 import React, { useCallback, useMemo, useRef } from 'react';
@@ -28,6 +28,7 @@ import { TokenCharts } from '@/ui/component/TokenChart';
 import { TokenItem } from '@rabby-wallet/rabby-api/dist/types';
 import TokenChainAndContract from '@/ui/views/Dashboard/components/TokenDetailPopup/TokenInfo';
 import { CustomizedSwitch } from '@/ui/views/Dashboard/components/TokenDetailPopup/CustomizedButton';
+import { Button, ButtonType } from '@repo/ui/primitives';
 
 const PAGE_COUNT = 10;
 const ellipsis = (text: string) => {
@@ -244,8 +245,6 @@ export const CustomTestnetTokenDetail = ({
       {customizeHasNotAdd ? (
         <div className="flex flex-row justify-between J_buttons_area relative height-[70px] px-20 py-14 ">
           <Button
-            type="primary"
-            size="large"
             onClick={() => addToken(token)}
             className="w-[360px] h-[40px] leading-[18px]"
             style={{
@@ -265,8 +264,6 @@ export const CustomTestnetTokenDetail = ({
             title={t('page.dashboard.tokenDetail.notSupported')}
           >
             <Button
-              type="primary"
-              size="large"
               disabled
               className="w-[114px] h-[40px] leading-[18px]"
               style={{
@@ -280,18 +277,13 @@ export const CustomTestnetTokenDetail = ({
           </Tooltip>
 
           <Button
-            type="primary"
-            ghost
-            size="large"
             className="w-[114px] h-[40px] leading-[18px] rabby-btn-ghost"
             onClick={goToSend}
           >
             {t('page.dashboard.tokenDetail.send')}
           </Button>
           <Button
-            type="primary"
-            ghost
-            size="large"
+            buttonType={ButtonType.GHOST}
             className="w-[114px] h-[40px] leading-[18px] rabby-btn-ghost"
             onClick={goToReceive}
           >

@@ -1,5 +1,5 @@
 import { TooltipWithMagnetArrow } from '@/ui/component/Tooltip/TooltipWithMagnetArrow';
-import { Button } from 'antd';
+import { Button } from '@repo/ui/primitives';
 import SkeletonInput from 'antd/lib/skeleton/Input';
 import clsx from 'clsx';
 import React from 'react';

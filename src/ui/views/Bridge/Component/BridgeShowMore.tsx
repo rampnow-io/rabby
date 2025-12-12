@@ -1,7 +1,7 @@
 import { TokenWithChain } from '@/ui/component';
 import { getTokenSymbol } from '@/ui/utils/token';
 import { TokenItem } from '@rabby-wallet/rabby-api/dist/types';
-import { Button, Skeleton, Switch, Tooltip } from 'antd';
+import { Skeleton, Switch, Tooltip } from 'antd';
 import clsx from 'clsx';
 import React, {
   Dispatch,
@@ -38,6 +38,7 @@ import {
 } from '../../Approval/components/FooterBar/GasLessComponents';
 import { useGasAccountSign } from '../../GasAccount/hooks';
 import { useMemoizedFn } from 'ahooks';
+import { Button } from '@repo/ui/primitives';
 
 const PreferMEVGuardSwitch = styled(Switch)`
   min-width: 20px;
@@ -791,11 +792,7 @@ export const RecommendFromToken = ({
           for an available quote
         </Trans>
       </div>
-      <Button
-        type="primary"
-        className="h-24 text-13 font-medium px-10 py-0"
-        onClick={onOk}
-      >
+      <Button className="h-24 text-13 font-medium px-10 py-0" onClick={onOk}>
         {t('global.ok')}
       </Button>
     </div>

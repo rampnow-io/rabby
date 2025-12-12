@@ -1,6 +1,6 @@
 import { LoadingOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
-import { Button, Form, Input } from 'antd';
+import { Form, Input } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import { KEYRING_CLASS, KEYRING_TYPE, WALLET_BRAND_CATEGORY } from 'consts';
 import { isValidAddress } from '@ethereumjs/util';
@@ -15,6 +15,7 @@ import { safeJSONParse } from '@/utils';
 import clsx from 'clsx';
 import { UI_TYPE } from '@/constant/ui';
 import qs from 'qs';
+import { Button } from '@repo/ui/primitives';
 
 const ImportGnosisAddress: React.FC<{ isInModal?: boolean }> = ({
   isInModal,
@@ -221,8 +222,6 @@ const ImportGnosisAddress: React.FC<{ isInModal?: boolean }> = ({
       </div>
       <footer className="fixed bottom-0 left-0 right-0 p-[20px] border-t border-r-neutral-line bg-r-neutral-card-1">
         <Button
-          type="primary"
-          size="large"
           className="w-full h-[42px] disabled:bg-[#8998ff] disabled:opacity-40 disabled:rounded-[6px]"
           disabled={loading || !!errorMessage || !chainList?.length}
           onClick={() =>

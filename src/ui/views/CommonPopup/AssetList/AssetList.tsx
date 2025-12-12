@@ -10,11 +10,11 @@ import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { CustomTestnetAssetList } from './CustomTestnetAssetList';
 import { AddCustomTokenPopup } from './CustomAssetList/AddCustomTokenPopup';
-import { Button } from 'antd';
 import { SpecialTokenListPopup } from './components/TokenButton';
 import { TestnetChainList } from './TestnetChainList';
 import { useFilteredTokens } from './useFilteredTokens';
 import { RcIconExternal1CC, RcIconExternalCC } from '@/ui/assets/dashboard';
+import { Button } from '@repo/ui/primitives';
 
 export const AssetList = ({
   visible,
@@ -82,7 +82,6 @@ export const AssetList = ({
           {isEmptyAssets ? (
             <div className="w-[100%] flex justify-center items-center">
               <Button
-                type="primary"
                 className="w-[200px] h-[44px] mt-[50px]"
                 onClick={() => {
                   setIsShowAddModal(true);

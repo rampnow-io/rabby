@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Button, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 import Popup, { PopupProps } from '@/ui/component/Popup';
 import { useTranslation } from 'react-i18next';
 import { formatUsdValue, splitNumberByStep } from '@/ui/utils';
@@ -9,6 +9,7 @@ import { useMemoizedFn } from 'ahooks';
 import { formatPercent } from '../utils';
 import { PERPS_MINI_USD_VALUE } from '../constants';
 import { PerpsSlider } from '../components/PerpsSlider';
+import { Button } from '@repo/ui/primitives';
 
 const PERPS_EXCHANGE_FEE_NUMBER = 0.0004;
 
@@ -211,12 +212,8 @@ export const ClosePositionPopup: React.FC<ClosePositionPopupProps> = ({
           {/* Action Button */}
           <div className="fixed bottom-0 left-0 right-0 border-t-[0.5px] border-solid border-rabby-neutral-line px-20 py-16 flex flex-col">
             <Button
-              block
-              size="large"
-              type="primary"
               className="h-[48px] text-15 font-medium bg-r-blue-default border-r-blue-default"
               onClick={closePosition}
-              loading={loading}
               disabled={!isValidClosePercent}
             >
               {t('page.perpsDetail.PerpsClosePositionPopup.confirm')}

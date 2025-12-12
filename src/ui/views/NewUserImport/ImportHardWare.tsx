@@ -7,12 +7,12 @@ import {
   WALLET_BRAND_TYPES,
 } from '@/constant';
 import { Trans, useTranslation } from 'react-i18next';
-import { Button } from 'antd';
 import clsx from 'clsx';
 import { useAsyncFn } from 'react-use';
 import { useHDWalletUnlockAndRedirect } from './hooks/useHardWareUnlockAddress';
 import { useMount } from 'ahooks';
 import { useNewUserGuideStore } from './hooks/useNewUserGuideStore';
+import { Button } from '@repo/ui/primitives';
 
 export const NewUserImportHardware = () => {
   const { type } = useParams<{
@@ -169,9 +169,6 @@ export const NewUserImportHardware = () => {
 
       <Button
         onClick={unlock}
-        block
-        type="primary"
-        loading={loading}
         className={clsx(
           'mt-[auto] h-[56px] shadow-none rounded-[8px]',
           'text-[17px] font-medium'

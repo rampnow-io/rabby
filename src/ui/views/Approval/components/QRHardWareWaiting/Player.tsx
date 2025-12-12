@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import QRCode from 'qrcode.react';
 import { UR, UREncoder } from '@ngraveio/bc-ur';
 import { useTranslation, Trans } from 'react-i18next';
-import { Button } from 'antd';
+import { Button } from '@repo/ui/primitives';
 import clsx from 'clsx';
 
 interface IProps {
@@ -69,7 +69,6 @@ const Player = ({
           'active:before:bg-[#00000033]',
           layoutStyle === 'normal' ? 'mt-20' : 'mt-6'
         )}
-        type="primary"
       >
         {t('page.signFooterBar.qrcode.getSig')}
       </Button>

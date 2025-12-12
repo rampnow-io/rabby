@@ -8,7 +8,7 @@ import {
   Level,
   RuleConfig,
 } from '@rabby-wallet/rabby-security-engine/dist/rules';
-import { Button, message } from 'antd';
+import { message } from 'antd';
 import { Chain } from 'background/service/openapi';
 import clsx from 'clsx';
 import { CHAINS_ENUM, SecurityEngineLevel } from 'consts';
@@ -29,6 +29,7 @@ import { AccountSelector } from '@/ui/component/AccountSelector';
 import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 import { useRabbyGetter, useRabbySelector } from '@/ui/store';
 import { Account } from '@/background/service/preference';
+import { Button, ButtonType } from '@repo/ui/primitives';
 
 interface ConnectProps {
   params: any;
@@ -735,8 +736,6 @@ export const ConnectContent = (props: ConnectProps) => {
             </div>
             <div className="action-buttons flex flex-col items-center">
               <Button
-                type="primary"
-                size="large"
                 onClick={() => handleAllow()}
                 disabled={connectBtnStatus.disabled}
                 className={clsx({
@@ -778,13 +777,11 @@ export const ConnectContent = (props: ConnectProps) => {
                 </div>
               )}
               <Button
-                type="primary"
-                ghost
+                buttonType={ButtonType.GHOST}
                 className={clsx(
                   'rabby-btn-ghost',
                   'flex items-center justify-center gap-2'
                 )}
-                size="large"
                 onClick={
                   displayBlockedRequestApproval
                     ? activeCancelPopup

@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 import { Modal } from '@/ui/component';
 import React from 'react';
-import { Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useWallet } from '@/ui/utils';
 import clsx from 'clsx';
+import { Button } from '@repo/ui/primitives';
 
 const StyledModal = styled(Modal)`
   padding-bottom: 0;
@@ -62,7 +62,6 @@ const Inner = ({
       </div>
       <div className="mt-[48px]  flex justify-center items-center gap-16">
         <Button
-          type="ghost"
           onClick={onCancel}
           className={clsx(
             'flex-1 h-[44px] text-[15px] font-medium border-blue-light text-r-blue-default',
@@ -73,7 +72,6 @@ const Inner = ({
           {t('page.rabbyPoints.referralCode.verifyAddressModal.cancel')}
         </Button>
         <Button
-          type="primary"
           className="flex-1 h-[44px] text-[15px] font-medium text-r-neutral-title2"
           onClick={onConfirm}
         >

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Button } from 'antd';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import WelcomeHeaderImg from 'ui/assets/welcome-header.svg';
+import { Button, ButtonType } from '@repo/ui/primitives';
 
 const Welcome = () => {
   const { t } = useTranslation();
@@ -27,9 +27,6 @@ const Welcome = () => {
           />
           <footer className="mt-[64px]">
             <Button
-              type="primary"
-              size="large"
-              block
               onClick={() => {
                 setStep(2);
               }}
@@ -52,7 +49,7 @@ const Welcome = () => {
           />
           <footer className="mt-[64px]">
             <Link to="/no-address" replace>
-              <Button type="primary" size="large" block>
+              <Button buttonType={ButtonType.SECONDARY}>
                 {t('page.welcome.step2.btnText')}
               </Button>
             </Link>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Button } from 'antd';
 import TransportWebHID from '@ledgerhq/hw-transport-webhid';
 import { TransportWebUSB } from '@keystonehq/hw-transport-webusb';
 import { StrayPage } from 'ui/component';
@@ -14,6 +13,7 @@ const KEYSTONE_TYPE = HARDWARE_KEYRING_TYPES.Keystone.type;
 import { useKeystoneUSBErrorCatcher } from '@/ui/utils/keystone';
 import { getImKeyFirstImKeyDevice } from '@/ui/utils/imKey';
 import { getOneKeyFirstOneKeyDevice } from '@/ui/utils/onekey';
+import { Button } from '@repo/ui/primitives';
 
 const RequestPermission = () => {
   const [showSuccess, setShowSuccess] = useState(false);
@@ -238,7 +238,7 @@ const RequestPermission = () => {
           <p className="mb-[60px] text-[15px] leading-[20px] text-center text-[#4B4D59]">
             {t('page.newAddress.ledger.nowYouCanReInitiateYourTransaction')}
           </p>
-          <Button type="primary" size="large" className="w-[224px]" onClick={() => window.close()}>
+          <Button className="w-[224px]" onClick={() => window.close()}>
             {t('global.ok')}
           </Button>
         </div>
@@ -263,7 +263,7 @@ const RequestPermission = () => {
           )}
           {needConfirm && (
             <div className="w-[470px] flex justify-center mt-[120px]">
-              <Button type="primary" size="large" className="w-[224px]" onClick={init}>
+              <Button className="w-[224px]" onClick={init}>
                 {t('page.newAddress.ledger.allow')}
               </Button>
             </div>

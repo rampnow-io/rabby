@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { useRabbySelector } from '@/ui/store';
 import { tokenPriceImpact, useBridge } from '../hooks/token';
-import { Alert, Button, message, Modal } from 'antd';
+import { Alert, message, Modal } from 'antd';
 import BigNumber from 'bignumber.js';
 import { getUiType, openInternalPageInTab, useWallet } from '@/ui/utils';
 import clsx from 'clsx';
@@ -48,6 +48,7 @@ import { DbkButton } from '../../Ecology/dbk-chain/components/DbkButton';
 import { useMiniSigner } from '@/ui/hooks/useSigner';
 import { MINI_SIGN_ERROR } from '@/ui/component/MiniSignV2/state/SignatureManager';
 import { BridgePendingTxItem } from './PendingTxItem';
+import { Button } from '@repo/ui/primitives';
 
 const isTab = getUiType().isTab;
 const isDesktop = getUiType().isDesktop;
@@ -441,7 +442,9 @@ export const BridgeContent = () => {
     return !!impact?.showLoss;
   }, [fromToken, amount, selectedBridgeQuote?.to_token_amount, toToken]);
 
-  const runBuildSwapTxsRef = useRef<ReturnType<typeof runBuildSwapTxs>>();
+  const runBuildSwapTxsRef = useRef<
+    ReturnType<typeof runBuildSwapTxs> | undefined
+  >(undefined);
 
   const noQuote =
     inSufficientCanGetQuote &&
@@ -810,10 +813,6 @@ export const BridgeContent = () => {
                 />
               ) : (
                 <Button
-                  loading={fetchingBridgeQuote}
-                  type="primary"
-                  block
-                  size="large"
                   className="h-[48px] text-white text-[16px] font-medium"
                   onClick={() => {
                     if (showExternalDappTips && externalDapps.length > 0) {

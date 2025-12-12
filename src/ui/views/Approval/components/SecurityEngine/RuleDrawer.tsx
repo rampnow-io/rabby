@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button } from 'antd';
+import { Button } from '@repo/ui/primitives';
 import { useTranslation } from 'react-i18next';
 import { Popup } from 'ui/component';
 import {
@@ -327,7 +327,6 @@ const RuleDrawer = ({
             <div className="rule-threshold-footer">
               <div {...hoverProps}>
                 <Button
-                  type="primary"
                   className="button-ignore"
                   style={{
                     backgroundColor: ignoreButtonContent.color,

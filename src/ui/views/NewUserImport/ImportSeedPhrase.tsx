@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Card } from '@/ui/component/NewUserImport';
 import { useHistory } from 'react-router-dom';
-import { Button, Form, Input } from 'antd';
+import { Form, Input } from 'antd';
 import WordsMatrix from '@/ui/component/WordsMatrix';
 import clsx from 'clsx';
 import { useRabbyDispatch } from '@/ui/store';
@@ -11,6 +11,7 @@ import styled from 'styled-components';
 import { useNewUserGuideStore } from './hooks/useNewUserGuideStore';
 import * as bip39 from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english';
+import { Button } from '@repo/ui/primitives';
 
 const FormItemWrapper = styled.div`
   .mnemonics-with-error,
@@ -234,10 +235,8 @@ export const ImportSeedPhrase = () => {
         </FormItemWrapper>
 
         <Button
-          htmlType="submit"
+          type="submit"
           disabled={disabledButton}
-          block
-          type="primary"
           className={clsx(
             'mt-auto h-[56px] shadow-none rounded-[8px]',
             'text-[17px] font-medium'

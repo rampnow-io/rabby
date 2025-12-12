@@ -20,6 +20,7 @@ import { CHAINS_ENUM } from '@/constant';
 import Settings from './components/Settings';
 import { useMemoizedFn } from 'ahooks';
 import { Button } from '@repo/ui/primitives';
+import { useOpenClose } from '@repo/ui';
 
 const Dashboard = () => {
   const history = useHistory();
@@ -76,12 +77,13 @@ const Dashboard = () => {
     setSettingVisible(!settingVisible);
   });
 
+  const [isVisible, openModal, closeModal] = useOpenClose(false);
+
   return (
     <>
       <div className={clsx('dashboard')}>
-        <DashboardHeader onSettingClick={toggleShowMoreSettings} />
-        <Button>hey !</Button>
-        <DashboardPanel onSettingClick={toggleShowMoreSettings} />
+        <DashboardHeader onSettingClick={openModal} />
+        <DashboardPanel onSettingClick={openModal} />
       </div>
       <Modal
         visible={firstNotice && updateContent}
@@ -107,7 +109,7 @@ const Dashboard = () => {
         />
       )}
 
-      <Settings visible={settingVisible} onClose={toggleShowMoreSettings} />
+      <Settings visible={isVisible} onClose={closeModal} />
     </>
   );
 };

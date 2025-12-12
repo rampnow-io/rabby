@@ -1,7 +1,7 @@
-import { Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as RcIconPerps } from 'ui/assets/perps/imgPerps.svg';
 import React from 'react';
+import { Button } from '@repo/ui/primitives';
 
 export const PerpsLoginContent = ({
   clickLoginBtn,
@@ -23,9 +23,6 @@ export const PerpsLoginContent = ({
           {t('page.perps.logInTips')}
         </div>
         <Button
-          block
-          size="large"
-          type="primary"
           className="h-[48px] text-r-neutral-title2 text-15 font-medium mt-24"
           style={{
             height: 48,

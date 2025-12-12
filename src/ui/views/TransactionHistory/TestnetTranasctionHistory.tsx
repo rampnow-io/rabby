@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { Empty } from 'ui/component';
 import { useWallet } from 'ui/utils';
 import { TransactionItem } from './components/TransactionItem';
-import './style.less';
 
 export const TestnetTransactionHistory = () => {
   const wallet = useWallet();

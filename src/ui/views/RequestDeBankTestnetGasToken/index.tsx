@@ -15,12 +15,13 @@ import imgLoading from 'ui/assets/faucet/loading.svg';
 import imgBg from 'ui/assets/faucet/bg.png';
 import IconSuccess from 'ui/assets/success.svg';
 
-import { Button, message } from 'antd';
+import { message } from 'antd';
 import { ClaimRabbyBadgeModal } from '../Dashboard/components/ClaimRabbyBadgeModal';
 import { CurrentAccount } from '@/ui/component/CurrentAccout';
 import { Loading } from './Loading';
 import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
 import { useThemeMode } from '@/ui/hooks/usePreference';
+import { Button } from '@repo/ui/primitives';
 
 const Wrapper = styled.div<{
   isDarkMode?: boolean;
@@ -308,8 +309,6 @@ const RequestDeBankTestnetGasToken = () => {
               </div>
               <Button
                 className="claimBtn"
-                type="primary"
-                block
                 onClick={() => setBadgeModalVisible(true)}
               >
                 {t('page.requestDebankTestnetGasToken.claimBadgeBtn')}
@@ -335,9 +334,7 @@ const RequestDeBankTestnetGasToken = () => {
               </div>
             ) : (
               <Button
-                block
                 className="requestBtn"
-                type="primary"
                 disabled={!mintedRabbyBadge || loading}
                 onClick={requestFaucet}
               >

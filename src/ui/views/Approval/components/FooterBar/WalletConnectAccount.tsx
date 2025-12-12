@@ -6,7 +6,7 @@ import { useSessionChainId } from '@/ui/component/WalletConnect/useSessionChainI
 import { useSessionStatus } from '@/ui/component/WalletConnect/useSessionStatus';
 import { useCommonPopupView, useWallet } from '@/ui/utils';
 import { Chain } from '@debank/common';
-import { Button } from 'antd';
+import { Button } from '@repo/ui/primitives';
 import clsx from 'clsx';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -161,11 +161,7 @@ export const WalletConnectAccount: React.FC<Props> = ({ account, chain }) => {
       icon={addressTypeIcon}
       footer={
         tipStatus === 'DISCONNECTED' && (
-          <Button
-            onClick={handleButton}
-            className="w-full h-[40px] mt-[12px]"
-            type="primary"
-          >
+          <Button onClick={handleButton} className="w-full h-[40px] mt-[12px]">
             {t('page.signFooterBar.connectButton')}
           </Button>
         )

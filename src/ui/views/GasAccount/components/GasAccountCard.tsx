@@ -1,6 +1,5 @@
 import { TooltipWithMagnetArrow } from '@/ui/component/Tooltip/TooltipWithMagnetArrow';
 import { formatUsdValue } from '@/ui/utils';
-import { Button } from 'antd';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 import { t } from 'i18next';
@@ -13,6 +12,7 @@ import { useAml } from '../hooks';
 import { GasAccountLoginCard } from './GasAccountLoginCard';
 import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 import { KEYRING_TYPE } from '@/constant';
+import { Button } from '@repo/ui/primitives';
 
 interface Props {
   isLogin?: boolean;
@@ -97,9 +97,6 @@ export const GasAccountCard = ({
         >
           <Button
             disabled={depositDisabled}
-            block
-            size="large"
-            type="primary"
             className="h-[48px] text-r-neutral-title2 text-15 font-medium"
             style={{
               height: 48,

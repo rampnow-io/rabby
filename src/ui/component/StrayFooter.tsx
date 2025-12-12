@@ -1,7 +1,7 @@
 import React, { memo, ReactNode } from 'react';
 import { useHistory } from 'react-router-dom';
 import cx from 'clsx';
-import { Button } from 'antd';
+import { Button } from '@repo/ui/primitives';
 
 interface StrayFooterProps {
   className?: string;
@@ -86,8 +86,7 @@ const StrayFooterNav = memo(
             <Button
               disabled={backDisabled}
               onClick={handleBack}
-              size="large"
-              className="flex-1 mr-16 lg:h-[52px]"
+              className="flex-1 mr-16 lg:h-[52px] w-full"
             >
               {BackButtonContent}
             </Button>
@@ -95,12 +94,9 @@ const StrayFooterNav = memo(
           {!hideNextButton && (
             <Button
               disabled={nextDisabled}
-              htmlType="submit"
+              type="submit"
               onClick={onNextClick}
-              size="large"
-              className={cx('lg:h-[52px]', 'flex-1')}
-              type="primary"
-              loading={nextLoading}
+              className={cx('lg:h-[52px]', 'flex-1 w-full')}
             >
               {NextButtonContent}
             </Button>

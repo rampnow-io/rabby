@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import clsx from 'clsx';
-import { Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import { getUiType } from 'ui/utils';
@@ -16,6 +15,7 @@ import {
 import { ReactComponent as RcIconRiskAlert } from '@/ui/assets/send-token/risk-alert.svg';
 import { ReactComponent as RcIconCheckboxChecked } from '@/ui/assets/send-token/icon-checkbox-checked.svg';
 import { ReactComponent as RcIconCheckboxUncheck } from '@/ui/assets/send-token/icon-checkbox-uncheck.svg';
+import { Button } from '@repo/ui/primitives';
 
 const isTab = getUiType().isTab;
 
@@ -95,11 +95,8 @@ export default function BottomArea({
         ) : (
           <Button
             disabled={!canSubmit}
-            type="primary"
-            htmlType="submit"
-            size="large"
-            className="w-[100%] h-[48px] text-[16px]"
-            loading={isSubmitLoading}
+            type="submit"
+            className="w-full h-[48px] text-[16px]"
           >
             {t('page.sendNFT.sendButton')}
           </Button>

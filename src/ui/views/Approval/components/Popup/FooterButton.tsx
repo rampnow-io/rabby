@@ -1,4 +1,4 @@
-import { Button } from 'antd';
+import { Button } from '@repo/ui/primitives';
 import clsx from 'clsx';
 import React from 'react';
 
@@ -22,9 +22,7 @@ export const FooterButton: React.FC<Props> = ({ onClick, text }) => {
           'active:before:bg-[#00000033]',
           'mb-[20px]'
         )}
-        type="primary"
         onClick={handleClick}
-        loading={loading}
       >
         {text}
       </Button>

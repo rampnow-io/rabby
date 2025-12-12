@@ -1,5 +1,4 @@
 import { useInfiniteScroll } from 'ahooks';
-import { Button } from 'antd';
 import {
   TokenEntityDetail,
   TokenItem,
@@ -34,6 +33,7 @@ import { Account } from '@/background/service/preference';
 import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 import { DbkButton } from '@/ui/views/Ecology/dbk-chain/components/DbkButton';
 import { DBK_CHAIN_ID } from '@/constant';
+import { Button, ButtonType } from '@repo/ui/primitives';
 const isDesktop = getUiType().isDesktop;
 const PAGE_COUNT = 10;
 
@@ -263,8 +263,6 @@ const TokenDetail = ({
             visible={!tipsFromTokenSelect ? false : undefined}
           >
             <Button
-              type="primary"
-              size="large"
               onClick={isBridge ? gotoBridge : isSwap ? goToSwap : goToSend}
               disabled={Boolean(tipsFromTokenSelect)}
               className="w-[360px] h-[40px] leading-[18px]"
@@ -285,8 +283,6 @@ const TokenDetail = ({
       return (
         <div className="flex flex-row justify-between J_buttons_area relative height-[70px] px-20 py-14 ">
           <Button
-            type="primary"
-            size="large"
             onClick={() => addToken(tokenWithAmount)}
             className="w-[360px] h-[40px] leading-[18px]"
             style={{
@@ -304,8 +300,6 @@ const TokenDetail = ({
     return (
       <div className="flex flex-row justify-between J_buttons_area relative height-[70px] px-20 py-14 gap-8">
         <Button
-          type="primary"
-          size="large"
           onClick={goToSwap}
           className="w-[84px] h-[40px] leading-[18px]"
           style={{
@@ -316,27 +310,20 @@ const TokenDetail = ({
           {t('page.dashboard.tokenDetail.swap')}
         </Button>
         <Button
-          type="primary"
-          ghost
-          size="large"
+          buttonType={ButtonType.GHOST}
           className="w-[84px] h-[40px] leading-[18px] rabby-btn-ghost"
           onClick={gotoBridge}
         >
           {t('page.dashboard.tokenDetail.bridge')}
         </Button>
         <Button
-          type="primary"
-          ghost
-          size="large"
+          buttonType={ButtonType.GHOST}
           className="w-[84px] h-[40px] leading-[18px] rabby-btn-ghost"
           onClick={goToSend}
         >
           {t('page.dashboard.tokenDetail.send')}
         </Button>
         <Button
-          type="primary"
-          ghost
-          size="large"
           className="w-[84px] h-[40px] leading-[18px] rabby-btn-ghost"
           onClick={goToReceive}
         >

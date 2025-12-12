@@ -4,12 +4,12 @@ import { TokenItem } from '@rabby-wallet/rabby-api/dist/types';
 import { getTokenSymbol } from '@/ui/utils/token';
 import { useTranslation } from 'react-i18next';
 import { ellipsisAddress } from '@/ui/utils/address';
-import { Button } from 'antd';
 import { ReactComponent as RcIconExternalCC } from 'ui/assets/open-external-cc.svg';
 import clsx from 'clsx';
 import { openInTab, useWallet } from '@/ui/utils';
 import { getAddressScanLink } from '@/utils';
 import { findChainByServerID } from '@/utils/chain';
+import { Button } from '@repo/ui/primitives';
 
 export const useLowCreditState = (toToken?: TokenItem) => {
   const wallet = useWallet();
@@ -117,8 +117,7 @@ export const LowCreditModal = ({
           {t('page.swap.lowCreditModal.desc')}
         </div>
         <Button
-          type="primary"
-          className="mt-auto h-40 text-15 font-medium"
+          className="mt-auto h-40 text-15 font-medium w-full"
           onClick={onCancel}
         >
           {t('global.confirm')}

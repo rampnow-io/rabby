@@ -1,5 +1,4 @@
 import { supportedHardwareDirectSign } from '@/ui/hooks/useMiniApprovalDirectSign';
-import { Button } from 'antd';
 import clsx from 'clsx';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useState } from 'react';
@@ -9,6 +8,7 @@ import { ReactComponent as RcIconCloseCC } from 'ui/assets/component/close-cc.sv
 import Checkbox from '../Checkbox';
 import { ReactComponent as RcIconCCLoading } from 'ui/assets/loading-cc.svg';
 import { useSignatureStore } from '@/ui/component/MiniSignV2/state';
+import { Button } from '@repo/ui/primitives';
 export const ToConfirmBtn = (props: {
   title: React.ReactNode;
   onConfirm: () => void;
@@ -40,7 +40,7 @@ export const ToConfirmBtn = (props: {
     }
   };
 
-  const cancel: React.MouseEventHandler<HTMLDivElement> = useCallback(
+  const cancel: React.MouseEventHandler<any> = useCallback(
     (e) => {
       e.stopPropagation();
       setToConfirm(false);
@@ -48,6 +48,7 @@ export const ToConfirmBtn = (props: {
     },
     [props.onCancel]
   );
+
   const divRef = useRef<HTMLDivElement>(null);
   useClickAway(divRef, () => setToConfirm(false));
 
@@ -74,15 +75,9 @@ export const ToConfirmBtn = (props: {
     >
       {props.loading || !toConfirm || props.isHardWallet ? (
         <Button
-          htmlType={props.htmlType || 'button'}
-          type="primary"
+          type={props.htmlType || 'button'}
           disabled={props.disabled}
-          block
-          className={clsx(
-            'h-[48px] rounded-[8px]',
-            props.loading && 'border-[#3646d9] bg-[#3646d9]',
-            props.buttonClassName
-          )}
+          className={clsx('h-[48px] rounded-[8px]', props.buttonClassName)}
           style={
             props.loading
               ? {
@@ -104,7 +99,6 @@ export const ToConfirmBtn = (props: {
       ) : (
         <div className={clsx('w-full h-full flex items-center', 'group')}>
           <Button
-            type="primary"
             className={clsx(
               'relative flex-1 h-full flex items-center justify-center rounded-l-[8px] rounded-r-none',
               'bg-transparent',
@@ -124,8 +118,6 @@ export const ToConfirmBtn = (props: {
           </Button>
 
           <Button
-            htmlType={'button'}
-            type="primary"
             className={clsx(
               'w-[56px] h-full flex items-center justify-center bg-transparent rounded-l-none rounded-r-[8px]'
             )}

@@ -4,7 +4,6 @@ import {
 } from '@/background/service/customTestnet';
 import { CustomTestnetForm } from '@/ui/views/CustomTestnet/components/CustomTestnetForm';
 import { useMount, useRequest } from 'ahooks';
-import { Button, Spin } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -15,6 +14,7 @@ import { SwitchEthereumChainParams } from './type';
 import { LoadingOutlined } from '@ant-design/icons';
 import { useThemeMode } from '@/ui/hooks/usePreference';
 import { matomoRequestEvent } from '@/utils/matomo-request';
+import { Button } from '@repo/ui/primitives';
 
 interface SwitchChainProps {
   data: SwitchEthereumChainParams[];
@@ -153,22 +153,13 @@ const SwitchChain = ({ params }: { params: SwitchChainProps }) => {
         )}
       >
         <Button
-          type="primary"
-          size="large"
-          ghost
           className="rabby-btn-ghost w-[172px]"
           onClick={() => rejectApproval()}
         >
           {t('global.cancelButton')}
         </Button>
 
-        <Button
-          type="primary"
-          className="w-[172px]"
-          size="large"
-          loading={loading}
-          onClick={handleConfirm}
-        >
+        <Button className="w-[172px]" onClick={handleConfirm}>
           {t('global.addButton')}
         </Button>
       </div>

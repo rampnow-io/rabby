@@ -1,9 +1,9 @@
-import { Button } from 'antd';
 import React from 'react';
 import clsx from 'clsx';
 import { Modal } from '@/ui/component';
 import { useTranslation } from 'react-i18next';
 import { KEYRING_CLASS } from '@/constant';
+import { Button } from '@repo/ui/primitives';
 
 export const useConfirmRevokeModal = (props: {
   revokeListCount: number;
@@ -44,7 +44,6 @@ export const useConfirmRevokeModal = (props: {
           </div>
           <footer className="flex flex-col gap-16 mx-auto mt-24 items-center">
             <Button
-              type="primary"
               className={clsx(
                 'w-[260px] h-[44px]',
                 'rounded-[8px]',
@@ -58,7 +57,6 @@ export const useConfirmRevokeModal = (props: {
               {t('page.approvals.revokeModal.batchRevoke')}
             </Button>
             <Button
-              type="ghost"
               className={clsx(
                 'w-[260px] h-[44px] border-blue-light text-blue-light',
                 'hover:bg-[#8697FF1A] active:bg-[#0000001A]',

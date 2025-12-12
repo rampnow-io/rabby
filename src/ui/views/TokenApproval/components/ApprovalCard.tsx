@@ -1,6 +1,6 @@
 import { TokenApproval, TokenItem } from '@/background/service/openapi';
 import { TokenWithChain } from '@/ui/component';
-import { Button, message } from 'antd';
+import { message } from 'antd';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { matomoRequestEvent } from '@/utils/matomo-request';
@@ -13,6 +13,7 @@ import {
 import { connectStore, useRabbySelector } from '@/ui/store';
 import { getKRCategoryByType } from '@/utils/transaction';
 import { getChain } from '@/utils';
+import { Button } from '@repo/ui/primitives';
 
 interface ApprovalCardProps {
   data: TokenApproval;
@@ -106,11 +107,6 @@ const ApprovalCard = ({ data }: ApprovalCardProps) => {
                       : 'Infinite'}
                   </div>
                   <Button
-                    type="primary"
-                    danger
-                    ghost
-                    shape="round"
-                    size="small"
                     onClick={() => {
                       tokenApprove(item);
                     }}

@@ -1,4 +1,4 @@
-import { Button } from 'antd';
+import { Button } from '@repo/ui/primitives';
 import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActionsContainer, Props } from './ActionsContainer';
@@ -98,7 +98,6 @@ export const SubmitActions: React.FC<Props> = ({
           <GasLessAnimatedWrapper>
             <ButtonStyled
               disabled={disabledProcess}
-              type="primary"
               className={clsx(
                 gasLess && 'gasLess',
                 gasLessThemeColor && 'gasLessConfig',

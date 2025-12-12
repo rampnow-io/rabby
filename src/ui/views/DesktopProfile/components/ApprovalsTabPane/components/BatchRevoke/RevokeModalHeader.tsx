@@ -4,7 +4,7 @@ import { ReactComponent as LoadingSVG } from '@/ui/assets/address/loading.svg';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as RcIconCloseCC } from '@/ui/assets/component/close-cc.svg';
 import { Modal } from '@/ui/component';
-import { Button } from 'antd';
+import { Button } from '@repo/ui/primitives';
 import clsx from 'clsx';
 
 interface Props {
@@ -44,7 +44,6 @@ export const RevokeModalHeader: React.FC<Props> = ({
           </div>
           <footer className="mt-32">
             <Button
-              type="primary"
               className={clsx(
                 'w-full h-[44px]',
                 'rounded-[6px]',

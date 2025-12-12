@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, DrawerProps, message } from 'antd';
+import { DrawerProps, message } from 'antd';
 import styled from 'styled-components';
 import { useRabbyDispatch, useRabbySelector, connectStore } from 'ui/store';
 import { IDisplayedAccountWithBalance } from 'ui/models/accountToDisplay';
@@ -12,6 +12,7 @@ import { isSameAddress, useWallet } from 'ui/utils';
 import IconSuccess from 'ui/assets/success.svg';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
+import { Button } from '@repo/ui/primitives';
 
 interface ListModalProps {
   address?: string;
@@ -167,9 +168,7 @@ const ListModal = ({
         {whitelistEnabled && (
           <ListFooterWrapper>
             <Button
-              type="primary"
-              size="large"
-              className="w-[100%] h-[40px] text-15"
+              className="w-full h-[40px] text-15"
               onClick={handleClickEditWhitelist}
             >
               {t('component.Contact.ListModal.editWhitelist')}

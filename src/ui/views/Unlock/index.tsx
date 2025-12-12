@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import { Input, InputRef, Form, Button } from 'antd';
+import { Input, InputRef, Form } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
 import {
@@ -16,6 +16,7 @@ import styled from 'styled-components';
 import { FullscreenContainer } from '@/ui/component/FullscreenContainer';
 import qs from 'qs';
 import { isString } from 'lodash';
+import { Button } from '@repo/ui/primitives';
 
 const InputFormStyled = styled(Form.Item)`
   .ant-form-item-explain {
@@ -175,15 +176,12 @@ const Unlock = () => {
           <footer className="absolute bottom-32 left-0 right-0 text-center">
             <Form.Item className="mx-20 mb-20">
               <Button
-                block
                 className={clsx(
                   'w-full py-18 h-auto rounded-[8px] border-none',
                   'text-[17px] leading-[20px]',
                   'font-medium'
                 )}
-                htmlType="submit"
-                type="primary"
-                size="large"
+                type="submit"
               >
                 {t('page.unlock.btn.unlock')}
               </Button>

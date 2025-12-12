@@ -124,7 +124,7 @@ export const usePollBridgePendingNumber = (timer = 5000) => {
     };
   }, [refetchCount]);
 
-  const timerRef = useRef<NodeJS.Timeout>();
+  const timerRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
     if (

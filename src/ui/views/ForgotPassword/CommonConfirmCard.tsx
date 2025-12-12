@@ -1,7 +1,7 @@
 import { Card } from '@/ui/component/NewUserImport';
 import React from 'react';
-import { Button } from 'antd';
 import clsx from 'clsx';
+import { Button } from '@repo/ui/primitives';
 
 export const CommonConfirmCard: React.FC<{
   hasStep?: boolean;
@@ -44,8 +44,6 @@ export const CommonConfirmCard: React.FC<{
         >
           <Button
             onClick={onNext}
-            block
-            type="primary"
             className={clsx(
               'h-[48px] shadow-none rounded-[6px]',
               'text-[15px] font-medium'

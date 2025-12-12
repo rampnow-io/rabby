@@ -3,8 +3,8 @@ import clsx from 'clsx';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CustomTestnetAssetListContainer } from './CustomTestnetAssetListContainer';
-import { Button } from 'antd';
 import { useHistory } from 'react-router-dom';
+import { Button } from '@repo/ui/primitives';
 
 export const CustomTestnetAssetList = ({
   visible,
@@ -35,7 +35,6 @@ export const CustomTestnetAssetList = ({
           </div>
           <div className="text-center mt-[50px]">
             <Button
-              type="primary"
               onClick={() => {
                 onClose?.();
                 history.push('/custom-testnet');

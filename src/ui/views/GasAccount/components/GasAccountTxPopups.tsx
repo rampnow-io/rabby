@@ -1,11 +1,11 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Popup } from '@/ui/component';
-import { Button } from 'antd';
 import { PopupProps } from '@/ui/component/Popup';
 import { noop } from 'lodash';
 import clsx from 'clsx';
 import PNGDepositTip from '@/ui/assets/gas-account/gas-account-deposit-tip.png';
+import { Button } from '@repo/ui/primitives';
 
 const GasAccountDepositTipContent = ({ onClose }: { onClose: () => void }) => {
   const { t } = useTranslation();
@@ -22,7 +22,7 @@ const GasAccountDepositTipContent = ({ onClose }: { onClose: () => void }) => {
           'w-full mt-auto px-20 py-16 border-t-[0.5px] border-solid border-rabby-neutral-line'
         )}
       >
-        <Button className="h-[48px]" type="primary" onClick={onClose} block>
+        <Button className="h-[48px]" onClick={onClose}>
           {t('page.gasAccount.GasAccountDepositTipPopup.gotIt')}
         </Button>
       </div>

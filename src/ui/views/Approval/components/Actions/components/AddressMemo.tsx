@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Form, Input, InputRef } from 'antd';
+import { Form, Input, InputRef } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import { Popup } from 'ui/component';
 import styled from 'styled-components';
@@ -9,6 +9,7 @@ import IconEdit from 'ui/assets/editpen.svg';
 import { useApprovalUtils } from '../../../hooks/useApprovalUtils';
 import clsx from 'clsx';
 import { Divide } from '../../Divide';
+import { Button, ButtonType } from '@repo/ui/primitives';
 
 const DIV = styled.div`
   margin-top: 16px;
@@ -86,8 +87,7 @@ const AddressMemo = ({ address }: { address: string }) => {
             <Divide className="bg-r-neutral-line absolute left-0" />
             <div className="text-center flex gap-x-16 mt-20">
               <Button
-                size="large"
-                type="ghost"
+                buttonType={ButtonType.GHOST}
                 onClick={() => destroy()}
                 className={clsx(
                   'w-[200px]',
@@ -99,12 +99,7 @@ const AddressMemo = ({ address }: { address: string }) => {
               >
                 {t('global.Cancel')}
               </Button>
-              <Button
-                type="primary"
-                size="large"
-                className="w-[200px]"
-                htmlType="submit"
-              >
+              <Button className="w-[200px]" type="submit">
                 {t('global.confirm')}
               </Button>
             </div>

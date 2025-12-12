@@ -11,7 +11,7 @@ import {
   defaultRules,
 } from '@rabby-wallet/rabby-security-engine/dist/rules';
 import { useSize, useDebounceFn, useRequest } from 'ahooks';
-import { Button, Drawer, message, Modal, Skeleton } from 'antd';
+import { Drawer, message, Modal, Skeleton } from 'antd';
 import { Account } from 'background/service/preference';
 import {
   CHAINS,
@@ -49,6 +49,7 @@ import { useGetCurrentSafeInfo } from '../hooks/useGetCurrentSafeInfo';
 import { useGetMessageHash } from '../hooks/useGetCurrentMessageHash';
 import { useCheckCurrentSafeMessage } from '../hooks/useCheckCurrentSafeMessage';
 import { ga4 } from '@/utils/ga4';
+import { Button } from '@repo/ui/primitives';
 
 interface SignTextProps {
   data: string[];
@@ -350,8 +351,6 @@ const SignText = ({
                 </div>
                 <div className="mt-[32px]">
                   <Button
-                    type="primary"
-                    block
                     onClick={() => {
                       modal.destroy();
                       resolveApproval(res.safeMessage.preparedSignature);

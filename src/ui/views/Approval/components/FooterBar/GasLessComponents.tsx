@@ -12,7 +12,7 @@ import { ReactComponent as RcIconCCFreeGasBg } from '@/ui/assets/free-gas/bg.svg
 
 import { useThemeMode } from '@/ui/hooks/usePreference';
 import { GasAccountCheckResult } from '@/background/service/openapi';
-import { Button } from 'antd';
+import { Button } from '@repo/ui/primitives';
 import {
   GAS_ACCOUNT_INSUFFICIENT_TIP,
   useLoginDepositConfirm,
@@ -85,7 +85,6 @@ export function GasLessNotEnough({
 
       {canDepositUseGasAccount ? (
         <Button
-          type="primary"
           className="h-[28px] w-[72px] flex justify-center items-center text-[12px] font-medium"
           onClick={() => {
             if (directSubmit) {
@@ -564,7 +563,6 @@ export function GasAccountTips({
 
       {btnText ? (
         <Button
-          type="primary"
           className="h-[28px] w-[72px] flex justify-center items-center text-[12px] font-medium"
           onClick={() => {
             if (depositGasAccount && directSubmit) {

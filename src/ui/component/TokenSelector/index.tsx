@@ -1,13 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  Input,
-  Drawer,
-  Skeleton,
-  Tooltip,
-  DrawerProps,
-  Modal,
-  Button,
-} from 'antd';
+import { Input, Drawer, Skeleton, Tooltip, DrawerProps, Modal } from 'antd';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useAsync, useDebounce } from 'react-use';
@@ -45,6 +37,7 @@ import NetSwitchTabs, {
 import { useSearchTestnetToken } from '@/ui/hooks/useSearchTestnetToken';
 import { useHistory } from 'react-router-dom';
 import { ExchangeLogos } from './CexLogos';
+import { Button } from '@repo/ui/primitives';
 
 const isTab = getUiType().isTab;
 
@@ -484,7 +477,6 @@ const TokenSelector = ({
             </div>
             <div className="text-center mt-[50px]">
               <Button
-                type="primary"
                 onClick={() => {
                   onCancel?.();
                   history.push('/custom-testnet');

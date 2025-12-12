@@ -1,5 +1,5 @@
 import { Card } from './Card';
-import { Button, Form, Input, InputRef, Tooltip } from 'antd';
+import { Form, Input, InputRef, Tooltip } from 'antd';
 import { ValidateStatus } from 'antd/lib/form/FormItem';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -8,6 +8,7 @@ import React, { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Popup } from 'ui/component';
 import styled from 'styled-components';
+import { Button } from '@repo/ui/primitives';
 
 const ManuallySetGasLimitAlert = styled.li`
   font-weight: 400;
@@ -282,9 +283,7 @@ export const SignAdvancedSettings = ({
         </Div>
         <div className="flex justify-center mt-32 popup-footer">
           <Button
-            type="primary"
             className="w-full mx-20"
-            size="large"
             onClick={handleModalConfirmGas}
             disabled={!isReady}
           >

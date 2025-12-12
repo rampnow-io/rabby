@@ -5,7 +5,6 @@ import {
 } from '@/constant';
 import { Popup } from '@/ui/component';
 import { useWalletConnectIcon } from '@/ui/component/WalletConnect/useWalletConnectIcon';
-import { Button } from 'antd';
 import React, { useMemo } from 'react';
 import { IDisplayedAccountWithBalance } from 'ui/models/accountToDisplay';
 import { ReactComponent as IconDelete } from '@/ui/assets/address/red-delete.svg';
@@ -13,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
 import { useThemeMode } from '@/ui/hooks/usePreference';
 import { pickKeyringThemeIcon } from '@/utils/account';
+import { Button } from '@repo/ui/primitives';
 
 type DelectModalProps = {
   visible: boolean;
@@ -70,17 +70,8 @@ export const AddressDeleteModal = ({
         })}
       </div>
       <footer className="flex gap-[16px]">
-        <Button type="primary" size="large" block onClick={onClose}>
-          {t('page.manageAddress.cancel')}
-        </Button>
-        <Button
-          onClick={onSubmit}
-          type="primary"
-          ghost
-          size="large"
-          className={'rabby-btn-ghost'}
-          block
-        >
+        <Button onClick={onClose}>{t('page.manageAddress.cancel')}</Button>
+        <Button onClick={onSubmit} className={'rabby-btn-ghost w-full'}>
           {t('page.manageAddress.confirm-delete')}
         </Button>
       </footer>

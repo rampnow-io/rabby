@@ -1,5 +1,5 @@
 import { Popup } from '@/ui/component';
-import { Button } from 'antd';
+import { Button } from '@repo/ui/primitives';
 import clsx from 'clsx';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -45,18 +45,10 @@ export const SelectAddressPopup: React.FC<Props> = ({
           'absolute bottom-20 left-20 right-20'
         )}
       >
-        <Button
-          className="w-[172px] h-[44px]"
-          onClick={onCancel}
-          type="primary"
-        >
+        <Button className="w-[172px] h-[44px]" onClick={onCancel}>
           {t('global.Cancel')}
         </Button>
-        <Button
-          className="w-[172px] h-[44px]"
-          onClick={onConfirm}
-          type="primary"
-        >
+        <Button className="w-[172px] h-[44px]" onClick={onConfirm}>
           {t('page.newAddress.coboSafe.import')}
         </Button>
       </footer>

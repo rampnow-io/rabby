@@ -5,7 +5,7 @@ import {
 import { useWallet } from '@/ui/utils';
 import { updateChainStore } from '@/utils/chain';
 import { useMemoizedFn, useMount, useRequest, useSetState } from 'ahooks';
-import { Button, message } from 'antd';
+import { message } from 'antd';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
@@ -19,6 +19,7 @@ import { sortBy } from 'lodash';
 import { matomoRequestEvent } from '@/utils/matomo-request';
 import { FullscreenContainer } from '@/ui/component/FullscreenContainer';
 import clsx from 'clsx';
+import { Button } from '@repo/ui/primitives';
 
 const Footer = styled.div`
   height: 84px;
@@ -181,9 +182,7 @@ export const CustomTestnet = ({
         </div>
       )}
       <Footer>
-        <Button size="large" type="primary" block onClick={handleAddClick}>
-          {t('page.customTestnet.add')}
-        </Button>
+        <Button onClick={handleAddClick}>{t('page.customTestnet.add')}</Button>
       </Footer>
       <EditCustomTestnetModal
         ctx={{

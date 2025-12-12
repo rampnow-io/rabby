@@ -13,7 +13,7 @@ import { openInternalPageInTab, useWallet } from '@/ui/utils';
 import { useHistory, useLocation } from 'react-router-dom';
 import AuthenticationModalPromise from '@/ui/component/AuthenticationModal';
 import { AddressDeleteModal } from './AddressDeleteModal';
-import { Button, message } from 'antd';
+import { message } from 'antd';
 import IconSuccess from '@/ui/assets/success.svg';
 import { GroupItem } from './GroupItem';
 import { useBackUp, useWalletTypeData } from './hooks';
@@ -23,6 +23,7 @@ import { LedgerHDPathTypeLabel } from '@/ui/utils/ledger';
 import { useTranslation } from 'react-i18next';
 import { query2obj } from '@/ui/utils/url';
 import { useEnterPassphraseModal } from '@/ui/hooks/useEnterPassphraseModal';
+import { Button } from '@repo/ui/primitives';
 
 const ManageAddress = () => {
   const { t } = useTranslation();
@@ -339,12 +340,10 @@ const ManageAddress = () => {
               />
               <div>
                 <Button
-                  type="primary"
                   className="w-[140px] h-[36px] rounder-[4px] flex items-center justify-center gap-4 text-13 font-medium"
-                  icon={<IconPlus />}
                   onClick={handleAddSeedPhraseAddress}
                 >
-                  {t('page.manageAddress.add-address')}
+                  <IconPlus /> {t('page.manageAddress.add-address')}
                 </Button>
                 <div
                   className="mt-20 cursor-pointer underline text-r-neutral-body text-14 text-center"

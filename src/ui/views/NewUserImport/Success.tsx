@@ -3,7 +3,6 @@ import { Card } from '@/ui/component/NewUserImport';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
 import { query2obj } from '@/ui/utils/url';
-import { Button, Input, InputRef } from 'antd';
 import clsx from 'clsx';
 import { ReactComponent as RcIconChecked } from '@/ui/assets/new-user-import/check.svg';
 import { ReactComponent as RcIconPen } from '@/ui/assets/new-user-import/pen.svg';
@@ -22,6 +21,7 @@ import { GnosisChainList } from './GnosisChainList';
 import { findChain } from '@/utils/chain';
 import { Chain } from '@/types/chain';
 import styled from 'styled-components';
+import { Button, Input } from '@repo/ui/primitives';
 
 const AccountItem = ({ account }: { account: Account }) => {
   const [edit, setEdit] = useState(false);
@@ -30,7 +30,7 @@ const AccountItem = ({ account }: { account: Account }) => {
 
   const [localName, setLocalName] = useState(name || '');
 
-  const ref = useRef<InputRef>(null);
+  const ref = useRef<HTMLInputElement>(null);
 
   const [defaultName, setDefaultName] = useState(name || '');
 
@@ -284,15 +284,7 @@ export const ImportOrCreatedSuccess = () => {
         <GnosisChainList chainList={chainList} className="mt-[-4px]" />
       </ScrollBarDiv>
 
-      <Button
-        onClick={getStarted}
-        block
-        type="primary"
-        className={clsx(
-          'mt-auto h-[56px] shadow-none rounded-[8px]',
-          'text-[17px] font-medium'
-        )}
-      >
+      <Button onClick={getStarted} className="w-full">
         {isNewUserImport
           ? t('page.newUserImport.successful.start')
           : t('global.Done')}

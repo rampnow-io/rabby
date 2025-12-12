@@ -153,7 +153,9 @@ export const useBatchRevokeTask = () => {
   const [txStatus, setTxStatus] = React.useState<'sended' | 'signed' | 'idle'>(
     'idle'
   );
-  const currentApprovalRef = React.useRef<AssetApprovalSpender>();
+  const currentApprovalRef = React.useRef<AssetApprovalSpender | undefined>(
+    undefined
+  );
 
   const addRevokeTask = React.useCallback(
     async (

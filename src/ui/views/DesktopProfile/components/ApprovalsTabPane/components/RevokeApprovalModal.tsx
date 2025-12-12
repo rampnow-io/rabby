@@ -1,6 +1,6 @@
 import { NFTApproval, TokenItem } from '@/background/service/openapi';
 import { TokenWithChain } from '@/ui/component';
-import { Alert, Button, Modal, Tooltip } from 'antd';
+import { Alert, Modal, Tooltip } from 'antd';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApprovalContractItem } from './ApprovalContractItem';
@@ -35,6 +35,7 @@ import { NFTItemBadge, Permit2Badge } from './Badges';
 import { getTokenSymbol } from '@/ui/utils/token';
 import { appIsDebugPkg } from '@/utils/env';
 import NFTAvatar from '@/ui/views/Dashboard/components/NFT/NFTAvatar';
+import { Button } from '@repo/ui/primitives';
 
 const BOTTOM_BUTTON_AREA = 76;
 const ModalStyled = styled(Modal)`
@@ -569,8 +570,6 @@ export const RevokeApprovalModal = (props: {
       >
         <Button
           className="min-w-[172px] w-full h-[44px]"
-          type="primary"
-          size="large"
           onClick={handleConfirm}
         >
           {t('page.approvals.RevokeApprovalModal.confirm', {

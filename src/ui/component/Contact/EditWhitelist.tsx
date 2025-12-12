@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Button } from 'antd';
 import styled from 'styled-components';
 import { PageHeader, Checkbox, Modal } from 'ui/component';
 import AccountItem from './AccountItem';
 import { IDisplayedAccountWithBalance } from 'ui/models/accountToDisplay';
 import { isSameAddress } from 'ui/utils';
 import { useTranslation } from 'react-i18next';
+import { Button, ButtonType } from '@repo/ui/primitives';
 
 const EditWhitelistWrapper = styled.div`
   position: fixed;
@@ -85,8 +85,6 @@ const EditWhitelist = ({
             </p>
             <div className="flex gap-[16px]">
               <Button
-                type="primary"
-                block
                 onClick={() => {
                   modal.destroy();
                 }}
@@ -94,10 +92,7 @@ const EditWhitelist = ({
                 {t('global.Cancel')}
               </Button>
               <Button
-                type="primary"
-                className="rabby-btn-ghost"
-                ghost
-                block
+                buttonType={ButtonType.GHOST}
                 onClick={() => {
                   modal.destroy();
                   onCancel();
@@ -161,9 +156,7 @@ const EditWhitelist = ({
       </ListScrollWrapper>
       <ListFooterWrapper>
         <Button
-          type="primary"
-          size="large"
-          className="w-[100%] h-[40px] text-15"
+          className="w-full h-[40px] text-15"
           onClick={handleSaveWhitelist}
         >
           {t('component.Contact.EditWhitelist.save', {

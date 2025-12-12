@@ -1,4 +1,3 @@
-import { Button } from 'antd';
 import clsx from 'clsx';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +11,7 @@ import eventBus from '@/eventBus';
 import { isLedgerLockError } from '@/ui/utils/ledger';
 import { Ledger } from '@/ui/views/CommonPopup/Ledger';
 import { Modal } from '@/ui/component';
+import { Button, ButtonType } from '@repo/ui/primitives';
 
 const buttonBaseClass = clsx(
   'rounded-[6px] h-[48px] w-[252px]',
@@ -86,7 +86,7 @@ export const RevokeActionLedgerButton: React.FC<{
       <div className="flex justify-center flex-col items-center mt-40">
         {task.status === 'idle' && (
           <Button
-            type="ghost"
+            buttonType={ButtonType.GHOST}
             className={buttonGhostClass}
             onClick={task.start}
           >
@@ -100,17 +100,13 @@ export const RevokeActionLedgerButton: React.FC<{
         )}
 
         {task.status === 'completed' && (
-          <Button type="primary" className={buttonBaseClass} onClick={onDone}>
+          <Button className={buttonBaseClass} onClick={onDone}>
             {t('page.approvals.revokeModal.done')}
           </Button>
         )}
 
         {task.status === 'paused' && (
-          <Button
-            type="primary"
-            className={buttonBaseClass}
-            onClick={task.continue}
-          >
+          <Button className={buttonBaseClass} onClick={task.continue}>
             {t('page.approvals.revokeModal.resume')}
           </Button>
         )}

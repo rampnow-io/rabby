@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { Modal } from '@/ui/component';
 import React, { useMemo, useState } from 'react';
-import { Button, Input } from 'antd';
+import { Input } from 'antd';
 import { useTranslation } from 'react-i18next';
 import SkeletonInput from 'antd/lib/skeleton/Input';
 import clsx from 'clsx';
@@ -20,6 +20,7 @@ import { ClaimUserAvatar } from './ClaimUserAvatar';
 import { useRabbyPointsInvitedCodeCheck } from '../hooks';
 import useDebounceValue from '@/ui/hooks/useDebounceValue';
 import utc from 'dayjs/plugin/utc';
+import { Button } from '@repo/ui/primitives';
 dayjs.extend(utc);
 
 // import Lottie from 'lottie-react';
@@ -382,7 +383,6 @@ const ClaimPoints = ({
       )}
 
       <Button
-        type="primary"
         disabled={btdDisabled}
         className={clsx(
           'mt-[24px] w-full h-[48px] text-[17px] font-medium text-r-neutral-title2 border-none',

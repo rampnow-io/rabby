@@ -1,5 +1,5 @@
 import { useRequest } from 'ahooks';
-import { Button, message } from 'antd';
+import { message } from 'antd';
 import { ConnectedSite } from 'background/service/permission';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,7 @@ import { ReactComponent as RcIconDelete } from 'ui/assets/prefer-metamask-dapps/
 import { Empty, FallbackSiteLogo, PageHeader, Popup } from 'ui/component';
 import { useWallet } from 'ui/utils';
 import contextMenuImage from 'ui/assets/prefer-metamask-dapps/context-menu.png';
+import { Button } from '@repo/ui/primitives';
 
 const DappCard = (props: {
   data: ConnectedSite;
@@ -68,19 +69,23 @@ export const PreferMetamaskDapps = () => {
   };
 
   return (
-    <div  className="
+    <div
+      className="
     flex flex-col
     px-[20px] pb-[20px] pt-0
     text-[12px] leading-[14px]
     h-screen overflow-auto
     bg-r-neutral-bg-2
     relative
-  ">
-      <header >
+  "
+    >
+      <header>
         <PageHeader canBack={false} closeable>
           {t('page.preferMetamaskDapps.title')}
         </PageHeader>
-        <div className="font-normal text-[14px] leading-[18px] text-r-neutral-body my-[18px]">{t('page.preferMetamaskDapps.desc')}</div>
+        <div className="font-normal text-[14px] leading-[18px] text-r-neutral-body my-[18px]">
+          {t('page.preferMetamaskDapps.desc')}
+        </div>
       </header>
       {sites?.length ? (
         <div className="flex-1 overflow-auto pb-[80px]">
@@ -101,7 +106,7 @@ export const PreferMetamaskDapps = () => {
         />
       )}
       <footer className="footer">
-        <Button size="large" block type="primary" onClick={handleAdd}>
+        <Button onClick={handleAdd}>
           {t('page.preferMetamaskDapps.howToAdd')}
         </Button>
       </footer>

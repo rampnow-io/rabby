@@ -5,13 +5,14 @@ import { connectStore, useRabbyDispatch, useRabbySelector } from 'ui/store';
 import { useWallet } from 'ui/utils';
 import { IconCopyCC } from 'ui/assets/component/IconCopyCC';
 import IconSuccess from 'ui/assets/success.svg';
-import { Button, message } from 'antd';
+import { message } from 'antd';
 import { copyTextToClipboard } from '@/ui/utils/clipboard';
 import { KEYRING_CLASS } from '@/constant';
 import { useTranslation } from 'react-i18next';
 import { Card } from '@/ui/component/NewUserImport';
 import { useHistory } from 'react-router-dom';
 import { useThemeMode } from '@/ui/hooks/usePreference';
+import { Button } from '@repo/ui/primitives';
 
 const DisplayMnemonic = () => {
   const dispatch = useRabbyDispatch();
@@ -102,8 +103,6 @@ const DisplayMnemonic = () => {
 
       <Button
         onClick={onSubmit}
-        block
-        type="primary"
         className={clsx(
           'h-[56px] shadow-none rounded-[8px]',
           'text-[17px] font-medium bg-r-blue-default'

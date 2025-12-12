@@ -6,7 +6,7 @@ import { formatAmount, useWallet } from '@/ui/utils';
 import { findChain, getChainList, getTestnetChainList } from '@/utils/chain';
 import { CHAINS_ENUM } from '@debank/common';
 import { useRequest, useSetState } from 'ahooks';
-import { Button, Form, Input, InputRef, Spin, message } from 'antd';
+import { Form, Input, InputRef, Spin, message } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +18,7 @@ import { ReactComponent as RcIconChecked } from '@/ui/assets/dashboard/portfolio
 import clsx from 'clsx';
 import { useThemeMode } from '@/ui/hooks/usePreference';
 import { usePopupContainer } from '@/ui/hooks/usePopupContainer';
+import { Button, ButtonType } from '@repo/ui/primitives';
 interface Props {
   visible?: boolean;
   onClose?(): void;
@@ -309,20 +310,15 @@ export const AddCustomTestnetTokenContent = ({
         </Form>
         <Footer>
           <Button
-            type="primary"
-            size="large"
             className="rabby-btn-ghost w-[172px]"
-            ghost
+            buttonType={ButtonType.GHOST}
             onClick={onClose}
           >
             {t('global.Cancel')}
           </Button>
           <Button
-            type="primary"
-            size="large"
             className="w-[172px]"
             disabled={Boolean(!token || error || loading || !checked)}
-            loading={isSubmitting}
             onClick={handleConfirm}
           >
             {t('global.Confirm')}

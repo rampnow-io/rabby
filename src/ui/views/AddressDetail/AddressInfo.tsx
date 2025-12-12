@@ -1,4 +1,4 @@
-import { Button, Form, Input, InputRef, Popover } from 'antd';
+import { Form, Input, InputRef, Popover } from 'antd';
 import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Popup } from 'ui/component';
@@ -33,6 +33,7 @@ import { pickKeyringThemeIcon } from '@/utils/account';
 import clsx from 'clsx';
 import { HardwareBar } from './HardwareBar';
 import { usePopupContainer } from '@/ui/hooks/usePopupContainer';
+import { Button, ButtonType } from '@repo/ui/primitives';
 
 type Props = {
   address: string;
@@ -111,8 +112,7 @@ const AddressInfo1 = ({ address, type, brandName, source }: Props) => {
             </Form.Item>
             <div className="text-center flex gap-x-16">
               <Button
-                size="large"
-                type="ghost"
+                buttonType={ButtonType.GHOST}
                 onClick={() => destroy()}
                 className={clsx(
                   'w-[200px]',
@@ -124,12 +124,7 @@ const AddressInfo1 = ({ address, type, brandName, source }: Props) => {
               >
                 {t('global.Cancel')}
               </Button>
-              <Button
-                type="primary"
-                size="large"
-                className="w-[200px]"
-                htmlType="submit"
-              >
+              <Button className="w-[200px]" type="submit">
                 {t('global.confirm')}
               </Button>
             </div>

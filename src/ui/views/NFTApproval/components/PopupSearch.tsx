@@ -105,8 +105,12 @@ const PopupSearch = ({
           {!!filterData?.contracts.length && (
             <div className="bg-white border border-rabby-neutral-line rounded-[6px] mb-[20px]">
               <div className="bg-[#e5e9ef] rounded-t-[6px] flex justify-between px-[12px] py-[12px]">
-                <div className="font-normal text-[12px] leading-[14px] text-r-neutral-foot">{t('NFT Contracts')}</div>
-                <div className="font-normal text-[12px] leading-[14px] text-r-neutral-foot">{t('Approved to')}</div>
+                <div className="font-normal text-[12px] leading-[14px] text-r-neutral-foot">
+                  {t('NFT Contracts')}
+                </div>
+                <div className="font-normal text-[12px] leading-[14px] text-r-neutral-foot">
+                  {t('Approved to')}
+                </div>
               </div>
               <div className="p-[16px] space-y-[12px]">
                 {filterData?.contracts.map((item) => (
@@ -122,8 +126,12 @@ const PopupSearch = ({
           {!!filterData?.tokens.length && (
             <div className="bg-white border border-rabby-neutral-line rounded-[6px] mb-[20px]">
               <div className="bg-[#e5e9ef] rounded-t-[6px] flex justify-between px-[12px] py-[12px]">
-                <div className="font-normal text-[12px] leading-[14px] text-r-neutral-foot">{t('NFTs')}</div>
-                <div className="font-normal text-[12px] leading-[14px] text-r-neutral-foot">{t('Approved to')}</div>
+                <div className="font-normal text-[12px] leading-[14px] text-r-neutral-foot">
+                  {t('NFTs')}
+                </div>
+                <div className="font-normal text-[12px] leading-[14px] text-r-neutral-foot">
+                  {t('Approved to')}
+                </div>
               </div>
               <div className="p-[16px] space-y-[12px]">
                 {filterData?.tokens.map((item) => (

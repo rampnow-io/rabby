@@ -3,9 +3,10 @@ import React from 'react';
 import { ReactComponent as TrashSVG } from '@/ui/assets/forgot/trash-cc.svg';
 import { ReactComponent as TimeSVG } from '@/ui/assets/forgot/time-cc.svg';
 import { Trans, useTranslation } from 'react-i18next';
-import { Button, Input } from 'antd';
+import { Input } from 'antd';
 import clsx from 'clsx';
 import { KEYRING_CLASS } from '@/constant';
+import { Button, ButtonType } from '@repo/ui/primitives';
 
 const HARDWARE_TYPES = Object.values(KEYRING_CLASS.HARDWARE);
 
@@ -117,14 +118,10 @@ export const ResetConfirm: React.FC<{
         <Button
           disabled={disabled}
           onClick={onConfirm}
-          block
-          type="primary"
-          danger
+          buttonType={ButtonType.DESTRUCTIVE}
           className={clsx(
             'h-[48px] shadow-none rounded-[6px]',
-            'text-[15px] font-medium',
-            'disabled:text-opacity-40 disabled:bg-r-red-default disabled:opacity-50 border-transparent',
-            'before:content-none'
+            'text-[15px] font-medium'
           )}
         >
           {t('page.forgotPassword.reset.button')}

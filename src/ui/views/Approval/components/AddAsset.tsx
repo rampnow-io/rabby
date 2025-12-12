@@ -5,7 +5,7 @@ import {
   TokenEntityDetail,
 } from '@rabby-wallet/rabby-api/dist/types';
 import IconNoFind from 'ui/assets/tokenDetail/IconNoFind.svg';
-import { Button, Image } from 'antd';
+import { Image } from 'antd';
 import clsx from 'clsx';
 import { ReactComponent as RcIconExternal } from 'ui/assets/icon-share-currentcolor.svg';
 import { useTranslation } from 'react-i18next';
@@ -45,6 +45,7 @@ import { getAddressScanLink, getTxScanLink } from '@/utils';
 import { TokenCharts } from '@/ui/component/TokenChart';
 import TokenChainAndContract from '../../Dashboard/components/TokenDetailPopup/TokenInfo';
 import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
+import { Button, ButtonType } from '@repo/ui/primitives';
 
 interface AddAssetProps {
   params: {
@@ -433,8 +434,6 @@ const AddAsset = ({ params, account }: AddAssetProps) => {
         </div>
         <div className="footer h-[80px] items-center justify-center">
           <Button
-            type="primary"
-            size="large"
             className="w-[200px] h-[44px]"
             onClick={() => rejectApproval('User rejected the request.')}
           >
@@ -718,7 +717,7 @@ const AddAsset = ({ params, account }: AddAssetProps) => {
             className={'action-buttons w-[100%] flex justify-center gap-[16px]'}
           >
             <Button
-              type="ghost"
+              buttonType={ButtonType.GHOST}
               className="w-[172px] h-[44px] border-blue-light text-blue-light hover:bg-[#8697FF1A] active:bg-[#0000001A] rounded-[8px]"
               onClick={() => rejectApproval('User rejected the request.')}
             >
@@ -730,8 +729,6 @@ const AddAsset = ({ params, account }: AddAssetProps) => {
               title={addButtonStatus.reason}
             >
               <Button
-                type="primary"
-                size="large"
                 className="w-[172px] h-[44px]"
                 disabled={addButtonStatus.disable}
                 onClick={handleConfirm}

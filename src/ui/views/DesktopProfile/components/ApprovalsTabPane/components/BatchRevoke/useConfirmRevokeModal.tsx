@@ -1,4 +1,4 @@
-import { Button } from 'antd';
+import { Button, ButtonType } from '@repo/ui/primitives';
 import React from 'react';
 import clsx from 'clsx';
 import { Modal } from '@/ui/component';
@@ -44,7 +44,6 @@ export const useConfirmRevokeModal = (props: {
           </div>
           <footer className="flex flex-col gap-16 mx-auto mt-24 items-center">
             <Button
-              type="primary"
               className={clsx(
                 'w-[260px] h-[44px]',
                 'rounded-[8px]',
@@ -58,7 +57,7 @@ export const useConfirmRevokeModal = (props: {
               {t('page.approvals.revokeModal.batchRevoke')}
             </Button>
             <Button
-              type="ghost"
+              buttonType={ButtonType.GHOST}
               className={clsx(
                 'w-[260px] h-[44px] border-blue-light text-blue-light',
                 'hover:bg-[#8697FF1A] active:bg-[#0000001A]',

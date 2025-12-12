@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { useHistory } from 'react-router-dom';
-import { Button, Input, Switch, message } from 'antd';
+import { Input, Switch, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import { isValidAddress } from '@ethereumjs/util';
@@ -26,6 +26,7 @@ import { ReactComponent as RcIconDownCC } from '@/ui/assets/dashboard/arrow-down
 import IconSuccess from 'ui/assets/success.svg';
 import { IconClearCC } from '@/ui/assets/component/IconClear';
 import { ReactComponent as RcIconContactCC } from '@/ui/assets/contact-cc.svg';
+import { Button } from '@repo/ui/primitives';
 
 const isTab = getUiType().isTab;
 const isDesktop = getUiType().isDesktop;
@@ -410,10 +411,6 @@ const WhitelistInput = () => {
             <Button
               onClick={handleSubmit}
               disabled={!isValidAddr || !inputAddress}
-              type="primary"
-              htmlType="submit"
-              size="large"
-              className="w-[100%] h-[48px] text-[16px]"
             >
               {t('global.confirm')}
             </Button>

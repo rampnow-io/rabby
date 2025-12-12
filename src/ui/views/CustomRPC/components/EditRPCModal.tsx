@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
-import { Input, InputRef, Button } from 'antd';
+import { Input, InputRef } from 'antd';
 import styled from 'styled-components';
 import { useDebounce } from 'react-use';
 import { useWallet } from 'ui/utils';
@@ -10,6 +10,7 @@ import { isValidateUrl } from 'ui/utils/url';
 import { RPCItem } from '@/background/service/rpc';
 import { findChainByEnum } from '@/utils/chain';
 import { useTranslation } from 'react-i18next';
+import { Button } from '@repo/ui/primitives';
 
 const ErrorMsg = styled.div`
   color: #ec5151;
@@ -172,19 +173,10 @@ const EditRPCModal = ({
         />
         {rpcErrorMsg && <ErrorMsg>{rpcErrorMsg}</ErrorMsg>}
         <Footer>
-          <Button
-            type="primary"
-            size="large"
-            className="rabby-btn-ghost w-[172px]"
-            ghost
-            onClick={onCancel}
-          >
+          <Button className="rabby-btn-ghost w-[172px]" onClick={onCancel}>
             {t('global.Cancel')}
           </Button>
           <Button
-            type="primary"
-            loading={isValidating}
-            size="large"
             className="w-[172px]"
             disabled={!canSubmit}
             onClick={() => onConfirm(rpcUrl)}

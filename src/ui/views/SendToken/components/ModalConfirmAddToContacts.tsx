@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 import styled from 'styled-components';
-import { Button, DrawerProps, Form, Input, InputRef, message } from 'antd';
+import { DrawerProps, Form, Input, InputRef, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -19,6 +19,7 @@ import IconSuccess, {
   ReactComponent as RcIconSuccess,
 } from 'ui/assets/success.svg';
 import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
+import { Button } from '@repo/ui/primitives';
 
 const StyledPopup = styled(Popup)`
   .ant-drawer-body {
@@ -211,20 +212,12 @@ function ModalConfirmAddToContacts({
           )}
         >
           {cancelText && (
-            <Button
-              size="large"
-              type="primary"
-              className="w-[172px] rabby-btn-ghost"
-              ghost
-              onClick={handleCancel}
-            >
+            <Button className="w-full rabby-btn-ghost" onClick={handleCancel}>
               {cancelText}
             </Button>
           )}
           <Button
-            type="primary"
-            size="large"
-            htmlType="submit"
+            type="submit"
             className={clsx(cancelText ? 'w-[172px]' : 'w-[200px]')}
             disabled={false}
           >

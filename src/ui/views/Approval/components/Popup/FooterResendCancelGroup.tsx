@@ -1,4 +1,4 @@
-import { Button } from 'antd';
+import { Button, ButtonType } from '@repo/ui/primitives';
 import clsx from 'clsx';
 import React, { SVGProps } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -26,9 +26,7 @@ export const FooterResendCancelGroup: React.FC<Props> = ({
         <Divide className="bg-r-neutral-line" />
         <div className={clsx('flex justify-between py-18 px-20 gap-16')}>
           <Button
-            className={clsx('h-[48px]', 'before:content-none')}
-            block
-            type="primary"
+            className={clsx('h-[48px]', 'before:content-none', 'w-full')}
             onClick={onCancel}
           >
             {t('page.signFooterBar.iGotIt')}
@@ -47,19 +45,17 @@ export const FooterResendCancelGroup: React.FC<Props> = ({
           className={clsx(
             'h-[48px] text-blue-light border-blue-light',
             'hover:bg-[#8697FF1A] active:bg-[#0000001A]',
-            'before:content-none'
+            'before:content-none',
+            'w-full'
           )}
-          block
-          type="ghost"
+          buttonType={ButtonType.GHOST}
           onClick={onCancel}
         >
           {t('global.cancelButton')}
         </Button>
 
         <Button
-          className={clsx('h-[48px]', 'before:content-none')}
-          block
-          type="primary"
+          className={clsx('h-[48px]', 'before:content-none', 'w-full')}
           onClick={onResend}
         >
           {BrandIcon ? (

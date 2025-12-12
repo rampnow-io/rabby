@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Popup, Item, Empty } from '@/ui/component';
-import { Button, message, Skeleton, Tooltip } from 'antd';
+import { message, Skeleton, Tooltip } from 'antd';
 import { PopupProps } from '@/ui/component/Popup';
 import { noop } from 'lodash';
 import { FixedSizeList } from 'react-window';
@@ -26,6 +26,7 @@ import {
 } from '@rabby-wallet/rabby-api/dist/types';
 import BigNumber from 'bignumber.js';
 import IconArrowRight from 'ui/assets/dashboard/settings/icon-right-arrow.svg';
+import { Button } from '@repo/ui/primitives';
 
 enum SelectorStatus {
   Hidden,
@@ -652,19 +653,15 @@ const WithdrawContent = ({
           align={{ targetOffset: [0, 0] }}
         >
           <Button
-            type="primary"
             className={clsx(
               'h-[48px] text-14 font-medium text-r-neutral-title-2'
             )}
             onClick={withdraw}
-            block
-            size="large"
             disabled={
               !chain ||
               !gasAccountInfo?.withdrawable_balance ||
               !!withdrawBtnDisabledTips
             }
-            loading={btnLoading}
           >
             {t('page.gasAccount.withdrawPopup.title')}
             {` ${BalanceSuffix}`}

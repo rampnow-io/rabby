@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 
-import { Button } from 'antd';
-
 import { ReactComponent as RcIconChecked } from '@/ui/assets/ecology/icon-checked-cc.svg';
 import { useThemeMode } from '@/ui/hooks/usePreference';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import Modal from '../Modal';
 import styled from 'styled-components';
+import { Button } from '@repo/ui/primitives';
 
 const StyledModal = styled(Modal)`
   .ant-modal-close-x {
@@ -75,7 +74,6 @@ export const EcologyNoticeModal = ({
       </div>
       <footer className="flex justify-center">
         <Button
-          type="primary"
           className="w-full h-[44px]"
           onClick={() => {
             onConfirm?.(isChecked);

@@ -1,4 +1,4 @@
-import { Button } from 'antd';
+import { Button, ButtonType } from '@repo/ui/primitives';
 import React from 'react';
 import { ActionsContainer, Props } from './ActionsContainer';
 import clsx from 'clsx';
@@ -28,7 +28,7 @@ export const ProcessActions: React.FC<Props> = ({
         <GasLessAnimatedWrapper className="absolute left-0 right-0 w-[246px]">
           <Button
             disabled={disabledProcess}
-            type="ghost"
+            buttonType={ButtonType.GHOST}
             className={clsx(
               gasLess && 'gasLess text-r-neutral-title2',
               gasLessThemeColor && 'gasLessConfig',

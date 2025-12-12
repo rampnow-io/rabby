@@ -1,7 +1,7 @@
 import { TestnetChainBase } from '@/background/service/customTestnet';
 import { CustomTestnetForm } from '@/ui/views/CustomTestnet/components/CustomTestnetForm';
 import { useMount, useRequest } from 'ahooks';
-import { Button } from 'antd';
+import { Button, ButtonType } from '@repo/ui/primitives';
 import { useForm } from 'antd/lib/form/Form';
 import clsx from 'clsx';
 import React, { useEffect } from 'react';
@@ -102,22 +102,14 @@ const AddChain = ({ params }: { params: AddChainProps }) => {
         )}
       >
         <Button
-          type="primary"
-          size="large"
-          ghost
+          buttonType={ButtonType.GHOST}
           className="rabby-btn-ghost w-[172px]"
           onClick={() => rejectApproval()}
         >
           {t('global.cancelButton')}
         </Button>
 
-        <Button
-          type="primary"
-          className="w-[172px]"
-          size="large"
-          loading={loading}
-          onClick={handleConfirm}
-        >
+        <Button className="w-[172px]" onClick={handleConfirm}>
           {t('global.addButton')}
         </Button>
       </div>

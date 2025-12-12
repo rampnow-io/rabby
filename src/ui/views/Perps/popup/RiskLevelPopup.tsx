@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Modal } from 'antd';
+import { Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import { PERPS_POSITION_RISK_LEVEL } from '../constants';
@@ -13,6 +13,7 @@ import Popup from '@/ui/component/Popup';
 import { splitNumberByStep } from '@/ui/utils';
 import { TooltipWithMagnetArrow } from '@/ui/component/Tooltip/TooltipWithMagnetArrow';
 import clsx from 'clsx';
+import { Button } from '@repo/ui/primitives';
 
 const StyledModal = styled(Modal)`
   .ant-modal-content {
@@ -145,13 +146,7 @@ export const RiskLevelPopup: React.FC<RiskLevelPopupProps> = ({
           </div>
         </div>
         <div className="fixed bottom-0 left-0 right-0 border-t-[0.5px] border-solid border-rabby-neutral-line px-20 py-16 bg-r-neutral-bg1">
-          <Button
-            block
-            size="large"
-            type="primary"
-            className="h-[48px] text-15 font-medium"
-            onClick={onClose}
-          >
+          <Button className="h-[48px] text-15 font-medium" onClick={onClose}>
             {t('page.perps.riskLevel.gotIt')}
           </Button>
         </div>

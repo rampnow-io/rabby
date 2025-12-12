@@ -1,4 +1,4 @@
-import { Button, DrawerProps, Form, Input, InputRef } from 'antd';
+import { DrawerProps, Form, Input, InputRef } from 'antd';
 import styled from 'styled-components';
 import clsx from 'clsx';
 import React, {
@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { Popup, Checkbox, Field } from 'ui/component';
 import { WrappedComponentProps, wrapModalPromise } from '../Modal/WrapPromise';
 import { getUiType } from '@/ui/utils';
+import { Button, ButtonType } from '@repo/ui/primitives';
 const isTab = getUiType().isTab;
 
 const AuthFormItemWrapper = styled.div`
@@ -275,19 +276,15 @@ const AuthenticationPopup = ({
         >
           {cancelText && (
             <Button
-              size="large"
-              type="primary"
-              className="w-[172px] rabby-btn-ghost"
-              ghost
+              buttonType={ButtonType.GHOST}
+              className="w-[172px]"
               onClick={handleCancel}
             >
               {cancelText}
             </Button>
           )}
           <Button
-            type="primary"
-            size="large"
-            htmlType="submit"
+            type="submit"
             className={
               confrimClassName
                 ? confrimClassName

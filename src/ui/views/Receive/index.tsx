@@ -1,5 +1,4 @@
 import { Modal } from '@/ui/component';
-import { Button, message } from 'antd';
 import { Account } from 'background/service/preference';
 import QRCode from 'qrcode.react';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -23,6 +22,7 @@ import { findChainByEnum } from '@/utils/chain';
 import { useTranslation } from 'react-i18next';
 import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
 import { copyAddress } from '@/ui/utils/clipboard';
+import { Button } from '@repo/ui/primitives';
 
 const useAccount = () => {
   const wallet = useWallet();
@@ -49,7 +49,6 @@ const useAccount = () => {
     wallet
       .getInMemoryAddressBalance(address)
       .then((d) => setBalance(d.total_usd_value));
-
   }, [address]);
 
   return {
@@ -74,7 +73,7 @@ const Receive = () => {
   const history = useHistory();
   const rbisource = useRbiSource();
   const { t } = useTranslation();
-  
+
   const account = useAccount();
   const [isShowAccount, setIsShowAccount] = useState(true);
 
@@ -143,8 +142,6 @@ const Receive = () => {
 
           <div className="footer flex gap-[12px]">
             <Button
-              type="primary"
-              block
               onClick={() => {
                 modal.destroy();
                 history.goBack();
@@ -153,13 +150,7 @@ const Receive = () => {
               {t('global.Cancel')}
             </Button>
 
-            <Button
-              type="primary"
-              className="rabby-btn-ghost"
-              ghost
-              block
-              onClick={() => modal.destroy()}
-            >
+            <Button className="rabby-btn-ghost" onClick={() => modal.destroy()}>
               {t('global.Confirm')}
             </Button>
           </div>
@@ -169,7 +160,6 @@ const Receive = () => {
 
     return () => modal.destroy();
   }, [account?.type]);
-
 
   return (
     <div className="px-[20px] bg-r-blue-default dark:bg-r-blue-disable h-full relative">
@@ -192,7 +182,6 @@ const Receive = () => {
               />
 
               <div className="overflow-hidden">
-
                 <div className="flex items-center gap-[6px]">
                   <div
                     className="font-medium text-[15px] leading-[20px] text-white truncate"
@@ -203,7 +192,9 @@ const Receive = () => {
 
                   <div
                     className="text-[13px] leading-[15px] text-white/60 truncate text-center"
-                    title={splitNumberByStep((account?.balance || 0).toFixed(2))}
+                    title={splitNumberByStep(
+                      (account?.balance || 0).toFixed(2)
+                    )}
                   >
                     ${splitNumberByStep((account?.balance || 0).toFixed(2))}
                   </div>
@@ -220,7 +211,7 @@ const Receive = () => {
         )}
         <div
           className="pt-[6px] w-[24px] shrink-0 cursor-pointer text-right"
-          onClick={() => setIsShowAccount(v => !v)}
+          onClick={() => setIsShowAccount((v) => !v)}
         >
           {isShowAccount ? (
             <img src={IconEye} className="inline-block" />
@@ -231,7 +222,6 @@ const Receive = () => {
       </div>
 
       <div className="bg-r-neutral-bg-1 shadow-[0px_12px_60px_rgba(54,69,157,0.2)] rounded-[8px] px-[4px] pt-[40px] pb-[24px]">
-        
         <div className="font-medium text-[17px] leading-[20px] text-center text-r-neutral-title-1 mb-[36px]">
           {title}
         </div>

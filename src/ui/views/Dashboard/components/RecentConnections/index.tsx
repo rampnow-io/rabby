@@ -1,5 +1,5 @@
 import { Empty, Modal, PageHeader, Popup } from '@/ui/component';
-import { Button, message } from 'antd';
+import { message } from 'antd';
 import { ConnectedSite } from 'background/service/permission';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
@@ -9,6 +9,7 @@ import ConnectionList from './ConnectionList';
 import { useRabbyDispatch, useRabbySelector } from 'ui/store';
 import clsx from 'clsx';
 import { SvgIconCross } from '@/ui/assets';
+import { Button } from '@repo/ui/primitives';
 
 interface RecentConnectionsProps {
   visible?: boolean;
@@ -178,12 +179,7 @@ const RecentConnections = ({
               'py-[16px]'
             )}
           >
-            <Button
-              ghost
-              block
-              className="btn-disconnect-all"
-              onClick={handleRemoveAll}
-            >
+            <Button className="btn-disconnect-all" onClick={handleRemoveAll}>
               {t('page.dashboard.recentConnection.disconnectAll')}
             </Button>
           </footer>

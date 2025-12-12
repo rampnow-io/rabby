@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAsync } from 'react-use';
 import { Result } from '@rabby-wallet/rabby-security-engine';
 import TransportWebHID from '@ledgerhq/hw-transport-webhid';
-import { Button, Drawer, Modal, Skeleton } from 'antd';
+import { Drawer, Modal, Skeleton } from 'antd';
 import { useScroll } from 'react-use';
 import { useSize, useDebounceFn } from 'ahooks';
 import { cloneDeep } from 'lodash';
@@ -61,6 +61,7 @@ import {
   MultiAction,
   TypeDataActionItem,
 } from '@rabby-wallet/rabby-api/dist/types';
+import { Button } from '@repo/ui/primitives';
 
 interface SignTypedDataProps {
   method: string;
@@ -351,8 +352,6 @@ const SignTypedData = ({
                 </div>
                 <div className="mt-[32px]">
                   <Button
-                    type="primary"
-                    block
                     onClick={() => {
                       modal.destroy();
                       resolveApproval(res.safeMessage.preparedSignature);

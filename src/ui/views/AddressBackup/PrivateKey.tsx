@@ -4,12 +4,12 @@ import { Copy, PageHeader } from 'ui/component';
 import { useWallet } from 'ui/utils';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import QRCode from 'qrcode.react';
-import { Button } from 'antd';
 import { useHistory, useLocation } from 'react-router-dom';
 import IconCopy from 'ui/assets/component/icon-copy.svg';
 import IconMaskIcon from '@/ui/assets/create-mnemonics/mask-lock.svg';
 import { ReactComponent as IconRcMask } from '@/ui/assets/create-mnemonics/mask-lock.svg';
 import clsx from 'clsx';
+import { Button } from '@repo/ui/primitives';
 
 const AddressBackupPrivateKey: React.FC<{
   isInModal?: boolean;
@@ -87,12 +87,7 @@ const AddressBackupPrivateKey: React.FC<{
       </div>
 
       <div className="footer pb-[20px]">
-        <Button
-          type="primary"
-          size="large"
-          className="w-full"
-          onClick={() => history.goBack()}
-        >
+        <Button className="w-full" onClick={() => history.goBack()}>
           {t('global.Done')}
         </Button>
       </div>

@@ -1,9 +1,10 @@
-import { Button, Form, Input, InputRef, Modal } from 'antd';
+import { Form, Input, InputRef, Modal } from 'antd';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as RcIconClose } from 'ui/assets/swap/modal-close.svg';
 import { WrappedComponentProps, wrapModalPromise } from '../Modal/WrapPromise';
+import { Button } from '@repo/ui/primitives';
 
 interface AuthenticationModalProps extends WrappedComponentProps {
   title?: string;
@@ -120,10 +121,7 @@ const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
         >
           {() => (
             <Button
-              type="primary"
-              size="large"
-              htmlType="submit"
-              loading={submitting}
+              type="submit"
               disabled={!form.getFieldValue('password')?.trim?.()}
               className="w-full h-[48]"
             >

@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { URDecoder } from '@ngraveio/bc-ur';
 import QRCodeReader from 'ui/component/QRCodeReader';
 import { useWallet } from 'ui/utils';
-import './style.less';
+
 import * as Sentry from '@sentry/browser';
 import {
   HARDWARE_KEYRING_TYPES,

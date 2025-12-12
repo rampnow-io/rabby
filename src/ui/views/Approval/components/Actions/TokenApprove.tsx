@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Form, Input, InputRef } from 'antd';
+import { Form, Input, InputRef } from 'antd';
 import styled from 'styled-components';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -26,6 +26,7 @@ import { Divide } from '../Divide';
 import IconUnknown from 'ui/assets/token-default.svg';
 import { TokenAmountItem } from './components/TokenAmountItem';
 import { Chain } from '@/types/chain';
+import { Button, ButtonType } from '@repo/ui/primitives';
 
 const Wrapper = styled.div`
   .header {
@@ -152,8 +153,7 @@ const ApproveAmountModal = ({
 
       <div className="text-center flex gap-x-16 pt-18">
         <Button
-          size="large"
-          type="ghost"
+          buttonType={ButtonType.GHOST}
           onClick={onCancel}
           className={clsx(
             'w-[200px]',
@@ -165,13 +165,7 @@ const ApproveAmountModal = ({
         >
           {t('global.Cancel')}
         </Button>
-        <Button
-          type="primary"
-          size="large"
-          className="w-[200px]"
-          htmlType="submit"
-          disabled={!canSubmit}
-        >
+        <Button className="w-[200px]" type="submit" disabled={!canSubmit}>
           {t('global.confirm')}
         </Button>
       </div>

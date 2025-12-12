@@ -1,4 +1,4 @@
-import { Button, InputNumber } from 'antd';
+import { InputNumber } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { HDPathType, HDPathTypeButton } from './HDPathTypeButton';
 import { InitAccounts } from './LedgerManager';
@@ -9,6 +9,7 @@ import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useIsKeystoneUsbAvailable } from '@/ui/utils/keystone';
 import { t } from 'i18next';
+import { Button } from '@repo/ui/primitives';
 
 const MIN_START_NO = 1;
 const HARDENED_OFFSET = 0x80000000 - 50;
@@ -335,12 +336,7 @@ export const AdvancedSettings: React.FC<Props> = ({
       </div>
 
       <div className="footer">
-        <Button
-          className="advanced-button"
-          block
-          type="primary"
-          onClick={handleSubmit}
-        >
+        <Button className="advanced-button" onClick={handleSubmit}>
           {t('global.confirm')}
         </Button>
       </div>

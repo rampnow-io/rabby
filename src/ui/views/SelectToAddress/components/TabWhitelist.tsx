@@ -4,7 +4,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { isValidAddress } from '@ethereumjs/util';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
-import { Button, message, Tabs } from 'antd';
+import { message, Tabs } from 'antd';
 
 import { EmptyWhitelistHolder } from '../components/EmptyWhitelistHolder';
 import { AccountItem } from '@/ui/component/AccountSelector/AccountItem';
@@ -22,6 +22,7 @@ import { ReactComponent as RcIconDeleteAddress } from 'ui/assets/address/delete.
 import { ReactComponent as IconAdd } from '@/ui/assets/address/add.svg';
 import IconSuccess from 'ui/assets/success.svg';
 import qs from 'qs';
+import { Button } from '@repo/ui/primitives';
 
 const WhitelistItemWrapper = styled.div`
   background-color: var(--r-neutral-card1);
@@ -196,9 +197,8 @@ export default function TabWhitelist({
                   history.push('/whitelist-input');
                 }
               }}
-              type="primary"
               className={clsx(
-                'bg-transparent w-full shadow-none h-[48px] border-rabby-blue-default hover:before:hidden'
+                'bg-transparent shadow-none w-full border-rabby-blue-default hover:before:hidden'
               )}
             >
               <div className="flex items-center justify-center space-x-6 text-r-blue-default">
