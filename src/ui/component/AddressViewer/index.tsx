@@ -47,9 +47,6 @@ export default ({
               .slice(longEllipsis ? -6 : -4)}`
           : address?.toLowerCase()}
       </div>
-      {showArrow && (
-        <SvgIconArrowDown className="ml-1 cursor-pointer fill-current text-white opacity-80" />
-      )}
     </div>
   );
 };

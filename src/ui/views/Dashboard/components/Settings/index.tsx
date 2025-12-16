@@ -1241,71 +1241,6 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
             </>
           ),
         },
-        {
-          leftIcon: RcIconSettingsAboutFollowUs,
-          content: t('page.dashboard.settings.followUs'),
-          // onClick: () => {},
-          rightIcon: (
-            <>
-              <a
-                href="https://twitter.com/rabby_io"
-                target="_blank"
-                rel="noreferrer"
-                onClick={() => {
-                  matomoRequestEvent({
-                    category: 'Setting',
-                    action: 'clickToUse',
-                    label: 'Find us|Twitter',
-                  });
-
-                  ga4.fireEvent('More_FindUsTwitter', {
-                    event_category: 'Click More',
-                  });
-
-                  reportSettings('twitter');
-                }}
-                className="ml-12 group"
-              >
-                <ThemeIcon
-                  src={RcIconTwitter}
-                  className="w-20 group-hover:w-0 group-hover:h-0 group-hover:overflow-hidden"
-                />
-                <ThemeIcon
-                  src={IconTwitterHover}
-                  className="w-0 h-0 overflow-hidden group-hover:w-20 group-hover:h-20"
-                />
-              </a>
-              <a
-                href="https://discord.com/invite/seFBCWmUre"
-                target="_blank"
-                rel="noreferrer"
-                onClick={() => {
-                  matomoRequestEvent({
-                    category: 'Setting',
-                    action: 'clickToUse',
-                    label: 'Find us|Discord',
-                  });
-
-                  ga4.fireEvent('More_FindUsDiscord', {
-                    event_category: 'Click More',
-                  });
-
-                  reportSettings('discord');
-                }}
-                className="ml-12 group"
-              >
-                <ThemeIcon
-                  src={RcIconDiscord}
-                  className="w-20 overflow-hidden group-hover:w-0 group-hover:h-0 "
-                />
-                <ThemeIcon
-                  src={IconDiscordHover}
-                  className="w-0 h-0 overflow-hidden group-hover:w-20 group-hover:h-20"
-                />
-              </a>
-            </>
-          ),
-        },
       ] as SettingItem[],
     },
   };
@@ -1335,13 +1270,13 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
   const [isShowEcology, setIsShowEcologyModal] = React.useState(false);
 
   return (
-    <div className="popup-settings">
+    <div className="p-6 overflow-auto">
       <div className="content">
         {/* <ClaimRabbyBadge onClick={onOpenBadgeModal} /> */}
-        <EcosystemBanner
+        {/* <EcosystemBanner
           isVisible={isShowEcology}
           onClose={() => setIsShowEcologyModal(false)}
-        />
+        /> */}
         <RateModalTriggerOnSettings className="mb-[16px]" />
         {Object.values(renderData).map((group, idxl1) => {
           return (
@@ -1380,18 +1315,6 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
           );
         })}
       </div>
-      <footer className="footer">
-        <div className="px-8 py-2 rounded hover:bg-r-blue-light-1 inline-block">
-          <img
-            className="inline-block cursor-pointer"
-            src={LogoRabby}
-            alt="https://rabby.io"
-            onClick={() => {
-              openInTab('https://rabby.io', false);
-            }}
-          />
-        </div>
-      </footer>
       <Contacts
         visible={contactsVisible}
         onCancel={() => {
@@ -1463,13 +1386,16 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
 
 const Settings = (props: SettingsProps) => {
   const { visible, onClose } = props;
+
+  if (!visible) {
+    return null;
+  }
+
   return (
     <Fragment>
-      {visible && (
-        <BottomDrawer secondaryAnimation close={onClose}>
-          <SettingsInner {...props} />
-        </BottomDrawer>
-      )}
+      <BottomDrawer secondaryAnimation rootSelector="body" close={onClose}>
+        <SettingsInner {...props} />
+      </BottomDrawer>
     </Fragment>
   );
 };

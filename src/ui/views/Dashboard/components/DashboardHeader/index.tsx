@@ -1,7 +1,7 @@
 import { matomoRequestEvent } from '@/utils/matomo-request';
 import clsx from 'clsx';
 import { KEYRING_TYPE, ThemeIconType } from 'consts';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { useInterval } from 'react-use';
@@ -16,11 +16,11 @@ import { getKRCategoryByType } from '@/utils/transaction';
 import IconAlertRed from 'ui/assets/alert-red.svg';
 
 import {
-  RcIconBridgeCC,
   RcIconSettingCC,
   RcIconReceiveCC,
   RcIconSendCC,
   RcIconSwapCC,
+  RcIconBuyCC,
 } from 'ui/assets/dashboard/panel';
 
 import { RcIconExternal1CC } from '@/ui/assets/dashboard';
@@ -41,11 +41,12 @@ import { CurrentConnection } from '../CurrentConnection';
 
 const Container = styled.div`
   width: 100%;
-  height: 235px;
+  height: 300px;
   background: #ffff;
   position: relative;
   overflow: hidden;
   padding: 12px 16px;
+  border-radius: 0 0 24px 24px;
 `;
 
 const HeaderWrap = styled.div`
@@ -65,10 +66,11 @@ const HeaderWrap = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: var(--r-neutral-card2, #f2f4f7);
+    border: 1px solid var(--r-neutral-card2, #f2f4f7);
+    background: var(--r-neutral-bg-1, #ffffff);
 
     &:hover {
-      background: var(--r-blue-light1, #edf0ff);
+      background: var(--r-neutral-card2, #f2f4f7);
     }
 
     &-icon {
@@ -142,6 +144,7 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
   const wallet = useWallet();
   const dispatch = useRabbyDispatch();
   const { t } = useTranslation();
+  const [displayName, setDisplayName] = useState<string>('');
 
   const ref = React.useRef<HTMLDivElement>(null);
   const { isDarkTheme } = useThemeMode();
@@ -167,6 +170,7 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
         .getAlianName(currentAccount?.address.toLowerCase())
         .then((name) => {
           dispatch.account.setField({ alianName: name });
+          setDisplayName(name!);
         });
     }
   }, [currentAccount]);
@@ -209,13 +213,10 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
   };
 
   const panelItems = {
-    swap: {
-      icon: RcIconSwapCC,
-      eventKey: 'Fund',
-      content: t('page.dashboard.home.panel.swap'),
-      onClick: () => {
-        history.push('/dex-swap?rbisource=dashboard');
-      },
+    receive: {
+      icon: RcIconReceiveCC,
+      eventKey: 'Receive',
+      content: t('page.dashboard.home.panel.receive'),
     } as IPanelItem,
     send: {
       icon: RcIconSendCC,
@@ -225,29 +226,32 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
         history.push('/send-token?rbisource=dashboard');
       },
     } as IPanelItem,
-    bridge: {
-      icon: RcIconBridgeCC,
-      eventKey: 'Bridge',
-      content: t('page.dashboard.home.panel.bridge'),
+    swap: {
+      icon: RcIconSwapCC,
+      eventKey: 'swap',
+      content: t('page.dashboard.home.panel.swap'),
       onClick: () => {
-        history.push('/bridge');
+        history.push('/dex-swap?rbisource=dashboard');
       },
     } as IPanelItem,
-    receive: {
-      icon: RcIconReceiveCC,
-      eventKey: 'Receive',
-      content: t('page.dashboard.home.panel.receive'),
+    buy: {
+      icon: RcIconBuyCC,
+      eventKey: 'buy',
+      content: t('page.dashboard.home.panel.buy'),
+      onClick: () => {
+        history.push('/buy');
+      },
     } as IPanelItem,
   };
 
   const brandIcon = useWalletConnectIcon(currentAccount);
 
   const pickedPanelKeys = useMemo<
-    ('swap' | 'send' | 'bridge' | 'receive')[]
+    ('receive' | 'send' | 'swap' | 'buy')[]
   >(() => {
     return isGnosis
-      ? ['swap', 'send', 'bridge', 'receive']
-      : ['swap', 'send', 'bridge', 'receive'];
+      ? ['receive', 'send', 'swap', 'buy']
+      : ['receive', 'send', 'swap', 'buy'];
   }, [isGnosis]);
 
   return (
@@ -259,7 +263,7 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
           </div>
 
           <div
-            className="py-[6px] px-[8px] rounded-[5px] cursor-pointer text-black bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)]"
+            className="py-[6px] px-[8px] cursor-pointer rounded-[5px] text-black bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)]"
             onClick={onSettingClick}
           >
             <RcIconSettingCC />
@@ -268,31 +272,8 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
       </div>
 
       {currentAccount && (
-        <div className="flex items-center gap-[8px]">
+        <div className="flex items-center gap-[8px] p-2 border-none !rounded-[40px] bg-[rgba(24,24,27,0.02)] min-w-[153px] max-w-[200px]">
           <div
-            className="flex items-center gap-[6px] px-[8px] py-[6px] rounded-[6px] cursor-pointer bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)]"
-            onClick={handleSwitchAddress}
-          >
-            <div className="relative">
-              <CommonSignal
-                type={currentAccount.type}
-                brandName={currentAccount.brandName}
-                address={currentAccount.address}
-              />
-            </div>
-            {currentAccount && (
-              <AddressViewer
-                address={currentAccount.address}
-                showArrow={false}
-                className="text-[12px] leading-[14px] text-black opacity-60"
-              />
-            )}
-            <IconArrowRight />
-          </div>
-
-          <RcIconCopy
-            viewBox="0 0 16 16"
-            className="w-[16px] h-[16px] cursor-pointer !text-gray-title opacity-60 hover:opacity-80"
             onClick={() => {
               copyAddress(currentAccount.address);
               matomoRequestEvent({
@@ -308,7 +289,35 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
                 event_category: 'Front Page Click',
               });
             }}
-          />
+            className="h-10 w-10 cursor-pointer flex items-center justify-center rounded-full bg-gradient-to-br from-[#BFDBFE] to-[#0071FF]"
+          >
+            <p className="text-xl">👀</p>
+          </div>
+          <div
+            className="flex items-center flex-col gap-1 justify-center rounded-[6px] cursor-pointer bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)]"
+            onClick={handleSwitchAddress}
+          >
+            <div className="relative">
+              <CommonSignal
+                type={currentAccount.type}
+                brandName={currentAccount.brandName}
+                address={currentAccount.address}
+              />
+            </div>
+            <div
+              className="text-[15px] leading-[18px] font-medium text-black truncate max-w-[86px]"
+              title={displayName}
+            >
+              {displayName}
+            </div>
+            {currentAccount && (
+              <AddressViewer
+                address={currentAccount.address}
+                showArrow={false}
+                className="text-[12px] leading-[14px] text-black opacity-60"
+              />
+            )}
+          </div>
         </div>
       )}
       {dashboardBalanceCacheInited && (
@@ -328,7 +337,10 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
           const item = panelItems[panelKey] as IPanelItem;
           if (item.hideForGnosis && isGnosis) return null;
           return (
-            <div key={panelKey} className="bg-r-neutral-bg-2 rounded-[16px]">
+            <div
+              key={panelKey}
+              className="border-r-neutral-bg-2 rounded-[16px]"
+            >
               {item.disabled ? (
                 <Tooltip
                   {...(item.commingSoonBadge && { visible: false })}

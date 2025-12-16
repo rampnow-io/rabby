@@ -81,9 +81,9 @@ const Dashboard = () => {
 
   return (
     <>
-      <div className={clsx('dashboard')}>
+      <div className={clsx('bg-[#18181B05] flex flex-col gap-3')}>
         <DashboardHeader onSettingClick={openModal} />
-        <DashboardPanel onSettingClick={openModal} />
+        <DashboardPanel />
       </div>
       <Modal
         visible={firstNotice && updateContent}

@@ -150,16 +150,23 @@ const Container = styled.div`
   }
 `;
 
-export const DashboardPanel: React.FC<{ onSettingClick?(): void }> = ({
-  onSettingClick,
-}) => {
+const className =
+  '!bg-white data-[state=active]:!bg-white shadow-none data-[state=active]:!hover:bg-white data-[state=active]:shadow-none w-20';
+
+export const DashboardPanel: React.FC = ({}) => {
   return (
-    <div className="relative px-[16px] pt-[14px] pb-[12px]">
+    <div className="relative !bg-white rounded-t-[24px] px-[16px] pt-[14px] pb-[12px]">
       <Tabs defaultValue="tokens">
-        <TabsList>
-          <TabsTrigger value="tokens">Tokens</TabsTrigger>
-          <TabsTrigger value="transactions">Transactions</TabsTrigger>
-          <TabsTrigger value="approvals">Approvals</TabsTrigger>
+        <TabsList className="bg-white justify-start">
+          <TabsTrigger className={className} value="tokens">
+            Tokens
+          </TabsTrigger>
+          <TabsTrigger className={className} value="transactions">
+            Transactions
+          </TabsTrigger>
+          <TabsTrigger className={className} value="approvals">
+            Approvals
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="tokens">
           <AssetList visible={true} onClose={() => {}} />

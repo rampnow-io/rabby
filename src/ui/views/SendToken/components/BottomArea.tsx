@@ -93,7 +93,7 @@ export default function BottomArea({
           <Button
             disabled={!canSubmit}
             type="submit"
-            className={clsx('w-full h-[48px] text-[16px] rounded-[8px]')}
+            className={clsx('w-full h-[48px] text-[16px]')}
           >
             {t('page.sendToken.sendButton')}
           </Button>

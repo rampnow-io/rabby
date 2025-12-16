@@ -61,7 +61,7 @@ const PageHeader = ({
     <>
       <div
         className={clsx(
-          'flex text-r-neutral-title-1 font-medium text-20 leading-24 pt-20 mb-20 relative items-center',
+          'flex text-r-neutral-title-1 font-medium text-20 leading-24 pt-4 mb-4 relative items-center',
           isShowAccount && 'pt-[9px] pb-[6px]',
           !fixed && className
         )}
@@ -70,7 +70,7 @@ const PageHeader = ({
           <ThemeIcon
             src={keepBackLightVersion ? IconBack : RcIconBackNew}
             className={clsx(
-              'icon w-20 h-20 cursor-pointer absolute left-0 bottom-0',
+              'icon w-4 h-4 cursor-pointer absolute left-0 bottom-0',
               isShowAccount && 'top-1/2 -translate-y-1/2',
               invertBack && 'filter invert'
             )}
@@ -98,7 +98,7 @@ const PageHeader = ({
           <ThemeIcon
             src={RcIconClose}
             className={clsx(
-              'icon-close text-r-neutral-body absolute w-20 h-20 bottom-0 right-0 cursor-pointer',
+              'icon-close text-r-neutral-body absolute w-4 h-4 bottom-0 right-0 cursor-pointer',
               invertBack && 'filter invert',
               closeCn
             )}
