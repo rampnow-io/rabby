@@ -26,6 +26,7 @@ const StyledCard = styled.div`
   border-radius: 16px;
   background-color: var(--r-neutral-bg1, #fff);
   padding: 0px 10px 20px;
+  overflow-y: auto;
   .header {
     display: flex;
     align-items: center;
@@ -116,8 +117,7 @@ export const Card = ({
             headerBlock ? 'block' : !onBack && !title && !step && 'hidden',
             'header',
             headerClassName,
-            step && 'mt-5',
-            !step && !title && onBack && 'mt-5'
+            step || title || onBack ? 'mt-5' : undefined
           )}
         >
           {!!onBack && (

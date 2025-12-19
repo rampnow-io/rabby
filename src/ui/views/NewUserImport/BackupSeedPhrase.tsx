@@ -11,49 +11,61 @@ import { useNewUserGuideStore } from './hooks/useNewUserGuideStore';
 import { IconCopyCC } from 'ui/assets/component/IconCopyCC';
 import { useThemeMode } from '@/ui/hooks/usePreference';
 import { Button } from '@repo/ui/primitives';
+import { useWallet } from '@/ui/utils';
 
 export const BackupSeedPhrase = () => {
   const { t } = useTranslation();
-
   const history = useHistory();
-
+  const wallet = useWallet();
   const { store, setStore } = useNewUserGuideStore();
+  const { isDarkTheme } = useThemeMode();
 
-  const mnemonics = React.useMemo(() => store.seedPhrase, [store.seedPhrase]);
+  const mnemonics = store.seedPhrase;
+
+  /**
+   * 👉 Generate seed phrase on page load
+   */
+  React.useEffect(() => {
+    if (!store.seedPhrase) {
+      (async () => {
+        const mnemonic = await wallet.generateMnemonic();
+        setStore({
+          seedPhrase: mnemonic,
+          passphrase: '',
+        });
+      })();
+    }
+  }, [store.seedPhrase, setStore, wallet]);
 
   const onCopyMnemonics = React.useCallback(() => {
-    mnemonics &&
-      copyTextToClipboard(mnemonics).then(() => {
-        message.success({
-          icon: <img src={IconSuccess} className="icon icon-success" />,
-          content: t('global.copied'),
-          duration: 0.5,
-        });
+    if (!mnemonics) return;
+
+    copyTextToClipboard(mnemonics).then(() => {
+      message.success({
+        icon: <img src={IconSuccess} className="icon icon-success" />,
+        content: t('global.copied'),
+        duration: 0.5,
       });
-  }, [mnemonics]);
+    });
+  }, [mnemonics, t]);
 
   const handleNext = () => {
-    setStore({
-      seedPhrase: mnemonics,
-      passphrase: '',
-    });
-
     history.push('/new-user/import/seed-phrase/set-password?isCreated=true');
   };
-
-  const { isDarkTheme } = useThemeMode();
 
   return (
     <Card
       onBack={() => {
+        // optional: clear store if user goes back
         setStore({
           seedPhrase: '',
           passphrase: '',
         });
+
         if (history.length) {
           history.goBack();
         } else {
-          history.replace('/new-user/create-seed-phrase');
+          history.replace('/new-user/guide');
         }
       }}
     >
@@ -61,6 +73,7 @@ export const BackupSeedPhrase = () => {
         <div className="mt-[18px] mb-[9px] text-[28px] font-medium text-r-neutral-title1 text-center">
           {t('page.newAddress.seedPhrase.backup')}
         </div>
+
         <div className="text-[16px] text-primary-foreground font-normal text-center mb-20 mx-[10px]">
           {t('page.newAddress.seedPhrase.backupTips')}
         </div>
@@ -90,6 +103,7 @@ export const BackupSeedPhrase = () => {
             className="w-5 h-5 text-primary-foreground"
           />
         </div>
+
         <footer className="mt-auto w-full flex flex-col gap-2">
           <div className="text-[10px] font-medium text-r-neutral-title1 text-center">
             {t('page.newAddress.seedPhrase.backupTips2')}

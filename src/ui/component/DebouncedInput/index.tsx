@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { Input, InputRef, InputProps } from 'antd';
 import useDebounceValue from '@/ui/hooks/useDebounceValue';
+import { Input } from '@repo/ui/primitives';
 
 /**
  * @description same as antd's Input, but with debounce
@@ -11,14 +11,17 @@ const DebouncedInput = React.forwardRef(
     {
       debounce = 250,
       ...props
-    }: Omit<InputProps, 'value' | 'onChange'> & {
+    }: Omit<
+      React.ComponentPropsWithoutRef<typeof Input>,
+      'value' | 'onChange'
+    > & {
       value?: string;
       onChange?: (value: string) => any;
       debounce?: number;
     },
     ref
   ) => {
-    const inputRef = React.useRef<InputRef>(null);
+    const inputRef = React.useRef<HTMLInputElement>(null);
     React.useImperativeHandle(ref, () => ({
       focus: () => {
         inputRef.current?.focus();
@@ -43,6 +46,7 @@ const DebouncedInput = React.forwardRef(
     return (
       <Input
         {...props}
+        className={'border-none p-0 outline-none'}
         ref={inputRef}
         value={value}
         onChange={(evt) => {

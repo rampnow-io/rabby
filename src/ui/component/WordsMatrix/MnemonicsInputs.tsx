@@ -611,7 +611,7 @@ function MnemonicsInputs({
 
             {newUserImport ? (
               <RcIconArrowCC
-                className="ml-[2px] text-r-neutral-body w-16 h-16"
+                className="ml-[2px] text-r-neutral-body w-4 h-4"
                 viewBox="0 0 16 16"
               />
             ) : (
@@ -690,7 +690,7 @@ function MnemonicsInputs({
                   debounce={150}
                   key={`word-input-${ver}-${word}-${idx}`}
                   className={clsx(
-                    'mnemonics-input  pr-10',
+                    'mnemonics-input  pr-[10px]',
                     newUserImport ? 'pl-[10px]' : 'pl-[46px]',
                     isCurrentFocusing && 'ant-input-focused',
                     {

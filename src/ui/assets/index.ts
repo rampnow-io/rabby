@@ -48,3 +48,5 @@ export { default as IconContractDeploy } from 'ui/assets/icon-contract-deploy.sv
 export { default as IconApproval } from 'ui/assets/icon-approval.svg';
 export { default as IconCancel } from 'ui/assets/icon-cancel.svg';
 export { default as Illustration } from 'ui/assets/Illustration.svg';
+export { default as IconLock } from 'ui/assets/icon-lock.svg';
+export { default as RoundedLogo } from 'ui/assets/logo-rounded.svg';

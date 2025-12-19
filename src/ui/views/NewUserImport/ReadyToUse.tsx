@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { Card } from '@/ui/component/NewUserImport';
 import { Button } from '@repo/ui/primitives';
+import { RoundedLogo } from '@/ui/assets';
 
 const ShortcutKey = ({ label }: { label: string }) => (
   <div
@@ -45,7 +46,7 @@ export const ReadyToUse = () => {
     <Card className="mx-[22px]">
       <div className="flex flex-col items-center px-6 py-10 text-center">
         <img
-          src="https://cdn.rampnow.io/image/icon/general/logo-green.svg"
+          src={RoundedLogo}
           alt="Rampnow logo"
           className="w-[48px] h-[48px] mb-6"
         />
@@ -63,15 +64,16 @@ export const ReadyToUse = () => {
         <div className="mt-4 text-[14px] text-r-neutral-body max-w-[280px]">
           Try pressing the shortcut to quickly open the wallet.
         </div>
-
-        <Button
-          onClick={() => window.close()}
-          className={
-            'mt-8 w-full h-[56px] rounded-[12px] text-[17px] font-medium shadow-none'
-          }
-        >
-          Open Rampnow Wallet
-        </Button>
+        <footer className="w-full mt-auto">
+          <Button
+            onClick={() => window.close()}
+            className={
+              'mt-8 w-full h-[56px] rounded-[12px] text-[17px] font-medium shadow-none'
+            }
+          >
+            Open Rampnow Wallet
+          </Button>
+        </footer>
       </div>
     </Card>
   );

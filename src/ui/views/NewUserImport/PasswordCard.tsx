@@ -22,9 +22,11 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
   Input,
 } from '@repo/ui/primitives';
+import { IconLock } from '@/ui/assets';
 
 const MINIMUM_PASSWORD_LENGTH = 8;
 const passwordSchema = z
@@ -77,74 +79,92 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack, step }) => {
       <Form {...form}>
         <form className="flex flex-col flex-1 px-5" onSubmit={handleSubmit}>
           <div className="flex-1 mt-[18px]">
-            <hgroup className="mb-[24px]">
-              <h1 className="text-r-neutral-title1 text-center font-semibold text-[28px] leading-[29px] mb-[9px]">
+            <div className="flex flex-col items-center gap-6">
+              <img
+                src={IconLock}
+                alt="Rampnow logo"
+                className="w-[53px] h-[70px] self-center"
+              />
+
+              <h1 className="text-r-neutral-title1 text-center font-semibold text-[28px] leading-[29px]">
                 {t('page.newUserImport.PasswordCard.title')}
               </h1>
 
               <p className="text-center text-primary-foreground font-normal text-[16px] leading-[20px] mx-7">
                 {t('page.newUserImport.PasswordCard.desc')}
               </p>
-            </hgroup>
-            <div className="flex flex-col gap-3">
-              <FormField
-                name="password"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="relative">
-                        <Input
-                          {...field}
-                          type="password"
-                          placeholder={t(
-                            'page.newUserImport.PasswordCard.form.password.placeholder'
-                          )}
-                        />
 
-                        {/* Success icon */}
-                        {form.watch('password') &&
-                          !form.formState.errors.password && (
-                            <span className="absolute right-3 top-[14px] text-r-green-default">
-                              <RcIconSuccessCC />
-                            </span>
-                          )}
-                      </div>
-                    </FormControl>
+              <div className="flex flex-col w-full gap-3 mt-1">
+                <FormField
+                  name="password"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        {t(
+                          'page.newUserImport.PasswordCard.form.password.label'
+                        )}
+                      </FormLabel>
 
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            {...field}
+                            type="password"
+                            placeholder={t(
+                              'page.newUserImport.PasswordCard.form.password.placeholder'
+                            )}
+                          />
 
-              {/* Confirm Password */}
-              <FormField
-                name="confirmPassword"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="relative">
-                        <Input
-                          {...field}
-                          type="password"
-                          placeholder={t(
-                            'page.newUserImport.PasswordCard.form.confirmPassword.placeholder'
-                          )}
-                        />
+                          {/* Success icon */}
+                          {form.watch('password') &&
+                            !form.formState.errors.password && (
+                              <span className="absolute right-3 top-[14px] text-r-green-default">
+                                <RcIconSuccessCC />
+                              </span>
+                            )}
+                        </div>
+                      </FormControl>
 
-                        {form.watch('confirmPassword') &&
-                          !form.formState.errors.confirmPassword && (
-                            <span className="absolute right-3 top-[14px] text-r-green-default">
-                              <RcIconSuccessCC />
-                            </span>
-                          )}
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Confirm Password */}
+                <FormField
+                  name="confirmPassword"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        {t(
+                          'page.newUserImport.PasswordCard.form.confirmPassword.label'
+                        )}
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            {...field}
+                            type="password"
+                            placeholder={t(
+                              'page.newUserImport.PasswordCard.form.confirmPassword.placeholder'
+                            )}
+                          />
+
+                          {form.watch('confirmPassword') &&
+                            !form.formState.errors.confirmPassword && (
+                              <span className="absolute right-3 top-[14px] text-r-green-default">
+                                <RcIconSuccessCC />
+                              </span>
+                            )}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
           </div>
 

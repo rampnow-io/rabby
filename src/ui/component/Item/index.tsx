@@ -84,7 +84,7 @@ export const Item = (props: PropsWithChildren<ItemProps>) => {
     px = 16,
     py = 15,
     bgColor = 'var(--r-neutral-card-1, #fff)',
-    hoverBgColor = 'var(--r-blue-light-2, #eef1ff)',
+    hoverBgColor = 'var(--r-blue-lig)',
     className = '',
     leftIconClassName = '',
     rightIconClassName = '',
@@ -107,7 +107,7 @@ export const Item = (props: PropsWithChildren<ItemProps>) => {
       ) : leftIcon ? (
         <ThemeIcon
           src={leftIcon}
-          className={clsx(leftIconClassName, 'w-24 h-24')}
+          className={clsx(leftIconClassName, 'w-6 h-6')}
         />
       ) : null}
       {children}

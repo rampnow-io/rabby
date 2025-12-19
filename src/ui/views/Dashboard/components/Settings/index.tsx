@@ -991,6 +991,7 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
             </>
           ),
         },
+
         {
           leftIcon: RcIconClear,
           content: t('page.dashboard.settings.clearPending'),
@@ -1017,232 +1018,232 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
         },
       ] as SettingItem[],
     },
-    debugkits: {
-      label: 'Debug Kits (Not present on production)',
-      items: [
-        {
-          leftIcon: RcIconServerCC,
-          content: (
-            <span>{t('page.dashboard.settings.backendServiceUrl')}</span>
-          ),
-          onClick: () => setShowOpenApiModal(true),
-          rightIcon: (
-            <ThemeIcon
-              src={RcIconArrowRight}
-              className="icon icon-arrow-right"
-            />
-          ),
-        },
-        {
-          leftIcon: RcIconServerCC,
-          content: (
-            <span>{t('page.dashboard.settings.testnetBackendServiceUrl')}</span>
-          ),
-          onClick: () => setShowTestnetOpenApiModal(true),
-          rightIcon: (
-            <ThemeIcon
-              src={RcIconArrowRight}
-              className="icon icon-arrow-right"
-            />
-          ),
-        },
-        {
-          leftIcon: RcIconClearCC,
-          content: <span>{t('page.dashboard.settings.clearWatchMode')}</span>,
-          onClick: handleClickClearWatchMode,
-        },
-        {
-          leftIcon: RcIconSettingsCodeCC,
-          content: (
-            <div className="flex-shrink-0">Mock Exposure Rate Guidance</div>
-          ),
-          rightIcon: (
-            <div className="flex items-center justify-end gap-8">
-              <Button
-                buttonType={ButtonType.LINK}
-                onClick={(evt) => {
-                  evt.preventDefault();
-                  mockExposureRateGuide();
-                  message.success({
-                    className: 'toast-message-2025',
-                    content: 'Mock exposure rate guide data',
-                  });
-                }}
-              >
-                Mock
-              </Button>
-              <Button
-                buttonType={ButtonType.GHOST}
-                onClick={(evt) => {
-                  evt.preventDefault();
-                  resetExposureRateGuide();
-                  message.success({
-                    className: 'toast-message-2025',
-                    content: 'Reset exposure rate guide mock data',
-                  });
-                }}
-              >
-                Reset
-              </Button>
-            </div>
-          ),
-        },
-        {
-          leftIcon: RcIconSettingsGitForkCC,
-          content: <span>Git Build Hash</span>,
-          rightIcon: (
-            <>
-              <span className="text-14 mr-[8px]">
-                {process.env.RABBY_BUILD_GIT_HASH}
-              </span>
-            </>
-          ),
-        },
-        {
-          leftIcon: RcIconSettingsGitForkCC,
-          content: <span>CreateAgent Wallet</span>,
-          onClick: async () => {
-            const currentAddress =
-              (await wallet.getCurrentAccount())?.address || '';
-            await wallet.createPerpsAgentWallet(currentAddress);
-          },
-        },
-        {
-          leftIcon: RcIconSettingsGitForkCC,
-          content: 'Test sendPersonalMessage',
-          onClick: async () => {
-            const currentAddress =
-              (await wallet.getCurrentAccount())?.address || '';
+    // debugkits: {
+    //   label: 'Debug Kits (Not present on production)',
+    //   items: [
+    //     {
+    //       leftIcon: RcIconServerCC,
+    //       content: (
+    //         <span>{t('page.dashboard.settings.backendServiceUrl')}</span>
+    //       ),
+    //       onClick: () => setShowOpenApiModal(true),
+    //       rightIcon: (
+    //         <ThemeIcon
+    //           src={RcIconArrowRight}
+    //           className="icon icon-arrow-right"
+    //         />
+    //       ),
+    //     },
+    //     {
+    //       leftIcon: RcIconServerCC,
+    //       content: (
+    //         <span>{t('page.dashboard.settings.testnetBackendServiceUrl')}</span>
+    //       ),
+    //       onClick: () => setShowTestnetOpenApiModal(true),
+    //       rightIcon: (
+    //         <ThemeIcon
+    //           src={RcIconArrowRight}
+    //           className="icon icon-arrow-right"
+    //         />
+    //       ),
+    //     },
+    //     {
+    //       leftIcon: RcIconClearCC,
+    //       content: <span>{t('page.dashboard.settings.clearWatchMode')}</span>,
+    //       onClick: handleClickClearWatchMode,
+    //     },
+    //     {
+    //       leftIcon: RcIconSettingsCodeCC,
+    //       content: (
+    //         <div className="flex-shrink-0">Mock Exposure Rate Guidance</div>
+    //       ),
+    //       rightIcon: (
+    //         <div className="flex items-center justify-end gap-8">
+    //           <Button
+    //             buttonType={ButtonType.LINK}
+    //             onClick={(evt) => {
+    //               evt.preventDefault();
+    //               mockExposureRateGuide();
+    //               message.success({
+    //                 className: 'toast-message-2025',
+    //                 content: 'Mock exposure rate guide data',
+    //               });
+    //             }}
+    //           >
+    //             Mock
+    //           </Button>
+    //           <Button
+    //             buttonType={ButtonType.GHOST}
+    //             onClick={(evt) => {
+    //               evt.preventDefault();
+    //               resetExposureRateGuide();
+    //               message.success({
+    //                 className: 'toast-message-2025',
+    //                 content: 'Reset exposure rate guide mock data',
+    //               });
+    //             }}
+    //           >
+    //             Reset
+    //           </Button>
+    //         </div>
+    //       ),
+    //     },
+    //     {
+    //       leftIcon: RcIconSettingsGitForkCC,
+    //       content: <span>Git Build Hash</span>,
+    //       rightIcon: (
+    //         <>
+    //           <span className="text-14 mr-[8px]">
+    //             {process.env.RABBY_BUILD_GIT_HASH}
+    //           </span>
+    //         </>
+    //       ),
+    //     },
+    //     {
+    //       leftIcon: RcIconSettingsGitForkCC,
+    //       content: <span>CreateAgent Wallet</span>,
+    //       onClick: async () => {
+    //         const currentAddress =
+    //           (await wallet.getCurrentAccount())?.address || '';
+    //         await wallet.createPerpsAgentWallet(currentAddress);
+    //       },
+    //     },
+    //     {
+    //       leftIcon: RcIconSettingsGitForkCC,
+    //       content: 'Test sendPersonalMessage',
+    //       onClick: async () => {
+    //         const currentAddress =
+    //           (await wallet.getCurrentAccount())?.address || '';
 
-            const result = await sendPersonalMessage({
-              data: [
-                '0x4578616d706c652060706572736f6e616c5f7369676e60206d657373616765',
-                currentAddress,
-                'Example password',
-              ],
-              wallet,
-              onProgress: (progress) => {
-                message.success('sendPersonalMessage progress: ' + progress);
-              },
-            });
-            message.success('sendPersonalMessage result: ' + result.txHash);
-          },
-        },
-      ] as SettingItem[],
-    },
-    about: {
-      label: t('page.dashboard.settings.aboutUs'),
-      items: [
-        {
-          leftIcon: RcIconFeedback,
-          content: t('page.dashboard.home.panel.feedback'),
-          onClick: () => {
-            matomoRequestEvent({
-              category: 'Setting',
-              action: 'clickToUse',
-              label: 'feedback',
-            });
+    //         const result = await sendPersonalMessage({
+    //           data: [
+    //             '0x4578616d706c652060706572736f6e616c5f7369676e60206d657373616765',
+    //             currentAddress,
+    //             'Example password',
+    //           ],
+    //           wallet,
+    //           onProgress: (progress) => {
+    //             message.success('sendPersonalMessage progress: ' + progress);
+    //           },
+    //         });
+    //         message.success('sendPersonalMessage result: ' + result.txHash);
+    //       },
+    //     },
+    //   ] as SettingItem[],
+    // },
+    // about: {
+    //   label: t('page.dashboard.settings.aboutUs'),
+    //   items: [
+    //     {
+    //       leftIcon: RcIconFeedback,
+    //       content: t('page.dashboard.home.panel.feedback'),
+    //       onClick: () => {
+    //         matomoRequestEvent({
+    //           category: 'Setting',
+    //           action: 'clickToUse',
+    //           label: 'feedback',
+    //         });
 
-            ga4.fireEvent('More_Feedback', {
-              event_category: 'Click More',
-            });
+    //         ga4.fireEvent('More_Feedback', {
+    //           event_category: 'Click More',
+    //         });
 
-            reportSettings('feedback');
-            openInTab('https://debank.com/hi/0a110032');
-          },
-          rightIcon: (
-            <ThemeIcon
-              src={RcIconArrowRight}
-              className="icon icon-arrow-right"
-            />
-          ),
-        },
-        {
-          leftIcon: RcIconSettingsAboutVersion,
-          content: t('page.dashboard.settings.currentVersion'),
-          onClick: () => {
-            updateVersion();
-            matomoRequestEvent({
-              category: 'Setting',
-              action: 'clickToUse',
-              label: 'Current Version',
-            });
+    //         reportSettings('feedback');
+    //         openInTab('https://debank.com/hi/0a110032');
+    //       },
+    //       rightIcon: (
+    //         <ThemeIcon
+    //           src={RcIconArrowRight}
+    //           className="icon icon-arrow-right"
+    //         />
+    //       ),
+    //     },
+    //     {
+    //       leftIcon: RcIconSettingsAboutVersion,
+    //       content: t('page.dashboard.settings.currentVersion'),
+    //       onClick: () => {
+    //         updateVersion();
+    //         matomoRequestEvent({
+    //           category: 'Setting',
+    //           action: 'clickToUse',
+    //           label: 'Current Version',
+    //         });
 
-            ga4.fireEvent('More_CurrentVersion', {
-              event_category: 'Click More',
-            });
+    //         ga4.fireEvent('More_CurrentVersion', {
+    //           event_category: 'Click More',
+    //         });
 
-            reportSettings('Current Version');
-          },
-          rightIcon: (
-            <>
-              <span
-                className="text-14 mr-[8px] text-r-neutral-title-1"
-                role="button"
-                onClick={updateVersion}
-              >
-                {process.env.release}
-                <span
-                  className={clsx(
-                    'text-[#ec5151] ml-2',
-                    !hasNewVersion && 'hidden'
-                  )}
-                >
-                  (
-                  <span
-                    className={clsx('underline')}
-                    role="button"
-                    onClick={(evt) => {
-                      evt.stopPropagation();
-                      updateVersion();
-                    }}
-                  >
-                    {t('page.dashboard.settings.updateAvailable')}
-                  </span>
-                  )
-                </span>
-              </span>
-              <ThemeIcon
-                src={RcIconArrowRight}
-                className="icon icon-arrow-right"
-              />
-            </>
-          ),
-        },
-        {
-          leftIcon: RcIconSettingsAboutSupporetedChains,
-          content: t('page.dashboard.settings.supportedChains'),
-          onClick: () => {
-            history.push('/settings/chain-list');
-            matomoRequestEvent({
-              category: 'Setting',
-              action: 'clickToUse',
-              label: 'Supported Chains',
-            });
+    //         reportSettings('Current Version');
+    //       },
+    //       rightIcon: (
+    //         <>
+    //           <span
+    //             className="text-14 mr-[8px] text-r-neutral-title-1"
+    //             role="button"
+    //             onClick={updateVersion}
+    //           >
+    //             {process.env.release}
+    //             <span
+    //               className={clsx(
+    //                 'text-[#ec5151] ml-2',
+    //                 !hasNewVersion && 'hidden'
+    //               )}
+    //             >
+    //               (
+    //               <span
+    //                 className={clsx('underline')}
+    //                 role="button"
+    //                 onClick={(evt) => {
+    //                   evt.stopPropagation();
+    //                   updateVersion();
+    //                 }}
+    //               >
+    //                 {t('page.dashboard.settings.updateAvailable')}
+    //               </span>
+    //               )
+    //             </span>
+    //           </span>
+    //           <ThemeIcon
+    //             src={RcIconArrowRight}
+    //             className="icon icon-arrow-right"
+    //           />
+    //         </>
+    //       ),
+    //     },
+    //     {
+    //       leftIcon: RcIconSettingsAboutSupporetedChains,
+    //       content: t('page.dashboard.settings.supportedChains'),
+    //       onClick: () => {
+    //         history.push('/settings/chain-list');
+    //         matomoRequestEvent({
+    //           category: 'Setting',
+    //           action: 'clickToUse',
+    //           label: 'Supported Chains',
+    //         });
 
-            ga4.fireEvent('More_SupportedChains', {
-              event_category: 'Click More',
-            });
+    //         ga4.fireEvent('More_SupportedChains', {
+    //           event_category: 'Click More',
+    //         });
 
-            reportSettings('Supported Chains');
-          },
-          rightIcon: (
-            <>
-              <span
-                className="text-14 mr-[8px] text-r-neutral-title-1"
-                role="button"
-              >
-                {getChainList('mainnet').length}
-              </span>
-              <ThemeIcon
-                src={RcIconArrowRight}
-                className="icon icon-arrow-right"
-              />
-            </>
-          ),
-        },
-      ] as SettingItem[],
-    },
+    //         reportSettings('Supported Chains');
+    //       },
+    //       rightIcon: (
+    //         <>
+    //           <span
+    //             className="text-14 mr-[8px] text-r-neutral-title-1"
+    //             role="button"
+    //           >
+    //             {getChainList('mainnet').length}
+    //           </span>
+    //           <ThemeIcon
+    //             src={RcIconArrowRight}
+    //             className="icon icon-arrow-right"
+    //           />
+    //         </>
+    //       ),
+    //     },
+    //   ] as SettingItem[],
+    // },
   };
 
   if (!process.env.DEBUG) {
