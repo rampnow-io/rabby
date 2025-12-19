@@ -42,9 +42,8 @@ import { BridgeHistory, TokenItem } from '@rabby-wallet/rabby-api/dist/types';
 import { getUiType } from '@/ui/utils';
 import NFTAvatar from '../../Dashboard/components/NFT/NFTAvatar';
 import { UI_TYPE } from '@/constant/ui';
-import { DrawerProps } from 'antd';
 import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
-import { Popup } from '@/ui/component';
+import BottomDrawer from '@repo/ui/components/bottom-drawer';
 import { ReactComponent as RcImgArrowCC } from '@/ui/assets/bridge/ImgArrowCC.svg';
 import { getChain } from '@/utils';
 import { ONE_DAY_MS, ONE_HOUR_MS, ONE_MINUTE_MS } from '../constants';
@@ -553,11 +552,7 @@ const PendingStatusDetail = ({
   );
 };
 
-export const BridgePendingTxItem = ({
-  getContainer,
-}: {
-  getContainer?: DrawerProps['getContainer'];
-}) => {
+export const BridgePendingTxItem = () => {
   const type = 'bridge';
   const { t } = useTranslation();
   const wallet = useWallet();
@@ -812,43 +807,24 @@ export const BridgePendingTxItem = ({
           step2Status={step2Status}
         />
       </div>
-      <Popup
-        placement="bottom"
-        closeIcon={
-          <SvgIconCross className="w-14 fill-current text-r-neutral-foot pt-[2px]" />
-        }
-        visible={detailVisible}
-        onClose={() => setDetailVisible(false)}
-        closable={true}
-        contentWrapperStyle={{
-          maxHeight: '480px',
-          minHeight: '360px',
-          height: 'auto',
-        }}
-        destroyOnClose
-        bodyStyle={{
-          padding: 0,
-          minHeight: '360px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          background: 'var(--r-neutral-bg2, #F2F4F7)',
-          borderTopLeftRadius: '16px',
-          borderTopRightRadius: '16px',
-        }}
-        isSupportDarkMode
-        getContainer={getContainer}
-      >
-        {data && (
-          <PendingStatusDetail
-            data={data}
-            status={status}
-            step1Status={step1Status}
-            step2Status={step2Status}
-          />
-        )}
-      </Popup>
+      {detailVisible && (
+        <BottomDrawer
+          variant="semi"
+          rootSelector=".js-rabby-popup-container"
+          close={() => setDetailVisible(false)}
+        >
+          <div className="flex flex-col min-h-[360px] max-h-[480px] h-auto bg-r-neutral-bg2 rounded-t-[16px]">
+            {data && (
+              <PendingStatusDetail
+                data={data}
+                status={status}
+                step1Status={step1Status}
+                step2Status={step2Status}
+              />
+            )}
+          </div>
+        </BottomDrawer>
+      )}
     </div>
   );
 };

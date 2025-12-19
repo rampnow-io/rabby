@@ -8,10 +8,11 @@ import { useThemeMode } from '@/ui/hooks/usePreference';
 const StyedBg = styled.div<{
   isDarkTheme: boolean;
 }>`
-  background: ${(props) =>
-    props.isDarkTheme
-      ? 'linear-gradient(0deg, rgba(0, 0, 0, 0.50) 0%, rgba(0, 0, 0, 0.50) 100%), var(--r-blue-default, #7084FF)'
-      : 'var(--r-blue-default, #7084ff)'};
+  background-image: url('https://cdn.rampnow.io/image/background/default.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: ${(props) => (props.isDarkTheme ? '#1A412C' : '#1A412C')};
   overflow-x: auto;
   min-height: 100vh;
   display: flex;
@@ -20,12 +21,11 @@ const StyedBg = styled.div<{
 `;
 
 const StyledCard = styled.div`
-  width: 400px;
-  min-height: 520px;
+  width: 458px;
+  min-height: 583px;
   border-radius: 16px;
   background-color: var(--r-neutral-bg1, #fff);
-  box-shadow: 0px 40px 80px 0px rgba(43, 57, 143, 0.4);
-  padding: 0px 24px 20px;
+  padding: 0px 10px 20px;
   .header {
     display: flex;
     align-items: center;
@@ -105,20 +105,25 @@ export const Card = ({
 
   return (
     <StyedBg isDarkTheme={isDarkTheme}>
+      <img
+        src="https://cdn.rampnow.io/image/icon/general/logo-green.svg"
+        alt="long-arrow"
+        className="hide-on-mobile fixed left-10 top-8 z-10 m-4"
+      />
       <StyledCard className={className} style={cardStyle}>
         <div
           className={clsx(
             headerBlock ? 'block' : !onBack && !title && !step && 'hidden',
             'header',
             headerClassName,
-            step && 'mt-18',
-            !step && !title && onBack && 'mt-18'
+            step && 'mt-5',
+            !step && !title && onBack && 'mt-5'
           )}
         >
           {!!onBack && (
             <div className="back-icon" onClick={onBack}>
               <IconBackCC
-                className="w-20 h-20 text-r-neutral-body"
+                className="w-5 h-5 text-r-neutral-body"
                 viewBox="0 0 20 20"
               />
             </div>

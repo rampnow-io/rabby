@@ -164,18 +164,7 @@ export const AssetListContainer: React.FC<Props> = ({
 
   return (
     <div className={className}>
-      <div className="flex items-center justify-between gap-x-12 widget-has-ant-input">
-        <TokenSearchInput
-          ref={inputRef}
-          onSearch={handleOnSearch}
-          onFocus={() => {
-            setIsFocus(true);
-          }}
-          onBlur={() => {
-            setIsFocus(false);
-          }}
-          className={isFocus || search ? 'w-[360px]' : 'w-[160px]'}
-        />
+      <div className="flex items-center justify-end gap-x-12 widget-has-ant-input">
         {isFocus || search ? null : <AddTokenEntry ref={addTokenEntryRef} />}
       </div>
       {isTokensLoading || isSearching ? (

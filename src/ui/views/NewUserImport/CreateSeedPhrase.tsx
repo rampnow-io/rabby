@@ -57,7 +57,7 @@ export const CreateSeedPhrase = () => {
       </div>
       <div className="flex flex-col gap-16">
         {tipList.map((item, index) => (
-          <div key={item} className={clsx('flex justify-start gap-8', 'px-12')}>
+          <div key={item} className={clsx('flex justify-start gap-2', 'px-12')}>
             <IconDotCC
               className="mt-6 text-rabby-blue-default flex-shrink-0"
               viewBox="0 0 8 8"
@@ -68,10 +68,11 @@ export const CreateSeedPhrase = () => {
           </div>
         ))}
       </div>
-
-      <Button onClick={showSeedPhrase} className="w-full">
-        {t('page.newUserImport.createNewAddress.showSeedPhrase')}
-      </Button>
+      <footer className="mt-auto">
+        <Button onClick={showSeedPhrase} className="w-full">
+          {t('page.newUserImport.createNewAddress.showSeedPhrase')}
+        </Button>
+      </footer>
     </Card>
   );
 };

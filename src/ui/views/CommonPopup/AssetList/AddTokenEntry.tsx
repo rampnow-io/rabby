@@ -62,7 +62,7 @@ const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
         </div>
 
         <AddCustomTokenPopup
-          visible={isShowAddModal}
+          isVisible={isShowAddModal}
           onClose={() => {
             setIsShowAddModal(false);
           }}

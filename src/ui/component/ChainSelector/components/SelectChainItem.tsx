@@ -119,7 +119,7 @@ export const SelectChainItem = forwardRef(
           onClick={() => !disabled && onChange?.(data.enum)}
         >
           <div className="w-full h-[60px] flex items-center">
-            <div className="flex items-center flex-1">
+            <div className="flex items-center gap-2 flex-1">
               {data.isTestnet ? (
                 data.logo ? (
                   <img
@@ -174,7 +174,7 @@ export const SelectChainItem = forwardRef(
             </div>
             <ThemeIcon
               className={clsx(
-                'select-chain-item-star w-16 h-16',
+                'select-chain-item-star w-4 h-4',
                 stared ? 'is-active' : ''
               )}
               src={stared ? RcIconPinnedFill : RcIconPinned}

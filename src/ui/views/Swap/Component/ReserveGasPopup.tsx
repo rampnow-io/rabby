@@ -12,6 +12,7 @@ import { ReactComponent as RcIconUnCheckedCC } from '@/ui/assets/icon-unchecked-
 import { PopupProps } from '@/ui/component/Popup';
 import { findChain } from '@/utils/chain';
 import { Button } from '@repo/ui/primitives';
+import BottomFlotingSheet from '@/ui/component/BottomFloatingPopup';
 
 export type GasLevelType = keyof typeof SORT_SCORE;
 interface ReserveGasContentProps {
@@ -113,7 +114,7 @@ const ReserveGasContent = React.forwardRef<
 
   return (
     <div>
-      <div className={clsx('flex flex-col gap-12')}>
+      <div className={clsx('flex flex-col gap-6')}>
         {sortedList?.map((item) => {
           const checked = currentSelectedItem === item.level;
 
@@ -124,6 +125,9 @@ const ReserveGasContent = React.forwardRef<
               return;
             }
             setCurrentSelectedItem(item.level as any);
+            if (gasLevel) {
+              onGasChange(gasLevel);
+            }
           };
 
           const isCustom = item.level === 'custom';
@@ -133,18 +137,18 @@ const ReserveGasContent = React.forwardRef<
               key={item.level}
               className={clsx(
                 'flex justify-between',
-                'py-[22px] px-16 rounded-[8px] ',
-                'bg-r-neutral-card-1 border border-solid  ',
-                checked ? 'border-rabby-blue-default' : 'border-transparent',
+                'p-2 rounded-[8px] ',
+                'bg-r-neutral-card-1 border border-primary-foreground  ',
+                checked ? 'border-primary' : 'border-transparent',
                 gasIsSufficient
                   ? 'opacity-50 cursor-not-allowed'
-                  : 'hover:border-rabby-blue-default cursor-pointer'
+                  : 'hover:border-primary cursor-pointer'
               )}
               onClick={onChecked}
             >
               <div
                 className={clsx(
-                  'flex items-center gap-6',
+                  'flex flex-col items-center gap-1',
                   'text-15 text-r-neutral-title1 font-medium'
                 )}
               >
@@ -155,7 +159,6 @@ const ReserveGasContent = React.forwardRef<
                 </span>
                 {!isCustom && (
                   <>
-                    <span>·</span>
                     <span className="text-14 text-r-neutral-foot">
                       {new BigNumber(item.price / 1e9).toFixed().slice(0, 8)}{' '}
                       Gwei
@@ -164,57 +167,16 @@ const ReserveGasContent = React.forwardRef<
                 )}
               </div>
 
-              <div className="flex items-center gap-16">
+              <div className="flex items-center gap-4">
                 {!isCustom && (
                   <span className="text-r-neutral-title-1 text-15 font-medium">
                     ≈ {getAmount(item.price)} {symbol}
                   </span>
                 )}
-                <Checkbox
-                  checked={checked}
-                  onChange={onChecked}
-                  background="transparent"
-                  unCheckBackground="transparent"
-                  width="20px"
-                  height="20px"
-                  checkIcon={
-                    checked ? (
-                      <RcIconCheckedCC
-                        viewBox="0 0 20 20"
-                        className="text-r-blue-default w-full h-full"
-                      />
-                    ) : (
-                      <RcIconUnCheckedCC
-                        viewBox="0 0 20 20"
-                        className="text-r-neutral-body w-full h-full"
-                      />
-                    )
-                  }
-                />
               </div>
             </div>
           );
         })}
-
-        <div
-          className={clsx(
-            'fixed left-0 bottom-0',
-            'w-full px-20 py-18',
-            'border-t-[0.5px] border-solid border-rabby-neutral-line'
-          )}
-        >
-          <Button
-            disabled={isLoading}
-            className="h-[44px] text-15 text-r-neutral-title2 w-full"
-            onClick={() => {
-              if (gasLevel) {
-                onGasChange(gasLevel);
-              }
-            }}
-          >
-            {t('global.Confirm')}
-          </Button>
-        </div>
       </div>
     </div>
   );
@@ -257,11 +219,13 @@ export const ReserveGasPopup = (props: ReserveGasContentProps & PopupProps) => {
 export const SendReserveGasPopup = (
   props: ReserveGasContentProps &
     (Omit<PopupProps, 'onClose' | 'onCancel'> & {
+      open: boolean;
       onClose?: (gasLevel?: GasLevel | null) => void;
       onCancel?: (gasLevel?: GasLevel | null) => void;
     })
 ) => {
   const {
+    open,
     gasList,
     chain,
     onGasChange,
@@ -286,75 +250,42 @@ export const SendReserveGasPopup = (
   }, [onClose, isLoading]);
 
   return (
-    <Popup
-      title={t('component.ReserveGasPopup.title')}
-      height={454}
-      isSupportDarkMode
-      isNew
-      maskClosable
-      {...otherPopupProps}
+    <BottomFlotingSheet
+      open={open}
+      hideCloseButton={true}
+      contentClassName="overflow-auto bg-[#18181B08]"
       onClose={handleClose}
     >
-      {!gasList && (
-        <div>
-          <div className={clsx('flex flex-col gap-12')}>
-            <Skeleton.Input
-              active
-              style={{
-                height: 66,
-              }}
-              className="h-[66px] rounded-[8px]"
-            />
-            <Skeleton.Input
-              active
-              style={{
-                height: 66,
-              }}
-              className="h-[66px] rounded-[8px]"
-            />
-            <Skeleton.Input
-              active
-              style={{
-                height: 66,
-              }}
-              className="h-[66px] rounded-[8px]"
-            />
-            <Skeleton.Input
-              active
-              style={{
-                height: 66,
-              }}
-              className="h-[66px] rounded-[8px]"
-            />
-            <div
-              className={clsx(
-                'fixed left-0 bottom-0',
-                'w-full px-20 py-18',
-                'border-t-[0.5px] border-solid border-rabby-neutral-line'
-              )}
-            >
-              <Button
-                disabled
-                className="h-[44px] text-15 text-r-neutral-title2 w-full"
-              >
-                {t('global.Confirm')}
-              </Button>
-            </div>
+      <div>
+        {!gasList && (
+          <div className="flex flex-col gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton.Input
+                key={i}
+                active
+                className="h-[66px] rounded-[8px]"
+              />
+            ))}
+
+            <Button disabled className="h-[44px] w-full mt-4">
+              {t('global.Confirm')}
+            </Button>
           </div>
-        </div>
-      )}
-      {gasList && (
-        <ReserveGasContent
-          ref={reverseGasContentRef}
-          gasList={gasList}
-          chain={chain}
-          limit={limit}
-          isLoading={isLoading}
-          selectedItem={selectedItem}
-          onGasChange={onGasChange}
-          rawHexBalance={rawHexBalance}
-        />
-      )}
-    </Popup>
+        )}
+
+        {gasList && (
+          <ReserveGasContent
+            ref={reverseGasContentRef}
+            gasList={gasList}
+            chain={chain}
+            limit={limit}
+            selectedItem={selectedItem}
+            onGasChange={onGasChange}
+            rawHexBalance={rawHexBalance}
+            isLoading={isLoading}
+          />
+        )}
+      </div>
+    </BottomFlotingSheet>
   );
 };

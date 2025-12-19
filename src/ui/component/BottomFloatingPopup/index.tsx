@@ -1,28 +1,60 @@
 import React from 'react';
 import { X } from 'lucide-react';
+import clsx from 'clsx';
 
-export default function BottomFlotingSheet({ open, onClose, children }) {
+type BottomFloatingSheetProps = {
+  open: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+
+  className?: string; // card wrapper
+  contentClassName?: string; // content wrapper
+  hideCloseButton?: boolean;
+};
+
+export default function BottomFloatingSheet({
+  open,
+  onClose,
+  children,
+  className,
+  contentClassName,
+  hideCloseButton = false,
+}: BottomFloatingSheetProps) {
+  if (!open) return null;
+
   return (
     <>
-      {open && (
-        <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
-          onClick={onClose}
-        />
-      )}
-
+      {/* Backdrop */}
       <div
-        className={`fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-xl p-6 transition-transform duration-300 ${
-          open ? 'translate-y-0' : 'translate-y-full'
-        }`}
-      >
-        <X
-          onClick={onClose}
-          size={22}
-          className="absolute right-4 top-4 text-gray-500 hover:text-gray-700"
-        />
-        <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-4"></div>
-        {children}
+        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      <div className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-4 pb-4">
+        <div
+          className={clsx(
+            'relative w-full max-w-md bg-white rounded-3xl shadow-2xl animate-slide-up',
+            className
+          )}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {!hideCloseButton && (
+            <X
+              size={22}
+              onClick={onClose}
+              className="absolute right-4 top-4 cursor-pointer text-gray-500 hover:text-gray-700"
+            />
+          )}
+
+          <div
+            className={clsx(
+              'px-6 pt-4 pb-6 min-h-[160px] max-h-[70vh] overflow-y-auto',
+              contentClassName
+            )}
+          >
+            {children}
+          </div>
+        </div>
       </div>
     </>
   );

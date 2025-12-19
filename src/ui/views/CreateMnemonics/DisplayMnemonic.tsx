@@ -105,7 +105,7 @@ const DisplayMnemonic = () => {
         onClick={onSubmit}
         className={clsx(
           'h-[56px] shadow-none rounded-[8px]',
-          'text-[17px] font-medium bg-r-blue-default'
+          'text-[17px] font-medium'
         )}
       >
         {t('page.newAddress.seedPhrase.saved')}

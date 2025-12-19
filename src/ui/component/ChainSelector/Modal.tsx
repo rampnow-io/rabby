@@ -1,22 +1,22 @@
 /* eslint "react-hooks/exhaustive-deps": ["error"] */
 /* eslint-enable react-hooks/exhaustive-deps */
-import { Drawer, DrawerProps, Input } from 'antd';
+
+'use client';
+
 import React, { ReactNode, useEffect, useMemo, useState } from 'react';
+import clsx from 'clsx';
+import { Input } from 'antd';
+import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+
+import { BottomDrawer, Search } from '@repo/ui';
+import { Button } from '@repo/ui/primitives';
 
 import { useRabbyDispatch, useRabbyGetter, useRabbySelector } from '@/ui/store';
-import { Chain } from 'background/service/openapi';
-import clsx from 'clsx';
+import { findChainByEnum, varyAndSortChainItems } from '@/utils/chain';
+
 import { CHAINS_ENUM } from 'consts';
 import IconSearch from 'ui/assets/search.svg';
-
-import { useWallet } from '@/ui/utils';
-import {
-  findChain,
-  findChainByEnum,
-  varyAndSortChainItems,
-} from '@/utils/chain';
-import { useTranslation } from 'react-i18next';
-import { useHistory } from 'react-router-dom';
 import Empty from '../Empty';
 import NetSwitchTabs, {
   NetSwitchTabsKey,
@@ -28,12 +28,12 @@ import {
 } from './components/SelectChainList';
 import { LoadingBalances } from './LoadingBalances';
 import { ReactComponent as RcIconCloseCC } from 'ui/assets/component/close-cc.svg';
+import { Chain } from 'background/service/openapi';
 import { Account } from '@/background/service/preference';
 import { TDisableCheckChainFn } from './components/SelectChainItem';
-import { Button } from '@repo/ui/primitives';
 
 interface ChainSelectorModalProps {
-  visible: boolean;
+  visible?: boolean;
   value?: CHAINS_ENUM;
   onCancel(): void;
   onChange(val: CHAINS_ENUM): void;
@@ -47,10 +47,8 @@ interface ChainSelectorModalProps {
   hideMainnetTab?: boolean;
   showRPCStatus?: boolean;
   height?: number | string;
-  zIndex?: number;
   excludeChains?: CHAINS_ENUM[];
   showClosableIcon?: boolean;
-  getContainer?: DrawerProps['getContainer'];
   account?: Account | null;
 }
 
@@ -62,40 +60,25 @@ const useChainSelectorList = ({
   netTabKey?: NetSwitchTabsKey;
 }) => {
   const [search, setSearch] = useState('');
-  const { pinned, chainBalances } = useRabbySelector((state) => {
-    return {
-      pinned: (state.preference.pinnedChain?.filter((item) =>
-        findChain({ enum: item })
-      ) || []) as CHAINS_ENUM[],
-      chainBalances:
-        netTabKey === 'testnet' ? {} : state.account.matteredChainBalances,
-      isShowTestnet: state.preference.isShowTestnet,
-    };
-  });
+
+  const { pinned, chainBalances } = useRabbySelector((state) => ({
+    pinned:
+      (state.preference.pinnedChain?.filter(Boolean) as CHAINS_ENUM[]) || [],
+    chainBalances:
+      netTabKey === 'testnet' ? {} : state.account.matteredChainBalances,
+  }));
 
   const dispatch = useRabbyDispatch();
 
-  const handleStarChange = (chain: CHAINS_ENUM, value) => {
-    if (value) {
-      dispatch.preference.addPinnedChain(chain);
-    } else {
-      dispatch.preference.removePinnedChain(chain);
-    }
-  };
-  const handleSort = (chains: Chain[]) => {
-    dispatch.preference.updatePinnedChainList(chains.map((item) => item.enum));
-  };
-  const { mainnetList, testnetList } = useRabbySelector((state) => {
-    return {
-      mainnetList: state.chains.mainnetList,
-      testnetList: state.chains.testnetList,
-    };
-  });
+  const { mainnetList, testnetList } = useRabbySelector((state) => ({
+    mainnetList: state.chains.mainnetList,
+    testnetList: state.chains.testnetList,
+  }));
+
   const { allSearched, matteredList, unmatteredList } = useMemo(() => {
-    const searchKw = search?.trim().toLowerCase();
     const result = varyAndSortChainItems({
       supportChains,
-      searchKeyword: searchKw,
+      searchKeyword: search.trim().toLowerCase(),
       matteredChainBalances: chainBalances,
       pinned,
       netTabKey,
@@ -105,41 +88,46 @@ const useChainSelectorList = ({
 
     return {
       allSearched: result.allSearched,
-      matteredList: searchKw ? [] : result.matteredList,
-      unmatteredList: searchKw ? [] : result.unmatteredList,
+      matteredList: search ? [] : result.matteredList,
+      unmatteredList: search ? [] : result.unmatteredList,
     };
   }, [
-    mainnetList,
-    testnetList,
     search,
     pinned,
     supportChains,
     chainBalances,
     netTabKey,
+    mainnetList,
+    testnetList,
   ]);
 
   useEffect(() => {
     dispatch.preference.getPreference('pinnedChain');
-  }, [dispatch]);
+  }, []);
 
   return {
     matteredList,
-    unmatteredList: search?.trim() ? allSearched : unmatteredList,
-    allSearched,
-    handleStarChange,
-    handleSort,
+    unmatteredList: search ? allSearched : unmatteredList,
     search,
     setSearch,
     pinned,
+    handleStarChange: (chain: CHAINS_ENUM, value: boolean) => {
+      value
+        ? dispatch.preference.addPinnedChain(chain)
+        : dispatch.preference.removePinnedChain(chain);
+    },
+    handleSort: (chains: Chain[]) => {
+      dispatch.preference.updatePinnedChainList(chains.map((c) => c.enum));
+    },
   };
 };
 
-const ChainSelectorModal = ({
+const ChainSelectorBottomDrawer = ({
   title,
-  visible,
   onCancel,
   onChange,
   value,
+  visible,
   connection = false,
   className,
   supportChains,
@@ -148,28 +136,18 @@ const ChainSelectorModal = ({
   hideMainnetTab = false,
   showRPCStatus = false,
   height = 540,
-  zIndex,
   excludeChains,
   showClosableIcon = true,
-  getContainer,
   account,
   disableChainCheck,
 }: ChainSelectorModalProps) => {
-  const handleCancel = () => {
-    onCancel();
-  };
-
-  const handleChange = (val: CHAINS_ENUM) => {
-    onChange(val);
-  };
+  const { t } = useTranslation();
+  const history = useHistory();
+  const dispatch = useRabbyDispatch();
 
   const { isShowTestnet, selectedTab, onTabChange } = useSwitchNetTab({
     hideTestnetTab,
   });
-
-  const { t } = useTranslation();
-
-  const history = useHistory();
 
   const {
     matteredList: _matteredList,
@@ -185,137 +163,126 @@ const ChainSelectorModal = ({
   });
 
   const [matteredList, unmatteredList] = useMemo(() => {
-    if (excludeChains?.length) {
-      return [_matteredList, _unmatteredList].map((chains) =>
-        chains.filter((e) => !excludeChains.includes(e.enum))
-      );
-    }
-    return [_matteredList, _unmatteredList];
-  }, [excludeChains, _matteredList, _unmatteredList]);
+    if (!excludeChains?.length) return [_matteredList, _unmatteredList];
+
+    return [
+      _matteredList.filter((c) => !excludeChains.includes(c.enum)),
+      _unmatteredList.filter((c) => !excludeChains.includes(c.enum)),
+    ];
+  }, [_matteredList, _unmatteredList, excludeChains]);
 
   useEffect(() => {
-    if (!value || !visible) return;
+    if (!value) return;
+    const chain = findChainByEnum(value);
+    onTabChange(chain?.isTestnet ? 'testnet' : 'mainnet');
+  }, [value]);
 
-    const chainItem = findChainByEnum(value);
-    onTabChange(chainItem?.isTestnet ? 'testnet' : 'mainnet');
-  }, [value, visible, onTabChange]);
+  useEffect(() => {
+    dispatch.account.getMatteredChainBalance({
+      currentAccountAddress: account?.address,
+    });
+  }, [account?.address]);
 
-  const rDispatch = useRabbyDispatch();
   const isLoading = useRabbyGetter(
     (s) => s.account.isLoadingMateeredChainBalances
   );
 
-  useEffect(() => {
-    if (!visible) {
-      setSearch('');
-    } else {
-      rDispatch.account.getMatteredChainBalance({
-        currentAccountAddress: account?.address,
-      });
-    }
-  }, [visible, rDispatch, setSearch, account?.address]);
+  if (!visible) return null;
 
   return (
-    <>
-      <Drawer
-        title={title || t('page.bridge.select-chain')}
-        width="400px"
-        height="70%"
-        closable={showClosableIcon}
-        placement={'bottom'}
-        visible={visible}
-        onClose={handleCancel}
-        className={clsx(
-          'custom-popup is-support-darkmode is-new',
-          'chain-selector__modal',
-          // isLoading && 'disable-body-scroll',
-          connection && 'connection',
-          className
-        )}
-        zIndex={zIndex}
-        destroyOnClose
-        closeIcon={
-          <RcIconCloseCC className="w-[20px] h-[20px] text-r-neutral-foot" />
-        }
-        getContainer={getContainer}
-      >
-        <header>
+    <BottomDrawer
+      variant="semi"
+      rootSelector="body"
+      close={onCancel}
+      className={clsx(className)}
+    >
+      <div className="h-[600px] flex flex-col p-4">
+        <div className="pt-[16px] pb-[12px] border-b">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[16px] font-semibold">
+              {title || t('page.bridge.select-chain')}
+            </h2>
+            {showClosableIcon && (
+              <RcIconCloseCC
+                className="w-[20px] h-[20px] cursor-pointer"
+                onClick={onCancel}
+              />
+            )}
+          </div>
+
           {isShowTestnet && !hideMainnetTab && (
             <NetSwitchTabs
               value={selectedTab}
               onTabChange={onTabChange}
-              className="h-[28px] box-content mt-[20px] mb-[20px]"
+              className="h-[28px] mt-[16px]"
             />
           )}
-          {matteredList.length === 0 &&
-          unmatteredList.length === 0 &&
-          !search ? null : (
-            <Input
-              prefix={<img src={IconSearch} />}
-              // Search chain
-              placeholder={t('component.ChainSelectorModal.searchPlaceholder')}
-              onChange={(e) => setSearch(e.target.value)}
-              value={search}
-              allowClear
-            />
-          )}
-        </header>
-        {isLoading ? (
-          <div className="chain-selector__modal-content">
-            <LoadingBalances loading={isLoading} />
-          </div>
-        ) : (
-          <div className="chain-selector__modal-content">
-            <SelectChainList
-              supportChains={supportChains}
-              data={matteredList}
-              sortable={false /* !supportChains */}
-              pinned={pinned as CHAINS_ENUM[]}
-              onStarChange={handleStarChange}
-              onSort={handleSort}
-              onChange={handleChange}
-              value={value}
-              disabledTips={disabledTips}
-              showRPCStatus={showRPCStatus}
-              disableChainCheck={disableChainCheck}
-            ></SelectChainList>
-            <SelectChainList
-              supportChains={supportChains}
-              data={unmatteredList}
-              value={value}
-              pinned={pinned as CHAINS_ENUM[]}
-              onStarChange={handleStarChange}
-              onChange={handleChange}
-              disabledTips={disabledTips}
-              showRPCStatus={showRPCStatus}
-              disableChainCheck={disableChainCheck}
-            ></SelectChainList>
 
-            {matteredList.length === 0 && unmatteredList.length === 0 ? (
-              <div className="select-chain-list pt-[70px] bg-transparent">
-                <Empty>
-                  {/* No chains */}
-                  {t('component.ChainSelectorModal.noChains')}
-                </Empty>
-                {selectedTab === 'testnet' ? (
-                  <div className="text-center mt-[50px]">
+          <Search
+            iconRight={<img src={IconSearch} />}
+            placeholder={t('component.ChainSelectorModal.searchPlaceholder')}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="mt-[12px]"
+          />
+        </div>
+
+        <div className="overflow-y-auto flex-1">
+          {isLoading ? (
+            <LoadingBalances loading />
+          ) : (
+            <>
+              <SelectChainList
+                supportChains={supportChains}
+                data={matteredList}
+                pinned={pinned}
+                onStarChange={handleStarChange}
+                onSort={handleSort}
+                onChange={(val) => {
+                  onChange(val);
+                  onCancel();
+                }}
+                value={value}
+                disabledTips={disabledTips}
+                showRPCStatus={showRPCStatus}
+                disableChainCheck={disableChainCheck}
+              />
+
+              <SelectChainList
+                supportChains={supportChains}
+                data={unmatteredList}
+                pinned={pinned}
+                onStarChange={handleStarChange}
+                onChange={(val) => {
+                  onChange(val);
+                  onCancel();
+                }}
+                value={value}
+                disabledTips={disabledTips}
+                showRPCStatus={showRPCStatus}
+                disableChainCheck={disableChainCheck}
+              />
+
+              {matteredList.length === 0 && unmatteredList.length === 0 && (
+                <div className="pt-[70px] text-center">
+                  <Empty>{t('component.ChainSelectorModal.noChains')}</Empty>
+
+                  {selectedTab === 'testnet' && (
                     <Button
-                      onClick={() => {
-                        history.push('/custom-testnet');
-                      }}
-                      className="w-[200px] h-[44px]"
+                      className="w-[200px] h-[44px] mt-[40px]"
+                      onClick={() => history.push('/custom-testnet')}
                     >
                       {t('component.ChainSelectorModal.addTestnet')}
                     </Button>
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-        )}
-      </Drawer>
-    </>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </BottomDrawer>
   );
 };
 
-export default ChainSelectorModal;
+export default ChainSelectorBottomDrawer;

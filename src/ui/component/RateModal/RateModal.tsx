@@ -11,7 +11,8 @@ import { TextAreaRef } from 'antd/lib/input/TextArea';
 import { useTranslation } from 'react-i18next';
 import { useMount } from 'react-use';
 
-import Popup from '@/ui/component/Popup';
+import BottomDrawer from '@repo/ui/components/bottom-drawer';
+import { SvgIconCross } from 'ui/assets';
 import {
   FEEDBACK_LEN_LIMIT,
   useExposureRateGuide,
@@ -105,186 +106,191 @@ export default function RateModal() {
     top10TotalBalanceText: totalBalanceText,
   } = useTotalBalanceTextForRate();
 
+  if (!rateModalShown) return null;
+
   return (
-    <Popup
-      closable
-      visible={rateModalShown}
-      onClose={() => {
+    <BottomDrawer
+      variant="semi"
+      rootSelector=".js-rabby-popup-container"
+      close={() => {
         toggleShowRateModal(false, { disableExposureOnClose: true });
       }}
-      height={488}
-      bodyStyle={{
-        height: '100%',
-        padding: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        background: 'var(--r-neutral-bg2, #F2F4F7)',
-        borderTopLeftRadius: '16px',
-        borderTopRightRadius: '16px',
-      }}
-      destroyOnClose
       className="flex flex-col"
-      isSupportDarkMode
     >
-      {!wantFeedback ? (
-        <div
-          className={clsx(
-            'flex flex-col items-center justify-between h-[100%] w-[100%]',
-            !rateModalShown && 'hidden'
-          )}
-          style={{
-            padding: '47px 0 23px 0',
-          }}
-        >
-          <div className="flex flex-col items-center justify-center w-[100%] px-[20px]">
-            <div className="w-[80px] h-[80px] flex items-center justify-center mb-[16px]">
-              <RabbyLogo className="w-[100%] h-[100%]" />
-            </div>
-
-            <div
-              className="flex items-center justify-center"
-              style={{ gap: 20 }}
-            >
-              {Array.from({ length: 5 }, (_, index) => (
-                <ClickableStar
-                  key={`star-${index}`}
-                  disabled
-                  isFilled={userStar >= index + 1}
-                  className="h-[32px]"
-                  size={32}
-                />
-              ))}
-            </div>
-            <div
-              style={{
-                marginTop: 21,
-                marginBottom: 41,
-                ...DASHED_LINE_STYLE,
-              }}
-            />
-            <span className="text-[24px] text-r-neutral-title-1 font-[600]">
-              😊 {t('page.dashboard.settings.rateModal.thxTitle')}
-            </span>
-
-            <span className="mt-[21px] text-[18px] text-center text-r-neutral-title-1 font-[500]">
-              {t('page.dashboard.settings.rateModal.thxDesc')}
-            </span>
-          </div>
-          <footer className="flex w-[100%] px-[20px] pb-[23px]">
-            <Button
-              className="w-full flex flex-row justify-center items-center"
-              onClick={() => {
-                openAppRateUrl();
-                pushRateDetails({ totalBalanceText }).finally(() => {
-                  closeModal();
-                });
-              }}
-            >
-              <ChromeLogo width={18} height={18} className="mr-[8px]" />
-              <span className="text-r-neutral-title-2 text-[16px] font-[500]">
-                {t('page.dashboard.settings.rateModal.rateOnChromeStoreButton')}
-              </span>
-            </Button>
-          </footer>
+      <div className="flex flex-col h-full max-h-[488px] bg-r-neutral-bg2 rounded-t-[16px]">
+        {/* Close button */}
+        <div className="flex justify-end px-20 pt-16">
+          <button
+            onClick={() => {
+              toggleShowRateModal(false, { disableExposureOnClose: true });
+            }}
+            className="p-0 border-0 bg-transparent cursor-pointer"
+          >
+            <SvgIconCross className="w-14 fill-current text-r-neutral-foot pt-[2px]" />
+          </button>
         </div>
-      ) : (
-        <div
-          className={clsx(
-            'flex flex-col items-center justify-between h-[100%] w-[100%] pt-[24px]',
-            !rateModalShown && 'hidden'
-          )}
-        >
-          <div className="flex flex-col items-center justify-center w-[100%] px-[20px]">
-            <div className="w-[52px] h-[52px] flex items-center justify-center mb-[16px]">
-              <RabbyLogo className="w-[100%] h-[100%]" />
-            </div>
 
-            <div
-              className="flex items-center justify-center"
-              style={{ gap: 20 }}
-            >
-              {Array.from({ length: 5 }, (_, index) => (
-                <ClickableStar
-                  key={`star-${index}`}
-                  disabled
-                  isFilled={userStar >= index + 1}
-                  className="h-[20px]"
-                  size={20}
-                />
-              ))}
-            </div>
-            <div
-              style={{
-                marginTop: 20,
-                marginBottom: 20,
-                ...DASHED_LINE_STYLE,
-              }}
-            />
+        {/* Content */}
+        {!wantFeedback ? (
+          <div
+            className={clsx(
+              'flex flex-col items-center justify-between h-[100%] w-[100%]',
+              !rateModalShown && 'hidden'
+            )}
+            style={{
+              padding: '47px 0 23px 0',
+            }}
+          >
+            <div className="flex flex-col items-center justify-center w-[100%] px-[20px]">
+              <div className="w-[80px] h-[80px] flex items-center justify-center mb-[16px]">
+                <RabbyLogo className="w-[100%] h-[100%]" />
+              </div>
 
-            <span className="mb-[16px] text-[18px] text-center text-r-neutral-title-1 font-[500]">
-              {t('page.dashboard.settings.rateModal.feedbackDesc')}
-            </span>
-
-            <div className="relative w-[100%]">
-              <Input.TextArea
-                placeholder={t(
-                  'page.dashboard.settings.rateModal.feedbackPlaceholder'
-                )}
-                ref={inputRef}
-                autoFocus
-                rows={4}
+              <div
+                className="flex items-center justify-center"
+                style={{ gap: 20 }}
+              >
+                {Array.from({ length: 5 }, (_, index) => (
+                  <ClickableStar
+                    key={`star-${index}`}
+                    disabled
+                    isFilled={userStar >= index + 1}
+                    className="h-[32px]"
+                    size={32}
+                  />
+                ))}
+              </div>
+              <div
                 style={{
-                  background: 'var(--r-neutral-card-1, #FFFFFF) !important',
-                }}
-                className={clsx(
-                  'w-[100%] h-[180px] rounded-[8px] p-[12px]',
-                  'text-[13px] text-[400] text-r-neutral-title-1',
-                  'bg-r-neutral-card-1 border-rabby-blue-default border-[1px] border-solid',
-                  feedbackOverLimit && 'border-rabby-red-default'
-                )}
-                // maxLength={FEEDBACK_LEN_LIMIT}
-                onChange={(e) => {
-                  onChangeFeedback(e.target.value);
+                  marginTop: 21,
+                  marginBottom: 41,
+                  ...DASHED_LINE_STYLE,
                 }}
               />
-              <span
-                className={clsx(
-                  'absolute right-[12px] bottom-[12px] text-r-neutral-foot text-[12px] text-[400]',
-                  feedbackOverLimit && 'text-rabby-red-default'
-                )}
-              >
-                {userFeedback.length}/{FEEDBACK_LEN_LIMIT}
+              <span className="text-[24px] text-r-neutral-title-1 font-[600]">
+                😊 {t('page.dashboard.settings.rateModal.thxTitle')}
+              </span>
+
+              <span className="mt-[21px] text-[18px] text-center text-r-neutral-title-1 font-[500]">
+                {t('page.dashboard.settings.rateModal.thxDesc')}
               </span>
             </div>
-          </div>
-          <footer className="flex w-[100%] p-[16px] border-t-[0.5px] border-rabby-neutral-line border-solid pb-[16px]">
-            <Button
-              disabled={disableSubmit}
-              className="w-full flex flex-row justify-center items-center"
-              onClick={() => {
-                pushRateDetails({ totalBalanceText })
-                  .then(() => {
-                    message.success({
-                      className: 'toast-message-2025',
-                      content: t(
-                        'page.dashboard.settings.rateModal.feedbackSuccess'
-                      ),
-                    });
-                  })
-                  .finally(() => {
+            <footer className="flex w-[100%] px-[20px] pb-[23px]">
+              <Button
+                className="w-full flex flex-row justify-center items-center"
+                onClick={() => {
+                  openAppRateUrl();
+                  pushRateDetails({ totalBalanceText }).finally(() => {
                     closeModal();
                   });
-              }}
-            >
-              <span className="text-r-neutral-title-2 text-[16px] font-[500]">
-                {t('page.dashboard.settings.rateModal.submitFeedbackButton')}
+                }}
+              >
+                <ChromeLogo width={18} height={18} className="mr-[8px]" />
+                <span className="text-r-neutral-title-2 text-[16px] font-[500]">
+                  {t(
+                    'page.dashboard.settings.rateModal.rateOnChromeStoreButton'
+                  )}
+                </span>
+              </Button>
+            </footer>
+          </div>
+        ) : (
+          <div
+            className={clsx(
+              'flex flex-col items-center justify-between h-[100%] w-[100%] pt-[24px]',
+              !rateModalShown && 'hidden'
+            )}
+          >
+            <div className="flex flex-col items-center justify-center w-[100%] px-[20px]">
+              <div className="w-[52px] h-[52px] flex items-center justify-center mb-[16px]">
+                <RabbyLogo className="w-[100%] h-[100%]" />
+              </div>
+
+              <div
+                className="flex items-center justify-center"
+                style={{ gap: 20 }}
+              >
+                {Array.from({ length: 5 }, (_, index) => (
+                  <ClickableStar
+                    key={`star-${index}`}
+                    disabled
+                    isFilled={userStar >= index + 1}
+                    className="h-[20px]"
+                    size={20}
+                  />
+                ))}
+              </div>
+              <div
+                style={{
+                  marginTop: 20,
+                  marginBottom: 20,
+                  ...DASHED_LINE_STYLE,
+                }}
+              />
+
+              <span className="mb-[16px] text-[18px] text-center text-r-neutral-title-1 font-[500]">
+                {t('page.dashboard.settings.rateModal.feedbackDesc')}
               </span>
-            </Button>
-          </footer>
-        </div>
-      )}
-    </Popup>
+
+              <div className="relative w-[100%]">
+                <Input.TextArea
+                  placeholder={t(
+                    'page.dashboard.settings.rateModal.feedbackPlaceholder'
+                  )}
+                  ref={inputRef}
+                  autoFocus
+                  rows={4}
+                  style={{
+                    background: 'var(--r-neutral-card-1, #FFFFFF) !important',
+                  }}
+                  className={clsx(
+                    'w-[100%] h-[180px] rounded-[8px] p-[12px]',
+                    'text-[13px] text-[400] text-r-neutral-title-1',
+                    'bg-r-neutral-card-1 border-rabby-blue-default border-[1px] border-solid',
+                    feedbackOverLimit && 'border-rabby-red-default'
+                  )}
+                  // maxLength={FEEDBACK_LEN_LIMIT}
+                  onChange={(e) => {
+                    onChangeFeedback(e.target.value);
+                  }}
+                />
+                <span
+                  className={clsx(
+                    'absolute right-[12px] bottom-[12px] text-r-neutral-foot text-[12px] text-[400]',
+                    feedbackOverLimit && 'text-rabby-red-default'
+                  )}
+                >
+                  {userFeedback.length}/{FEEDBACK_LEN_LIMIT}
+                </span>
+              </div>
+            </div>
+            <footer className="flex w-[100%] p-[16px] border-t-[0.5px] border-rabby-neutral-line border-solid pb-[16px]">
+              <Button
+                disabled={disableSubmit}
+                className="w-full flex flex-row justify-center items-center"
+                onClick={() => {
+                  pushRateDetails({ totalBalanceText })
+                    .then(() => {
+                      message.success({
+                        className: 'toast-message-2025',
+                        content: t(
+                          'page.dashboard.settings.rateModal.feedbackSuccess'
+                        ),
+                      });
+                    })
+                    .finally(() => {
+                      closeModal();
+                    });
+                }}
+              >
+                <span className="text-r-neutral-title-2 text-[16px] font-[500]">
+                  {t('page.dashboard.settings.rateModal.submitFeedbackButton')}
+                </span>
+              </Button>
+            </footer>
+          </div>
+        )}
+      </div>
+    </BottomDrawer>
   );
 }

@@ -678,7 +678,6 @@ export const BridgeContent = () => {
               }}
               dappList={externalDapps}
               loading={externalDappsLoading}
-              getContainer={getContainer}
             />
           </div>
         ) : null}
@@ -760,7 +759,7 @@ export const BridgeContent = () => {
         </div>
         {!selectedBridgeQuote && !recommendFromToken && (
           <div className="mt-20 mx-20">
-            <BridgePendingTxItem getContainer={getContainer} />
+            <BridgePendingTxItem />
           </div>
         )}
 
@@ -883,7 +882,6 @@ export const BridgeContent = () => {
             receiveToken={toToken}
             inSufficient={inSufficient}
             setSelectedBridgeQuote={setSelectedBridgeQuote}
-            getContainer={getContainer}
           />
         ) : null}
       </div>

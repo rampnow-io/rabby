@@ -2007,10 +2007,11 @@
         "importQuestion4": "If I uninstall Rabby without backing up the seed phrase, Rabby cannot retrieve it for me.",
         "riskTips": "Before you start, please read and keep the following security tips in mind.",
         "showSeedPhrase": "Show Seed Phrase",
-        "backup": "Backup Seed Phrase",
-        "backupTips": "Make sure no one else is watching your screen when you back up the seed phrase",
-        "copy": "Copy seed phrase",
-        "saved": "I've Saved the Phrase",
+        "backup": "Secret recovery phrase",
+        "backupTips": "Never pass the seed phrase from your wallet to anyone",
+        "backupTips2":"Just make sure nobody's looking! 👀",
+        "copy": "Copy to clipboard",
+        "saved": "Continue",
         "pleaseSelectWords": "Please select words",
         "verificationFailed": "Verification failed",
         "createdSuccessfully": "Created Successfully",
@@ -2957,10 +2958,11 @@
     },
     "newUserImport": {
       "guide": {
-        "title": "Welcome to Rabby Wallet",
-        "desc": "Your go-to wallet for Ethereum and EVM",
-        "createNewAddress": "Create a new address",
-        "importAddress": "I already have an address"
+        "title": "Start Your Web3 Journey",
+        "desc": "A wallet buit to be tour ultimate gate to Crypto, NFTs, DeFi and so on",
+        "createNewAddress": "Create new wallet",
+        "importAddress": "I already have a wallet",
+        "terms":"By continuing, you accept our Terms & Conditions and Privacy Policy."
       },
       "createNewAddress": {
         "title": "Before You Start",
@@ -2978,7 +2980,7 @@
         "pasteCleared": "Pasted and clipboard cleared"
       },
       "PasswordCard": {
-        "title": "Set Password",
+        "title": "Create a password",
         "form": {
           "password": {
             "label": "Password",
@@ -2994,7 +2996,7 @@
           }
         },
         "agree": "I agree to the<1/> <2>Terms of Use</2> and <4>Privacy Policy</4>",
-        "desc": "It will be used to unlock wallet and encrypt data"
+        "desc": "Set a password to manage your wallet. Note that we don’t restore your password"
       },
       "successful": {
         "create": "Created Successfully",

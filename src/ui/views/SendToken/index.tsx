@@ -2125,11 +2125,10 @@ const SendToken = () => {
           handleGasLevelChanged(gasLevel);
         }}
         gasList={gasList}
-        visible={reserveGasOpen}
+        open={reserveGasOpen}
         isLoading={loadingGasList}
         rawHexBalance={currentToken?.raw_amount_hex_str || '0'}
         onClose={() => handleReserveGasClose()}
-        getContainer={getContainer}
       />
     </div>
   );

@@ -56,44 +56,49 @@ export const BackupSeedPhrase = () => {
           history.replace('/new-user/create-seed-phrase');
         }
       }}
-      step={1}
     >
-      <div className="mt-[18px] mb-[9px] text-[28px] font-medium text-r-neutral-title1 text-center">
-        {t('page.newAddress.seedPhrase.backup')}
-      </div>
-      <div className="text-[16px] text-rabby-blue-default font-normal text-center mb-20 mx-[10px]">
-        {t('page.newAddress.seedPhrase.backupTips')}
-      </div>
+      <div className="flex flex-col w-full items-center px-[10px] pb-[20px]">
+        <div className="mt-[18px] mb-[9px] text-[28px] font-medium text-r-neutral-title1 text-center">
+          {t('page.newAddress.seedPhrase.backup')}
+        </div>
+        <div className="text-[16px] text-primary-foreground font-normal text-center mb-20 mx-[10px]">
+          {t('page.newAddress.seedPhrase.backupTips')}
+        </div>
 
-      {mnemonics && (
-        <WordsMatrix
-          focusable={false}
-          closable={false}
-          words={mnemonics.split(' ')}
-          className="bg-transparent"
-        />
-      )}
-
-      <div
-        className={clsx(
-          'mx-auto mt-[24px] mb-[47px]',
-          'cursor-pointer',
-          'flex justify-center items-center gap-8',
-          'text-14 font-medium text-rabby-blue-default',
-          'hover:text-rabby-blue-default'
+        {mnemonics && (
+          <WordsMatrix
+            focusable={false}
+            closable={false}
+            words={mnemonics.split(' ')}
+            className="bg-transparent w-full"
+          />
         )}
-        onClick={onCopyMnemonics}
-      >
-        <IconCopyCC
-          strokeColor={isDarkTheme ? '#1C1F2BFF' : 'white'}
-          className="w-20 h-20 text-rabby-blue-default"
-        />
-        <span>{t('page.newAddress.seedPhrase.copy')}</span>
-      </div>
 
-      <Button onClick={handleNext} className="w-full">
-        {t('page.newAddress.seedPhrase.saved')}
-      </Button>
+        <div
+          className={clsx(
+            'mx-auto mt-[24px] mb-[47px]',
+            'cursor-pointer',
+            'flex justify-center items-center gap-8',
+            'text-14 font-medium text-primary-foreground',
+            'hover:text-secondary-foreground'
+          )}
+          onClick={onCopyMnemonics}
+        >
+          <span>{t('page.newAddress.seedPhrase.copy')}</span>
+          <IconCopyCC
+            strokeColor={isDarkTheme ? '#030303' : 'white'}
+            className="w-5 h-5 text-primary-foreground"
+          />
+        </div>
+        <footer className="mt-auto w-full flex flex-col gap-2">
+          <div className="text-[10px] font-medium text-r-neutral-title1 text-center">
+            {t('page.newAddress.seedPhrase.backupTips2')}
+          </div>
+          <Button onClick={handleNext} className="w-full">
+            {t('page.newAddress.seedPhrase.saved')}
+          </Button>
+        </footer>
+      </div>
     </Card>
   );
 };

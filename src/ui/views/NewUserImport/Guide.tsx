@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import BackgroundSVG from '@/ui/assets/new-user-import/background.svg';
 import { useThemeMode } from '@/ui/hooks/usePreference';
 import { Button, ButtonType } from '@repo/ui/primitives';
+import { Illustration } from '@/ui/assets';
 
 export const Guide = () => {
   const { t } = useTranslation();
@@ -20,40 +21,39 @@ export const Guide = () => {
     history.push('/new-user/import-list');
   }, []);
 
-  const { isDarkTheme } = useThemeMode();
-
   return (
-    <Card
-      cardStyle={
-        isDarkTheme
-          ? {}
-          : {
-              backgroundImage: `url(${BackgroundSVG})`,
-              backgroundSize: 'cover',
-              backgroundRepeat: 'no-repeat',
-            }
-      }
-    >
-      <div className="flex flex-col w-full items-center">
-        <img src={rabbyLogo} className="mt-[100px] w-[100px] h-[100px]" />
-        <div className="my-12 text-24 font-medium text-r-neutral-title1">
-          {t('page.newUserImport.guide.title')}
+    <Card>
+      <div className="flex flex-col w-full items-center px-[10px] pb-[20px]">
+        <img src={Illustration} className="mt-[-19px] w-[500px] h-[255px]" />
+        <div className="flex flex-col gap-3 mb-10">
+          <div className="text-[28px] font-semibold text-r-neutral-title1 text-center">
+            {t('page.newUserImport.guide.title')}
+          </div>
+          <div className="max-w-[320px] text-[14px] font-normal text-r-neutral-body text-center">
+            {t('page.newUserImport.guide.desc')}
+          </div>
         </div>
-        <div className="max-w-[320px] text-14 font-normal text-r-neutral-foot text-center">
-          {t('page.newUserImport.guide.desc')}
-        </div>
+        <footer className="mt-auto w-full">
+          <div className="flex flex-col items-center w-full gap-4">
+            <Button
+              onClick={gotoCreate}
+              className="w-full text-[16px] font-medium h-12"
+            >
+              {t('page.newUserImport.guide.createNewAddress')}
+            </Button>
 
-        <Button onClick={gotoCreate} className="w-full">
-          {t('page.newUserImport.guide.createNewAddress')}
-        </Button>
-
-        <Button
-          onClick={gotoImport}
-          buttonType={ButtonType.SECONDARY}
-          className="w-full"
-        >
-          {t('page.newUserImport.guide.importAddress')}
-        </Button>
+            <Button
+              onClick={gotoImport}
+              buttonType={ButtonType.SECONDARY}
+              className="w-full text-[16px] font-medium h-12"
+            >
+              {t('page.newUserImport.guide.importAddress')}
+            </Button>
+            <div className="max-w-[320px] text-[14px] font-normal text-r-neutral-body text-center">
+              {t('page.newUserImport.guide.terms')}{' '}
+            </div>
+          </div>
+        </footer>
       </div>
     </Card>
   );

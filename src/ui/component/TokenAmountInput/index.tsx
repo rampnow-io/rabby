@@ -2,7 +2,7 @@ import { useSearchTestnetToken } from '@/ui/hooks/useSearchTestnetToken';
 import { useRabbySelector } from '@/ui/store';
 import { useTokens } from '@/ui/utils/portfolio/token';
 import { findChain } from '@/utils/chain';
-import { DrawerProps, Input, InputRef, Modal, Skeleton } from 'antd';
+import { DrawerProps, Modal, Skeleton } from 'antd';
 import { TokenItem } from 'background/service/openapi';
 import clsx from 'clsx';
 import uniqBy from 'lodash/uniqBy';
@@ -12,10 +12,11 @@ import React, {
   useMemo,
   useRef,
   useState,
+  useCallback,
 } from 'react';
 import useSearchToken from 'ui/hooks/useSearchToken';
 import useSortToken from 'ui/hooks/useSortTokens';
-import { formatUsdValue, splitNumberByStep, useWallet } from 'ui/utils';
+import { formatUsdValue, useWallet } from 'ui/utils';
 import { abstractTokenToTokenItem, getTokenSymbol } from 'ui/utils/token';
 import TokenSelector, { TokenSelectorProps } from '../TokenSelector';
 import TokenWithChain from '../TokenWithChain';
@@ -28,6 +29,36 @@ import { ReactComponent as RcArrowDown } from './icons/arrow-down.svg';
 import styled from 'styled-components';
 import { RiskWarningTitle } from '../RiskWarningTitle';
 import BigNumber from 'bignumber.js';
+import { Input } from '@repo/ui/primitives';
+import { useOpenClose } from '@repo/ui';
+
+/* ---------------- styles ---------------- */
+
+const Card = styled.div`
+  background: #18181b0a;
+  border-radius: 20px;
+  padding: 16px;
+`;
+
+const SwapIcon = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+`;
+
+const ErrorText = styled.div`
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ef4444;
+`;
+
+/* ---------------- props ---------------- */
 
 interface TokenAmountInputProps {
   token: TokenItem | null;
@@ -56,29 +87,6 @@ interface TokenAmountInputProps {
   };
 }
 
-const StyledInput = styled(Input)`
-  color: var(--r-neutral-title1, #192945);
-  font-size: 28px !important;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 36px;
-  background: transparent !important;
-  padding-left: 0;
-  &::placeholder {
-    color: var(--r-neutral-foot, #6a7587);
-    font-size: 28px !important;
-    font-style: normal;
-    font-weight: 700;
-    line-height: 36px;
-  }
-
-  &::-webkit-inner-spin-button,
-  &::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-`;
-
 const TokenAmountInput = ({
   token,
   value,
@@ -98,165 +106,74 @@ const TokenAmountInput = ({
   initLoading,
   disableItemCheck,
 }: TokenAmountInputProps) => {
-  const tokenInputRef = useRef<InputRef>(null);
   const [updateNonce, setUpdateNonce] = useState(0);
-  const [tokenSelectorVisible, setTokenSelectorVisible] = useState(false);
-  const selectorOpened = useRef(false);
+  const [isVisible, openModal, closeModal] = useOpenClose(false);
+
   const currentAccount = useRabbySelector(
     (state) => state.account.currentAccount
   );
   const wallet = useWallet();
-  const [keyword, setKeyword] = useState('');
-  const [chainServerId, setChainServerId] = useState(chainId);
   const { t } = useTranslation();
 
-  const chainItem = useMemo(
-    () =>
-      findChain({
-        serverId: chainServerId,
-      }),
-    [chainServerId]
-  );
+  const [keyword, setKeyword] = useState('');
+  const [chainServerId, setChainServerId] = useState(chainId);
+  const [localAmount, setLocalAmount] = useState(value ?? '0');
+
+  const chainItem = useMemo(() => findChain({ serverId: chainServerId }), [
+    chainServerId,
+  ]);
 
   const isTestnet = chainItem?.isTestnet;
 
-  useLayoutEffect(() => {
-    if (amountFocus && !tokenSelectorVisible) {
-      tokenInputRef.current?.focus();
+  useEffect(() => {
+    if (value) {
+      setLocalAmount(value);
     }
-  }, [amountFocus, tokenSelectorVisible]);
-
-  const checkBeforeConfirm = (token: TokenItem) => {
-    const { disable, reason, cexId } = disableItemCheck?.(token) || {};
-    if (disable) {
-      Modal.confirm({
-        width: 340,
-        closable: true,
-        closeIcon: <></>,
-        centered: true,
-        className: 'token-selector-disable-item-tips',
-        title: <RiskWarningTitle />,
-        content: reason,
-        okText: t('global.proceedButton'),
-        cancelText: t('global.cancelButton'),
-        cancelButtonProps: {
-          type: 'ghost',
-          className: 'text-r-blue-default border-r-blue-default',
-        },
-        onOk() {
-          if (cexId) {
-            wallet.openapi.checkCex({
-              chain_id: token.chain,
-              id: token.id,
-              cex_id: cexId,
-            });
-          }
-          handleCurrentTokenChange(token);
-        },
-      });
-      return;
-    }
-    handleCurrentTokenChange(token);
-  };
+  }, [value]);
 
   const handleCurrentTokenChange = (token: TokenItem) => {
-    onChange && onChange('');
+    onChange?.('');
     onTokenChange(token);
-    setTokenSelectorVisible(false);
-    tokenInputRef.current?.focus();
+    closeModal();
     setChainServerId(token.chain);
   };
 
-  const handleTokenSelectorClose = () => {
-    setChainServerId(chainId);
-    setTokenSelectorVisible(false);
-  };
-
   const handleSelectToken = () => {
-    if (allTokens.length > 0 && selectorOpened.current === true) {
-      setUpdateNonce(updateNonce + 1);
-    }
-    setTokenSelectorVisible(true);
-    if (!selectorOpened.current) {
-      selectorOpened.current = true;
-    }
+    openModal();
   };
-
-  // when no any queryConds
+  const shouldLoadTokens = useMemo(() => {
+    return isVisible;
+  }, [isVisible]);
   const { tokens: allTokens, isLoading: isLoadingAllTokens } = useTokens(
     currentAccount?.address,
     undefined,
-    selectorOpened.current ? tokenSelectorVisible : true,
+    shouldLoadTokens,
     updateNonce,
     chainServerId
   );
 
-  const allDisplayTokens = useMemo(() => {
-    return allTokens.map(abstractTokenToTokenItem);
-  }, [allTokens]);
+  const allDisplayTokens = useMemo(
+    () => allTokens.map(abstractTokenToTokenItem),
+    [allTokens]
+  );
 
-  const {
-    isLoading: isSearchLoading,
-    list: searchedTokenByQuery,
-  } = useSearchToken(currentAccount?.address, keyword, chainServerId, true);
-
-  const {
-    loading: isSearchTestnetLoading,
-    testnetTokenList,
-  } = useSearchTestnetToken({
-    address: currentAccount?.address,
-    withBalance: true,
-    chainId: chainItem?.id,
-    q: keyword,
-    enabled: isTestnet,
-  });
-
-  const availableToken = useMemo(() => {
-    const allTokens = chainServerId
-      ? allDisplayTokens.filter((token) => token.chain === chainServerId)
-      : allDisplayTokens;
-    return uniqBy(
-      keyword ? searchedTokenByQuery.map(abstractTokenToTokenItem) : allTokens,
-      (token) => {
-        return `${token.chain}-${token.id}`;
-      }
-    ).filter((e) => !excludeTokens.includes(e.id));
-  }, [
-    allDisplayTokens,
-    searchedTokenByQuery,
-    excludeTokens,
+  const { list: searchedTokenByQuery } = useSearchToken(
+    currentAccount?.address,
     keyword,
     chainServerId,
-  ]);
+    true
+  );
+
+  const availableToken = useMemo(() => {
+    return uniqBy(
+      (keyword ? searchedTokenByQuery : allDisplayTokens).filter(
+        (e) => !excludeTokens.includes(e.id)
+      ),
+      (t) => `${t.chain}-${t.id}`
+    );
+  }, [keyword, searchedTokenByQuery, allDisplayTokens, excludeTokens]);
+
   const displayTokenList = useSortToken(availableToken);
-
-  const isListLoading = useMemo(() => {
-    if (isTestnet) {
-      return isSearchTestnetLoading;
-    }
-    return keyword ? isSearchLoading : isLoadingAllTokens;
-  }, [
-    keyword,
-    isSearchLoading,
-    isLoadingAllTokens,
-    isSearchTestnetLoading,
-    isTestnet,
-  ]);
-
-  const handleSearchTokens = React.useCallback(async (ctx) => {
-    setKeyword(ctx.keyword);
-    setChainServerId(ctx.chainServerId);
-  }, []);
-
-  useEffect(() => {
-    setChainServerId(chainId);
-  }, [chainId]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (INPUT_NUMBER_RE.test(e.target.value)) {
-      onChange?.(filterNumber(e.target.value));
-    }
-  };
 
   const useValue = useMemo(() => {
     if (token && value) {
@@ -268,99 +185,74 @@ const TokenAmountInput = ({
   }, [token?.price, value]);
 
   return (
-    <div className={clsx('token-amount-input', className)}>
-      <div
-        className="right relative flex flex-col justify-between pt-[5px] overflow-hidden"
-        style={{ paddingRight: 32 }}
-      >
-        <StyledInput
-          ref={tokenInputRef}
-          placeholder="0"
-          className={clsx(
-            !value && 'h-[29px]',
-            insufficientError && 'text-rabby-red-default'
-          )}
-          autoFocus
-          value={value}
-          size="large"
-          onChange={handleChange}
-          title={value}
-        />
-
+    <>
+      <Card className={className}>
         <div
-          className="text-r-neutral-foot font-normal text-[13px] max-w-full truncate"
-          title={useValue}
-        >
-          {useValue}
-        </div>
-      </div>
-      <div className="flex flex-col justify-between gap-[13px] items-end">
-        <div
-          className="flex items-center gap-[6px] cursor-pointer hover:opacity-80"
+          className="flex items-center justify-between bg-[#F7F7F8] rounded-xl px-4 py-2 cursor-pointer"
           onClick={handleSelectToken}
         >
           {initLoading ? (
-            <>
-              <Skeleton.Avatar className="bg-r-neutral-line w-[24px] h-[24px] rounded-full" />
-              <Skeleton.Input className="bg-r-neutral-line w-[58px] h-[20px] rounded-[2px] ml-[6px] mr-[6px]" />
-            </>
+            <Skeleton.Input active />
           ) : (
-            <>
+            <div className="flex items-center gap-2">
               {!!token && (
-                <TokenWithChain
-                  width="24px"
-                  height="24px"
-                  token={token}
-                  // hideChainIcon
-                  hideConer
-                />
+                <TokenWithChain width="35px" height="35px" token={token} />
               )}
-              <span
-                className={clsx(
-                  'token-input__symbol',
-                  token ? '' : 'max-w-max leading-[24px]'
-                )}
-                title={
-                  token
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">
+                  {token
                     ? getTokenSymbol(token)
-                    : t('page.sendToken.selectToken')
-                }
-              >
-                {token
-                  ? getTokenSymbol(token)
-                  : t('page.sendToken.selectToken')}
-              </span>
-            </>
-          )}
-          <div className="text-r-neutral-foot ml-[6px]">
-            {/* <RcIconDownCC width={16} height={16} /> */}
-            <RcArrowDown width={20} height={20} />
-          </div>
-        </div>
-        <div className="flex items-center">
-          {isLoading ? (
-            <Skeleton.Input active style={{ width: 100 }} />
-          ) : (
-            <div
-              className={clsx(
-                'flex items-center gap-4',
-                insufficientError
-                  ? 'text-rabby-red-default'
-                  : 'text-r-neutral-foot'
-              )}
-            >
-              <RcIconWalletCC viewBox="0 0 16 16" className="w-16 h-16" />
-              <span
-                className={clsx(
-                  'truncate max-w-[90px] text-[13px] font-normal'
-                )}
-                title={balanceNumText}
-              >
-                {balanceNumText}
-              </span>
+                    : t('page.sendToken.selectToken')}
+                </span>
+                <span className="text-xs text-r-neutral-foot">
+                  {balanceNumText}
+                </span>
+              </div>
             </div>
           )}
-          {token && token.amount > 0 && !isLoading && (
+          <RcArrowDown width={18} height={18} />
+        </div>
+        <div className="bg-white rounded-[20px]">
+          <div className="flex flex-col items-center mt-6">
+            <Input
+              value={localAmount}
+              autoFocus
+              onChange={(e) => {
+                const next = e.target.value;
+                if (!INPUT_NUMBER_RE.test(next)) return;
+                const filtered = filterNumber(next);
+                setLocalAmount(filtered);
+                onChange?.(filtered);
+              }}
+              className={'border-none p-0 outline-none'}
+              subClassName="text-[35px] text-center text-primary-foreground font-semibold bg-inherit"
+            />
+
+            <span className="text-sm text-r-neutral-foot">
+              {token ? getTokenSymbol(token) : ''}
+            </span>
+
+            <SwapIcon>
+              <RcIconDownCC width={16} height={16} />
+            </SwapIcon>
+            {!insufficientError && (
+              <span className="text-sm font-medium text-r-neutral-title1">
+                {useValue}
+              </span>
+            )}
+            {insufficientError && token && (
+              <ErrorText>Not enough {getTokenSymbol(token)}</ErrorText>
+            )}
+          </div>
+        </div>
+      </Card>
+      <div className="flex items-center justify-between mt-4">
+        <span className="text-xs text-r-neutral-foot">{useValue}</span>
+
+        <div className="flex items-center gap-2">
+          <RcIconWalletCC className="w-4 h-4" />
+          <span className="text-xs text-r-neutral-foot">{balanceNumText}</span>
+          {token && token.amount > 0 && (
             <MaxButton onClick={handleClickMaxButton}>
               {t('page.sendToken.max')}
             </MaxButton>
@@ -368,20 +260,17 @@ const TokenAmountInput = ({
         </div>
       </div>
       <TokenSelector
-        visible={tokenSelectorVisible}
-        list={isTestnet ? testnetTokenList : displayTokenList}
-        onConfirm={checkBeforeConfirm}
-        onCancel={handleTokenSelectorClose}
-        onSearch={handleSearchTokens}
-        isLoading={isListLoading}
+        list={displayTokenList}
+        visible={isVisible}
+        onConfirm={handleCurrentTokenChange}
+        onCancel={closeModal}
+        onSearch={useCallback((ctx) => setKeyword(ctx.keyword), [])}
+        isLoading={isLoadingAllTokens}
         type={type}
-        disableItemCheck={disableItemCheck}
-        showCustomTestnetAssetList
         placeholder={placeholder}
         chainId={chainServerId}
-        getContainer={getContainer}
       />
-    </div>
+    </>
   );
 };
 

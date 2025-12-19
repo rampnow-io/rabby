@@ -17,6 +17,7 @@ import { ReactComponent as RcIconSuccessCC } from 'ui/assets/icon-checked-succes
 import { ReactComponent as RcIconUnCheckCC } from 'ui/assets/IconUncheckSquare.svg';
 import {
   Button,
+  Checkbox,
   Form,
   FormControl,
   FormField,
@@ -72,130 +73,85 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack, step }) => {
     !agreeTerm || !form.formState.isValid || !form.formState.isDirty;
 
   return (
-    <Card onBack={onBack} step={step} className="flex flex-col">
+    <Card onBack={onBack} className="flex flex-col px-5 pb-5">
       <Form {...form}>
-        <form className="flex flex-col flex-1" onSubmit={handleSubmit}>
+        <form className="flex flex-col flex-1 px-5" onSubmit={handleSubmit}>
           <div className="flex-1 mt-[18px]">
             <hgroup className="mb-[24px]">
               <h1 className="text-r-neutral-title1 text-center font-semibold text-[28px] leading-[29px] mb-[9px]">
                 {t('page.newUserImport.PasswordCard.title')}
               </h1>
 
-              <p className="text-center text-rabby-blue-default font-normal text-[16px] leading-[20px] mx-28">
+              <p className="text-center text-primary-foreground font-normal text-[16px] leading-[20px] mx-7">
                 {t('page.newUserImport.PasswordCard.desc')}
               </p>
             </hgroup>
+            <div className="flex flex-col gap-3">
+              <FormField
+                name="password"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="relative">
+                        <Input
+                          {...field}
+                          type="password"
+                          placeholder={t(
+                            'page.newUserImport.PasswordCard.form.password.placeholder'
+                          )}
+                        />
 
-            {/* Password */}
-            <FormField
-              name="password"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <div className="relative">
-                      <Input
-                        {...field}
-                        type="password"
-                        placeholder={t(
-                          'page.newUserImport.PasswordCard.form.password.placeholder'
-                        )}
-                      />
+                        {/* Success icon */}
+                        {form.watch('password') &&
+                          !form.formState.errors.password && (
+                            <span className="absolute right-3 top-[14px] text-r-green-default">
+                              <RcIconSuccessCC />
+                            </span>
+                          )}
+                      </div>
+                    </FormControl>
 
-                      {/* Success icon */}
-                      {form.watch('password') &&
-                        !form.formState.errors.password && (
-                          <span className="absolute right-3 top-[14px] text-r-green-default">
-                            <RcIconSuccessCC />
-                          </span>
-                        )}
-                    </div>
-                  </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {/* Confirm Password */}
+              <FormField
+                name="confirmPassword"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="relative">
+                        <Input
+                          {...field}
+                          type="password"
+                          placeholder={t(
+                            'page.newUserImport.PasswordCard.form.confirmPassword.placeholder'
+                          )}
+                        />
 
-            {/* Confirm Password */}
-            <FormField
-              name="confirmPassword"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <div className="relative">
-                      <Input
-                        {...field}
-                        type="password"
-                        placeholder={t(
-                          'page.newUserImport.PasswordCard.form.confirmPassword.placeholder'
-                        )}
-                      />
-
-                      {form.watch('confirmPassword') &&
-                        !form.formState.errors.confirmPassword && (
-                          <span className="absolute right-3 top-[14px] text-r-green-default">
-                            <RcIconSuccessCC />
-                          </span>
-                        )}
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                        {form.watch('confirmPassword') &&
+                          !form.formState.errors.confirmPassword && (
+                            <span className="absolute right-3 top-[14px] text-r-green-default">
+                              <RcIconSuccessCC />
+                            </span>
+                          )}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
 
           {/* Footer */}
           <footer className="mt-auto">
-            {/* Terms checkbox */}
-            <div
-              className="flex items-center justify-center gap-[4px] cursor-pointer"
-              onClick={() => setAgreeTerm((prev) => !prev)}
-            >
-              {agreeTerm ? (
-                <div className="text-rabby-blue-default">
-                  <RcIconCheckCC className="w-[18px] h-[18px]" />
-                </div>
-              ) : (
-                <div className="text-r-neutral-foot">
-                  <RcIconUnCheckCC className="w-[18px] h-[18px]" />
-                </div>
-              )}
-
-              <div className="text-[13px] text-r-neutral-body leading-[16px]">
-                <Trans t={t} i18nKey="page.newUserImport.PasswordCard.agree">
-                  I agree to the{' '}
-                  <span
-                    className="text-rabby-blue-default font-medium cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      gotoTermsOfUse();
-                    }}
-                  >
-                    Terms of Use
-                  </span>
-                  and
-                  <span
-                    className="text-rabby-blue-default font-medium cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      gotoPrivacy();
-                    }}
-                  >
-                    Privacy Policy
-                  </span>
-                </Trans>
-              </div>
-            </div>
-
             {/* Submit button */}
-            <Button
-              type="submit"
-              disabled={isDisabled}
-              className={clsx('w-full ')}
-            >
+            <Button type="submit" disabled={isDisabled} className="w-full">
               {t('global.Confirm')}
             </Button>
           </footer>

@@ -9,6 +9,7 @@ import { ReactComponent as RcIconItemLink } from 'ui/assets/feedback-popup/item-
 import { openInTab } from '@/ui/utils';
 import { useTranslation } from 'react-i18next';
 import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
+import { BottomDrawer } from '@repo/ui';
 
 interface SettingsProps {
   visible?: boolean;
@@ -57,13 +58,12 @@ const FeedbackPopup = ({ visible, onClose }: SettingsProps) => {
     }, 100);
   }, [visible]);
 
+  if (!visible) {
+    return null;
+  }
+
   return (
-    <div
-      className={clsx('popup-feedback-inner', {
-        show: isVisible,
-        hidden: !visible,
-      })}
-    >
+    <BottomDrawer variant="semi" rootSelector="body" close={onClose}>
       <PageHeader
         forceShowBack
         onBack={handleCancel}
@@ -89,7 +89,7 @@ const FeedbackPopup = ({ visible, onClose }: SettingsProps) => {
           </Field>
         ))}
       </div>
-    </div>
+    </BottomDrawer>
   );
 };
 

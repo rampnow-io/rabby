@@ -15,6 +15,7 @@ import { TestnetChainList } from './TestnetChainList';
 import { useFilteredTokens } from './useFilteredTokens';
 import { RcIconExternal1CC, RcIconExternalCC } from '@/ui/assets/dashboard';
 import { Button } from '@repo/ui/primitives';
+import { useOpenClose } from '@repo/ui';
 
 export const AssetList = ({
   visible,
@@ -57,7 +58,7 @@ export const AssetList = ({
     }
   }, [visible]);
 
-  const [isShowAddModal, setIsShowAddModal] = useState<boolean>(false);
+  const [isVisible, openModal, closeModal] = useOpenClose(false);
 
   const { sortedCustomize: tokens } = useFilteredTokens(selectChainId, false);
   const [showCustomizedTokens, setShowCustomizedTokens] = React.useState(false);
@@ -84,21 +85,23 @@ export const AssetList = ({
               <Button
                 className="w-[200px] h-[44px] mt-[50px]"
                 onClick={() => {
-                  setIsShowAddModal(true);
+                  openModal();
                 }}
               >
                 {t('page.dashboard.assets.customButtonText')}
               </Button>
-              <AddCustomTokenPopup
-                visible={isShowAddModal}
-                onClose={() => {
-                  setIsShowAddModal(false);
-                }}
-                onConfirm={(addedToken) => {
-                  setIsShowAddModal(false);
-                  setShowCustomizedTokens(true);
-                }}
-              />
+              {isVisible && (
+                <AddCustomTokenPopup
+                  isVisible={isVisible}
+                  onClose={() => {
+                    closeModal();
+                  }}
+                  onConfirm={(addedToken) => {
+                    closeModal();
+                    setShowCustomizedTokens(true);
+                  }}
+                />
+              )}
             </div>
           ) : (
             <SpecialTokenListPopup
@@ -121,7 +124,6 @@ export const AssetList = ({
         <div className={clsx(isEmptyAssets ? 'hidden' : 'block')}>
           <ChainList onChange={handleSelectChainChange} />
           <AssetListContainer
-            className="mt-12"
             selectChainId={selectChainId}
             visible={visible}
             onEmptyAssets={setIsEmptyAssets}

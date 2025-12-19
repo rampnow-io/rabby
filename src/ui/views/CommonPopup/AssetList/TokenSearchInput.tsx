@@ -1,5 +1,6 @@
 import { ReactComponent as SearchSVG } from '@/ui/assets/search.svg';
 import { useCommonPopupView } from '@/ui/utils';
+import { Search } from '@repo/ui';
 import { Input, InputRef } from 'antd';
 import clsx from 'clsx';
 import React from 'react';
@@ -45,20 +46,17 @@ export const TokenSearchInput = React.forwardRef<InputRef, Props>(
     );
 
     return (
-      <InputStyled
-        ref={ref}
+      <Search
         onChange={(e) => setInput(e.target.value)}
         placeholder={t('page.dashboard.assets.searchPlaceholder')}
         onFocus={onFocus}
         onBlur={onBlur}
-        allowClear
         className={clsx(
           'text-12 text-black py-0 px-[9px] h-[32px]',
           'rounded-[6px]',
           'transform-none',
           className
         )}
-        prefix={<SearchSVG className="w-[14px] h-[14px]" />}
       />
     );
   }

@@ -1,149 +1,77 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Card } from '@/ui/component/NewUserImport';
-import clsx from 'clsx';
-import { useTranslation } from 'react-i18next';
-import { ReactComponent as RcIconTriangle } from '@/ui/assets/new-user-import/triangle.svg';
-import HomePreview from '@/ui/assets/new-user-import/home-preview.png';
-import UserGuide1 from '@/ui/assets/new-user-import/guide-1.png';
-import UserGuide2 from '@/ui/assets/new-user-import/guide-2.png';
-import LongArrowPng from '@/ui/assets/new-user-import/long-arrow.png';
-import { ReactComponent as UserGuide1Icon } from '@/ui/assets/new-user-import/guide1.svg';
-import { ReactComponent as UserGuide2Icon } from '@/ui/assets/new-user-import/guide2.svg';
-import { debounce } from 'lodash';
 import { Button } from '@repo/ui/primitives';
 
-export const ReadyToUse = () => {
-  const { t } = useTranslation();
-
-  const homePreviewRef = React.useRef<HTMLImageElement>(null);
-  const userGuideRef = React.useRef<HTMLDivElement>(null);
-  const [arrowPosition, setArrowPosition] = useState<{
-    left: number;
-    top: number;
-    width: number;
-    height: number;
-  } | null>(null);
-
-  const caculateArrowPosition = React.useCallback(() => {
-    if (homePreviewRef.current && userGuideRef.current) {
-      const homePreviewRect = homePreviewRef.current.getBoundingClientRect();
-      const userGuideRect = userGuideRef.current.getBoundingClientRect();
-
-      const homePreviewRightMiddle = {
-        x: homePreviewRect.right,
-        y: homePreviewRect.top + 160,
-      };
-
-      const userGuideLeftMiddle = {
-        x: userGuideRect.left,
-        y: userGuideRect.top + userGuideRect.height / 2,
-      };
-
-      const width = userGuideLeftMiddle.x - homePreviewRightMiddle.x;
-      const height = Math.abs(userGuideLeftMiddle.y - homePreviewRightMiddle.y);
-      const top = Math.min(homePreviewRightMiddle.y, userGuideLeftMiddle.y);
-      const left = homePreviewRightMiddle.x;
-
-      setArrowPosition({
-        left,
-        top,
-        width,
-        height,
-      });
+const ShortcutKey = ({ label }: { label: string }) => (
+  <div
+    className={
+      'min-w-[64px] px-4 py-[10px] rounded-[12px] ' +
+      'border border-solid border-rabby-neutral-line bg-r-neutral-card-1 ' +
+      'text-center text-[16px] font-semibold text-r-neutral-title1 shadow-[0_4px_12px_rgba(0,0,0,0.04)]'
     }
+  >
+    {label}
+  </div>
+);
+
+export const ReadyToUse = () => {
+  const shortcutKeys = useMemo(() => {
+    const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
+    return isMac ? ['Shift', 'Cmd', 'R'] : ['Shift', 'Ctrl', 'R'];
   }, []);
 
-  const debouncedCalculateArrowPosition = React.useMemo(
-    () => debounce(caculateArrowPosition, 200),
-    [caculateArrowPosition]
-  );
-
   useEffect(() => {
-    caculateArrowPosition();
-    window.addEventListener('resize', debouncedCalculateArrowPosition);
-    return () => {
-      window.removeEventListener('resize', debouncedCalculateArrowPosition);
-      debouncedCalculateArrowPosition.cancel();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Check for Shift+Command+R on macOS or Shift+Ctrl+R on Windows
+      const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
+      const isShiftR = event.shiftKey && event.code === 'KeyR';
+
+      if (isMac && isShiftR && event.metaKey) {
+        event.preventDefault();
+        window.close();
+      } else if (!isMac && isShiftR && event.ctrlKey) {
+        event.preventDefault();
+        window.close();
+      }
     };
-  }, [caculateArrowPosition, debouncedCalculateArrowPosition]);
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   return (
     <Card className="mx-[22px]">
-      {arrowPosition && (
+      <div className="flex flex-col items-center px-6 py-10 text-center">
         <img
-          src={LongArrowPng}
-          alt="long-arrow"
-          className="absolute"
-          style={{
-            left: `${arrowPosition.left - 10}px`,
-            top: `${arrowPosition.top}px`,
-            width: `${arrowPosition.width}px`,
-            height: `${arrowPosition.height}px`,
-            zIndex: 9999,
-          }}
+          src="https://cdn.rampnow.io/image/icon/general/logo-green.svg"
+          alt="Rampnow logo"
+          className="w-[48px] h-[48px] mb-6"
         />
-      )}
-      <div className="flex flex-col items-center">
-        <div className="mt-[48px] mb-[11px] text-[26px] text-center w-[400px] font-semibold text-r-neutral-title1">
-          {t('page.newUserImport.readyToUse.title')}
+
+        <div className="text-[24px] font-semibold text-r-neutral-title1">
+          Your Rampnow wallet is ready
         </div>
-        <div className="max-w-[320px] text-[18px] font-semibold text-rabby-blue-default text-center">
-          {t('page.newUserImport.readyToUse.desc')}
+
+        <div className="mt-8 flex items-center gap-3">
+          {shortcutKeys.map((key) => (
+            <ShortcutKey key={key} label={key} />
+          ))}
         </div>
-        <img
-          src={HomePreview}
-          ref={homePreviewRef}
-          alt="home-preview"
-          className="w-[184px] mt-[20px] mb-[21px]"
-        />
+
+        <div className="mt-4 text-[14px] text-r-neutral-body max-w-[280px]">
+          Try pressing the shortcut to quickly open the wallet.
+        </div>
+
         <Button
           onClick={() => window.close()}
-          className={clsx(
-            'mt-auto h-[56px] shadow-none rounded-[8px]',
-            'text-[17px] font-medium'
-          )}
+          className={
+            'mt-8 w-full h-[56px] rounded-[12px] text-[17px] font-medium shadow-none'
+          }
         >
-          {t('global.Done')}
+          Open Rampnow Wallet
         </Button>
-      </div>
-
-      <div
-        className={clsx(
-          'fixed top-[40px] right-[90px]',
-          'w-[242px] h-[300px]',
-          'py-12 px-12',
-          'bg-r-neutral-card-1 rounded-[12px]'
-        )}
-      >
-        <RcIconTriangle className="absolute top-[-39px] right-[22px]" />
-        <div ref={userGuideRef} className="flex flex-col gap-[11px]">
-          <div className="flex flex-col">
-            <div className="flex items-center">
-              <UserGuide1Icon className="w-[20px] h-[20px] mr-[5px]" />
-              <span className="text-[12px] font-semibold text-r-neutral-title1">
-                {t('page.newUserImport.readyToUse.guides.step1')}
-              </span>
-            </div>
-            <img
-              src={UserGuide1}
-              alt="user-guide-1"
-              className="w-[186px] h-[96px] mt-[10px] ml-[25px]"
-            />
-          </div>
-          <div className="flex flex-col">
-            <div className="flex items-center">
-              <UserGuide2Icon className="w-[20px] h-[20px] mr-[5px]" />
-              <span className="text-[12px] font-semibold text-r-neutral-title1">
-                {t('page.newUserImport.readyToUse.guides.step2')}
-              </span>
-            </div>
-            <img
-              src={UserGuide2}
-              alt="user-guide-2"
-              className="w-[183px] h-[114px] mt-[10px] ml-[25px]"
-            />
-          </div>
-        </div>
       </div>
     </Card>
   );

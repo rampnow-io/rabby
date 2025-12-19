@@ -7,11 +7,11 @@ import { ReactComponent as RcIconLink } from '@/ui/assets/link-cc.svg';
 
 import { ReactComponent as RcIconMatchCC } from '@/ui/assets/match-cc.svg';
 
-import { Popup } from '@/ui/component';
-import { DrawerProps, Skeleton } from 'antd';
+import BottomDrawer from '@repo/ui/components/bottom-drawer';
+import { Skeleton } from 'antd';
+import { SvgIconCross } from 'ui/assets';
 
 const isTab = getUiType().isTab;
-const getContainer = isTab ? '.js-rabby-popup-container' : undefined;
 
 export const ExternalSwapBridgeDappTips = ({
   dappsAvailable,
@@ -171,31 +171,42 @@ export const SwapBridgeDappPopup = ({
   onClose,
   dappList,
   loading,
-  getContainer,
 }: {
   visible: boolean;
   onClose: () => void;
   dappList: SwapBridgeExternalDappInfo[];
   loading?: boolean;
-  getContainer?: DrawerProps['getContainer'];
 }) => {
   const { t } = useTranslation();
+
+  if (!visible) return null;
+
   return (
-    <Popup
+    <BottomDrawer
+      variant="semi"
+      rootSelector=".js-rabby-popup-container"
+      close={onClose}
       className="custom-popup is-support-darkmode is-new"
-      getContainer={getContainer}
-      title={t('component.externalSwapBrideDappPopup.selectADapp')}
-      height={'auto'}
-      visible={visible}
-      onCancel={onClose}
-      onClose={onClose}
-      destroyOnClose
-      closable
-      bodyStyle={{
-        paddingTop: 14,
-      }}
     >
-      <SwapBridgeDappPopupInner dappList={dappList} loading={loading} />
-    </Popup>
+      <div className="flex flex-col h-full max-h-[auto]">
+        {/* Header */}
+        <div className="flex items-center justify-between px-20 pt-16 pb-12 border-b border-rabby-neutral-line">
+          <h2 className="text-r-neutral-title-1 text-[20px] font-medium">
+            {t('component.externalSwapBrideDappPopup.selectADapp')}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-0 border-0 bg-transparent cursor-pointer"
+          >
+            <SvgIconCross className="w-14 fill-current text-r-neutral-foot pt-[2px]" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="px-20 pt-14">
+          <SwapBridgeDappPopupInner dappList={dappList} loading={loading} />
+        </div>
+      </div>
+    </BottomDrawer>
   );
 };

@@ -47,3 +47,4 @@ export { default as IconContract } from 'ui/assets/icon-contract.svg';
 export { default as IconContractDeploy } from 'ui/assets/icon-contract-deploy.svg';
 export { default as IconApproval } from 'ui/assets/icon-approval.svg';
 export { default as IconCancel } from 'ui/assets/icon-cancel.svg';
+export { default as Illustration } from 'ui/assets/Illustration.svg';

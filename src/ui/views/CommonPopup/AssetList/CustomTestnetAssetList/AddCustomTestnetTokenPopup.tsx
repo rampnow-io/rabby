@@ -328,7 +328,6 @@ export const AddCustomTestnetTokenContent = ({
       <ChainSelectorModal
         hideTestnetTab={false}
         hideMainnetTab={true}
-        getContainer={getContainer}
         value={chainSelectorState.chain || CHAINS_ENUM.ETH}
         visible={chainSelectorState.visible}
         onCancel={() => {

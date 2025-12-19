@@ -862,7 +862,6 @@ export const Main = () => {
               }}
               dappList={externalDapps}
               loading={externalDappsLoading}
-              getContainer={getContainer}
             />
           </div>
         ) : null}

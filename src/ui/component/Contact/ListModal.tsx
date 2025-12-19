@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { DrawerProps, message } from 'antd';
+import { message } from 'antd';
 import styled from 'styled-components';
 import { useRabbyDispatch, useRabbySelector, connectStore } from 'ui/store';
 import { IDisplayedAccountWithBalance } from 'ui/models/accountToDisplay';
-import { Popup } from 'ui/component';
+import BottomDrawer from '@repo/ui/components/bottom-drawer';
 import AuthenticationModalPromise from 'ui/component/AuthenticationModal';
 import EditWhitelist from './EditWhitelist';
 import AccountItem from './AccountItem';
@@ -13,13 +13,13 @@ import IconSuccess from 'ui/assets/success.svg';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@repo/ui/primitives';
+import { SvgIconCross } from 'ui/assets';
 
 interface ListModalProps {
   address?: string;
   visible: boolean;
   onOk(account: UIContactBookItem): void;
   onCancel(): void;
-  getContainer?: DrawerProps['getContainer'];
 }
 
 const ListScrollWrapper = styled.div`
@@ -38,12 +38,7 @@ const ListFooterWrapper = styled.div`
   width: 100%;
 `;
 
-const ListModal = ({
-  visible,
-  onOk,
-  onCancel,
-  getContainer,
-}: ListModalProps) => {
+const ListModal = ({ visible, onOk, onCancel }: ListModalProps) => {
   const [editWhitelistVisible, setEditWhitelistVisible] = useState(false);
   const dispatch = useRabbyDispatch();
   const wallet = useWallet();
@@ -118,7 +113,6 @@ const ListModal = ({
         // do nothing
       },
       wallet,
-      getContainer: getContainer,
     });
   };
 
@@ -126,65 +120,78 @@ const ListModal = ({
     if (visible) fetchData();
   }, [visible]);
 
+  if (!visible) return null;
+
   return (
-    <Popup
+    <BottomDrawer
+      variant="semi"
+      rootSelector=".js-rabby-popup-container"
+      close={onCancel}
       className="whitelist-selector"
-      visible={visible}
-      onClose={onCancel}
-      title={t('component.Contact.ListModal.title')}
-      placement="bottom"
-      height={580}
-      closable
-      isSupportDarkMode
-      getContainer={getContainer}
-      push={false}
     >
-      <div
-        className={clsx('flex flex-col pb-80 h-full', {
-          'pb-0': !whitelistEnabled,
-        })}
-      >
-        <div className="text-center mb-16 mx-[-10px] text-14 text-r-neutral-body">
-          {whitelistEnabled
-            ? t('component.Contact.ListModal.whitelistEnabled')
-            : t('component.Contact.ListModal.whitelistDisabled')}
+      <div className="flex flex-col h-full max-h-[580px]">
+        {/* Header */}
+        <div className="flex items-center justify-between px-20 pt-16 pb-12 border-b border-rabby-neutral-line">
+          <h2 className="text-r-neutral-title-1 text-[20px] font-medium">
+            {t('component.Contact.ListModal.title')}
+          </h2>
+          <button
+            onClick={onCancel}
+            className="p-0 border-0 bg-transparent cursor-pointer"
+          >
+            <SvgIconCross className="w-14 fill-current text-r-neutral-foot pt-[2px]" />
+          </button>
         </div>
-        <ListScrollWrapper>
-          {sortedAccountsList.map((account) => (
-            <AccountItem
-              account={account}
-              key={`${account.brandName}-${account.address}`}
-              onClick={handleSelectAddress}
-              disabled={
-                whitelistEnabled
-                  ? !whitelist.find((item) =>
-                      isSameAddress(item, account.address)
-                    )
-                  : false
-              }
-            />
-          ))}
-        </ListScrollWrapper>
-        {whitelistEnabled && (
-          <ListFooterWrapper>
-            <Button
-              className="w-full h-[40px] text-15"
-              onClick={handleClickEditWhitelist}
-            >
-              {t('component.Contact.ListModal.editWhitelist')}
-            </Button>
-          </ListFooterWrapper>
+
+        {/* Content */}
+        <div
+          className={clsx('flex flex-col flex-1 overflow-hidden px-20', {
+            'pb-0': !whitelistEnabled,
+            'pb-80': whitelistEnabled,
+          })}
+        >
+          <div className="text-center mb-16 text-14 text-r-neutral-body mt-16">
+            {whitelistEnabled
+              ? t('component.Contact.ListModal.whitelistEnabled')
+              : t('component.Contact.ListModal.whitelistDisabled')}
+          </div>
+          <ListScrollWrapper>
+            {sortedAccountsList.map((account) => (
+              <AccountItem
+                account={account}
+                key={`${account.brandName}-${account.address}`}
+                onClick={handleSelectAddress}
+                disabled={
+                  whitelistEnabled
+                    ? !whitelist.find((item) =>
+                        isSameAddress(item, account.address)
+                      )
+                    : false
+                }
+              />
+            ))}
+          </ListScrollWrapper>
+          {whitelistEnabled && (
+            <ListFooterWrapper>
+              <Button
+                className="w-full h-[40px] text-15"
+                onClick={handleClickEditWhitelist}
+              >
+                {t('component.Contact.ListModal.editWhitelist')}
+              </Button>
+            </ListFooterWrapper>
+          )}
+        </div>
+        {editWhitelistVisible && (
+          <EditWhitelist
+            onCancel={() => setEditWhitelistVisible(false)}
+            onConfirm={handleSaveWhitelist}
+            whitelist={whitelist}
+            accountsList={accountsList}
+          />
         )}
       </div>
-      {editWhitelistVisible && (
-        <EditWhitelist
-          onCancel={() => setEditWhitelistVisible(false)}
-          onConfirm={handleSaveWhitelist}
-          whitelist={whitelist}
-          accountsList={accountsList}
-        />
-      )}
-    </Popup>
+    </BottomDrawer>
   );
 };
 

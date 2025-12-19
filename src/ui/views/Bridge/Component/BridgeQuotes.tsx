@@ -1,4 +1,5 @@
-import { Checkbox, Popup } from '@/ui/component';
+import { Checkbox } from '@/ui/component';
+import BottomDrawer from '@repo/ui/components/bottom-drawer';
 import React, { useEffect, useMemo, useState } from 'react';
 import { QuoteLoading } from './loading';
 import { IconRefresh } from './IconRefresh';
@@ -10,7 +11,6 @@ import { useTranslation } from 'react-i18next';
 import { TokenItem } from '@/background/service/openapi';
 import { BridgeQuoteItem } from './BridgeQuoteItem';
 import { ReactComponent as RCIconCCEmpty } from 'ui/assets/bridge/empty-cc.svg';
-import { DrawerProps } from 'antd';
 
 interface QuotesProps {
   userAddress: string;
@@ -25,7 +25,6 @@ interface QuotesProps {
   payAmount: string;
   setSelectedBridgeQuote: (quote?: SelectedBridgeQuote) => void;
   sortIncludeGasFee: boolean;
-  getContainer?: DrawerProps['getContainer'];
 }
 
 export const Quotes = ({
@@ -103,7 +102,7 @@ const bodyStyle = {
 };
 
 export const QuoteList = (props: Omit<QuotesProps, 'sortIncludeGasFee'>) => {
-  const { visible, onClose, getContainer } = props;
+  const { visible, onClose } = props;
   const refresh = useSetRefreshId();
 
   const refreshQuote = React.useCallback(() => {
@@ -120,18 +119,19 @@ export const QuoteList = (props: Omit<QuotesProps, 'sortIncludeGasFee'>) => {
     }
   }, [visible]);
 
+  if (!visible) return null;
+
   return (
-    <Popup
-      closeIcon={
-        <SvgIconCross className="w-14 fill-current text-r-neutral-foot pt-[2px]" />
-      }
-      headerStyle={{
-        paddingTop: 16,
-      }}
-      visible={visible}
-      title={
-        <div className="flex items-center justify-between mb-[-2px] pb-10">
-          <div className="flex items-center gap-6 text-left text-r-neutral-title-1 text-[16px] font-medium ">
+    <BottomDrawer
+      variant="semi"
+      rootSelector=".js-rabby-popup-container"
+      close={onClose}
+      className="z-[999]"
+    >
+      <div className="flex flex-col h-full max-h-[462px]">
+        {/* Header */}
+        <div className="flex items-center justify-between px-20 pt-16 pb-10 border-b border-rabby-neutral-line">
+          <div className="flex items-center gap-6 text-left text-r-neutral-title-1 text-[16px] font-medium">
             <div>{t('page.bridge.the-following-bridge-route-are-found')}</div>
             <div className="w-14 h-14 relative overflow-hidden">
               <div className="w-[26px] h-[26px] absolute left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%]">
@@ -187,17 +187,12 @@ export const QuoteList = (props: Omit<QuotesProps, 'sortIncludeGasFee'>) => {
             <span className="ml-[-4px]">{t('page.swap.sort-with-gas')}</span>
           </Checkbox>
         </div>
-      }
-      height={462}
-      onClose={onClose}
-      closable={false}
-      destroyOnClose
-      className="isConnectView z-[999]"
-      bodyStyle={bodyStyle}
-      isSupportDarkMode
-      getContainer={getContainer}
-    >
-      <Quotes {...props} sortIncludeGasFee={sortIncludeGasFee} />
-    </Popup>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto">
+          <Quotes {...props} sortIncludeGasFee={sortIncludeGasFee} />
+        </div>
+      </div>
+    </BottomDrawer>
   );
 };

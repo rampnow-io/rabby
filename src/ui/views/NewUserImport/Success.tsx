@@ -262,7 +262,7 @@ export const ImportOrCreatedSuccess = () => {
   return (
     <Card className="flex flex-col">
       <RcIconChecked
-        className="w-[52px] h-[52px] mt-[60px] mb-20 mx-auto"
+        className="w-[52px] h-[52px] mt-[60px] mb-4 mx-auto"
         viewBox="0 0 16 16"
       />
 
@@ -274,7 +274,7 @@ export const ImportOrCreatedSuccess = () => {
         )}
       </div>
 
-      <ScrollBarDiv className="flex flex-col gap-16 pt-24 overflow-y-scroll max-h-[324px] mb-20">
+      <ScrollBarDiv className="flex flex-col gap-4 pt-6 overflow-y-scroll max-h-[324px] mb-4">
         {accounts?.map((account) => {
           if (!account?.address) {
             return null;
@@ -283,30 +283,13 @@ export const ImportOrCreatedSuccess = () => {
         })}
         <GnosisChainList chainList={chainList} className="mt-[-4px]" />
       </ScrollBarDiv>
-
-      <Button onClick={getStarted} className="w-full">
-        {isNewUserImport
-          ? t('page.newUserImport.successful.start')
-          : t('global.Done')}
-      </Button>
-
-      {!!hd && (
-        <div
-          onClick={addMoreAddr}
-          className="flex items-center justify-center gap-2 text-[14px] text-r-neutral-foot mt-[23px] cursor-pointer"
-        >
-          {isSeedPhrase ? (
-            <span>{t('page.newUserImport.successful.addMoreAddr')}</span>
-          ) : (
-            <span>
-              {t('page.newUserImport.successful.addMoreFrom', {
-                name: brand || BRAND_ALIAN_TYPE_TEXT[hd] || hd,
-              })}
-            </span>
-          )}
-          <RcIconExternalCC className="w-20 h-20" viewBox="0 0 16 17" />
-        </div>
-      )}
+      <footer className="mb-4 mt-auto w-full">
+        <Button onClick={getStarted} className="w-full">
+          {isNewUserImport
+            ? t('page.newUserImport.successful.start')
+            : t('global.Done')}
+        </Button>
+      </footer>
     </Card>
   );
 };

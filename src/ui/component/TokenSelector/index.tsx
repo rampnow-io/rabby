@@ -38,6 +38,7 @@ import { useSearchTestnetToken } from '@/ui/hooks/useSearchTestnetToken';
 import { useHistory } from 'react-router-dom';
 import { ExchangeLogos } from './CexLogos';
 import { Button } from '@repo/ui/primitives';
+import { BottomDrawer, Search } from '@repo/ui';
 
 const isTab = getUiType().isTab;
 
@@ -67,7 +68,6 @@ export interface TokenSelectorProps {
   supportChains?: CHAINS_ENUM[] | undefined;
   drawerHeight?: number | string;
   excludeTokens?: TokenItem['id'][];
-  getContainer?: DrawerProps['getContainer'];
   showCustomTestnetAssetList?: boolean;
   disableItemCheck?: (
     token: TokenItem
@@ -99,7 +99,6 @@ const TokenSelector = ({
   supportChains,
   drawerHeight = '540px',
   excludeTokens = defaultExcludeTokens,
-  getContainer,
   disableItemCheck,
   showCustomTestnetAssetList,
 }: TokenSelectorProps) => {
@@ -112,19 +111,15 @@ const TokenSelector = ({
     currentAccount: s.account.currentAccount,
   }));
 
-  const { chainItem, chainSearchCtx, isTestnet } = useMemo(() => {
-    const chain = !chainServerId
-      ? null
-      : findChain({ serverId: chainServerId });
-    return {
-      chainItem: chain,
-      isTestnet: !!chain?.isTestnet,
-      chainSearchCtx: {
-        chainServerId: type === 'send' ? '' : chainServerId || '',
-        chainItem: chain,
-      },
-    };
-  }, [chainServerId, visible]);
+  const chain = !chainServerId ? null : findChain({ serverId: chainServerId });
+
+  const chainItem = chain;
+  const isTestnet = !!chain?.isTestnet;
+
+  const chainSearchCtx = {
+    chainServerId: type === 'send' ? '' : chainServerId || '',
+    chainItem: chain,
+  };
 
   const [tokenDetailOpen, setTokenDetailOpen] = useState(false);
   const [tokenDetail, setTokenDetail] = useState<TokenItemWithEntity>();
@@ -153,12 +148,6 @@ const TokenSelector = ({
     withBalance: true,
     enabled: showCustomTestnetAssetList && visible,
   });
-
-  useEffect(() => {
-    if (!visible) {
-      onTabChange('mainnet');
-    }
-  }, [visible, onTabChange]);
 
   const emptyTestnetTokenList = useMemo(() => {
     return (
@@ -230,12 +219,6 @@ const TokenSelector = ({
   const handleInputBlur = () => {
     setIsInputActive(false);
   };
-
-  useEffect(() => {
-    if (!visible) {
-      setQuery('');
-    }
-  }, [visible]);
 
   const isEmpty = useMemo(() => {
     if (showCustomTestnetAssetList && selectedTab === 'testnet') {
@@ -398,9 +381,6 @@ const TokenSelector = ({
         shortReason: string;
       }
     ) => {
-      if (!visible && updateToken) {
-        return null;
-      }
       const { disable, shortReason } = checkItem?.(token) || {};
       return (
         <CommonTokenItem
@@ -419,7 +399,7 @@ const TokenSelector = ({
         />
       );
     },
-    [onConfirm, supportChains, visible, showCustomTestnetAssetList, selectedTab]
+    [onConfirm, supportChains, showCustomTestnetAssetList, selectedTab]
   );
 
   const recentToTokens = useRabbySelector((s) => s.swap.recentToTokens || []);
@@ -446,165 +426,158 @@ const TokenSelector = ({
     <TokenDetailInTokenSelectProviderContext.Provider
       value={handleInTokenDetails}
     >
-      <Drawer
-        className="token-selector custom-popup is-support-darkmode is-new"
-        height="75%"
-        placement="bottom"
-        visible={visible}
-        onClose={onCancel}
-        closeIcon={
-          <RcIconCloseCC className="w-[20px] h-[20px] text-r-neutral-foot" />
-        }
-        getContainer={getContainer}
-      >
-        {/* Select a token */}
-        <div className="header">
-          {t('component.TokenSelector.header.title')}
-        </div>
-        {showCustomTestnetAssetList && hasCustomTestnetTokenData && (
-          <NetSwitchTabs value={selectedTab} onTabChange={onTabChange} />
-        )}
-        <div
-          className={clsx(
-            'mt-[120px]',
-            emptyTestnetTokenList ? 'block' : 'hidden'
-          )}
-        >
-          <AssetEmptySVG className="m-auto" />
-          <div>
-            <div className="mt-0 text-r-neutral-foot text-[14px] text-center">
-              {t('page.dashboard.assets.noTestnetAssets')}
-            </div>
-            <div className="text-center mt-[50px]">
-              <Button
-                onClick={() => {
-                  onCancel?.();
-                  history.push('/custom-testnet');
-                }}
-                className="w-[200px] h-[44px]"
-              >
-                {t('component.ChainSelectorModal.addTestnet')}
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className={clsx(
-            'input-wrapper',
-            emptyTestnetTokenList ? 'hidden' : 'block'
-          )}
-        >
-          <Input
-            className={clsx({ active: isInputActive }, 'bg-r-neutral-card2')}
-            size="large"
-            prefix={<img src={IconSearch} />}
-            // Search by Name / Address
-            placeholder={
-              placeholder ??
-              t('component.TokenSelector.searchInput.placeholder')
-            }
-            allowClear
-            value={query}
-            onChange={(e) => handleQueryChange(e.target.value)}
-            autoFocus={!isTab}
-            onFocus={handleInputFocus}
-            onBlur={handleInputBlur}
-          />
-        </div>
-        {chainItem && showChainFilter && (
-          <div className="flex items-center gap-[8px] px-[12px] py-[8px] border-t border-rabby-neutral-line">
-            <div className="filter-item__chain px-10">
-              <img
-                className="filter-item__chain-logo"
-                src={chainItem.logo}
-                alt={chainItem.name}
-              />
-              <span className="ml-[4px]">{chainItem.name}</span>
-              <div
-                className="py-4 cursor-pointer"
-                onClick={() => {
-                  onRemoveChainFilter?.({
-                    chainServerId: chainServerId || '',
-                    chainItem,
-                  });
-                  onSearch({
-                    chainItem: null,
-                    chainServerId: '',
-                    keyword: query,
-                  });
-                }}
-              >
-                <RcIconChainFilterCloseCC
-                  viewBox="0 0 16 16"
-                  className="filter-item__chain-close w-[16px] h-[16px] ml-[2px] text-r-neutral-foot hover:text-r-red-default"
-                />
+      {visible && (
+        <BottomDrawer variant="semi" rootSelector="body" close={onCancel}>
+          <div className="custom-popup is-support-darkmode is-new p-4 max-h-[600px] overflow-auto">
+            <div className="flex justify-between items-center">
+              <div className="text-base font-medium text-primary-foreground text-center">
+                {t('component.TokenSelector.header.title')}
               </div>
+              <RcIconCloseCC className="w-[20px] h-[20px] text-r-neutral-foot" />
             </div>
-          </div>
-        )}
 
-        {!isTestnet ? (
-          <ul className={clsx('token-list', { empty: isEmpty })}>
-            {recentDisplayToTokens.length ? (
-              <div className="mb-12">
-                <div className={clsx('flex flex-wrap gap-12', 'px-20')}>
-                  {recentDisplayToTokens.map((token) => (
-                    <div
-                      key={token.id}
-                      className={clsx(
-                        'flex items-center justify-center gap-6',
-                        'cursor-pointer py-8 px-12 rounded-[8px]',
-                        'bg-r-neutral-card1 hover:bg-r-blue-light-1',
-                        'text-15 text-r-neutral-title1 font-medium'
-                      )}
-                      onClick={() => onConfirm(token)}
-                    >
-                      <TokenWithChain
-                        token={token}
-                        width="20px"
-                        height="20px"
-                        chainClassName="-top-4 -right-4"
-                      />
-
-                      <span>{getTokenSymbol(token)}</span>
-                    </div>
-                  ))}
+            {showCustomTestnetAssetList && hasCustomTestnetTokenData && (
+              <NetSwitchTabs value={selectedTab} onTabChange={onTabChange} />
+            )}
+            <div
+              className={clsx(
+                'mt-[120px]',
+                emptyTestnetTokenList ? 'block' : 'hidden'
+              )}
+            >
+              <AssetEmptySVG className="m-auto" />
+              <div>
+                <div className="mt-0 text-r-neutral-foot text-[14px] text-center">
+                  {t('page.dashboard.assets.noTestnetAssets')}
+                </div>
+                <div className="text-center mt-[50px]">
+                  <Button
+                    onClick={() => {
+                      onCancel?.();
+                      history.push('/custom-testnet');
+                    }}
+                    className="w-[200px] h-[44px]"
+                  >
+                    {t('component.ChainSelectorModal.addTestnet')}
+                  </Button>
                 </div>
               </div>
-            ) : null}
+            </div>
 
-            {CommonHeader}
-            {isEmpty
-              ? NoDataUI
-              : displayList.map((token) => {
-                  return commonItemRender(
-                    token,
-                    type,
-                    undefined,
-                    disableItemCheck
-                  );
-                })}
-          </ul>
-        ) : (
-          <ul className={clsx('token-list', { empty: isEmpty })}>
-            <li className="token-list__header">
-              <div>Token</div>
-              <div>Value</div>
-            </li>
-            {isEmpty
-              ? NoDataUI
-              : displayList.map((token) => {
-                  return commonItemRender(
-                    token,
-                    type,
-                    undefined,
-                    disableItemCheck
-                  );
-                })}
-          </ul>
-        )}
-      </Drawer>
+            <div
+              className={clsx(
+                'p-3',
+                emptyTestnetTokenList ? 'hidden' : 'block'
+              )}
+            >
+              <Search
+                className={clsx({ active: isInputActive }, 'bg-white h-5')}
+                placeholder={
+                  placeholder ??
+                  t('component.TokenSelector.searchInput.placeholder')
+                }
+                value={query}
+                onChange={(e) => handleQueryChange(e.target.value)}
+                autoFocus={!isTab}
+                onFocus={handleInputFocus}
+                onBlur={handleInputBlur}
+              />
+            </div>
+            {chainItem && showChainFilter && (
+              <div className="flex items-center gap-[8px] px-[12px] py-[8px] border ">
+                <div className="filter-item__chain px-10">
+                  <img
+                    className="filter-item__chain-logo"
+                    src={chainItem.logo}
+                    alt={chainItem.name}
+                  />
+                  <span className="ml-[4px]">{chainItem.name}</span>
+                  <div
+                    className="py-4 cursor-pointer"
+                    onClick={() => {
+                      onRemoveChainFilter?.({
+                        chainServerId: chainServerId || '',
+                        chainItem,
+                      });
+                      onSearch({
+                        chainItem: null,
+                        chainServerId: '',
+                        keyword: query,
+                      });
+                    }}
+                  >
+                    <RcIconChainFilterCloseCC
+                      viewBox="0 0 16 16"
+                      className="filter-item__chain-close w-[16px] h-[16px] ml-[2px] text-r-neutral-foot hover:text-r-red-default"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {!isTestnet ? (
+              <ul className={clsx('flex flex-col gap-4', { empty: isEmpty })}>
+                {recentDisplayToTokens.length ? (
+                  <div className="mb-12">
+                    <div className={clsx('flex flex-wrap gap-12', 'px-20')}>
+                      {recentDisplayToTokens.map((token) => (
+                        <div
+                          key={token.id}
+                          className={clsx(
+                            'flex items-center justify-center gap-6',
+                            'cursor-pointer py-8 px-12 rounded-[8px]',
+                            'bg-r-neutral-card1 hover:bg-r-blue-light-1',
+                            'text-15 text-r-neutral-title1 font-medium'
+                          )}
+                          onClick={() => onConfirm(token)}
+                        >
+                          <TokenWithChain
+                            token={token}
+                            width="20px"
+                            height="20px"
+                            chainClassName="-top-4 -right-4"
+                          />
+
+                          <span>{getTokenSymbol(token)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+
+                {CommonHeader}
+                {isEmpty
+                  ? NoDataUI
+                  : displayList.map((token) => {
+                      return commonItemRender(
+                        token,
+                        type,
+                        undefined,
+                        disableItemCheck
+                      );
+                    })}
+              </ul>
+            ) : (
+              <ul className={clsx('token-list', { empty: isEmpty })}>
+                <li className="token-list__header">
+                  <div>Token</div>
+                  <div>Value</div>
+                </li>
+                {isEmpty
+                  ? NoDataUI
+                  : displayList.map((token) => {
+                      return commonItemRender(
+                        token,
+                        type,
+                        undefined,
+                        disableItemCheck
+                      );
+                    })}
+              </ul>
+            )}
+          </div>
+        </BottomDrawer>
+      )}
       <TokenDetailPopup
         variant="add"
         visible={tokenDetailOpen}
@@ -766,7 +739,7 @@ function CommonTokenItem(props: {
     >
       <li
         className={clsx(
-          'token-list__item',
+          'bg-white border hover:bg-gray-300 flex flex-col rounded-lg gap-3 cursor-pointer p-2',
           (disabledFromProps || disabled) && 'token-disabled',
           {
             'opacity-80': !!warningText,
@@ -774,8 +747,8 @@ function CommonTokenItem(props: {
         )}
         onClick={handleTokenPress}
       >
-        <div className="token-info">
-          <div>
+        <div className="flex items-center justify-between ">
+          <div className="flex items-center gap-3">
             <TokenWithChain
               token={value || token}
               width="32px"
@@ -805,8 +778,6 @@ function CommonTokenItem(props: {
               </span>
             </div>
           </div>
-
-          <div className="flex flex-col"></div>
 
           <div className="flex flex-col text-right items-end">
             {isBridgeTo ? (

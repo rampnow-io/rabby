@@ -92,7 +92,6 @@ export const Header = ({
         onClose={useCallback(() => {
           setHistoryVisible(false);
         }, [])}
-        getContainer={getContainer}
       />
       <RabbyFeePopup
         type="bridge"

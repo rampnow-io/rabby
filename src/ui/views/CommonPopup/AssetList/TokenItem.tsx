@@ -24,7 +24,7 @@ const TokenItemAsset: React.FC<Props> = ({ item }) => {
     <TCell className="py-8 flex gap-10 w-[160px] items-center">
       <div className="relative h-[32px]">
         <Image
-          className="w-32 h-32 rounded-full"
+          className="w-8 h-8 rounded-full"
           src={item.logo_url || IconUnknown}
           alt={item.symbol}
           fallback={IconUnknown}
@@ -35,7 +35,7 @@ const TokenItemAsset: React.FC<Props> = ({ item }) => {
           className="rectangle w-[max-content]"
         >
           <img
-            className="w-16 h-16 absolute right-[-2px] top-[-2px] rounded-full"
+            className="w-4 h-4 absolute right-[-2px] top-[-2px] rounded-full"
             src={chain?.logo || IconUnknown}
             alt={item.chain}
           />
@@ -95,7 +95,7 @@ export const TokenItem: React.FC<Props> = ({ item, style, onClick }) => {
       }}
       className={clsx(
         'cursor-pointer',
-        'rounded-[8px] border border-transparent bg-r-neutral-card1 h-[60px] mt-8 pl-12 pr-16',
+        'rounded-[8px] border border-transparent bg-r-neutral-card1 h-[60px] px-2',
         'hover:border-blue-light hover:bg-blue-light hover:bg-opacity-10'
       )}
     >

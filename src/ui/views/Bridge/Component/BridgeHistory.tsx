@@ -1,4 +1,4 @@
-import { Popup } from '@/ui/component';
+import BottomDrawer from '@repo/ui/components/bottom-drawer';
 import React, { forwardRef, useMemo } from 'react';
 import { useBridgeHistory } from '../hooks';
 import { TokenItem } from '@rabby-wallet/rabby-api/dist/types';
@@ -9,7 +9,7 @@ import {
   openInTab,
   sinceTime,
 } from '@/ui/utils';
-import { SvgIcWarning } from 'ui/assets';
+import { SvgIcWarning, SvgIconCross } from 'ui/assets';
 import { getTokenSymbol } from '@/ui/utils/token';
 import { TooltipWithMagnetArrow } from '@/ui/component/Tooltip/TooltipWithMagnetArrow';
 import ImgPending from 'ui/assets/swap/pending.svg';
@@ -23,7 +23,6 @@ import { ellipsis } from '@/ui/utils/address';
 import { useTranslation } from 'react-i18next';
 import { findChain } from '@/utils/chain';
 import { BridgeHistory } from '@/background/service/openapi';
-import { DrawerProps } from 'antd';
 const isTab = getUiType().isTab;
 
 const BridgeTokenIcon = (props: { token: TokenItem }) => {
@@ -272,30 +271,39 @@ const HistoryList = () => {
 export const BridgeTxHistory = ({
   visible,
   onClose,
-  getContainer,
 }: {
   visible: boolean;
   onClose: () => void;
-  getContainer?: DrawerProps['getContainer'];
 }) => {
   const { t } = useTranslation();
+
+  if (!visible) return null;
+
   return (
-    <Popup
-      visible={visible}
-      title={t('page.bridge.history')}
-      height="70%"
-      onClose={onClose}
-      closable
-      bodyStyle={{
-        paddingTop: 16,
-        paddingBottom: 0,
-      }}
-      destroyOnClose
-      isSupportDarkMode
-      isNew
-      getContainer={getContainer}
+    <BottomDrawer
+      variant="semi"
+      rootSelector=".js-rabby-popup-container"
+      close={onClose}
     >
-      <HistoryList />
-    </Popup>
+      <div className="flex flex-col h-full max-h-[70vh]">
+        {/* Header */}
+        <div className="flex items-center justify-between px-20 pt-16 pb-12 border-b border-rabby-neutral-line">
+          <h2 className="text-r-neutral-title-1 text-[20px] font-medium">
+            {t('page.bridge.history')}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-0 border-0 bg-transparent cursor-pointer"
+          >
+            <SvgIconCross className="w-14 fill-current text-r-neutral-foot pt-[2px]" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-hidden px-20 pt-16">
+          <HistoryList />
+        </div>
+      </div>
+    </BottomDrawer>
   );
 };

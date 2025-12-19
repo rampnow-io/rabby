@@ -56,6 +56,7 @@ import { useScroll, useSize } from 'ahooks';
 import { useThemeMode } from '@/ui/hooks/usePreference';
 import { useCheckBridgePendingItem } from '@/ui/views/Bridge/hooks/history';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/primitives';
+import { HistoryList } from '@/ui/views/History/components/HistoryList';
 
 const Container = styled.div`
   position: relative;
@@ -172,7 +173,7 @@ export const DashboardPanel: React.FC = ({}) => {
           <AssetList visible={true} onClose={() => {}} />
         </TabsContent>
         <TabsContent value="transactions">
-          <TransactionHistory />
+          <HistoryList />
         </TabsContent>
         <TabsContent value="approvals">
           <ApprovalsTabPane isDesktop={false} />
