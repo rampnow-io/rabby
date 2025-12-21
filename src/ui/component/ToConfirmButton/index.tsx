@@ -77,7 +77,10 @@ export const ToConfirmBtn = (props: {
         <Button
           type={props.htmlType || 'button'}
           disabled={props.disabled}
-          className={clsx('h-[48px] rounded-[8px]', props.buttonClassName)}
+          className={clsx(
+            'w-full h-[48px] rounded-[8px]',
+            props.buttonClassName
+          )}
           style={
             props.loading
               ? {

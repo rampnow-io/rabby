@@ -23,7 +23,10 @@ import { findChainByServerID } from '@/utils/chain';
 import BigNumber from 'bignumber.js';
 import { CHAINS_ENUM } from '@debank/common';
 import { formatGasHeaderUsdValue } from '@/ui/utils';
-import ShowMoreGasSelectModal, { useGetGasInfoByUI } from './ShowMoreGasModal';
+import ShowMoreGasSelectModal, {
+  useGetGasInfoByUI,
+  useShowMoreGasSelectModalVisible,
+} from './ShowMoreGasModal';
 import { getGasLevelI18nKey } from '@/ui/utils/trans';
 import { ReactComponent as IconInfoSVG } from 'ui/assets/info-cc.svg';
 import { noop } from 'lodash';
@@ -461,7 +464,7 @@ export const DirectSignGasInfo = ({
 }) => {
   const { t } = useTranslation();
 
-  const [gasModalVisible, setGasModalVisible] = useState(false);
+  const [, setGasModalVisible] = useShowMoreGasSelectModalVisible();
 
   const chainEnum = findChainByServerID(chainServeId)?.enum;
 
@@ -641,15 +644,7 @@ export const DirectSignGasInfo = ({
       <ListItem name={<>{'Gas fee'}</>} className="mt-12">
         {showGasContent ? (
           <>
-            <ShowMoreGasSelectModal
-              visible={gasModalVisible}
-              onCancel={() => {
-                setGasModalVisible(false);
-              }}
-              onConfirm={() => {
-                setGasModalVisible(false);
-              }}
-            >
+            <ShowMoreGasSelectModal>
               <div
                 className={clsx(
                   'cursor-pointer',

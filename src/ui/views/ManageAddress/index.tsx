@@ -234,147 +234,109 @@ const ManageAddress = () => {
   }
 
   return (
-    <div className="page-address-management px-0 pb-0 bg-r-neutral-bg-2 overflow-hidden">
-      <div className="h-full flex flex-col">
-        <div className="px-20">
-          <PageHeader className="pt-[24px]" canBack={back} closeable={!back}>
-            {t('page.manageAddress.manage-address')}
-          </PageHeader>
-        </div>
+    <div className="h-full flex flex-col">
+      <div className="px-5">
+        <PageHeader className="pt-[24px]" canBack={back} closeable={!back}>
+          {t('page.manageAddress.manage-address')}
+        </PageHeader>
+      </div>
 
-        <div className="flex-1 flex flex-col overflow-y-auto">
-          <div className="px-20 mb-8">
-            <div className="rounded-[6px] bg-r-neutral-card-1 flex flex-wrap p-[3px]">
-              {typedWalletIdList?.map((id, i) => {
-                const item = TypedWalletObj?.[id];
-                const list = item?.list;
-                if (!item) {
-                  return null;
-                }
-                return (
-                  <GroupItem
-                    item={list?.[0]}
-                    active={i === currentIndex}
-                    count={list?.length || 0}
-                    onChange={() => {
-                      setCurrentIndex(i);
-                    }}
-                    type={item?.type}
-                    brandName={item?.brandName}
-                  />
-                );
-              })}
-            </div>
-
-            {TypedWalletObj?.[activeIndex] ? (
-              <div className="flex items-center justify-between mt-20 ">
-                <div className="text-[17px] text-r-neutral-title-1 font-medium">
-                  {TypedWalletObj?.[activeIndex]?.type ===
-                  KEYRING_TYPE.WatchAddressKeyring
-                    ? 'Contact Address'
-                    : TypedWalletObj?.[activeIndex]?.name}
-                </div>
-                <div className="flex items-center gap-16">
-                  {isSeedPhrase && (
-                    <RcIconPlusButton
-                      onClick={handleAddSeedPhraseAddress}
-                      className="cursor-pointer text-r-neutral-body"
-                    />
-                  )}
-                  {isSeedPhrase && (
-                    <RcIconShowSeedPhrase
-                      className="cursor-pointer text-r-neutral-body"
-                      onClick={() => {
-                        if (TypedWalletObj?.[activeIndex]?.publicKey) {
-                          backup(
-                            TypedWalletObj[activeIndex].publicKey!,
-                            currentIndex
-                          );
-                        }
-                      }}
-                    />
-                  )}
-                  <RcIconDelete
-                    className="cursor-pointer text-r-neutral-body hover:text-red-forbidden"
-                    onClick={() => {
-                      if (
-                        TypedWalletObj?.[activeIndex]?.type ===
-                        KEYRING_TYPE['HdKeyring']
-                      ) {
-                        setSeedPhraseDeleteOpen(true);
-                        return;
-                      }
-                      handleOpenDeleteModal(
-                        TypedWalletObj?.[activeIndex]?.list
-                      );
-                    }}
-                  />
-                </div>
-              </div>
-            ) : null}
-
-            {!!isLedger && !!TypedWalletObj?.[activeIndex]?.hdPathType && (
-              <div className="text-r-neutral-body text-12 mb-4">
-                {t('page.manageAddress.hd-path')}{' '}
-                {LedgerHDPathTypeLabel[TypedWalletObj[activeIndex].hdPathType!]}
-              </div>
-            )}
+      <div className="flex-1 flex flex-col overflow-y-auto">
+        <div className="px-20 mb-8">
+          <div className="rounded-[6px] bg-r-neutral-card-1 flex flex-wrap p-[3px]">
+            {typedWalletIdList?.map((id, i) => {
+              const item = TypedWalletObj?.[id];
+              const list = item?.list;
+              if (!item) {
+                return null;
+              }
+              return (
+                <GroupItem
+                  item={list?.[0]}
+                  active={i === currentIndex}
+                  count={list?.length || 0}
+                  onChange={() => {
+                    setCurrentIndex(i);
+                  }}
+                  type={item?.type}
+                  brandName={item?.brandName}
+                />
+              );
+            })}
           </div>
 
-          <AccountList
-            handleOpenDeleteModal={handleOpenDeleteModal}
-            list={TypedWalletObj?.[activeIndex]?.list}
-            highlightedAddresses={highlightedAddresses}
-            updateIndex={updateInfoAndSetCurrentIndex}
-          />
-
-          {TypedWalletObj?.[activeIndex]?.type === KEYRING_TYPE['HdKeyring'] &&
-          !TypedWalletObj?.[activeIndex]?.list.length ? (
-            <div className="flex-1 flex flex-col items-center justify-center gap-[30px] min-h-[300px]">
-              <Empty
-                desc={
-                  <div className="text-r-neutral-body text-14 max-w-[296px] mt-12">
-                    {t('page.manageAddress.no-address-under-seed-phrase')}
-                  </div>
-                }
-              />
-              <div>
-                <Button
-                  className="w-[140px] h-[36px] rounder-[4px] flex items-center justify-center gap-4 text-13 font-medium"
-                  onClick={handleAddSeedPhraseAddress}
-                >
-                  <IconPlus /> {t('page.manageAddress.add-address')}
-                </Button>
-                <div
-                  className="mt-20 cursor-pointer underline text-r-neutral-body text-14 text-center"
-                  onClick={handleDeleteEmptySeedPhrase}
-                >
-                  {t('page.manageAddress.delete-seed-phrase')}
-                </div>
+          {TypedWalletObj?.[activeIndex] ? (
+            <div className="flex items-center justify-between mt-20 ">
+              <div className="text-[17px] text-r-neutral-title-1 font-medium">
+                {TypedWalletObj?.[activeIndex]?.type ===
+                KEYRING_TYPE.WatchAddressKeyring
+                  ? 'Contact Address'
+                  : TypedWalletObj?.[activeIndex]?.name}
               </div>
             </div>
           ) : null}
 
-          {TypedWalletObj && deleteList.length ? (
-            <AddressDeleteModal
-              visible={open}
-              onClose={() => setOpen(false)}
-              onSubmit={handleConfirmDeleteAddress}
-              item={deleteList[0]}
-              count={deleteList.length || 0}
-            />
-          ) : null}
+          {!!isLedger && !!TypedWalletObj?.[activeIndex]?.hdPathType && (
+            <div className="text-r-neutral-body text-12 mb-4">
+              {t('page.manageAddress.hd-path')}{' '}
+              {LedgerHDPathTypeLabel[TypedWalletObj[activeIndex].hdPathType!]}
+            </div>
+          )}
         </div>
 
-        <SeedPhraseDeleteModal
-          visible={seedPhraseDeleteOpen}
-          onClose={function (): void {
-            setSeedPhraseDeleteOpen(false);
-          }}
-          onSubmit={handleOpenDeleteSeedPhraseModal}
-          emptyAddress={TypedWalletObj?.[activeIndex]?.list.length === 0}
+        <AccountList
+          handleOpenDeleteModal={handleOpenDeleteModal}
+          list={TypedWalletObj?.[activeIndex]?.list}
+          highlightedAddresses={highlightedAddresses}
+          updateIndex={updateInfoAndSetCurrentIndex}
         />
+
+        {TypedWalletObj?.[activeIndex]?.type === KEYRING_TYPE['HdKeyring'] &&
+        !TypedWalletObj?.[activeIndex]?.list.length ? (
+          <div className="flex-1 flex flex-col items-center justify-center gap-[30px] min-h-[300px]">
+            <Empty
+              desc={
+                <div className="text-r-neutral-body text-14 max-w-[296px] mt-12">
+                  {t('page.manageAddress.no-address-under-seed-phrase')}
+                </div>
+              }
+            />
+            <div>
+              <Button
+                className="w-[140px] h-[36px] rounder-[4px] flex items-center justify-center gap-4 text-13 font-medium"
+                onClick={handleAddSeedPhraseAddress}
+              >
+                <IconPlus /> {t('page.manageAddress.add-address')}
+              </Button>
+              <div
+                className="mt-20 cursor-pointer underline text-r-neutral-body text-14 text-center"
+                onClick={handleDeleteEmptySeedPhrase}
+              >
+                {t('page.manageAddress.delete-seed-phrase')}
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {TypedWalletObj && deleteList.length ? (
+          <AddressDeleteModal
+            visible={open}
+            onClose={() => setOpen(false)}
+            onSubmit={handleConfirmDeleteAddress}
+            item={deleteList[0]}
+            count={deleteList.length || 0}
+          />
+        ) : null}
       </div>
+
+      <SeedPhraseDeleteModal
+        visible={seedPhraseDeleteOpen}
+        onClose={function (): void {
+          setSeedPhraseDeleteOpen(false);
+        }}
+        onSubmit={handleOpenDeleteSeedPhraseModal}
+        emptyAddress={TypedWalletObj?.[activeIndex]?.list.length === 0}
+      />
     </div>
   );
 };

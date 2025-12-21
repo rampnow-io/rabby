@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { SpecialTokenListPopup } from './components/TokenButton';
 import { useRabbySelector } from '@/ui/store';
 import useSortToken from '@/ui/hooks/useSortTokens';
+import { useOpenClose } from '@repo/ui';
 
 type Props = {
   onConfirm?: React.ComponentProps<typeof AddCustomTokenPopup>['onConfirm'];
@@ -38,6 +39,8 @@ const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
       false
     );
 
+    const [isVisible, openModal, closeModal] = useOpenClose(false);
+
     return (
       <>
         <div
@@ -50,7 +53,7 @@ const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
             'whitespace-nowrap'
           )}
           onClick={() => {
-            setIsShowAddModal(true);
+            openModal();
           }}
         >
           <div className="text-[13px] leading-[16px] flex items-center gap-x-[4px] justify-center">
@@ -60,20 +63,21 @@ const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
             {t('page.dashboard.assets.addTokenEntryText')}
           </div>
         </div>
+        {isVisible && (
+          <AddCustomTokenPopup
+            isVisible={isVisible}
+            onClose={() => {
+              closeModal();
+            }}
+            onConfirm={(addedToken) => {
+              closeModal();
+              setShowCustomizedTokens(true);
 
-        <AddCustomTokenPopup
-          isVisible={isShowAddModal}
-          onClose={() => {
-            setIsShowAddModal(false);
-          }}
-          onConfirm={(addedToken) => {
-            setIsShowAddModal(false);
-            setShowCustomizedTokens(true);
-
-            // setFocusingToken(addedToken?.token || null);
-            // refreshAsync();
-          }}
-        />
+              // setFocusingToken(addedToken?.token || null);
+              // refreshAsync();
+            }}
+          />
+        )}
 
         {/* <TokenDetailPopup
           variant="add"

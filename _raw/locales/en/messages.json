@@ -1711,7 +1711,7 @@
           "title": "Update Available"
         },
         "features": {
-          "label": "Features",
+          "label": "General",
           "lockWallet": "Lock Wallet",
           "signatureRecord": "Signature Record",
           "manageAddress": "Manage Address",
@@ -1722,7 +1722,7 @@
           "ecosystem": "Ecosystem"
         },
         "settings": {
-          "label": "Settings",
+          "label": "Preferences",
           "enableWhitelistForSendingAssets": "Enable Whitelist For Sending Assets",
           "customRpc": "Modify RPC URL",
           "metamaskPreferredDapps": "MetaMask Preferred Dapps",

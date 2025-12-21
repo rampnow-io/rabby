@@ -1,9 +1,11 @@
 import { matomoRequestEvent } from '@/utils/matomo-request';
 import { DrawerProps, Form, Input, message, Modal, Switch } from 'antd';
+import { ReactComponent as IconBackCC } from '@/ui/assets/back-with-line-cc.svg';
 import clsx from 'clsx';
 import {
   INITIAL_OPENAPI_URL,
   INITIAL_TESTNET_OPENAPI_URL,
+  KEYRING_TYPE,
   LANGS,
   ThemeIconType,
   ThemeModes,
@@ -35,7 +37,13 @@ import { ReactComponent as RcIconClearCC } from 'ui/assets/icon-clear-cc.svg';
 import LogoRabby from 'ui/assets/logo-rabby-large.svg';
 import { ReactComponent as RcIconServerCC } from 'ui/assets/server-cc.svg';
 import IconSuccess from 'ui/assets/success.svg';
-import { Checkbox, Field, PageHeader, Popup } from 'ui/component';
+import {
+  AddressViewer,
+  Checkbox,
+  Field,
+  PageHeader,
+  Popup,
+} from 'ui/component';
 import { openInTab, openInternalPageInTab, useWallet } from 'ui/utils';
 
 import IconCheck from 'ui/assets/check-2.svg';
@@ -52,7 +60,7 @@ import { ReactComponent as RcIconWarning } from 'ui/assets/warning-cc.svg';
 import IconIntro from 'ui/assets/dashboard/dapp-account-intro.png';
 
 import stats from '@/stats';
-import { useAsync, useCss } from 'react-use';
+import { useAsync, useCss, useInterval } from 'react-use';
 import semver from 'semver-compare';
 import { Contacts, RecentConnections } from '..';
 import SwitchThemeModal from './components/SwitchThemeModal';
@@ -68,6 +76,10 @@ import RateModalTriggerOnSettings from '@/ui/component/RateModal/RateModalTrigge
 import { useMakeMockDataForRateGuideExposure } from '@/ui/component/RateModal/hooks';
 import { BottomDrawer } from '@repo/ui';
 import { Button, ButtonType } from '@repo/ui/primitives';
+import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
+import { copyAddress } from '@/ui/utils/clipboard';
+import { getKRCategoryByType } from '@/utils/transaction';
+import { CommonSignal } from '@/ui/component/ConnectStatus/CommonSignal';
 
 const useAutoLockOptions = () => {
   const { t } = useTranslation();
@@ -579,6 +591,8 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
   const [connectedDappsVisible, setConnectedDappsVisible] = useState(false);
   const [feedbackVisible, setFeedbackVisible] = useState(false);
   const [isShowDappAccountModal, setIsShowDappAccountModal] = useState(false);
+  const currentAccount = useCurrentAccount();
+  const [displayName, setDisplayName] = useState<string>('');
 
   const autoLockTime = useRabbySelector(
     (state) => state.preference.autoLockTime || 0
@@ -629,6 +643,28 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
       setIsShowDappAccountModal(true);
     }
   });
+
+  useInterval(() => {
+    if (!currentAccount) return;
+    if (currentAccount.type === KEYRING_TYPE.GnosisKeyring) return;
+
+    dispatch.transactions.getPendingTxCountAsync(currentAccount.address);
+  }, 30000);
+
+  useEffect(() => {
+    if (currentAccount) {
+      if (currentAccount.type !== KEYRING_TYPE.GnosisKeyring) {
+        dispatch.transactions.getPendingTxCountAsync(currentAccount.address);
+      }
+
+      wallet
+        .getAlianName(currentAccount?.address.toLowerCase())
+        .then((name) => {
+          dispatch.account.setField({ alianName: name });
+          setDisplayName(name!);
+        });
+    }
+  }, [currentAccount]);
 
   const handleClickClearWatchMode = () => {
     confirm({
@@ -707,39 +743,21 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
       label: t('page.dashboard.settings.features.label'),
       items: [
         {
-          leftIcon: RcIconLockWallet,
-          content: t('page.dashboard.settings.features.lockWallet'),
+          leftIcon: RcIconSettingsFeatureConnectedDapps,
+          content: t('page.dashboard.settings.features.connectedDapp'),
           onClick: () => {
-            lockWallet();
+            setConnectedDappsVisible(true);
             matomoRequestEvent({
               category: 'Setting',
               action: 'clickToUse',
-              label: 'Lock Wallet',
+              label: 'Connected Dapps',
             });
 
-            ga4.fireEvent('More_LockWallet', {
+            ga4.fireEvent('More_ConnectedDapps', {
               event_category: 'Click More',
             });
 
-            reportSettings('Lock Wallet');
-          },
-        },
-        {
-          leftIcon: RcIconActivities,
-          content: t('page.dashboard.settings.features.signatureRecord'),
-          onClick: () => {
-            history.push('/activities');
-            matomoRequestEvent({
-              category: 'Setting',
-              action: 'clickToUse',
-              label: 'Signature Record',
-            });
-
-            ga4.fireEvent('More_SignatureRecord', {
-              event_category: 'Click More',
-            });
-
-            reportSettings('Signature Record');
+            reportSettings('Connected Dapps');
           },
         },
         {
@@ -760,6 +778,25 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
             reportSettings('Manage Address');
           },
         },
+        {
+          leftIcon: RcIconActivities,
+          content: t('page.dashboard.settings.features.signatureRecord'),
+          onClick: () => {
+            history.push('/activities');
+            matomoRequestEvent({
+              category: 'Setting',
+              action: 'clickToUse',
+              label: 'Signature Record',
+            });
+
+            ga4.fireEvent('More_SignatureRecord', {
+              event_category: 'Click More',
+            });
+
+            reportSettings('Signature Record');
+          },
+        },
+
         // {
         //   leftIcon: RcIconEcosystemCC,
         //   leftIconClassName: 'text-r-neutral-body',
@@ -825,16 +862,16 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
     settings: {
       label: t('page.dashboard.settings.settings.label'),
       items: [
-        {
-          leftIcon: RcIconDappSwitchAddress,
-          content: t('page.dashboard.settings.settings.enableDappAccount'),
-          rightIcon: (
-            <Switch
-              checked={isEnabledDappAccount}
-              onChange={handleEnableDappAccount}
-            />
-          ),
-        },
+        // {
+        //   leftIcon: RcIconDappSwitchAddress,
+        //   content: t('page.dashboard.settings.settings.enableDappAccount'),
+        //   rightIcon: (
+        //     <Switch
+        //       checked={isEnabledDappAccount}
+        //       onChange={handleEnableDappAccount}
+        //     />
+        //   ),
+        // },
 
         // {
         //   leftIcon: RcIconCustomTestnet,
@@ -890,7 +927,7 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
             setIsShowLangModal(true);
           },
           rightIcon: (
-            <>
+            <div className="flex items-center">
               <span
                 className="text-14 mr-[8px] text-r-neutral-title-1"
                 role="button"
@@ -901,7 +938,7 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
                 src={RcIconArrowRight}
                 className="icon icon-arrow-right"
               />
-            </>
+            </div>
           ),
         },
         {
@@ -922,7 +959,7 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
             setIsShowThemeModeModal(true);
           },
           rightIcon: (
-            <>
+            <div className="flex items-center">
               <span
                 className="text-14 mr-[8px] text-r-neutral-title-1"
                 role="button"
@@ -934,88 +971,88 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
                 src={RcIconArrowRight}
                 className="icon icon-arrow-right"
               />
-            </>
-          ),
-        },
-        {
-          leftIcon: RcIconPreferMetamask,
-          content: (
-            <div className="text-[13px]">
-              {t('page.dashboard.settings.settings.metamaskMode')}
             </div>
           ),
-          onClick: () => {
-            history.push('/metamask-mode-dapps');
-            matomoRequestEvent({
-              category: 'Setting',
-              action: 'clickToUse',
-              label: 'MetaMask Mode Dapps',
-            });
-
-            ga4.fireEvent('More_MetaMaskModeDapps', {
-              event_category: 'Click More',
-            });
-
-            reportSettings('MetaMask Mode Dapps');
-          },
         },
-        {
-          leftIcon: RcIconAutoLock,
-          content: t('page.dashboard.settings.autoLockTime'),
-          onClick: () => {
-            matomoRequestEvent({
-              category: 'Setting',
-              action: 'clickToUse',
-              label: 'Auto lock time',
-            });
+        // {
+        //   leftIcon: RcIconPreferMetamask,
+        //   content: (
+        //     <div className="text-[13px]">
+        //       {t('page.dashboard.settings.settings.metamaskMode')}
+        //     </div>
+        //   ),
+        //   onClick: () => {
+        //     history.push('/metamask-mode-dapps');
+        //     matomoRequestEvent({
+        //       category: 'Setting',
+        //       action: 'clickToUse',
+        //       label: 'MetaMask Mode Dapps',
+        //     });
 
-            ga4.fireEvent('More_AutoLockTime', {
-              event_category: 'Click More',
-            });
+        //     ga4.fireEvent('More_MetaMaskModeDapps', {
+        //       event_category: 'Click More',
+        //     });
 
-            reportSettings('Auto lock time');
-            setIsShowAutoLockModal(true);
-          },
-          rightIcon: (
-            <>
-              <span
-                className="text-14 mr-[8px] text-r-neutral-title-1"
-                role="button"
-              >
-                {autoLockTimeLabel}
-              </span>
-              <ThemeIcon
-                src={RcIconArrowRight}
-                className="icon icon-arrow-right"
-              />
-            </>
-          ),
-        },
+        //     reportSettings('MetaMask Mode Dapps');
+        //   },
+        // },
+        // {
+        //   leftIcon: RcIconAutoLock,
+        //   content: t('page.dashboard.settings.autoLockTime'),
+        //   onClick: () => {
+        //     matomoRequestEvent({
+        //       category: 'Setting',
+        //       action: 'clickToUse',
+        //       label: 'Auto lock time',
+        //     });
 
-        {
-          leftIcon: RcIconClear,
-          content: t('page.dashboard.settings.clearPending'),
-          onClick: () => {
-            matomoRequestEvent({
-              category: 'Setting',
-              action: 'clickToUse',
-              label: 'Reset Account',
-            });
+        //     ga4.fireEvent('More_AutoLockTime', {
+        //       event_category: 'Click More',
+        //     });
 
-            ga4.fireEvent('More_ResetAccount', {
-              event_category: 'Click More',
-            });
+        //     reportSettings('Auto lock time');
+        //     setIsShowAutoLockModal(true);
+        //   },
+        //   rightIcon: (
+        //     <div className="flex items-center">
+        //       <span
+        //         className="text-14 mr-[8px] text-r-neutral-title-1"
+        //         role="button"
+        //       >
+        //         {autoLockTimeLabel}
+        //       </span>
+        //       <ThemeIcon
+        //         src={RcIconArrowRight}
+        //         className="icon icon-arrow-right"
+        //       />
+        //     </div>
+        //   ),
+        // },
 
-            setShowResetAccountModal(true);
-            reportSettings('Reset Account');
-          },
-          rightIcon: (
-            <ThemeIcon
-              src={RcIconArrowRight}
-              className="icon icon-arrow-right"
-            />
-          ),
-        },
+        // {
+        //   leftIcon: RcIconClear,
+        //   content: t('page.dashboard.settings.clearPending'),
+        //   onClick: () => {
+        //     matomoRequestEvent({
+        //       category: 'Setting',
+        //       action: 'clickToUse',
+        //       label: 'Reset Account',
+        //     });
+
+        //     ga4.fireEvent('More_ResetAccount', {
+        //       event_category: 'Click More',
+        //     });
+
+        //     setShowResetAccountModal(true);
+        //     reportSettings('Reset Account');
+        //   },
+        //   rightIcon: (
+        //     <ThemeIcon
+        //       src={RcIconArrowRight}
+        //       className="icon icon-arrow-right"
+        //     />
+        //   ),
+        // },
       ] as SettingItem[],
     },
     // debugkits: {
@@ -1268,21 +1305,97 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
     dispatch.openapi.getTestnetHost();
   }, []);
 
+  const handleSwitchAddress = useMemoizedFn(() => {
+    matomoRequestEvent({
+      category: 'Front Page Click',
+      action: 'Click',
+      label: 'Change Address',
+    });
+
+    ga4.fireEvent('Click_ChangeAddress', {
+      event_category: 'Front Page Click',
+    });
+
+    history.push('/switch-address');
+  });
+
   const [isShowEcology, setIsShowEcologyModal] = React.useState(false);
 
   return (
-    <div className="p-6 overflow-auto">
-      <div className="content">
-        {/* <ClaimRabbyBadge onClick={onOpenBadgeModal} /> */}
-        {/* <EcosystemBanner
-          isVisible={isShowEcology}
-          onClose={() => setIsShowEcologyModal(false)}
-        /> */}
-        <RateModalTriggerOnSettings className="mb-[16px]" />
-        {Object.values(renderData).map((group, idxl1) => {
-          return (
+    <div className="flex flex-col h-full bg-white">
+      {/* ================= SCROLLABLE CONTENT ================= */}
+      <div className="flex-1 overflow-auto p-6">
+        <div className="content">
+          {/* HEADER */}
+          <div className="flex items-center justify-between mb-6 text-18 font-medium">
+            <IconBackCC
+              className="w-5 h-5 text-r-neutral-body"
+              viewBox="0 0 20 20"
+              onClick={handleClose}
+            />
+            <p>{t('page.dashboard.home.panel.settings')}</p>
+            <div />
+          </div>
+          {currentAccount && (
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-[8px] p-2 border-none !rounded-[40px] min-w-[153px] max-w-[200px]">
+                <div
+                  onClick={() => {
+                    copyAddress(currentAccount.address);
+                    matomoRequestEvent({
+                      category: 'AccountInfo',
+                      action: 'headCopyAddress',
+                      label: [
+                        getKRCategoryByType(currentAccount?.type),
+                        currentAccount?.brandName,
+                      ].join('|'),
+                    });
+
+                    ga4.fireEvent('Click_CopyAddress', {
+                      event_category: 'Front Page Click',
+                    });
+                  }}
+                  className="h-10 w-10 cursor-pointer flex items-center justify-center rounded-full bg-gradient-to-br from-[#BFDBFE] to-[#0071FF]"
+                >
+                  <p className="text-xl">👀</p>
+                </div>
+                <div className="flex items-center flex-col gap-1 justify-center rounded-[6px] cursor-pointer bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)]">
+                  <div className="relative">
+                    <CommonSignal
+                      type={currentAccount.type}
+                      brandName={currentAccount.brandName}
+                      address={currentAccount.address}
+                    />
+                  </div>
+                  <div
+                    className="text-[15px] leading-[18px] font-medium text-black truncate max-w-[86px]"
+                    title={displayName}
+                  >
+                    {displayName}
+                  </div>
+                  {currentAccount && (
+                    <AddressViewer
+                      address={currentAccount.address}
+                      showArrow={false}
+                      className="text-[12px] leading-[14px] text-black opacity-60"
+                    />
+                  )}
+                </div>
+              </div>
+              <ThemeIcon
+                src={RcIconArrowRight}
+                onClick={handleSwitchAddress}
+                className="icon icon-arrow-right"
+              />
+            </div>
+          )}
+
+          <RateModalTriggerOnSettings className="mb-[16px]" />
+
+          {Object.values(renderData).map((group, idxl1) => (
             <div key={`g-${idxl1}`} className="setting-block">
               <div className="setting-title">{group.label}</div>
+
               <div className="setting-items">
                 {group.items.map((data, idxl2) => (
                   <Field
@@ -1303,7 +1416,9 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
                       )
                     }
                     onClick={data.onClick}
-                    className={clsx(data.description ? 'has-desc' : null)}
+                    className={clsx({
+                      'has-desc': !!data.description,
+                    })}
                   >
                     {data.content}
                     {data.description && (
@@ -1313,22 +1428,49 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
                 ))}
               </div>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
+
+      {/* ================= FIXED BOTTOM BUTTON ================= */}
+      <div className="bg-white px-6 mb-4 pb-[env(safe-area-inset-bottom)]">
+        <Button
+          className="w-full"
+          buttonType={ButtonType.SECONDARY}
+          onClick={() => {
+            lockWallet();
+
+            matomoRequestEvent({
+              category: 'Setting',
+              action: 'clickToUse',
+              label: 'Lock Wallet',
+            });
+
+            ga4.fireEvent('More_LockWallet', {
+              event_category: 'Click More',
+            });
+
+            reportSettings('Lock Wallet');
+          }}
+        >
+          <div className="flex items-center justify-center gap-2">
+            <RcIconLockWallet />
+            {t('page.dashboard.settings.features.lockWallet')}
+          </div>
+        </Button>
+      </div>
+
       <Contacts
         visible={contactsVisible}
-        onCancel={() => {
-          setContactsVisible(false);
-        }}
+        onCancel={() => setContactsVisible(false)}
       />
+
       <DappAccountModal
         visible={isShowDappAccountModal}
-        onFinish={() => {
-          setIsShowDappAccountModal(false);
-        }}
+        onFinish={() => setIsShowDappAccountModal(false)}
         onCancel={() => setIsShowDappAccountModal(false)}
       />
+
       <OpenApiModal
         visible={showOpenApiModal}
         value={openapiStore.host}
@@ -1339,6 +1481,7 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
         }}
         onCancel={() => setShowOpenApiModal(false)}
       />
+
       <OpenApiModal
         visible={showTestnetOpenApiModal}
         value={openapiStore.testnetHost}
@@ -1350,33 +1493,37 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
         }}
         onCancel={() => setShowTestnetOpenApiModal(false)}
       />
+
       <ResetAccountModal
         visible={showResetAccountModal}
         onFinish={() => setShowResetAccountModal(false)}
         onCancel={() => setShowResetAccountModal(false)}
       />
+
       <AutoLockModal
         visible={isShowAutoLockModal}
         onFinish={() => setIsShowAutoLockModal(false)}
         onCancel={() => setIsShowAutoLockModal(false)}
       />
+
       <SwitchLangModal
         visible={isShowLangModal}
         onFinish={() => setIsShowLangModal(false)}
         onCancel={() => setIsShowLangModal(false)}
       />
+
       <SwitchThemeModal
         visible={isShowThemeModeModal}
         onFinish={() => setIsShowThemeModeModal(false)}
         onCancel={() => setIsShowThemeModeModal(false)}
       />
+
       <RecentConnections
-        canBack={true}
+        canBack
         visible={connectedDappsVisible}
-        onClose={() => {
-          setConnectedDappsVisible(false);
-        }}
+        onClose={() => setConnectedDappsVisible(false)}
       />
+
       <FeedbackPopup
         visible={feedbackVisible}
         onClose={() => setFeedbackVisible(false)}

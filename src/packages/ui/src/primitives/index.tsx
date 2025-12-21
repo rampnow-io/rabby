@@ -32,3 +32,4 @@ export * from './toast';
 export * from './toaster';
 export * from './tooltip-view';
 export * from './use-toast';
+export * from './popover';

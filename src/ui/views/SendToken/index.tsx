@@ -1922,8 +1922,7 @@ const SendToken = () => {
         onValuesChange={handleFormValuesChange}
         initialValues={initialFormValues}
       >
-        <div className="flex-1 overflow-auto pb-[32px]">
-          <AddressInfoFrom />
+        <div className="flex-1 overflow-auto pb-[100px]">
           <AddressInfoTo
             loadingToAddressDesc={loadingToAddressDesc}
             toAccount={targetAccount}
@@ -2088,35 +2087,37 @@ const SendToken = () => {
             </div>
           )}
         </div>
-
-        <BottomArea
-          mostImportantRisks={mostImportantRisks}
-          agreeRequiredChecked={agreeRequiredChecked}
-          onCheck={(newVal) => {
-            setAgreeRequiredChecks((prev) => ({
-              ...prev,
-              ...(hasRiskForToAddress && { forToAddress: newVal }),
-              ...(hasRiskForToken && { forToken: newVal }),
-            }));
-          }}
-          currentAccount={currentAccount}
-          isSubmitLoading={isSubmitLoading}
-          canSubmit={canSubmit}
-          miniSignLoading={miniSignLoading}
-          canUseDirectSubmitTx={canUseDirectSubmitTx}
-          onConfirm={async () => {
-            await handleSubmit({
-              to: form.getFieldValue('to'),
-              amount: form.getFieldValue('amount'),
-            });
-            setAgreeRequiredChecks((prev) => ({
-              ...prev,
-              forToAddress: false,
-              forToken: false,
-            }));
-          }}
-        />
       </Form>
+
+      {/* Floating Bottom Area */}
+      <BottomArea
+        mostImportantRisks={mostImportantRisks}
+        agreeRequiredChecked={agreeRequiredChecked}
+        onCheck={(newVal) => {
+          setAgreeRequiredChecks((prev) => ({
+            ...prev,
+            ...(hasRiskForToAddress && { forToAddress: newVal }),
+            ...(hasRiskForToken && { forToken: newVal }),
+          }));
+        }}
+        currentAccount={currentAccount}
+        isSubmitLoading={isSubmitLoading}
+        canSubmit={canSubmit}
+        miniSignLoading={miniSignLoading}
+        canUseDirectSubmitTx={canUseDirectSubmitTx}
+        onConfirm={async () => {
+          await handleSubmit({
+            to: form.getFieldValue('to'),
+            amount: form.getFieldValue('amount'),
+          });
+          setAgreeRequiredChecks((prev) => ({
+            ...prev,
+            forToAddress: false,
+            forToken: false,
+          }));
+        }}
+      />
+
       <SendReserveGasPopup
         selectedItem={selectedGasLevel?.level as GasLevelType}
         chain={chain}

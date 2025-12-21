@@ -25,6 +25,7 @@ import { Popup } from '@/ui/component';
 import styled, { css } from 'styled-components';
 import { GAS_ACCOUNT_INSUFFICIENT_TIP } from '../../GasAccount/hooks/checkTxs';
 import { GasLevel } from '@rabby-wallet/rabby-api/dist/types';
+import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/primitives';
 
 export const useShowMoreGasSelectModalVisible = createGlobalState(false);
 
@@ -67,237 +68,168 @@ export const [useGetGasInfoByUI, useSetGasInfoByUI] = [
 ];
 
 export default function ShowMoreGasSelectModal({
-  visible,
-  onCancel,
-  onConfirm,
   children,
-  //   layout,
+}: {
+  children: React.ReactNode;
 }) {
   const { t } = useTranslation();
-
   const state = useSignatureStore();
-  const { ctx, config, status } = state;
+  const { ctx, status } = state;
+
   const gasInfoByUI = useGetGasInfoByUI();
-  const setGasInfoByUI = useSetGasInfoByUI();
+  const [open, setOpen] = useShowMoreGasSelectModalVisible();
+  const [internalOpen, setInternalOpen] = React.useState(false);
 
-  useEffect(() => {
-    if (['idle', 'prefetching'].includes(status) || !ctx?.txsCalc?.length) {
-      setGasInfoByUI(undefined);
-    }
-  }, [setGasInfoByUI, status, ctx?.txsCalc?.length]);
-
-  const calcGasAccountUsd = useCallback((n) => {
-    const v = Number(n);
-    if (!Number.isNaN(v) && v < 0.0001) {
-      return `$${n}`;
-    }
-    return formatGasHeaderUsdValue(n || '0');
-  }, []);
-
-  const hasCustomRpc = !ctx?.noCustomRPC;
-
-  const [_, setVisible] = useShowMoreGasSelectModalVisible();
-
-  // Gas 方法切换 - 添加异步处理
-  const handleChangeGasMethod = useCallback(
-    async (method: 'native' | 'gasAccount') => {
-      try {
-        signatureStore.setGasMethod(method);
-      } catch (error) {
-        console.error('Gas method change error:', error);
-      }
-    },
-    [ctx?.selectedGas]
-  );
-
-  useEffect(() => {
-    setVisible(false);
-    return () => {
-      setVisible(false);
-    };
-  }, []);
-
-  const uiType = useMemo(() => getUiType(), []);
   const {
     externalPanelSelection,
     handleClickEdit,
     gasCostUsdStr,
     gasUsdList,
-    gasIsNotEnough,
     gasAccountIsNotEnough,
     gasAccountCost,
   } = gasInfoByUI || {};
-  const gasAccountErrorMsg = (ctx?.gasAccount as any)?.err_msg as string;
-  const gasAccountError =
-    !!gasAccountErrorMsg &&
-    gasAccountErrorMsg?.toLowerCase() !==
-      GAS_ACCOUNT_INSUFFICIENT_TIP.toLowerCase();
+
+  useEffect(() => {
+    if (['idle', 'prefetching'].includes(status) || !ctx?.txsCalc?.length) {
+      useSetGasInfoByUI()(undefined);
+    }
+  }, [status, ctx?.txsCalc?.length]);
+
+  const hasCustomRpc = !ctx?.noCustomRPC;
+
+  const calcGasAccountUsd = useCallback((n: number) => {
+    if (Number(n) < 0.0001) return `$${n}`;
+    return formatGasHeaderUsdValue(n || '0');
+  }, []);
 
   if (!ctx?.txsCalc?.length) return null;
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    setInternalOpen(nextOpen);
+  };
+
+  // Sync external state changes
+  React.useEffect(() => {
+    if (open !== internalOpen) {
+      setInternalOpen(open);
+    }
+  }, [open]);
+
   return (
-    <Dropdown
-      onVisibleChange={(v) => {
-        setVisible(v);
-      }}
-      placement="topRight"
-      trigger={['click']}
-      overlay={
-        <div
-          className={clsx(
-            'w-[256px] rounded-[8px]',
-            'bg-r-neutral-bg1',
-            'border border-solid border-rabby-neutral-line'
-          )}
-          style={{
-            boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.10)',
-          }}
-        >
-          <div className="flex items-center p-2 m-[8px] rounded-md border-[0.5px] border-solid border-rabby-neutral-line bg-transparent">
+    <Popover open={open || internalOpen} onOpenChange={handleOpenChange}>
+      <PopoverTrigger asChild>{children}</PopoverTrigger>
+
+      <PopoverContent
+        side="top"
+        align="center"
+        sideOffset={8}
+        className="w-[256px] rounded-[8px] border border-rabby-neutral-line bg-r-neutral-bg1 shadow-lg p-0 z-50"
+        onInteractOutside={(e) => {
+          e.preventDefault();
+          handleOpenChange(false);
+        }}
+      >
+        {/* GAS METHOD */}
+        <div className="flex items-center p-2 m-2 rounded-md border border-rabby-neutral-line">
+          <GasMethod
+            active={ctx?.gasMethod === 'native'}
+            onChange={() => signatureStore.setGasMethod('native')}
+            ActiveComponent={RcIconGasActive}
+            BlurComponent={RcIconGasBlurCC}
+            title={t('page.gasAccount.gasToken')}
+          />
+
+          <div
+            className={clsx(hasCustomRpc && 'cursor-not-allowed opacity-50')}
+          >
             <GasMethod
-              active={ctx?.gasMethod === 'native'}
-              onChange={(e) => {
-                e.stopPropagation();
-                handleChangeGasMethod?.('native');
+              active={ctx?.gasMethod === 'gasAccount'}
+              onChange={() => {
+                if (hasCustomRpc) return;
+                signatureStore.setGasMethod('gasAccount');
               }}
-              ActiveComponent={RcIconGasActive}
-              BlurComponent={RcIconGasBlurCC}
-              title={t('page.gasAccount.gasToken')}
+              ActiveComponent={RcIconGasAccountActive}
+              BlurComponent={RcIconGasAccountBlurCC}
+              title={t('page.gasAccount.title')}
             />
-
-            <Tooltip
-              placement={'top'}
-              overlayClassName="rectangle w-[max-content]"
-              title={
-                hasCustomRpc
-                  ? t('page.signTx.BroadcastMode.tips.customRPC')
-                  : undefined
-              }
-            >
-              <div
-                className={clsx(
-                  hasCustomRpc && 'cursor-not-allowed opacity-50'
-                )}
-              >
-                <GasMethod
-                  active={ctx?.gasMethod === 'gasAccount'}
-                  onChange={(e) => {
-                    e.stopPropagation();
-                    if (hasCustomRpc) {
-                      return;
-                    }
-                    handleChangeGasMethod?.('gasAccount');
-                  }}
-                  ActiveComponent={RcIconGasAccountActive}
-                  BlurComponent={RcIconGasAccountBlurCC}
-                  title={t('page.gasAccount.title')}
-                />
-              </div>
-            </Tooltip>
           </div>
+        </div>
 
-          <div className="space-y-2 w-full px-4 pb-[4px]">
-            {ctx.gasList?.map((gas) => {
-              const gwei = new BigNumber(gas.price / 1e9).toFixed().slice(0, 8);
-              const levelTitle = t(getGasLevelI18nKey(gas.level));
-              const isActive = ctx.selectedGas?.level === gas.level;
-              const isCustom = gas.level === 'custom';
-              let costUsd =
-                ctx.gasMethod === 'native'
-                  ? gasUsdList?.[gas.level]
-                  : gasAccountIsNotEnough?.[gas.level]?.[1];
+        {/* GAS LIST */}
+        <div className="space-y-2 px-4 pb-2">
+          {ctx.gasList?.map((gas) => {
+            const gwei = new BigNumber(gas.price / 1e9).toFixed().slice(0, 8);
 
-              const isNotEnough =
-                ctx.gasMethod === 'native'
-                  ? gasIsNotEnough?.[gas.level]
-                  : gasAccountIsNotEnough?.[gas.level]?.[0];
+            const isActive = ctx.selectedGas?.level === gas.level;
+            const isCustom = gas.level === 'custom';
 
-              const isGasAccountLoading =
-                !isActive &&
-                ctx.gasMethod === 'gasAccount' &&
-                (gasAccountIsNotEnough?.[gas.level]?.[1] === '' ||
-                  gasAccountIsNotEnough?.[gas.level]?.[1] === 0);
+            let costUsd =
+              ctx.gasMethod === 'native'
+                ? gasUsdList?.[gas.level]
+                : gasAccountIsNotEnough?.[gas.level]?.[1];
 
-              const errorOnGasAccount =
-                ctx.gasMethod === 'gasAccount' && !!gasAccountError;
-
-              costUsd = isActive
-                ? ctx.gasMethod === 'gasAccount'
+            if (isActive) {
+              costUsd =
+                ctx.gasMethod === 'gasAccount'
                   ? calcGasAccountUsd(
                       (gasAccountCost?.estimate_tx_cost || 0) +
                         (gasAccountCost?.gas_cost || 0)
                     )
-                  : gasCostUsdStr
-                : costUsd;
+                  : gasCostUsdStr;
+            }
 
-              return (
-                <div
-                  key={gas.level}
-                  onClick={() => {
-                    externalPanelSelection?.(gas);
-                    if (gas.level === 'custom') handleClickEdit?.();
-                    onCancel();
-                  }}
-                  className={clsx(
-                    'flex justify-between items-center',
-                    'px-[8px] h-[48px] rounded-[6px]',
-                    'cursor-pointer',
-                    'hover:bg-r-blue-light-1',
-                    isActive ? 'bg-r-blue-light-1' : 'bg-transparent'
+            return (
+              <div
+                key={gas.level}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Gas option clicked:', gas.level);
+                  externalPanelSelection?.(gas);
+                  if (isCustom) handleClickEdit?.();
+                  setTimeout(() => handleOpenChange(false), 0);
+                }}
+                className={clsx(
+                  'flex items-center justify-between h-[48px] px-2 rounded-md cursor-pointer',
+                  'hover:bg-r-blue-light-1',
+                  isActive && 'bg-r-blue-light-1'
+                )}
+                style={{
+                  pointerEvents: 'auto',
+                  userSelect: 'none',
+                  touchAction: 'manipulation',
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <GasLevelIcon level={gas.level} isActive={false} />
+                  <span className="text-sm font-medium">
+                    {t(getGasLevelI18nKey(gas.level))}
+                  </span>
+                  {!isCustom && (
+                    <span className="text-xs text-r-neutral-foot">
+                      {gwei} Gwei
+                    </span>
                   )}
-                >
-                  <div className="flex items-center space-x-1 gap-[6px]">
-                    <GasLevelIcon
-                      isActive={false}
-                      overWriteClass={clsx(
-                        isActive
-                          ? 'text-r-neutral-title-1'
-                          : 'text-r-neutral-body'
-                      )}
-                      level={gas.level}
-                    />
-                    <span className="text-[13px] font-medium text-r-neutral-title-1">
-                      {levelTitle}
-                    </span>
-                    {!isCustom && (
-                      <span className="text-[12px] text-r-neutral-foot">
-                        {gwei} Gwei
-                      </span>
-                    )}
-                    {isActive && (
-                      <IconGasLevelChecked className="text-r-blue-default" />
-                    )}
-                  </div>
-                  {isCustom ? (
-                    <IconGasCustomRightArrowCC className="text-r-neutral-foot" />
-                  ) : (
-                    <span
-                      className={clsx(
-                        'text-[13px] font-medium',
-                        (isNotEnough && !isGasAccountLoading) ||
-                          errorOnGasAccount
-                          ? 'text-r-red-default'
-                          : 'text-r-neutral-title-1'
-                      )}
-                    >
-                      {isGasAccountLoading ? (
-                        <RcIconLoading
-                          className="w-12 h-12 animate-spin"
-                          viewBox="0 0 20 20"
-                        />
-                      ) : (
-                        costUsd
-                      )}
-                    </span>
+                  {isActive && !isCustom && (
+                    <IconGasLevelChecked className="text-r-blue-default" />
                   )}
                 </div>
-              );
-            })}
-          </div>
+
+                {isCustom ? (
+                  <IconGasCustomRightArrowCC />
+                ) : (
+                  <span className="text-sm font-medium">{costUsd}</span>
+                )}
+              </div>
+            );
+          })}
         </div>
-      }
-    >
-      {children}
-    </Dropdown>
+      </PopoverContent>
+    </Popover>
   );
 }

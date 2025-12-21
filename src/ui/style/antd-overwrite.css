@@ -325,10 +325,10 @@ textarea {
   font-size: 12px;
   border-radius: 14px;
   padding: 6px 12px;
-  background-color: black;
+  background-color: white;
 }
 .ant-tooltip:not(.disable-ant-overwrite) .ant-tooltip-arrow-content {
-  background-color: black;
+  background-color: white;
 }
 .ant-tooltip:not(.disable-ant-overwrite) .ant-tooltip-arrow {
   display: none;
@@ -352,14 +352,14 @@ textarea {
   display: block !important;
 }
 .ant-tooltip:not(.disable-ant-overwrite).address-tooltip.address-tooltip-light .ant-tooltip-inner {
-  background: var(--r-neutral-bg1);
+  background: var(--r-neutral-bg-1);
   color: var(--r-neutral-title1);
 }
 .ant-tooltip:not(.disable-ant-overwrite).address-tooltip.address-tooltip-light .ant-tooltip-arrow {
-  border-color: var(--r-neutral-bg1);
+  border-color: var(--r-neutral-bg-1);
 }
 .ant-tooltip:not(.disable-ant-overwrite).address-tooltip.address-tooltip-light .ant-tooltip-arrow-content {
-  background-color: var(--r-neutral-bg1);
+  background-color: var(--r-neutral-bg-1);
 }
 .ant-tooltip:not(.disable-ant-overwrite).address-tooltip.address-tooltip-transparent .ant-tooltip-inner {
   background: transparent;

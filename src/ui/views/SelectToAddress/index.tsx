@@ -4,7 +4,6 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { isValidAddress } from '@ethereumjs/util';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
-import { Button, message, Tabs } from 'antd';
 import { groupBy } from 'lodash';
 import PQueue from 'p-queue';
 
@@ -29,7 +28,9 @@ const queue = new PQueue({ interval: 1000, intervalCap: 8, concurrency: 8 }); //
 import TabImported from './components/TabImported';
 import { useThemeMode } from '@/ui/hooks/usePreference';
 import { query2obj } from '@/ui/utils/url';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/primitives';
 
+type FocusTab = 'whitelist' | 'imported';
 const OuterInput = styled.div`
   border: 1px solid var(--r-neutral-line);
   &:hover {
@@ -265,9 +266,7 @@ const SelectToAddress = () => {
     };
   }, [forceUpdateUnimportedBalances, unimportedWhitelistAccounts, wallet]);
 
-  const [focusTab, setFocusTab] = useState<'whitelist' | 'imported'>(
-    'whitelist'
-  );
+  const [focusTab, setFocusTab] = useState<FocusTab>('whitelist');
   useEffect(() => {
     const query = new URLSearchParams(history.location.search);
     const tab = query.get('tab');
@@ -340,63 +339,58 @@ const SelectToAddress = () => {
 
         {!inputingAddress && (
           <Tabs
+            value={focusTab}
+            onValueChange={(val) => setFocusTab(val as FocusTab)}
             className="w-full select-to-address-tabs"
-            centered
-            activeKey={focusTab}
-            onChange={(key: any) => setFocusTab(key)}
-            animated={false}
           >
-            <Tabs.TabPane
-              key="whitelist"
-              // forceRender
-              tab={
-                <div
+            {/* Tabs Header */}
+            <TabsList className="flex w-full justify-center bg-transparent">
+              {/* Whitelist Tab */}
+              <TabsTrigger
+                value="whitelist"
+                className={clsx(
+                  'flex flex-row items-center justify-center gap-1 px-3',
+                  focusTab === 'whitelist'
+                    ? 'text-r-neutral-title1 font-bold'
+                    : 'text-r-neutral-foot'
+                )}
+              >
+                <RcWhitelistGuardCC
                   className={clsx(
-                    'flex flex-row items-center justify-center',
+                    'w-4 h-4',
                     focusTab === 'whitelist'
-                      ? 'text-r-neutral-title1 font-bold'
+                      ? 'text-r-green-default'
                       : 'text-r-neutral-foot'
                   )}
-                >
-                  <RcWhitelistGuardCC
-                    width={18}
-                    height={18}
-                    className={clsx(
-                      'mr-[4px]',
-                      focusTab === 'whitelist'
-                        ? 'text-r-green-default'
-                        : isDarkTheme
-                        ? 'text-r-neutral-foot'
-                        : 'text-r-neutral-foot'
-                    )}
-                  />
-                  {t('page.selectToAddress.tabs.whitelist')}
-                </div>
-              }
-            >
+                />
+                {t('page.selectToAddress.tabs.whitelist')}
+              </TabsTrigger>
+
+              {/* Imported Tab */}
+              <TabsTrigger
+                value="imported"
+                className={clsx(
+                  'px-3',
+                  focusTab === 'imported'
+                    ? 'text-r-neutral-title1 font-bold'
+                    : 'text-r-neutral-foot'
+                )}
+              >
+                {t('page.selectToAddress.tabs.imported')}
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Tabs Content */}
+            <TabsContent value="whitelist">
               <TabWhitelist
                 unimportedBalances={unimportedBalances}
                 handleChange={handleChange}
               />
-            </Tabs.TabPane>
+            </TabsContent>
 
-            <Tabs.TabPane
-              key="imported"
-              // forceRender
-              tab={
-                <span
-                  className={clsx(
-                    focusTab === 'imported'
-                      ? 'text-r-neutral-title1 font-bold'
-                      : 'text-r-neutral-foot'
-                  )}
-                >
-                  {t('page.selectToAddress.tabs.imported')}
-                </span>
-              }
-            >
+            <TabsContent value="imported">
               <TabImported handleChange={handleChange} />
-            </Tabs.TabPane>
+            </TabsContent>
           </Tabs>
         )}
       </div>
