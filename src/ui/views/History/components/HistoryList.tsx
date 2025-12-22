@@ -1,13 +1,13 @@
 import { last } from 'lodash';
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 import { useAccount } from '@/ui/store-hooks';
 import { useInfiniteScroll } from 'ahooks';
-import { Virtuoso } from 'react-virtuoso';
 import { Empty, Modal } from 'ui/component';
 import { sleep, useWallet } from 'ui/utils';
+
 import { HistoryItem, HistoryItemActionContext } from './HistoryItem';
 import { Loading } from './Loading';
 
@@ -20,50 +20,45 @@ export const HistoryList = ({
 }) => {
   const wallet = useWallet();
   const { t } = useTranslation();
-
-  const ref = useRef<HTMLDivElement | null>(null);
   const [account] = useAccount();
 
-  const getAllTxHistory = (
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  const [
+    focusingHistoryItem,
+    setFocusingHistoryItem,
+  ] = useState<HistoryItemActionContext | null>(null);
+
+  const getAllTxHistory = async (
     params: Parameters<typeof wallet.openapi.getAllTxHistory>[0]
   ) => {
-    const getHistory = wallet.openapi.getAllTxHistory;
-
-    return getHistory(params).then((res) => {
-      if (res.history_list) {
-        res.history_list = res.history_list.filter((item) => {
-          return !item.is_scam;
-        });
-      }
-      return res;
-    });
+    const res = await wallet.openapi.getAllTxHistory(params);
+    if (res.history_list) {
+      res.history_list = res.history_list.filter((item) => !item.is_scam);
+    }
+    return res;
   };
 
   const fetchData = async (startTime = 0) => {
     const { address } = account!;
-    if (startTime) {
-      await sleep(500);
-    }
+    if (startTime) await sleep(500);
+
     const apiLevel = await wallet.getAPIConfig([], 'ApiLevel', false);
     if (apiLevel >= 1) {
-      return {
-        list: [],
-      };
+      return { list: [] };
     }
-    const getHistory = wallet.openapi.listTxHisotry;
 
     const res = isFilterScam
-      ? await getAllTxHistory({
-          id: address,
-        })
-      : await getHistory({
+      ? await getAllTxHistory({ id: address })
+      : await wallet.openapi.listTxHisotry({
           id: address,
           start_time: startTime,
           page_count: PAGE_COUNT,
         });
 
-    const { project_dict, cate_dict, history_list: list } = res;
-    const displayList = list
+    const { project_dict, cate_dict, history_list } = res;
+
+    const list = history_list
       .map((item) => ({
         ...item,
         projectDict: project_dict,
@@ -72,110 +67,85 @@ export const HistoryList = ({
         tokenUUIDDict:
           'token_uuid_dict' in res ? res.token_uuid_dict : undefined,
       }))
-      .sort((v1, v2) => v2.time_at - v1.time_at);
+      .sort((a, b) => b.time_at - a.time_at);
+
     return {
-      last: last(displayList)?.time_at,
-      list: displayList,
+      list,
+      last: last(list)?.time_at,
     };
   };
 
-  const { data, loading, loadingMore, loadMore } = useInfiniteScroll(
+  const { data, loading, loadingMore } = useInfiniteScroll(
     (d) => fetchData(d?.last),
     {
-      isNoMore: (d) => {
-        return isFilterScam
-          ? true
-          : !d?.last || (d?.list.length || 0) < PAGE_COUNT;
-      },
+      target: scrollRef,
+      isNoMore: (d) =>
+        isFilterScam ? true : !d?.last || (d?.list?.length || 0) < PAGE_COUNT,
     }
   );
 
-  const isEmpty = (data?.list?.length || 0) <= 0 && !loading;
-
-  const [
-    focusingHistoryItem,
-    setFocusingHistoryItem,
-  ] = React.useState<HistoryItemActionContext | null>(null);
+  const isEmpty = !loading && (data?.list?.length || 0) === 0;
 
   return (
-    <div className="overflow-auto h-full" ref={ref}>
+    <div className="h-full relative">
+      {/* View Input Modal */}
       <Modal
         visible={!!focusingHistoryItem}
-        // View Message
         title={t('page.transactions.modalViewMessage.title')}
-        className="view-tx-message-modal"
-        onCancel={() => {
-          setFocusingHistoryItem(null);
-        }}
+        onCancel={() => setFocusingHistoryItem(null)}
         maxHeight="360px"
       >
-        <div className="parsed-content text-14">
-          {focusingHistoryItem?.parsedInputData}
-        </div>
+        <div className="text-14">{focusingHistoryItem?.parsedInputData}</div>
       </Modal>
 
-      {loading ? (
+      {/* Loading */}
+      {loading && (
         <div className={isFilterScam ? 'pt-[20px]' : ''}>
-          {isFilterScam ? (
-            <div
-              className="
- text-r-neutral-body text-center
-  text-[12px] font-normal fixed top-[55px] left-0 right-0 z-[100]
-"
-            >
+          {isFilterScam && (
+            <div className="fixed top-[55px] left-0 right-0 z-[100] text-center text-[12px]">
               {t('page.transactions.filterScam.loading')}
             </div>
-          ) : null}
+          )}
           <Loading count={4} active />
         </div>
-      ) : (
-        <>
-          {isEmpty ? (
-            <Empty
-              title={t('page.transactions.empty.title')}
-              desc={
-                <span>
-                  <Trans i18nKey="page.transactions.empty.desc" t={t}>
-                    No transactions found on
-                    <Link className="underline" to="/settings/chain-list">
-                      supported chains
-                    </Link>
-                  </Trans>
-                </span>
-              }
-              className="pt-[108px]"
-            ></Empty>
-          ) : (
-            <Virtuoso
-              style={{
-                height: '100%',
-              }}
-              data={data?.list || []}
-              itemContent={(_, item) => {
-                return (
-                  <HistoryItem
-                    data={item}
-                    projectDict={item.projectDict}
-                    cateDict={item.cateDict}
-                    tokenDict={item.tokenDict || item.tokenUUIDDict || {}}
-                    key={item.id}
-                    onViewInputData={setFocusingHistoryItem}
-                  />
-                );
-              }}
-              endReached={loadMore}
-              increaseViewportBy={100}
-              components={{
-                Footer: () => {
-                  if (loadingMore) {
-                    return <Loading count={2} active />;
-                  }
-                  return null;
-                },
-              }}
-            ></Virtuoso>
-          )}
-        </>
+      )}
+
+      {/* Empty */}
+      {isEmpty && (
+        <Empty
+          title={t('page.transactions.empty.title')}
+          desc={
+            <span>
+              <Trans i18nKey="page.transactions.empty.desc" t={t}>
+                No transactions found on{' '}
+                <Link to="/settings/chain-list" className="underline">
+                  supported chains
+                </Link>
+              </Trans>
+            </span>
+          }
+          className="pt-[108px]"
+        />
+      )}
+
+      {!loading && !isEmpty && (
+        <div
+          ref={scrollRef}
+          className="h-full overflow-y-auto overscroll-contain"
+        >
+          {data?.list?.map((item) => (
+            <HistoryItem
+              key={item.id}
+              data={item}
+              projectDict={item.projectDict}
+              cateDict={item.cateDict}
+              tokenDict={item.tokenDict || item.tokenUUIDDict || {}}
+              onViewInputData={setFocusingHistoryItem}
+            />
+          ))}
+
+          {loadingMore && <Loading count={2} active />}
+        </div>
       )}
     </div>
   );

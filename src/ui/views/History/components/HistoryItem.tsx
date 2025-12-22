@@ -142,7 +142,7 @@ function ViewMessageTriggerForContract({
               });
             }}
           >
-            <img src={IconInputData} className="w-[100%] h-[100%] block" />
+            <img src={IconInputData} className="w-[40px] h-[40px] block" />
           </span>
         </Tooltip>
       )}
@@ -245,100 +245,90 @@ export const HistoryItem = ({
   const { t } = useTranslation();
   const account = useRabbySelector((state) => state.account.currentAccount);
 
+  const cateName =
+    data.cate_id && cateDict ? cateDict[data.cate_id]?.name : undefined;
+
   if (!chainItem) {
     return <div></div>;
   }
 
   return (
     <div
-      className="
-    txs-history-card relative bg-r-neutral-card-1
-    rounded-[6px] px-[12px] mb-[12px]
-    [&.is-gray]:opacity-50
-  "
+      className={clsx(
+        'relative mb-[12px] rounded-[12px] bg-white px-[14px] py-[12px]',
+        'shadow-[0_2px_8px_rgba(0,0,0,0.04)]',
+        (isScam || isFailed) && 'opacity-70'
+      )}
     >
-      <div
-        className="flex items-center py-[9px] min-h-[38px]
-  gap-y-[9px] gap-x-[12px] flex-wrap"
-      >
-        {isScam && (
-          <TooltipWithMagnetArrow
-            title={t('page.transactions.txHistory.scamToolTip')}
-            className="rectangle w-[max-content] max-w-[340px]"
-          >
-            <div
-              className="tag-scam text-[12px] leading-[14px] font-normal
-  text-r-neutral-foot bg-r-neutral-line
-  px-[6px] py-[3px] rounded-[2px] opacity-50"
-            >
-              {t('global.scamTx')}
-            </div>
-          </TooltipWithMagnetArrow>
-        )}
-        <div
-          className={clsx(
-            'txs-history-card-header-inner text-12',
-            (isScam || isFailed) && 'opacity-50'
-          )}
-        >
-          <div className="time">{sinceTime(data.time_at)}</div>
-          <div className="txs-history-card-header-right flex items-center justify-end flex-shrink-1 w-[100%]">
-            <TxId chain={data.chain} id={data.id} />
-            {/* {addressType === AddressType.CONTRACT && !data.is_scam && (
-              <ViewMessageTriggerForContract
-                contractAddress={data.other_addr}
-                userAddress={account?.address || ''}
-                txInputData={data.tx?.message || ''}
-                chainItem={chainItem}
-                onViewInputData={onViewInputData}
-                isTestnet={isTestnet}
-              />
-            )} */}
-            {addressType === AddressType.EOA && !data.is_scam && (
-              <ViewMessageTriggerForEoa
-                userAddress={account?.address || ''}
-                txInputData={data.tx?.message || ''}
-                chainItem={chainItem}
-                onViewInputData={onViewInputData}
-              />
+      {/* ===== HEADER ===== */}
+      <div className="flex items-start justify-between gap-[8px]">
+        <div className="flex flex-col gap-[2px]">
+          <div className="flex items-center gap-[6px]">
+            <span className="text-[14px] font-medium text-r-neutral-title-1">
+              {cateName || 'Transaction'}
+            </span>
+
+            {isFailed && (
+              <span className="text-[11px] px-[6px] py-[1px] rounded-full bg-r-red-light text-r-red-default font-medium">
+                {t('global.failed')}
+              </span>
+            )}
+
+            {isScam && (
+              <span className="text-[11px] px-[6px] py-[1px] rounded-full bg-r-neutral-line text-r-neutral-foot">
+                {t('global.scamTx')}
+              </span>
             )}
           </div>
+
+          <div className="text-[12px] text-r-neutral-foot">
+            {sinceTime(data.time_at)}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-[6px]">
+          <TxId chain={data.chain} id={data.id} />
+          {addressType === AddressType.EOA && !data.is_scam && (
+            <ViewMessageTriggerForEoa
+              userAddress={account?.address || ''}
+              txInputData={data.tx?.message || ''}
+              chainItem={chainItem}
+              onViewInputData={onViewInputData}
+            />
+          )}
         </div>
       </div>
-      <div
-        className={clsx(
-          'pt-[8px] pb-[20px] flex items-center gap-[8px]',
-          (isScam || isFailed) && 'opacity-50'
-        )}
-      >
+
+      {/* ===== BODY ===== */}
+      <div className="mt-[10px] flex flex-col gap-[8px]">
         <TxInterAddressExplain
           data={data}
           projectDict={projectDict}
           tokenDict={tokenDict}
           cateDict={cateDict}
         />
+
         <TokenChange data={data} tokenDict={tokenDict} />
       </div>
-      {(data.tx && data.tx?.eth_gas_fee) || isFailed ? (
-        <div
-          className={clsx(
-            'txs-history-card-footer text-12',
-            (isScam || isFailed) && 'opacity-50'
+
+      {/* ===== FOOTER ===== */}
+      {(data.tx?.eth_gas_fee || isFailed) && (
+        <div className="mt-[10px] flex items-center justify-between text-[12px] text-r-neutral-foot border-t pt-[8px]">
+          {data.tx?.eth_gas_fee ? (
+            <span>
+              {t('global.gas')}{' '}
+              {numberWithCommasIsLtOne(data.tx.eth_gas_fee, 2)}{' '}
+              {chainItem.nativeTokenSymbol}
+              {' · $'}
+              {numberWithCommasIsLtOne(data.tx.usd_gas_fee ?? 0, 2)}
+            </span>
+          ) : (
+            <span />
           )}
-        >
-          {data.tx && data.tx?.eth_gas_fee ? (
-            <div>
-              {t('global.gas')}:{' '}
-              {numberWithCommasIsLtOne(data.tx?.eth_gas_fee, 2)}{' '}
-              {chainItem?.nativeTokenSymbol} ($
-              {numberWithCommasIsLtOne(data.tx?.usd_gas_fee ?? 0, 2)})
-            </div>
-          ) : null}
-          {isFailed && (
-            <span className="tx-status is-failed">{t('global.failed')}</span>
-          )}
+
+          <span className="uppercase text-[11px]">{chainItem.name}</span>
         </div>
-      ) : null}
+      )}
     </div>
   );
 };

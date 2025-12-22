@@ -45,7 +45,7 @@ export default function BottomArea({
     <>
       {/* Floating Button */}
       <div className="fixed bottom-4 left-4 right-4 z-40">
-        <button
+        <Button
           onClick={() => {
             if (canSubmit) {
               setShowSheet(true);
@@ -55,12 +55,12 @@ export default function BottomArea({
           className={clsx(
             'w-full h-[48px] rounded-[12px] font-semibold text-[16px] transition-all',
             canSubmit
-              ? 'bg-r-green-default text-white hover:opacity-90 active:scale-95'
-              : 'bg-r-neutral-card-2 text-r-neutral-foot cursor-not-allowed'
+              ? 'hover:opacity-90 active:scale-95'
+              : 'cursor-not-allowed'
           )}
         >
           {t('page.sendToken.sendButton')}
-        </button>
+        </Button>
       </div>
 
       {/* Bottom Sheet */}

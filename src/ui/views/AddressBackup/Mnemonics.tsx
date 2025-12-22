@@ -23,7 +23,6 @@ const AddressBackupMnemonics: React.FC<{
   onClose?(): void;
 }> = ({ isInModal, onClose }) => {
   const { t } = useTranslation();
-
   const history = useHistory();
   const { state } = useLocation<{
     data: string;
@@ -42,7 +41,7 @@ const AddressBackupMnemonics: React.FC<{
         duration: 0.5,
       });
     });
-  }, [data]);
+  }, [data, t]);
 
   const handleShowQrCode = () => {
     Popup.open({
@@ -54,12 +53,12 @@ const AddressBackupMnemonics: React.FC<{
         <div>
           <div className="flex items-start gap-8 px-[12px] py-[10px] rounded-[4px] bg-r-red-light text-r-red-default mb-[20px]">
             <InfoCircleOutlined className="rotate-180" />
-            <div className="text-[14px] leading-[18px] ">
+            <div className="text-[14px] leading-[18px]">
               {t('page.backupSeedPhrase.qrCodePopupTips')}
             </div>
           </div>
           <div className="flex justify-center">
-            <div className="p-[12px] rounded-[16px] border-rabby-neutral-line border-[1px] bg-white">
+            <div className="p-[12px] rounded-[16px] border-rabby-neutral-line border bg-white">
               <QRCode value={data} size={240} />
             </div>
           </div>
@@ -68,47 +67,44 @@ const AddressBackupMnemonics: React.FC<{
     });
   };
 
-  const isSlip39 = React.useMemo(() => {
-    return data?.split('\n').length > 1;
-  }, [data]);
+  const isSlip39 = React.useMemo(() => data?.split('\n').length > 1, [data]);
 
   useEffect(() => {
     if (!data) {
-      if (isInModal) {
-        onClose?.();
-      } else {
-        history.goBack();
-      }
+      isInModal ? onClose?.() : history.goBack();
     }
-  }, [data, history, isInModal]);
+  }, [data, history, isInModal, onClose]);
 
-  if (!data) {
-    return null;
-  }
+  if (!data) return null;
 
   return (
     <div
       className={clsx(
-        'page-address-backup',
-        isInModal ? 'min-h-0 h-[600px]' : ''
+        'page-address-backup flex flex-col h-full bg-white',
+        isInModal && 'min-h-0 h-[600px]'
       )}
     >
-      <header className="relative">
-        {!!state.goBack && (
+      {/* ================= HEADER ================= */}
+      <header className="shrink-0 px-4 py-3 text-center font-semibold text-[16px]">
+        {!!state?.goBack && (
           <img
             src={IconBack}
-            className={clsx('absolute icon icon-back filter invert')}
+            className="absolute icon icon-back  filter invert cursor-pointer"
             onClick={() => history.goBack()}
           />
         )}
         {t('page.backupSeedPhrase.title')}
       </header>
-      <div className="alert mb-20">
-        <InfoCircleOutlined className="rotate-180" />
-        {t('page.backupSeedPhrase.alert')}
-      </div>
-      <div className="mb-[94px]">
+
+      {/* ================= CONTENT ================= */}
+      <div className="flex-1 overflow-auto px-4">
+        <div className="alert mb-20">
+          <InfoCircleOutlined className="rotate-180" />
+          {t('page.backupSeedPhrase.alert')}
+        </div>
+
         <div className="relative">
+          {/* MASK */}
           <div
             onClick={() => setMasked(false)}
             className={clsx('mask', !masked && 'hidden')}
@@ -118,36 +114,35 @@ const AddressBackupMnemonics: React.FC<{
               {t('page.backupSeedPhrase.clickToShow')}
             </p>
           </div>
+
+          {/* ACTIONS */}
           <div className="flex items-center gap-[24px] justify-center mb-20">
             <div
               onClick={handleShowQrCode}
               className={clsx(
-                'copy text-r-neutral-foot',
+                'copy text-r-neutral-foot cursor-pointer',
                 masked ? 'invisible' : 'visible'
               )}
             >
-              <ThemeIcon
-                src={RcIconQrCode}
-                className="text-r-neutral-foot w-[16px] h-[16px]"
-              />
+              <ThemeIcon src={RcIconQrCode} className="w-[16px] h-[16px]" />
               {t('page.backupSeedPhrase.showQrCode')}
             </div>
+
             <div
               onClick={onCopyMnemonics}
               className={clsx(
-                'copy text-r-neutral-foot',
+                'copy text-r-neutral-foot cursor-pointer',
                 masked ? 'invisible' : 'visible'
               )}
             >
-              <ThemeIcon
-                src={RcIconCopyCC}
-                className="text-r-neutral-foot w-[16px] h-[16px]"
-              />
+              <ThemeIcon src={RcIconCopyCC} className="w-[16px] h-[16px]" />
               {t('page.backupSeedPhrase.copySeedPhrase')}
             </div>
           </div>
+
+          {/* SEED CONTENT */}
           <div
-            className="rounded-[6px] flex items-center w-full"
+            className="rounded-[6px] w-full"
             style={masked ? { filter: 'blur(3px)' } : {}}
           >
             {isSlip39 ? (
@@ -163,8 +158,10 @@ const AddressBackupMnemonics: React.FC<{
           </div>
         </div>
       </div>
-      <div className="footer pb-[20px] z-20">
-        <Button className="w-full" onClick={() => history.goBack()}>
+
+      {/* ================= FOOTER ================= */}
+      <div className="sticky bottom-0 w-full bg-white border-t p-4">
+        <Button className="w-full h-[48px]" onClick={() => history.goBack()}>
           {t('global.Done')}
         </Button>
       </div>

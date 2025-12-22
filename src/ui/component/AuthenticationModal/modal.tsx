@@ -1,28 +1,26 @@
-import { Form, Input, InputRef, Modal } from 'antd';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { ReactComponent as RcIconClose } from 'ui/assets/swap/modal-close.svg';
+import { useForm } from 'react-hook-form';
+
 import { WrappedComponentProps, wrapModalPromise } from '../Modal/WrapPromise';
-import { Button } from '@repo/ui/primitives';
+import BottomFloatingSheet from '../BottomFloatingPopup';
+
+import {
+  Button,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  Input,
+} from '@repo/ui/primitives';
 
 interface AuthenticationModalProps extends WrappedComponentProps {
   title?: string;
 }
 
-const PasswordFormItem = styled(Form.Item)`
-  .ant-form-item-control {
-    position: relative;
-    overflow: visible;
-  }
-
-  .ant-form-item-explain {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    width: 100%;
-  }
-`;
+type FormValues = {
+  password: string;
+};
 
 const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
   onFinished,
@@ -33,11 +31,19 @@ const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
   const { t } = useTranslation();
   const [visible, setVisible] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [form] = Form.useForm();
-  const inputRef = useRef<InputRef>(null);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const form = useForm<FormValues>({
+    defaultValues: {
+      password: '',
+    },
+  });
+
+  const password = form.watch('password');
 
   useEffect(() => {
-    inputRef.current?.focus?.();
+    inputRef.current?.focus();
   }, []);
 
   const closeAndReject = useCallback(() => {
@@ -46,25 +52,19 @@ const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
   }, [onCancel]);
 
   const handleSubmit = useCallback(
-    async ({ password }: { password: string }) => {
+    async (values: FormValues) => {
       try {
         setSubmitting(true);
-        await wallet.verifyPassword(password);
+        await wallet.verifyPassword(values.password);
         setVisible(false);
         onFinished();
       } catch (error) {
-        if ((error as { errorFields?: unknown }).errorFields) {
-          return;
-        }
-        form.setFields([
-          {
-            name: 'password',
-            errors: [
-              (error as { message?: string })?.message ||
-                t('component.AuthenticationModal.passwordError'),
-            ],
-          },
-        ]);
+        form.setError('password', {
+          type: 'manual',
+          message:
+            (error as { message?: string })?.message ||
+            t('component.AuthenticationModal.passwordError'),
+        });
       } finally {
         setSubmitting(false);
       }
@@ -73,64 +73,54 @@ const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
   );
 
   return (
-    <Modal
-      visible={visible}
-      centered
-      width={400}
-      onCancel={closeAndReject}
-      destroyOnClose
-      maskClosable={true}
-      footer={null}
-      closable={false}
-      className="custom-popup is-support-darkmode authentication-modal"
-    >
-      <div className="mb-16 flex items-center relative">
-        <div className="text-[20px] font-medium leading-[24px] text-r-neutral-title-1 text-center flex-1">
-          {title || 'Enter Password'}
-        </div>
-        <button
-          type="button"
-          className="flex h-[20px] w-[20px] items-center justify-center rounded-full border-none bg-transparent p-0 text-r-neutral-foot transition-colors hover:text-r-neutral-title-1 absolute right-0"
-          onClick={closeAndReject}
-        >
-          <RcIconClose className="w-full h-full" />
-        </button>
+    <BottomFloatingSheet open={visible} onClose={closeAndReject}>
+      <div className="mb-4 mt-2 text-center text-[16px] font-medium text-r-neutral-title-1">
+        {title || t('component.AuthenticationModal.title')}
       </div>
-      <Form form={form} layout="vertical" onFinish={handleSubmit}>
-        <PasswordFormItem
-          name="password"
-          rules={[
-            {
-              required: true,
-              message: t('component.AuthenticationModal.passwordRequired'),
-            },
-          ]}
-        >
-          <Input
-            ref={inputRef}
-            spellCheck={false}
-            autoFocus
-            type="password"
-            className="bg-r-neutral-card1 border-rabby-blue-default placeholder-r-neutral-foot h-[56px] text-15 rounded-[8px]"
-            placeholder={t('component.AuthenticationModal.passwordPlaceholder')}
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="password"
+            rules={{
+              required: t('component.AuthenticationModal.passwordRequired'),
+            }}
+            render={({ field, fieldState }) => (
+              <FormItem>
+                <FormControl>
+                  <Input
+                    {...field}
+                    ref={inputRef}
+                    type="password"
+                    spellCheck={false}
+                    autoFocus
+                    className="h-[56px] rounded-[8px] bg-r-neutral-card1 border-rabby-blue-default"
+                    placeholder={t(
+                      'component.AuthenticationModal.passwordPlaceholder'
+                    )}
+                  />
+                </FormControl>
+
+                {fieldState.error && (
+                  <p className="mt-[4px] text-[12px] text-r-red-default">
+                    {fieldState.error.message}
+                  </p>
+                )}
+              </FormItem>
+            )}
           />
-        </PasswordFormItem>
-        <Form.Item
-          className="mt-[64px] mb-0"
-          shouldUpdate={(prev, curr) => prev.password !== curr.password}
-        >
-          {() => (
-            <Button
-              type="submit"
-              disabled={!form.getFieldValue('password')?.trim?.()}
-              className="w-full h-[48]"
-            >
-              {t('global.confirm')}
-            </Button>
-          )}
-        </Form.Item>
+
+          <Button
+            type="submit"
+            disabled={!password?.trim()}
+            className="w-full h-[48px]"
+          >
+            {t('global.confirm')}
+          </Button>
+        </form>
       </Form>
-    </Modal>
+    </BottomFloatingSheet>
   );
 };
 

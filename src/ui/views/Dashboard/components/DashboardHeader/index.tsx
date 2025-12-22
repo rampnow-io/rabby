@@ -217,6 +217,9 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
       icon: RcIconReceiveCC,
       eventKey: 'Receive',
       content: t('page.dashboard.home.panel.receive'),
+      onClick: () => {
+        history.push('/receive');
+      },
     } as IPanelItem,
     send: {
       icon: RcIconSendCC,

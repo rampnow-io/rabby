@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import BigNumber from 'bignumber.js';
 import { ReactComponent as IconGasCustomRightArrowCC } from 'ui/assets/approval/edit-arrow-right.svg';
 import { ReactComponent as IconGasLevelChecked } from '@/ui/assets/sign/check.svg';
-import { formatGasHeaderUsdValue, getUiType } from '@/ui/utils';
+import { formatGasHeaderUsdValue, getUiType, useWallet } from '@/ui/utils';
 import { getGasLevelI18nKey } from '@/ui/utils/trans';
 import { Dropdown, Modal, Tooltip } from 'antd';
 import { GasLevelIcon } from '../../Approval/components/TxComponents/GasMenuButton';
@@ -75,6 +75,7 @@ export default function ShowMoreGasSelectModal({
   const { t } = useTranslation();
   const state = useSignatureStore();
   const { ctx, status } = state;
+  const wallet = useWallet();
 
   const gasInfoByUI = useGetGasInfoByUI();
   const [open, setOpen] = useShowMoreGasSelectModalVisible();
@@ -186,11 +187,18 @@ export default function ShowMoreGasSelectModal({
                   e.preventDefault();
                   e.stopPropagation();
                 }}
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log('Gas option clicked:', gas.level);
-                  externalPanelSelection?.(gas);
+                  try {
+                    if (externalPanelSelection) {
+                      externalPanelSelection(gas);
+                    } else if (wallet) {
+                      await signatureStore.updateGasLevel(gas, wallet as any);
+                    }
+                  } catch (err) {
+                    console.error('Failed to select gas level', err);
+                  }
                   if (isCustom) handleClickEdit?.();
                   setTimeout(() => handleOpenChange(false), 0);
                 }}

@@ -1,7 +1,7 @@
 import { Modal } from '@/ui/component';
 import { Account } from 'background/service/preference';
 import QRCode from 'qrcode.react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { matomoRequestEvent } from '@/utils/matomo-request';
 import { ReactComponent as IconBack } from 'ui/assets/back.svg';
@@ -15,58 +15,43 @@ import {
   WALLET_BRAND_CONTENT,
 } from 'consts';
 import { splitNumberByStep, useWallet } from 'ui/utils';
-import { query2obj } from 'ui/utils/url';
 import { getKRCategoryByType } from '@/utils/transaction';
 import { filterRbiSource, useRbiSource } from '@/ui/utils/ga-event';
-import { findChainByEnum } from '@/utils/chain';
 import { useTranslation } from 'react-i18next';
 import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
 import { copyAddress } from '@/ui/utils/clipboard';
 import { Button } from '@repo/ui/primitives';
 
+/* -------------------- hooks -------------------- */
+
 const useAccount = () => {
   const wallet = useWallet();
   const [account, setAccount] = useState<Account | null>(null);
   const [address, setAddress] = useState<string>();
-  const [name, setName] = useState<string>();
-  const [cacheBalance, setCacheBalance] = useState<number>();
   const [balance, setBalance] = useState<number>();
 
   useEffect(() => {
     wallet.syncGetCurrentAccount().then((a) => {
       setAccount(a);
-      setAddress(a?.address.toLowerCase());
+      setAddress(a?.address?.toLowerCase());
     });
   }, []);
 
   useEffect(() => {
     if (!address) return;
-
-    wallet.getAlianName(address).then(setName);
-    wallet
-      .getAddressCacheBalance(address)
-      .then((d) => setCacheBalance(d?.total_usd_value || 0));
     wallet
       .getInMemoryAddressBalance(address)
-      .then((d) => setBalance(d.total_usd_value));
+      .then((d) => setBalance(d?.total_usd_value || 0));
   }, [address]);
 
   return {
     ...account,
     address,
-    name,
-    balance: balance ?? cacheBalance,
+    balance,
   };
 };
 
-const useReceiveTitle = (search: string) => {
-  const { t } = useTranslation();
-  const qs = useMemo(() => query2obj(search), [search]);
-  const chain = findChainByEnum(qs.chain)?.name || 'EVM chains';
-  const token = qs.token || t('global.assets');
-
-  return t('page.receive.title', { chain, token });
-};
+/* -------------------- component -------------------- */
 
 const Receive = () => {
   const wallet = useWallet();
@@ -77,36 +62,27 @@ const Receive = () => {
   const account = useAccount();
   const [isShowAccount, setIsShowAccount] = useState(true);
 
-  const title = useReceiveTitle(history.location.search);
-
-  const qs = useMemo(() => query2obj(history.location.search), [
-    history.location.search,
-  ]);
-  const chain = findChainByEnum(qs.chain)?.name ?? 'Ethereum';
-
   const handleCopyAddress = () => {
+    if (!account?.address) return;
+
     matomoRequestEvent({
       category: 'Receive',
       action: 'copyAddress',
       label: [
-        chain,
+        'EVM',
         getKRCategoryByType(account?.type),
         account?.brandName,
         filterRbiSource('Receive', rbisource) && rbisource,
       ].join('|'),
     });
 
-    copyAddress(account?.address!);
+    copyAddress(account.address);
   };
 
   useEffect(() => {
-    const init = async () => {
-      const account = await wallet.syncGetCurrentAccount();
-      if (!account) {
-        history.replace('/');
-      }
-    };
-    init();
+    wallet.syncGetCurrentAccount().then((a) => {
+      if (!a) history.replace('/');
+    });
   }, []);
 
   useEffect(() => {
@@ -116,7 +92,7 @@ const Receive = () => {
       category: 'Receive',
       action: 'getQRCode',
       label: [
-        chain,
+        'EVM',
         getKRCategoryByType(account?.type),
         account?.brandName,
         filterRbiSource('Receive', rbisource) && rbisource,
@@ -128,19 +104,19 @@ const Receive = () => {
     if (account?.type !== KEYRING_CLASS.WATCH) return;
 
     const modal = Modal.info({
+      className: 'page-receive-modal modal-support-darkmode',
       maskClosable: false,
       closable: false,
-      className: 'page-receive-modal modal-support-darkmode',
       content: (
-        <div>
-          <ThemeIcon className="icon" src={RcIconWarning} />
-          <div className="content text-center font-medium text-[17px] leading-[24px] text-r-neutral-title-1 mb-[52px]">
+        <div className="text-center">
+          <ThemeIcon src={RcIconWarning} className="mx-auto mb-4" />
+          <p className="text-[16px] mb-6">
             {t('page.receive.watchModeAlert1')}
             <br />
             {t('page.receive.watchModeAlert2')}
-          </div>
+          </p>
 
-          <div className="footer flex gap-[12px]">
+          <div className="flex gap-3 justify-center">
             <Button
               onClick={() => {
                 modal.destroy();
@@ -150,7 +126,7 @@ const Receive = () => {
               {t('global.Cancel')}
             </Button>
 
-            <Button className="rabby-btn-ghost" onClick={() => modal.destroy()}>
+            <Button onClick={() => modal.destroy()}>
               {t('global.Confirm')}
             </Button>
           </div>
@@ -162,102 +138,80 @@ const Receive = () => {
   }, [account?.type]);
 
   return (
-    <div className="px-[20px] bg-r-blue-default dark:bg-r-blue-disable h-full relative">
-      <div className="flex justify-between pt-[26px] pb-[12px] min-h-[90px] items-start gap-[8px]">
-        <div
-          className="pt-[6px] w-[24px] shrink-0 cursor-pointer"
-          onClick={() => history.goBack()}
-        >
-          <IconBack className="icon-back" />
-        </div>
-        {isShowAccount && (
-          <div className="bg-[rgba(255,255,255,0.12)] backdrop-blur-[40px] rounded-[6px] px-[12px] py-[8px] overflow-hidden">
-            <div className="flex gap-[8px]">
-              <img
-                className="w-[20px] h-[20px] opacity-60"
-                src={
-                  WALLET_BRAND_CONTENT[account?.brandName ?? '']?.image ||
-                  KEYRING_ICONS_WHITE[account?.type ?? '']
-                }
-              />
+    <div className="bg-[#F5F6FA] min-h-screen px-4 pt-2">
+      {/* Header */}
+      <div className="flex items-center justify-between h-[56px]">
+        <button onClick={() => history.goBack()}>
+          <IconBack className="w-5 h-5" />
+        </button>
 
-              <div className="overflow-hidden">
-                <div className="flex items-center gap-[6px]">
-                  <div
-                    className="font-medium text-[15px] leading-[20px] text-white truncate"
-                    title={account?.name}
-                  >
-                    {account?.name}
-                  </div>
+        <div className="text-[16px] font-semibold">Receive</div>
 
-                  <div
-                    className="text-[13px] leading-[15px] text-white/60 truncate text-center"
-                    title={splitNumberByStep(
-                      (account?.balance || 0).toFixed(2)
-                    )}
-                  >
-                    ${splitNumberByStep((account?.balance || 0).toFixed(2))}
-                  </div>
-                </div>
-
-                {account?.type === KEYRING_CLASS.WATCH && (
-                  <div className="text-[12px] leading-[14px] text-white/60 mt-[2px]">
-                    {t('global.watchModeAddress')}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-        <div
-          className="pt-[6px] w-[24px] shrink-0 cursor-pointer text-right"
-          onClick={() => setIsShowAccount((v) => !v)}
-        >
-          {isShowAccount ? (
-            <img src={IconEye} className="inline-block" />
-          ) : (
-            <img src={IconEyeHide} className="inline-block" />
-          )}
-        </div>
-      </div>
-
-      <div className="bg-r-neutral-bg-1 shadow-[0px_12px_60px_rgba(54,69,157,0.2)] rounded-[8px] px-[4px] pt-[40px] pb-[24px]">
-        <div className="font-medium text-[17px] leading-[20px] text-center text-r-neutral-title-1 mb-[36px]">
-          {title}
-        </div>
-
-        <div className="p-[12px] border border-r-neutral-line rounded-[10px] w-[200px] bg-white mx-auto mb-[32px]">
-          {account?.address && <QRCode value={account.address} size={175} />}
-        </div>
-
-        <div className="text-[14px] leading-[16px] text-center text-r-neutral-title-1 mb-[16px]">
-          {account?.address}
-        </div>
-
-        <button
-          type="button"
-          onClick={handleCopyAddress}
-          className="
-            bg-r-neutral-card-2 rounded-[4px] h-[40px] px-[28px] py-[12px]
-            flex items-center justify-center mx-auto 
-            text-[13px] leading-[15px] font-normal text-r-neutral-title-1
-            active:bg-[rgba(var(--r-neutral-card-2-rbg),0.7)]
-          "
-        >
-          <ThemeIcon
-            src={RcIconCopy}
-            className="mr-[6px] text-r-neutral-title-1"
+        <button onClick={() => setIsShowAccount((v) => !v)}>
+          <img
+            src={isShowAccount ? IconEye : IconEyeHide}
+            className="w-5 h-5"
           />
-          {t('global.copyAddress')}
         </button>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 pb-[32px]">
-        <img
-          src="/images/logo-white.svg"
-          className="h-[28px] opacity-50 mx-auto"
-          alt=""
-        />
+      {/* Account info */}
+      {isShowAccount && (
+        <div className="flex items-center gap-2 mb-4">
+          <img
+            className="w-5 h-5"
+            src={
+              WALLET_BRAND_CONTENT[account?.brandName ?? '']?.image ||
+              KEYRING_ICONS_WHITE[account?.type ?? '']
+            }
+          />
+          <div className="text-sm font-medium">
+            {account?.alianName || 'Account'}
+            <span className="text-gray-500 ml-2">
+              ${splitNumberByStep((account?.balance || 0).toFixed(2))}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Card */}
+      <div className="bg-white rounded-[16px] px-4 py-8">
+        <h2 className="text-center text-[17px] font-medium mb-6">
+          Receive EVM Address
+        </h2>
+
+        {/* QR */}
+        <div className="bg-white rounded-[16px] p-4 w-[240px] mx-auto mb-6 shadow-sm">
+          {account?.address && <QRCode value={account.address} size={200} />}
+        </div>
+
+        {/* Address */}
+        <div className="flex items-center justify-center gap-2 text-sm text-gray-600 mb-4">
+          <span>
+            {account?.address?.slice(0, 6)}...
+            {account?.address?.slice(-4)}
+          </span>
+          <button onClick={handleCopyAddress}>
+            <RcIconCopy className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Copy button */}
+        <Button onClick={handleCopyAddress} className="mx-auto block">
+          {t('global.copyAddress')}
+        </Button>
+
+        {/* Info */}
+        <div className="mt-6 text-center">
+          <p className="text-[13px] text-gray-500">
+            Only EVM compatible networks are supported
+          </p>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="mt-8 flex justify-center opacity-50">
+        <img src="/images/logo-white.svg" className="h-6" />
       </div>
     </div>
   );

@@ -146,7 +146,7 @@ const AddressInfo1 = ({ address, type, brandName, source }: Props) => {
               {address}
               <img
                 src={IconCopy}
-                className="w-14 h-14 flex-shrink-0 cursor-pointer"
+                className="w-[14px] h-[14px] flex-shrink-0 cursor-pointer"
                 onClick={() => {
                   copyAddress(address);
                 }}
