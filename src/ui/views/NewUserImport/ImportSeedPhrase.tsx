@@ -140,7 +140,7 @@ const ImportMnemonics = () => {
     <UiProvider>
       <Container>
         <SectionHeader
-          className="flex flex-col items-center"
+          className="text-center"
           title={t('page.newUserImport.importSeedPhrase.title')}
         />
 

@@ -76,7 +76,7 @@ const DisplayMnemonic = () => {
           handleBack={() => dispatch.createMnemonics.stepTo('risk-check')}
         />
         <SectionHeader
-          className="flex flex-col items-center"
+          className="text-center "
           title={t('page.newAddress.seedPhrase.backup')}
           description={t('page.newAddress.seedPhrase.backupTips')}
         />

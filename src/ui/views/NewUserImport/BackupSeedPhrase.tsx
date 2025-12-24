@@ -3,7 +3,6 @@ import clsx from 'clsx';
 import { Copy as CopyIcon } from 'lucide-react';
 import { useHistory } from 'react-router-dom';
 import { UiProvider } from '@/ui/component/NewUserImport';
-import { message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import WordsMatrix from '@/ui/component/WordsMatrix';
 import { copyTextToClipboard } from '@/ui/utils/clipboard';
@@ -13,7 +12,13 @@ import { IconCopyCC } from 'ui/assets/component/IconCopyCC';
 import { useThemeMode } from '@/ui/hooks/usePreference';
 import { Button, Copy } from '@repo/ui/primitives';
 import { useWallet } from '@/ui/utils';
-import { Action, Container, Content } from '@repo/ui';
+import {
+  Action,
+  Container,
+  Content,
+  showSnackbar,
+  SnackbarType,
+} from '@repo/ui';
 import { HeaderNavPage } from '@/ui/component';
 import SectionHeader from '@/ui/component/section-header/section-header';
 
@@ -45,11 +50,7 @@ export const BackupSeedPhrase = () => {
     if (!mnemonics) return;
 
     copyTextToClipboard(mnemonics).then(() => {
-      message.success({
-        icon: <img src={IconSuccess} className="icon icon-success" />,
-        content: t('global.copied'),
-        duration: 0.5,
-      });
+      showSnackbar(SnackbarType.WARNING, t('global.copied'));
     });
   }, [mnemonics, t]);
 
@@ -76,12 +77,12 @@ export const BackupSeedPhrase = () => {
           }}
         />
         <SectionHeader
-          className="flex flex-col items-center"
+          className="text-center"
           title={t('page.newAddress.seedPhrase.backup')}
           description={t('page.newAddress.seedPhrase.backupTips')}
         />
         <Content>
-          <div className="flex flex-col items-center gap-6">
+          <div className="flex flex-col items-center gap-6 pt-5">
             {mnemonics && (
               <WordsMatrix
                 focusable={false}

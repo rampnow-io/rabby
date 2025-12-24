@@ -32,7 +32,7 @@ export const CommonConfirmCard: React.FC<{
           <div className={clsx('w-80 m-auto', logoClassName)}>{logo}</div>
 
           <SectionHeader
-            className="flex flex-col items-center"
+            className="text-center"
             title={titleText!}
             description={descriptionText!}
           />

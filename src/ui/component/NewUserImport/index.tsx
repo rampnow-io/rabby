@@ -18,7 +18,7 @@ export const UiProvider = ({
         draggable={false}
         alt="Logo"
       />
-      <UIContainer>{children}</UIContainer>
+      <UIContainer isOnboarding={true}>{children}</UIContainer>
     </div>
   );
 };

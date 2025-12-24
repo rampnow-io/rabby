@@ -228,7 +228,7 @@ export const NewUserImportKeystone = () => {
           }
         />
 
-        <SectionHeader className="flex flex-col items-center" title={brand} />
+        <SectionHeader className="text-center" title={brand} />
 
         <Content>
           {/* Logo */}

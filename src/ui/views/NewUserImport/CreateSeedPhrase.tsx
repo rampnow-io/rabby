@@ -56,7 +56,7 @@ export const CreateSeedPhrase = () => {
           }}
         />
         <SectionHeader
-          className="flex flex-col items-center"
+          className="text-center"
           title={t('page.newUserImport.createNewAddress.title')}
           description={t('page.newUserImport.createNewAddress.desc')}
         />

@@ -27,7 +27,7 @@ export const ResetConfirm: React.FC<{
       <Container>
         <HeaderNavPage handleBack={onBack} />
         <SectionHeader
-          className="flex flex-col items-center"
+          className="text-center"
           title={t('page.forgotPassword.reset.title')}
         />
         <Content>

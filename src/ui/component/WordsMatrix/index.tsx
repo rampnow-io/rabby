@@ -37,50 +37,35 @@ function WordsMatrix({
 
   return (
     <div
-      className={clsx(
-        'grid grid-cols-3 gap-2 overflow-hidden overflow-y-auto rounded-md bg-white text-center',
-        className
-      )}
+      className={clsx('grid grid-cols-3 gap-[26px] overflow-y-auto', className)}
       style={{
         gridTemplateRows: `repeat(${rowCount}, ${ITEM_H}px)`,
       }}
     >
       {checkedWords.map((word, idx) => {
         const number = idx + 1;
-        const clearable = closable && !!word.trim();
-        const errored = errorIndexes.includes(idx);
-        const focused = focusingIndex === idx && !errored;
-
         return (
           <div
-            key={`word-item-${word}-${idx}`}
-            className="relative flex h-[40px] items-center justify-center rounded-xl border border-[1.5px] border-[var(--r-neutral-line)] bg-[rgba(217,217,217,0.2)] text-[16px] font-medium text-[var(--r-neutral-title-1)] cursor-pointer"
+            key={idx}
+            className="relative flex h-[40px] overflow-hidden rounded-[10px] border bg-white cursor-pointer"
             onClick={() => {
               if (focusable) {
                 onFocusWord?.({ word, index: idx });
               }
             }}
           >
-            {/* Focus / Error Border */}
-            {focused && (
-              <div className="absolute inset-0 rounded-md border border-[var(--r-blue-default,#7084ff)]" />
-            )}
-            {errored && (
-              <div className="absolute inset-0 rounded-md border border-[var(--r-red-default)]" />
-            )}
+            {/* Number box */}
+            <div className="flex w-8 items-center justify-center border-r border-[var(--r-neutral-line)] text-[14px] text-[var(--r-neutral-body)]">
+              {number}
+            </div>
 
-            {/* Number */}
-            <span className="absolute left-2 top-1 text-[10px] font-normal text-[var(--r-neutral-body)]">
-              {number}.
-            </span>
+            <div className="flex flex-1 items-center justify-center text-[16px] font-medium text-[var(--r-neutral-title-1)]">
+              {word}
+            </div>
 
-            {/* Word */}
-            <span className="leading-[37px]">{word}</span>
-
-            {/* Close Icon */}
-            {clearable && (
+            {closable && word && (
               <button
-                className="absolute right-2 top-1/2 flex h-4 w-4 -translate-y-1/2 items-center justify-center"
+                className="absolute right-2 top-1/2 -translate-y-1/2"
                 onClick={(e) => {
                   e.stopPropagation();
                   onCloseWord?.({ word, index: idx });

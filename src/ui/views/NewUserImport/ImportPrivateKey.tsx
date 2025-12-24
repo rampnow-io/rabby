@@ -104,7 +104,7 @@ export const NewUserImportPrivateKey = () => {
           }}
         />
         <SectionHeader
-          className="flex flex-col items-center"
+          className="text-center"
           title={t('page.newUserImport.importPrivateKey.title')}
         />
 

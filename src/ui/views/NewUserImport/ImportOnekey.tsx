@@ -201,7 +201,7 @@ export const NewUserImportOneKey = () => {
           }
         />
 
-        <SectionHeader className="flex flex-col items-center" title="OneKey" />
+        <SectionHeader className="text-center" title="OneKey" />
 
         <Content>
           <img

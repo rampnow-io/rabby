@@ -77,7 +77,7 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack }) => {
               />
 
               <SectionHeader
-                className="flex flex-col items-center"
+                className="text-center"
                 title={t('page.newUserImport.PasswordCard.title')}
                 description={t('page.newUserImport.PasswordCard.desc')}
               />

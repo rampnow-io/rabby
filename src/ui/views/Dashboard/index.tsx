@@ -1,7 +1,6 @@
 import clsx from 'clsx';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import ReactMarkdown from 'react-markdown';
 import { useHistory } from 'react-router-dom';
 import remarkGfm from 'remark-gfm';
 
@@ -93,12 +92,7 @@ const Dashboard = () => {
           dispatch.appVersion.afterFirstLogin();
         }}
         maxHeight="420px"
-      >
-        <div>
-          <p className="mb-12">{version}</p>
-          <ReactMarkdown children={updateContent} remarkPlugins={[remarkGfm]} />
-        </div>
-      </Modal>
+      ></Modal>
 
       {pendingApprovalCount > 0 && (
         <PendingApproval

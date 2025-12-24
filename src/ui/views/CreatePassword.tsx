@@ -7,7 +7,6 @@ import { useWallet, useWalletRequest, openInTab } from 'ui/utils';
 import UnlockLogo from 'ui/assets/unlock-logo.svg';
 import IconCheck from 'ui/assets/check.svg';
 import clsx from 'clsx';
-import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import TermOfUse from '@/constant/term-of-use.md';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -232,15 +231,6 @@ export default function CreatePassword() {
           <SheetHeader>
             <SheetTitle className="text-center">Rabby Terms of Use</SheetTitle>
           </SheetHeader>
-
-          <div className="overflow-y-scroll mt-4 h-[500px]">
-            <ReactMarkdown
-              className="markdown-body"
-              remarkPlugins={[remarkGfm]}
-            >
-              {TermOfUse}
-            </ReactMarkdown>
-          </div>
         </SheetContent>
       </Sheet>
     </div>
