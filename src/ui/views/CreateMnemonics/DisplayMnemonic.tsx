@@ -9,10 +9,13 @@ import { message } from 'antd';
 import { copyTextToClipboard } from '@/ui/utils/clipboard';
 import { KEYRING_CLASS } from '@/constant';
 import { useTranslation } from 'react-i18next';
-import { Card } from '@/ui/component/NewUserImport';
 import { useHistory } from 'react-router-dom';
 import { useThemeMode } from '@/ui/hooks/usePreference';
 import { Button } from '@repo/ui/primitives';
+import { UiProvider } from '@/ui/component/NewUserImport';
+import { Action, Container, Content } from '@repo/ui';
+import { HeaderNavPage } from '@/ui/component';
+import SectionHeader from '@/ui/component/section-header/section-header';
 
 const DisplayMnemonic = () => {
   const dispatch = useRabbyDispatch();
@@ -67,50 +70,56 @@ const DisplayMnemonic = () => {
   }, [mnemonics]);
 
   return (
-    <Card onBack={() => dispatch.createMnemonics.stepTo('risk-check')} step={1}>
-      <div className="mt-[18px] mb-[9px] text-[28px] font-medium text-r-neutral-title1 text-center">
-        {t('page.newAddress.seedPhrase.backup')}
-      </div>
-      <div className="text-[16px] text-rabby-blue-default font-normal text-center mb-20 mx-[10px]">
-        {t('page.newAddress.seedPhrase.backupTips')}
-      </div>
-
-      {mnemonics && (
-        <WordsMatrix
-          focusable={false}
-          closable={false}
-          words={mnemonics.split(' ')}
-          className="bg-transparent"
+    <UiProvider>
+      <Container>
+        <HeaderNavPage
+          handleBack={() => dispatch.createMnemonics.stepTo('risk-check')}
         />
-      )}
-
-      <div
-        className={clsx(
-          'mx-auto mt-[24px] mb-[47px]',
-          'cursor-pointer',
-          'flex justify-center items-center gap-8',
-          'text-14 font-medium text-rabby-blue-default',
-          'hover:text-rabby-blue-default'
-        )}
-        onClick={onCopyMnemonics}
-      >
-        <IconCopyCC
-          className="w-20 h-20 text-rabby-blue-default"
-          strokeColor={isDarkTheme ? '#1C1F2BFF' : 'white'}
+        <SectionHeader
+          className="flex flex-col items-center"
+          title={t('page.newAddress.seedPhrase.backup')}
+          description={t('page.newAddress.seedPhrase.backupTips')}
         />
-        <span>{t('page.newAddress.seedPhrase.copy')}</span>
-      </div>
+        <Content>
+          {mnemonics && (
+            <WordsMatrix
+              focusable={false}
+              closable={false}
+              words={mnemonics.split(' ')}
+              className="bg-transparent"
+            />
+          )}
 
-      <Button
-        onClick={onSubmit}
-        className={clsx(
-          'h-[56px] shadow-none rounded-[8px]',
-          'text-[17px] font-medium'
-        )}
-      >
-        {t('page.newAddress.seedPhrase.saved')}
-      </Button>
-    </Card>
+          <div
+            className={clsx(
+              'mx-auto mt-[24px] mb-[47px]',
+              'cursor-pointer',
+              'flex justify-center items-center gap-8',
+              'text-14 font-medium text-rabby-blue-default',
+              'hover:text-rabby-blue-default'
+            )}
+            onClick={onCopyMnemonics}
+          >
+            <IconCopyCC
+              className="w-20 h-20 text-rabby-blue-default"
+              strokeColor={isDarkTheme ? '#1C1F2BFF' : 'white'}
+            />
+            <span>{t('page.newAddress.seedPhrase.copy')}</span>
+          </div>
+        </Content>
+        <Action>
+          <Button
+            onClick={onSubmit}
+            className={clsx(
+              'shadow-none rounded-[8px]',
+              'text-[17px] font-medium'
+            )}
+          >
+            {t('page.newAddress.seedPhrase.saved')}
+          </Button>
+        </Action>
+      </Container>
+    </UiProvider>
   );
 };
 

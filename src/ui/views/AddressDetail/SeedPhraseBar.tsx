@@ -43,7 +43,6 @@ export const SeedPhraseBar: React.FC<Props> = ({ address }) => {
         // do nothing
       },
       wallet,
-      getContainer,
     });
   };
   return (

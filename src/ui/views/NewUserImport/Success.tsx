@@ -1,5 +1,4 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Card } from '@/ui/component/NewUserImport';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
 import { query2obj } from '@/ui/utils/url';
@@ -22,6 +21,8 @@ import { findChain } from '@/utils/chain';
 import { Chain } from '@/types/chain';
 import styled from 'styled-components';
 import { Button, Input } from '@repo/ui/primitives';
+import { UiProvider } from '@/ui/component/NewUserImport';
+import { Action, Container, Content } from '@repo/ui';
 
 const AccountItem = ({ account }: { account: Account }) => {
   const [edit, setEdit] = useState(false);
@@ -210,18 +211,6 @@ export const ImportOrCreatedSuccess = () => {
     }
   }, [isNewUserImport]);
 
-  const addMoreAddr = () => {
-    const oBrand = brand !== 'null' ? brand : undefined;
-
-    window.open(
-      './index.html#/import/select-address' +
-        `?hd=${hd}&keyringId=${keyringId}&isNewUserImport=true&noRedirect=true${
-          oBrand ? '&brand=' + oBrand : ''
-        }`,
-      '_blank'
-    );
-  };
-
   const closeConnect = React.useCallback(() => {
     if (store.clearKeyringId) {
       wallet.requestKeyring(hd, 'cleanUp', store.clearKeyringId, true);
@@ -260,36 +249,36 @@ export const ImportOrCreatedSuccess = () => {
   );
 
   return (
-    <Card className="flex flex-col">
-      <RcIconChecked
-        className="w-[52px] h-[52px] mt-[60px] mb-4 mx-auto"
-        viewBox="0 0 16 16"
-      />
-
-      <div className="text-24 font-medium text-r-neutral-title1 text-center">
-        {t(
-          isCreated
-            ? 'page.newUserImport.successful.create'
-            : 'page.newUserImport.successful.import'
-        )}
-      </div>
-
-      <ScrollBarDiv className="flex flex-col gap-4 pt-6 overflow-y-scroll max-h-[324px] mb-4">
-        {accounts?.map((account) => {
-          if (!account?.address) {
-            return null;
-          }
-          return <AccountItem key={account.address} account={account} />;
-        })}
-        <GnosisChainList chainList={chainList} className="mt-[-4px]" />
-      </ScrollBarDiv>
-      <footer className="mb-4 mt-auto w-full">
-        <Button onClick={getStarted} className="w-full">
-          {isNewUserImport
-            ? t('page.newUserImport.successful.start')
-            : t('global.Done')}
-        </Button>
-      </footer>
-    </Card>
+    <UiProvider>
+      <Container>
+        <Content>
+          <div className="flex flex-col gap-6">
+            <div className="text-24 font-medium text-r-neutral-title1 text-center">
+              {t(
+                isCreated
+                  ? 'page.newUserImport.successful.create'
+                  : 'page.newUserImport.successful.import'
+              )}
+            </div>
+            <div className="flex flex-col gap-4 pt-6 overflow-y-scroll max-h-[324px]">
+              {accounts?.map((account) => {
+                if (!account?.address) {
+                  return null;
+                }
+                return <AccountItem key={account.address} account={account} />;
+              })}
+              <GnosisChainList chainList={chainList} className="mt-[-4px]" />
+            </div>
+          </div>
+        </Content>
+        <Action>
+          <Button onClick={getStarted} className="w-full">
+            {isNewUserImport
+              ? t('page.newUserImport.successful.start')
+              : t('global.Done')}
+          </Button>
+        </Action>
+      </Container>
+    </UiProvider>
   );
 };

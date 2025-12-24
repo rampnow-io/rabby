@@ -32,7 +32,6 @@ export const useEnterPassphraseModal = (type: 'address' | 'publickey') => {
         cancelText: t('global.Cancel'),
         placeholder: t('page.manageAddress.enterThePassphrase'),
         title: t('page.manageAddress.enterPassphraseTitle'),
-        getContainer,
         async validationHandler(input) {
           passphrase = input;
 

@@ -1,4 +1,4 @@
-import { Card } from '@/ui/component/NewUserImport';
+import { UiProvider } from '@/ui/component/NewUserImport';
 import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';
 import React from 'react';
@@ -22,6 +22,9 @@ import {
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { message } from 'antd';
+import { Action, Content } from '@repo/ui';
+import { HeaderNavPage } from '@/ui/component';
+import SectionHeader from '@/ui/component/section-header/section-header';
 
 const Container = styled.div`
   input {
@@ -92,20 +95,20 @@ export const NewUserImportPrivateKey = () => {
   };
 
   return (
-    <Container>
-      <Card
-        onBack={() => {
-          history.goBack();
-          clearStore();
-        }}
-        step={1}
-        className="flex flex-col h-full"
-      >
-        <div className="flex-1 mt-[18px]">
-          <div className="text-r-neutral-title1 text-center text-[20px] font-semibold leading-[24px]">
-            {t('page.newUserImport.importPrivateKey.title')}
-          </div>
+    <UiProvider>
+      <Container>
+        <HeaderNavPage
+          handleBack={() => {
+            history.goBack();
+            clearStore();
+          }}
+        />
+        <SectionHeader
+          className="flex flex-col items-center"
+          title={t('page.newUserImport.importPrivateKey.title')}
+        />
 
+        <Content>
           <Form {...form}>
             <form className="mt-[20px]">
               <FormField
@@ -144,16 +147,17 @@ export const NewUserImportPrivateKey = () => {
               />
             </form>
           </Form>
-        </div>
-
-        <Button
-          onClick={handleSubmit(onSubmit)}
-          disabled={!isValid || isSubmitting || !privateKeyValue}
-          className="mt-auto text-[17px] font-medium"
-        >
-          {t('global.Confirm')}
-        </Button>
-      </Card>
-    </Container>
+        </Content>
+        <Action>
+          <Button
+            onClick={handleSubmit(onSubmit)}
+            disabled={!isValid || isSubmitting || !privateKeyValue}
+            className="mt-auto text-[17px] font-medium"
+          >
+            {t('global.Confirm')}
+          </Button>
+        </Action>
+      </Container>
+    </UiProvider>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Card } from '@/ui/component/NewUserImport';
+import { UiProvider } from '@/ui/component/NewUserImport';
 import { useHistory, useParams } from 'react-router-dom';
 import {
   KEYRING_CLASS,
@@ -13,6 +13,8 @@ import { useHDWalletUnlockAndRedirect } from './hooks/useHardWareUnlockAddress';
 import { useMount } from 'ahooks';
 import { useNewUserGuideStore } from './hooks/useNewUserGuideStore';
 import { Button } from '@repo/ui/primitives';
+import { Action, Container, Content } from '@repo/ui';
+import { HeaderNavPage } from '@/ui/component';
 
 export const NewUserImportHardware = () => {
   const { type } = useParams<{
@@ -136,46 +138,51 @@ export const NewUserImportHardware = () => {
   });
 
   return (
-    <Card
-      step={2}
-      onBack={() => {
-        if (history.length) {
-          history.goBack();
-        } else {
-          history.replace(`/new-user/import/${type}/set-password`);
-        }
-      }}
-      className="flex flex-col justify-center"
-    >
-      <div className="mx-auto mt-[34px] mb-[16px] w-[52px] h-[52px] rounded-full overflow-hidden">
-        <RcWalletIcon
-          className="w-[52px] h-[52px] rounded-full"
-          viewBox="0 0 28 28"
+    <UiProvider>
+      <Container>
+        <HeaderNavPage
+          handleBack={() => {
+            if (history.length) {
+              history.goBack();
+            } else {
+              history.replace(`/new-user/import/${type}/set-password`);
+            }
+          }}
         />
-      </div>
-      <div className="text-24 font-medium text-r-neutral-title-1 text-center">
-        {title}
-      </div>
-      <div className="mx-auto w-max flex flex-col mt-[20px]">
-        {tips.map((tip, index) => (
-          <div
-            key={index}
-            className="text-16 font-medium text-r-neutral-title-1"
-          >
-            {tip}
-          </div>
-        ))}
-      </div>
 
-      <Button
-        onClick={unlock}
-        className={clsx(
-          'mt-[auto] h-[56px] shadow-none rounded-[8px]',
-          'text-[17px] font-medium'
-        )}
-      >
-        {buttonText}
-      </Button>
-    </Card>
+        <Content>
+          <div className="mx-auto mt-[34px] mb-[16px] w-[52px] h-[52px] rounded-full overflow-hidden">
+            <RcWalletIcon
+              className="w-[52px] h-[52px] rounded-full"
+              viewBox="0 0 28 28"
+            />
+          </div>
+          <div className="text-24 font-medium text-r-neutral-title-1 text-center">
+            {title}
+          </div>
+          <div className="mx-auto w-max flex flex-col mt-[20px]">
+            {tips.map((tip, index) => (
+              <div
+                key={index}
+                className="text-16 font-medium text-r-neutral-title-1"
+              >
+                {tip}
+              </div>
+            ))}
+          </div>
+        </Content>
+        <Action>
+          <Button
+            onClick={unlock}
+            className={clsx(
+              'mt-[auto] h-[56px] shadow-none rounded-[8px]',
+              'text-[17px] font-medium'
+            )}
+          >
+            {buttonText}
+          </Button>
+        </Action>
+      </Container>
+    </UiProvider>
   );
 };

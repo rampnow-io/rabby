@@ -1,6 +1,5 @@
 'use client';
 
-import { Card } from '@/ui/component/NewUserImport';
 import { openInTab } from '@/ui/utils';
 import { useMemoizedFn } from 'ahooks';
 import clsx from 'clsx';
@@ -14,10 +13,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import { ReactComponent as RcIconCheckCC } from 'ui/assets/IconCheckedSquare.svg';
 import { ReactComponent as RcIconSuccessCC } from 'ui/assets/icon-checked-success-cc.svg';
-import { ReactComponent as RcIconUnCheckCC } from 'ui/assets/IconUncheckSquare.svg';
+
 import {
   Button,
-  Checkbox,
   Form,
   FormControl,
   FormField,
@@ -27,6 +25,10 @@ import {
   Input,
 } from '@repo/ui/primitives';
 import { IconLock } from '@/ui/assets';
+import { UiProvider } from '@/ui/component/NewUserImport';
+import { Action, Container, Content } from '@repo/ui';
+import { HeaderNavPage } from '@/ui/component';
+import SectionHeader from '@/ui/component/section-header/section-header';
 
 const MINIMUM_PASSWORD_LENGTH = 8;
 const passwordSchema = z
@@ -42,12 +44,10 @@ const passwordSchema = z
 interface Props {
   onSubmit?(password: string): void;
   onBack?(): void;
-  step: 1 | 2;
 }
 
-export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack, step }) => {
+export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack }) => {
   const { t } = useTranslation();
-  const [agreeTerm, setAgreeTerm] = useState(true);
 
   // React Hook Form
   const form = useForm<z.infer<typeof passwordSchema>>({
@@ -59,26 +59,16 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack, step }) => {
     mode: 'onChange',
   });
 
-  const handleSubmit = form.handleSubmit((values) => {
+  const formSubmit = (values: z.infer<typeof passwordSchema>) => {
     onSubmit?.(values.password);
-  });
-
-  const gotoTermsOfUse = useMemoizedFn(() => {
-    openInTab('https://rabby.io/docs/terms-of-use', false);
-  });
-
-  const gotoPrivacy = useMemoizedFn(() => {
-    openInTab('https://rabby.io/docs/privacy', false);
-  });
-
-  const isDisabled =
-    !agreeTerm || !form.formState.isValid || !form.formState.isDirty;
+  };
 
   return (
-    <Card onBack={onBack} className="flex flex-col px-5 pb-5">
-      <Form {...form}>
-        <form className="flex flex-col flex-1 px-5" onSubmit={handleSubmit}>
-          <div className="flex-1 mt-[18px]">
+    <UiProvider>
+      <Container>
+        <HeaderNavPage handleBack={onBack} />
+        <Content>
+          <Form {...form}>
             <div className="flex flex-col items-center gap-6">
               <img
                 src={IconLock}
@@ -86,13 +76,11 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack, step }) => {
                 className="w-[53px] h-[70px] self-center"
               />
 
-              <h1 className="text-r-neutral-title1 text-center font-semibold text-[28px] leading-[29px]">
-                {t('page.newUserImport.PasswordCard.title')}
-              </h1>
-
-              <p className="text-center text-primary-foreground font-normal text-[16px] leading-[20px] mx-7">
-                {t('page.newUserImport.PasswordCard.desc')}
-              </p>
+              <SectionHeader
+                className="flex flex-col items-center"
+                title={t('page.newUserImport.PasswordCard.title')}
+                description={t('page.newUserImport.PasswordCard.desc')}
+              />
 
               <div className="flex flex-col w-full gap-3 mt-1">
                 <FormField
@@ -116,7 +104,6 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack, step }) => {
                             )}
                           />
 
-                          {/* Success icon */}
                           {form.watch('password') &&
                             !form.formState.errors.password && (
                               <span className="absolute right-3 top-[14px] text-r-green-default">
@@ -131,7 +118,6 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack, step }) => {
                   )}
                 />
 
-                {/* Confirm Password */}
                 <FormField
                   name="confirmPassword"
                   control={form.control}
@@ -166,17 +152,14 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack, step }) => {
                 />
               </div>
             </div>
-          </div>
-
-          {/* Footer */}
-          <footer className="mt-auto">
-            {/* Submit button */}
-            <Button type="submit" disabled={isDisabled} className="w-full">
-              {t('global.Confirm')}
-            </Button>
-          </footer>
-        </form>
-      </Form>
-    </Card>
+          </Form>
+        </Content>
+        <Action>
+          <Button onClick={form.handleSubmit(formSubmit)} className="w-full">
+            {t('global.Confirm')}
+          </Button>
+        </Action>
+      </Container>
+    </UiProvider>
   );
 };

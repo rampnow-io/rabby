@@ -75,7 +75,6 @@ import { NewUserImportOneKey } from './NewUserImport/ImportOnekey';
 import { BackupSeedPhrase } from './NewUserImport/BackupSeedPhrase';
 import { ImportOrCreatedSuccess } from './NewUserImport/Success';
 import { ReadyToUse } from './NewUserImport/ReadyToUse';
-import { ImportSeedPhrase } from './NewUserImport/ImportSeedPhrase';
 import { NewUserImportHardware } from './NewUserImport/ImportHardWare';
 import { DARK_MODE_TYPE, KEYRING_CLASS } from '@/constant';
 import {
@@ -93,6 +92,7 @@ import WhitelistInput from './WhitelistInput';
 import { PortalHost } from '../component/PortalHost';
 import { GlobalSignerPortal } from '../component/MiniSignV2/components/GlobalSignerPortal';
 import SelectToAddress from './SelectToAddress';
+import ImportSeedPhrase from './NewUserImport/ImportSeedPhrase';
 
 declare global {
   interface Window {

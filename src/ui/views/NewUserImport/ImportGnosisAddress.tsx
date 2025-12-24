@@ -1,74 +1,42 @@
-import { Card } from '@/ui/component/NewUserImport';
-import { useWallet } from '@/ui/utils';
-import { LoadingOutlined } from '@ant-design/icons';
-import { useMemoizedFn, useMount, useRequest } from 'ahooks';
-import { Form, Input } from 'antd';
-import clsx from 'clsx';
-import { isValidAddress } from '@ethereumjs/util';
 import React, { useState } from 'react';
+import clsx from 'clsx';
+import styled from 'styled-components';
+import { LoadingOutlined } from '@ant-design/icons';
+import { Form, Input } from 'antd';
+import { isValidAddress } from '@ethereumjs/util';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
-import styled from 'styled-components';
+import { useMemoizedFn, useMount, useRequest } from 'ahooks';
+
+import { useWallet } from '@/ui/utils';
 import { useNewUserGuideStore } from './hooks/useNewUserGuideStore';
 import { GnosisChainList } from './GnosisChainList';
+
+import { UiProvider } from '@/ui/component/NewUserImport';
+import { Container as PageContainer, Content, Action } from '@repo/ui';
+import { HeaderNavPage } from '@/ui/component';
+import SectionHeader from '@/ui/component/section-header/section-header';
 import { Button } from '@repo/ui/primitives';
 
-const Container = styled.div`
-  .ant-input {
-    border-radius: 8px;
-    border: 1px solid var(--r-neutral-line, #e0e5ec);
-    color: var(--r-neutral-title1, #192945);
-    font-size: 15px;
-    font-weight: 500;
-    line-height: 18px;
+/* ---------------- STYLES ---------------- */
 
-    &::placeholder {
-      color: var(--r-neutral-foot, #6a7587);
-      font-weight: 400;
-    }
-  }
-
-  .ant-input:focus,
-  .ant-input-focused {
-    border-color: var(--r-blue-default, #7084ff);
-  }
-
-  .ant-form-item-has-error .ant-input {
-    border: 1px solid var(--r-red-default, #e34935);
-  }
-
-  .ant-form-item-explain {
-    display: none !important;
-  }
-  .error {
-    margin-top: 12px;
-    font-weight: 400;
-    font-size: 13px;
-    line-height: 15px;
-    color: var(--r-red-default, #e34935);
-  }
-  .loading {
-    margin-top: 20px;
-    font-weight: 400;
-    font-size: 13px;
-    line-height: 15px;
-    color: var(--r-neutral-body, #3e495e);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-`;
+/* ---------------- COMPONENT ---------------- */
 
 export const NewUserImportGnosisAddress = () => {
   const { t } = useTranslation();
-  const { store, setStore, clearStore } = useNewUserGuideStore();
-
   const history = useHistory();
   const wallet = useWallet();
 
+  const { store, setStore, clearStore } = useNewUserGuideStore();
+
   const [errorMessage, setErrorMessage] = useState('');
 
-  const [form] = Form.useForm<{ address: string }>();
+  const [form] = Form.useForm<{
+    address: string;
+  }>();
+
+  /* ---------------- FETCH CHAINS ---------------- */
+
   const { data: chainList, runAsync, loading } = useRequest(
     async (address: string) => {
       const res = await wallet.fetchGnosisChainList(address);
@@ -81,21 +49,18 @@ export const NewUserImportGnosisAddress = () => {
       manual: true,
       debounceWait: 500,
       onBefore() {
-        form.setFields([
-          {
-            name: ['address'],
-            errors: [],
-          },
-        ]);
-      },
-      onError(e) {
-        setErrorMessage(e.message);
+        form.setFields([{ name: ['address'], errors: [] }]);
       },
       onSuccess() {
         setErrorMessage('');
       },
+      onError(e: any) {
+        setErrorMessage(e.message);
+      },
     }
   );
+
+  /* ---------------- NEXT ---------------- */
 
   const handleNext = useMemoizedFn(() => {
     const { address } = form.getFieldsValue();
@@ -106,114 +71,117 @@ export const NewUserImportGnosisAddress = () => {
         chainList: chainList || [],
       },
     });
+
     history.push('/new-user/import/gnosis-address/set-password');
   });
 
+  /* ---------------- INIT ---------------- */
+
   useMount(() => {
     if (store.gnosis?.address) {
-      runAsync(store.gnosis?.address);
+      runAsync(store.gnosis.address);
     }
   });
 
+  /* ---------------- RENDER ---------------- */
+
   return (
-    <Container>
-      <Card
-        onBack={() => {
-          if (history.length) {
-            history.goBack();
-          } else {
-            history.replace('/new-user/import-list');
-          }
-          clearStore();
-        }}
-        step={1}
-        className="flex flex-col"
-      >
-        <div className="flex-1 mt-[18px]">
-          <div className="text-r-neutral-title1 text-center text-[20px] font-semibold leading-[24px]">
-            {t('page.newUserImport.importSafe.title')}
-          </div>
-          <div className="relative mt-[20px]">
-            <Form
-              form={form}
-              initialValues={{
-                address: store.gnosis?.address,
-              }}
-              onValuesChange={(changedValues) => {
-                const value = changedValues.address;
-                if (!value) {
-                  setErrorMessage(
-                    t('page.newUserImport.importSafe.error.required')
-                  );
-                  return;
+    <UiProvider>
+      <PageContainer>
+        <HeaderNavPage
+          handleBack={() => {
+            history.length
+              ? history.goBack()
+              : history.replace('/new-user/import-list');
+            clearStore();
+          }}
+        />
+
+        <SectionHeader
+          className="flex flex-col items-center"
+          title={t('page.newUserImport.importSafe.title')}
+        />
+
+        <Content>
+          <Form
+            form={form}
+            initialValues={{
+              address: store.gnosis?.address,
+            }}
+            onValuesChange={(changed) => {
+              const value = changed.address;
+
+              if (!value) {
+                setErrorMessage(
+                  t('page.newUserImport.importSafe.error.required')
+                );
+                return;
+              }
+
+              if (!isValidAddress(value)) {
+                setErrorMessage(
+                  t('page.newUserImport.importSafe.error.invalid')
+                );
+                return;
+              }
+
+              runAsync(value);
+            }}
+          >
+            <Form.Item
+              name="address"
+              className="mb-0"
+              validateStatus={errorMessage ? 'error' : undefined}
+              getValueFromEvent={(e) => {
+                const value = e.target.value;
+                if (
+                  value.includes(':') &&
+                  isValidAddress(value.split(':')[1])
+                ) {
+                  return value.split(':')[1];
                 }
-                if (!isValidAddress(value)) {
-                  setErrorMessage(
-                    t('page.newUserImport.importSafe.error.invalid')
-                  );
-                  return;
-                }
-                runAsync(value);
+                return value;
               }}
             >
-              <Form.Item
-                name="address"
-                className="mb-0"
-                validateStatus={errorMessage ? 'error' : undefined}
-                getValueFromEvent={(e) => {
-                  const value = e.target.value;
-                  if (
-                    value.includes(':') &&
-                    isValidAddress(value.split(':')[1])
-                  ) {
-                    return value.split(':')[1];
-                  }
-                  return value;
-                }}
-              >
-                <Input.TextArea
-                  className="leading-normal h-[100px]"
-                  autoCapitalize="off"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  autoSize
-                  size="large"
-                  autoFocus
-                  placeholder={t('page.newUserImport.importSafe.placeholder')}
-                  autoComplete="off"
-                />
-              </Form.Item>
-            </Form>
-            {loading ? (
-              <div className="loading">
-                <LoadingOutlined /> {t('page.newUserImport.importSafe.loading')}
-              </div>
-            ) : (
-              <>
-                {errorMessage ? (
-                  <div className="error">{errorMessage}</div>
-                ) : (
-                  <GnosisChainList
-                    chainList={chainList}
-                    className="mt-[20px]"
-                  />
-                )}
-              </>
-            )}
-          </div>
-        </div>
+              <Input.TextArea
+                className="leading-normal h-[100px]"
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck={false}
+                autoSize
+                autoFocus
+                placeholder={t('page.newUserImport.importSafe.placeholder')}
+                autoComplete="off"
+              />
+            </Form.Item>
+          </Form>
 
-        <Button
-          onClick={handleNext}
-          disabled={!!errorMessage || loading || !chainList?.length}
-          className={clsx(
-            'mt-[48px] h-[56px] shadow-none rounded-[8px]',
-            'text-[17px] font-medium'
+          {loading && (
+            <div className="loading">
+              <LoadingOutlined />
+              {t('page.newUserImport.importSafe.loading')}
+            </div>
           )}
-        >
-          {t('global.next')}
-        </Button>
-      </Card>
-    </Container>
+
+          {!loading && errorMessage && (
+            <div className="error">{errorMessage}</div>
+          )}
+
+          {!loading && !errorMessage && !!chainList?.length && (
+            <GnosisChainList chainList={chainList} className="mt-[20px]" />
+          )}
+        </Content>
+
+        <Action>
+          <Button
+            onClick={handleNext}
+            disabled={!!errorMessage || loading || !chainList?.length}
+            className="w-full h-[56px] text-[17px] font-medium"
+          >
+            {t('global.next')}
+          </Button>
+        </Action>
+      </PageContainer>
+    </UiProvider>
   );
 };

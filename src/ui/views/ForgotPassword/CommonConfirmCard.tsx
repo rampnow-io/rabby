@@ -1,7 +1,11 @@
-import { Card } from '@/ui/component/NewUserImport';
+import { UiProvider } from '@/ui/component/NewUserImport';
 import React from 'react';
 import clsx from 'clsx';
 import { Button } from '@repo/ui/primitives';
+import { Action, Container, Content } from '@repo/ui';
+import { HeaderNavPage } from '@/ui/component';
+import { A } from 'ts-toolbelt';
+import SectionHeader from '@/ui/component/section-header/section-header';
 
 export const CommonConfirmCard: React.FC<{
   hasStep?: boolean;
@@ -21,27 +25,19 @@ export const CommonConfirmCard: React.FC<{
   buttonText,
 }) => {
   return (
-    <Card
-      className="text-center relative"
-      headerBlock={hasStep}
-      step={hasStep ? 1 : undefined}
-    >
-      <div className="absolute mt-[100px] inset-0 px-20 pb-16">
-        <div className={clsx('w-80 m-auto', logoClassName)}>{logo}</div>
-        <h1
-          className={clsx('text-24 font-medium text-r-neutral-title1', 'mt-32')}
-        >
-          {titleText}
-        </h1>
-        <p className={clsx('mt-16 mx-16', 'text-15 text-r-neutral-body')}>
-          {descriptionText}
-        </p>
-        <div
-          className={clsx(
-            'flex flex-col items-center absolute bottom-0 inset-x-0 py-16 px-20',
-            'border-t-[0.5px] border-solid border-rabby-neutral-line'
-          )}
-        >
+    <UiProvider>
+      <Container>
+        <HeaderNavPage />
+        <Content>
+          <div className={clsx('w-80 m-auto', logoClassName)}>{logo}</div>
+
+          <SectionHeader
+            className="flex flex-col items-center"
+            title={titleText!}
+            description={descriptionText!}
+          />
+        </Content>
+        <Action>
           <Button
             onClick={onNext}
             className={clsx(
@@ -51,8 +47,8 @@ export const CommonConfirmCard: React.FC<{
           >
             {buttonText}
           </Button>
-        </div>
-      </div>
-    </Card>
+        </Action>
+      </Container>
+    </UiProvider>
   );
 };

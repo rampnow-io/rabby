@@ -330,7 +330,6 @@ export default function ChainSelectorInForm({
           title={title}
           showClosableIcon={showClosableIcon}
           showRPCStatus
-          getContainer={getContainer}
         />
       )}
       <ChainGlobalStyle />

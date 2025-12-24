@@ -1,25 +1,35 @@
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import clsx from 'clsx';
+import * as Sentry from '@sentry/browser';
+import { useTranslation } from 'react-i18next';
+import { useHistory, useLocation } from 'react-router-dom';
+import { useMount, useRequest } from 'ahooks';
+import qs from 'qs';
+
 import { HARDWARE_KEYRING_TYPES, WALLET_BRAND_TYPES } from '@/constant';
+
 import KeyStoneSVG from '@/ui/assets/walletlogo/keystone.svg';
 import NgraveSVG from '@/ui/assets/walletlogo/ngrave.svg';
-import { Card } from '@/ui/component/NewUserImport';
+
 import PillsSwitch from '@/ui/component/PillsSwitch';
 import Progress from '@/ui/component/Progress';
+import QRCodeReader from 'ui/component/QRCodeReader';
+import QRCodeCheckerDetail from 'ui/views/QRCodeCheckerDetail';
+
+import { URDecoder } from '@ngraveio/bc-ur';
+import { TransportWebUSB } from '@keystonehq/hw-transport-webusb';
+
 import { useWallet } from '@/ui/utils';
 import { useKeystoneUSBErrorCatcher } from '@/ui/utils/keystone';
 import { LedgerHDPathType as HDPathType } from '@/ui/utils/ledger';
 import { query2obj } from '@/ui/utils/url';
-import { TransportWebUSB } from '@keystonehq/hw-transport-webusb';
-import { URDecoder } from '@ngraveio/bc-ur';
-import * as Sentry from '@sentry/browser';
-import clsx from 'clsx';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useHistory, useLocation } from 'react-router-dom';
-import QRCodeReader from 'ui/component/QRCodeReader';
-import QRCodeCheckerDetail from 'ui/views/QRCodeCheckerDetail';
+
 import { useNewUserGuideStore } from './hooks/useNewUserGuideStore';
-import { useMount, useRequest } from 'ahooks';
-import qs from 'qs';
+
+import { UiProvider } from '@/ui/component/NewUserImport';
+import { Container, Content, Action } from '@repo/ui';
+import { HeaderNavPage } from '@/ui/component';
+import SectionHeader from '@/ui/component/section-header/section-header';
 import { Button } from '@repo/ui/primitives';
 
 const KEYSTONE_TYPE = HARDWARE_KEYRING_TYPES.Keystone.type;
@@ -35,61 +45,56 @@ const LOGO_MAP = {
 };
 
 export const NewUserImportKeystone = () => {
-  const { store, setStore } = useNewUserGuideStore();
-  const keystoneErrorCatcher = useKeystoneUSBErrorCatcher();
-
+  const { store } = useNewUserGuideStore();
   const { t } = useTranslation();
   const history = useHistory();
+  const { search } = useLocation();
   const wallet = useWallet();
+  const keystoneErrorCatcher = useKeystoneUSBErrorCatcher();
+
   const decoder = useRef(new URDecoder());
-  const [errorMessage, setErrorMessage] = useState('');
+  const stashKeyringIdRef = useRef<number | null>(null);
+
+  const { brand } = query2obj(search);
+  const isKeystone = brand === WALLET_BRAND_TYPES.KEYSTONE;
+
   const [connectType, setConnectType] = useState<ConnectType>(
     ConnectType.QRCode
   );
   const [scan, setScan] = useState(false);
-  const stashKeyringIdRef = useRef<number | null>(null);
-  const { search } = useLocation();
-  const { brand } = query2obj(search);
-  const isKeystone = brand === WALLET_BRAND_TYPES.KEYSTONE;
-
   const [progress, setProgress] = useState(0);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const showErrorChecker = useMemo(() => {
-    return errorMessage !== '';
-  }, [errorMessage]);
+  const showErrorChecker = useMemo(() => errorMessage !== '', [errorMessage]);
 
-  const handleScanQRCodeSuccess = async (data) => {
+  /* ---------------- QR SCAN ---------------- */
+
+  const handleScanQRCodeSuccess = async (data: string) => {
     try {
       decoder.current.receivePart(data);
       setProgress(Math.floor(decoder.current.estimatedPercentComplete() * 100));
-      if (decoder.current.isComplete()) {
-        const result = decoder.current.resultUR();
-        if (result.type === 'crypto-hdkey') {
-          stashKeyringIdRef.current = await wallet.submitQRHardwareCryptoHDKey(
-            result.cbor.toString('hex'),
-            stashKeyringIdRef.current
-          );
-        } else if (result.type === 'crypto-account') {
-          stashKeyringIdRef.current = await wallet.submitQRHardwareCryptoAccount(
-            result.cbor.toString('hex'),
-            stashKeyringIdRef.current
-          );
-        } else {
-          Sentry.captureException(
-            new Error('QRCodeError ' + JSON.stringify(result))
-          );
-          setErrorMessage(
-            t(
-              'Invalid QR code. Please scan the sync QR code of the hardware wallet.'
-            )
-          );
-          return;
-        }
 
-        goToSelectAddress(stashKeyringIdRef.current);
+      if (!decoder.current.isComplete()) return;
+
+      const result = decoder.current.resultUR();
+
+      if (result.type === 'crypto-hdkey') {
+        stashKeyringIdRef.current = await wallet.submitQRHardwareCryptoHDKey(
+          result.cbor.toString('hex'),
+          stashKeyringIdRef.current
+        );
+      } else if (result.type === 'crypto-account') {
+        stashKeyringIdRef.current = await wallet.submitQRHardwareCryptoAccount(
+          result.cbor.toString('hex'),
+          stashKeyringIdRef.current
+        );
+      } else {
+        throw new Error('Invalid QR type');
       }
-    } catch (e) {
-      Sentry.captureException(`QRCodeError ${e.message}`);
+
+      goToSelectAddress(stashKeyringIdRef.current);
+    } catch (e: any) {
+      Sentry.captureException(e);
       setScan(false);
       setErrorMessage(
         t(
@@ -99,48 +104,59 @@ export const NewUserImportKeystone = () => {
     }
   };
 
+  const handleScanAgain = () => {
+    setErrorMessage('');
+    setScan(true);
+    setProgress(0);
+    decoder.current = new URDecoder();
+  };
+
+  /* ---------------- NAVIGATION ---------------- */
+
   const goToSelectAddress = async (keyringId?: number | null) => {
-    if (!keyringId) {
-      return;
-    }
+    if (!keyringId) return;
+
     await wallet.requestKeyring(
       KEYSTONE_TYPE,
       'setHDPathType',
       keyringId,
       HDPathType.BIP44
     );
+
     await wallet.boot(store.password);
     await wallet.unlockHardwareAccount(KEYSTONE_TYPE, [0], keyringId);
+
     history.push({
       pathname: '/new-user/success',
-      search: `?hd=${KEYSTONE_TYPE}&brand=${WALLET_BRAND_TYPES.KEYSTONE}&keyringId=${keyringId}`,
+      search: qs.stringify({
+        hd: KEYSTONE_TYPE,
+        brand,
+        keyringId,
+      }),
     });
   };
 
-  const handleClickBack = () => {
-    if (history.length > 1) {
-      history.goBack();
-    } else {
-      history.replace('/');
-    }
-  };
+  /* ---------------- INIT ---------------- */
 
   useEffect(() => {
     wallet.initQRHardware(brand).then((stashKeyringId) => {
       stashKeyringIdRef.current = stashKeyringId;
       wallet
         .requestKeyring(KEYSTONE_TYPE, 'isReady', stashKeyringId)
-        .then((res) => {
-          if (res) {
+        .then((ready) => {
+          if (ready) {
             goToSelectAddress(stashKeyringId);
           }
           setScan(true);
         });
     });
+
     return () => {
       wallet.clearPageStateCache();
     };
   }, []);
+
+  /* ---------------- USB ---------------- */
 
   const onConnectViaUSB = async () => {
     try {
@@ -179,9 +195,9 @@ export const NewUserImportKeystone = () => {
           keyringId: stashKeyringId,
         }),
       });
-    } catch (error) {
-      console.error(error);
-      keystoneErrorCatcher(error);
+    } catch (e: any) {
+      console.error(e);
+      keystoneErrorCatcher(e);
     }
   };
 
@@ -189,40 +205,42 @@ export const NewUserImportKeystone = () => {
     manual: true,
   });
 
-  const handleScan = () => {
-    setErrorMessage('');
-    setScan(true);
-    setProgress(0);
-    decoder.current = new URDecoder();
-  };
+  /* ---------------- GUARD ---------------- */
 
-  useMount(async () => {
+  useMount(() => {
     if (!store.password) {
       history.replace('/new-user/guide');
     }
   });
 
+  /* ---------------- RENDER ---------------- */
+
+  const Logo = LOGO_MAP[brand];
+
   return (
-    <Card
-      onBack={() => {
-        history.goBack();
-      }}
-      step={2}
-      className="flex flex-col"
-    >
-      <div className="flex-1 mt-[18px]">
-        <header className="mb-[20px]">
+    <UiProvider>
+      <Container>
+        <HeaderNavPage
+          handleBack={() =>
+            history.length > 1
+              ? history.goBack()
+              : history.replace('/new-user/guide')
+          }
+        />
+
+        <SectionHeader className="flex flex-col items-center" title={brand} />
+
+        <Content>
+          {/* Logo */}
           <img
-            className="w-[52px] h-[52px] mb-[16px] block mx-auto"
-            src={LOGO_MAP[brand]}
+            src={Logo}
+            className="w-[52px] h-[52px] mb-[16px] mx-auto"
+            alt={brand}
           />
-          <h1 className="text-r-neutral-title1 text-center text-[24px] font-semibold leading-[29px]">
-            {brand}
-          </h1>
-        </header>
-        <main>
+
+          {/* Switch */}
           {isKeystone && (
-            <div className="flex justify-center">
+            <div className="flex justify-center mb-[16px]">
               <PillsSwitch
                 value={connectType}
                 options={[
@@ -237,91 +255,86 @@ export const NewUserImportKeystone = () => {
                 ]}
                 onTabChange={setConnectType}
                 className="bg-r-neutral-line p-[2px]"
-                itemClassname="text-[13px] leading-[16px] w-[100px] h-[28px]"
+                itemClassname="text-[13px] w-[100px] h-[28px]"
                 itemClassnameActive="bg-r-neutral-card-1"
-                itemClassnameInActive={clsx('text-r-neutral-body')}
+                itemClassnameInActive="text-r-neutral-body"
               />
             </div>
           )}
-          {connectType === ConnectType.QRCode ? (
-            <div className="mt-[16px] pb-[30px]">
-              <p className="text-r-neutral-foot text-[14px] leading-[17px] text-center mb-[20px]">
+
+          {/* QR MODE */}
+          {connectType === ConnectType.QRCode && (
+            <div className="pb-[30px]">
+              <p className="text-r-neutral-foot text-[14px] text-center mb-[20px]">
                 {t('page.newUserImport.importKeystone.qrcode.desc', {
                   brandName: brand,
                 })}
               </p>
-              <div>
-                <div
-                  className={clsx(
-                    'm-auto rounded-[6px] p-[6px] bg-transparent',
-                    'w-[200px] h-[200px]',
-                    'border border-rabby-neutral-line'
-                  )}
-                >
-                  {scan && (
-                    <QRCodeReader
-                      width={188}
-                      height={188}
-                      needAccessRedirect={false}
-                      onSuccess={handleScanQRCodeSuccess}
-                      className="bg-r-neutral-line"
-                    />
-                  )}
-                </div>
 
-                {progress > 0 && (
-                  <div className="mt-[24px] m-auto w-[130px]">
-                    <Progress percent={progress} />
-                  </div>
-                )}
-
-                {showErrorChecker && (
-                  <QRCodeCheckerDetail
-                    visible={showErrorChecker}
-                    onCancel={handleClickBack}
-                    data={errorMessage}
-                    onOk={handleScan}
-                    okText={t('global.tryAgain')}
-                    cancelText={t('global.Cancel')}
+              <div className="w-[200px] h-[200px] p-[6px] border rounded-[6px] mx-auto">
+                {scan && (
+                  <QRCodeReader
+                    width={188}
+                    height={188}
+                    onSuccess={handleScanQRCodeSuccess}
+                    needAccessRedirect={false}
                   />
                 )}
               </div>
+
+              {progress > 0 && (
+                <div className="w-[130px] mx-auto mt-[24px]">
+                  <Progress percent={progress} />
+                </div>
+              )}
+
+              {showErrorChecker && (
+                <QRCodeCheckerDetail
+                  visible
+                  data={errorMessage}
+                  onCancel={handleScanAgain}
+                  onOk={handleScanAgain}
+                  okText={t('global.tryAgain')}
+                  cancelText={t('global.Cancel')}
+                />
+              )}
             </div>
-          ) : (
-            <div className="mt-[16px]">
-              <p className="text-r-neutral-foot text-[14px] leading-[17px] text-center mb-[20px]">
+          )}
+
+          {/* USB MODE */}
+          {connectType === ConnectType.USB && (
+            <div>
+              <p className="text-r-neutral-foot text-[14px] text-center mb-[20px]">
                 {t('page.newUserImport.importKeystone.usb.desc')}
               </p>
 
-              <div className="flex justify-center mb-[30px]">
-                <ul
-                  className={clsx(
-                    'list-decimal list-inside',
-                    'text-r-neutral-title1 text-[16px] font-medium leading-[22px] mb-0'
-                  )}
-                >
-                  <li>{t('page.newUserImport.importKeystone.usb.tip1')}</li>
-                  <li>{t('page.newUserImport.importKeystone.usb.tip2')}</li>
-                  <li>{t('page.newUserImport.importKeystone.usb.tip3')}</li>
-                </ul>
-              </div>
+              <ul className="list-decimal list-inside text-r-neutral-title1 text-[16px] font-medium mb-[30px] text-center">
+                <li>{t('page.newUserImport.importKeystone.usb.tip1')}</li>
+                <li>{t('page.newUserImport.importKeystone.usb.tip2')}</li>
+                <li>{t('page.newUserImport.importKeystone.usb.tip3')}</li>
+              </ul>
+
               <img
                 src="/images/keystone-plug-1.png"
                 className="w-[240px] mx-auto"
+                alt="Keystone USB"
               />
-              <Button
-                onClick={runHandleConnect}
-                className={clsx(
-                  'mt-[32px] h-[56px] shadow-none rounded-[8px]',
-                  'text-[17px] font-medium'
-                )}
-              >
-                {t('page.newUserImport.importKeystone.usb.connect')}
-              </Button>
             </div>
           )}
-        </main>
-      </div>
-    </Card>
+        </Content>
+
+        {/* ACTION */}
+        {connectType === ConnectType.USB && (
+          <Action>
+            <Button
+              onClick={runHandleConnect}
+              className="w-full h-[56px] text-[17px]"
+            >
+              {t('page.newUserImport.importKeystone.usb.connect')}
+            </Button>
+          </Action>
+        )}
+      </Container>
+    </UiProvider>
   );
 };

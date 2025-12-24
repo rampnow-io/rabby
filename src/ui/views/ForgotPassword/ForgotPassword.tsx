@@ -111,11 +111,7 @@ export const ForgotPassword = () => {
         />
       )}
       {step === 'reset-password' && (
-        <PasswordCard
-          step={2}
-          onSubmit={onPasswordSubmit}
-          onBack={handleBack}
-        />
+        <PasswordCard onSubmit={onPasswordSubmit} onBack={handleBack} />
       )}
       {step === 'reset-tip' && (
         <ResetTip

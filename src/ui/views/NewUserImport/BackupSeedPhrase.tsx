@@ -1,7 +1,8 @@
 import React from 'react';
 import clsx from 'clsx';
+import { Copy as CopyIcon } from 'lucide-react';
 import { useHistory } from 'react-router-dom';
-import { Card } from '@/ui/component/NewUserImport';
+import { UiProvider } from '@/ui/component/NewUserImport';
 import { message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import WordsMatrix from '@/ui/component/WordsMatrix';
@@ -10,8 +11,11 @@ import IconSuccess from '@/ui/assets/success.svg';
 import { useNewUserGuideStore } from './hooks/useNewUserGuideStore';
 import { IconCopyCC } from 'ui/assets/component/IconCopyCC';
 import { useThemeMode } from '@/ui/hooks/usePreference';
-import { Button } from '@repo/ui/primitives';
+import { Button, Copy } from '@repo/ui/primitives';
 import { useWallet } from '@/ui/utils';
+import { Action, Container, Content } from '@repo/ui';
+import { HeaderNavPage } from '@/ui/component';
+import SectionHeader from '@/ui/component/section-header/section-header';
 
 export const BackupSeedPhrase = () => {
   const { t } = useTranslation();
@@ -54,65 +58,59 @@ export const BackupSeedPhrase = () => {
   };
 
   return (
-    <Card
-      onBack={() => {
-        // optional: clear store if user goes back
-        setStore({
-          seedPhrase: '',
-          passphrase: '',
-        });
+    <UiProvider>
+      <Container>
+        <HeaderNavPage
+          handleBack={() => {
+            // optional: clear store if user goes back
+            setStore({
+              seedPhrase: '',
+              passphrase: '',
+            });
 
-        if (history.length) {
-          history.goBack();
-        } else {
-          history.replace('/new-user/guide');
-        }
-      }}
-    >
-      <div className="flex flex-col w-full items-center px-[10px] pb-[20px]">
-        <div className="mt-[18px] mb-[9px] text-[28px] font-medium text-r-neutral-title1 text-center">
-          {t('page.newAddress.seedPhrase.backup')}
-        </div>
-
-        <div className="text-[16px] text-primary-foreground font-normal text-center mb-20 mx-[10px]">
-          {t('page.newAddress.seedPhrase.backupTips')}
-        </div>
-
-        {mnemonics && (
-          <WordsMatrix
-            focusable={false}
-            closable={false}
-            words={mnemonics.split(' ')}
-            className="bg-transparent w-full"
-          />
-        )}
-
-        <div
-          className={clsx(
-            'mx-auto mt-[24px] mb-[47px]',
-            'cursor-pointer',
-            'flex justify-center items-center gap-8',
-            'text-14 font-medium text-primary-foreground',
-            'hover:text-secondary-foreground'
-          )}
-          onClick={onCopyMnemonics}
-        >
-          <span>{t('page.newAddress.seedPhrase.copy')}</span>
-          <IconCopyCC
-            strokeColor={isDarkTheme ? '#030303' : 'white'}
-            className="w-5 h-5 text-primary-foreground"
-          />
-        </div>
-
-        <footer className="mt-auto w-full flex flex-col gap-2">
+            if (history.length) {
+              history.goBack();
+            } else {
+              history.replace('/new-user/guide');
+            }
+          }}
+        />
+        <SectionHeader
+          className="flex flex-col items-center"
+          title={t('page.newAddress.seedPhrase.backup')}
+          description={t('page.newAddress.seedPhrase.backupTips')}
+        />
+        <Content>
+          <div className="flex flex-col items-center gap-6">
+            {mnemonics && (
+              <WordsMatrix
+                focusable={false}
+                closable={false}
+                words={mnemonics.split(' ')}
+                className="bg-transparent w-full"
+              />
+            )}
+            <div
+              className={clsx(
+                'cursor-pointer',
+                'flex justify-center items-center gap-4'
+              )}
+              onClick={onCopyMnemonics}
+            >
+              <span>{t('page.newAddress.seedPhrase.copy')}</span>
+              <CopyIcon className="h-3 w-3" />
+            </div>
+          </div>
+        </Content>
+        <Action className="flex flex-col gap-4">
           <div className="text-[10px] font-medium text-r-neutral-title1 text-center">
             {t('page.newAddress.seedPhrase.backupTips2')}
           </div>
           <Button onClick={handleNext} className="w-full">
             {t('page.newAddress.seedPhrase.saved')}
           </Button>
-        </footer>
-      </div>
-    </Card>
+        </Action>
+      </Container>
+    </UiProvider>
   );
 };

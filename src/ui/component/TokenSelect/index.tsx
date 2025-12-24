@@ -326,7 +326,6 @@ const TokenSelect = forwardRef<
               disabledTips={disabledTips}
               supportChains={supportChains}
               excludeTokens={excludeTokens}
-              getContainer={getContainer}
             />
           )}
         </>

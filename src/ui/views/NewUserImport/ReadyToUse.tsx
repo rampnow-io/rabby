@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo } from 'react';
-import { Card } from '@/ui/component/NewUserImport';
+import { UiProvider } from '@/ui/component/NewUserImport';
 import { Button } from '@repo/ui/primitives';
 import { RoundedLogo } from '@/ui/assets';
+import { Action, Container, Content } from '@repo/ui';
+import { HeaderNavPage } from '@/ui/component';
 
 const ShortcutKey = ({ label }: { label: string }) => (
   <div
     className={
-      'min-w-[64px] px-4 py-[10px] rounded-[12px] ' +
+      'w-[110px] flex items-center justify-center h-[74px] rounded-[12px] ' +
       'border border-solid border-rabby-neutral-line bg-r-neutral-card-1 ' +
       'text-center text-[16px] font-semibold text-r-neutral-title1 shadow-[0_4px_12px_rgba(0,0,0,0.04)]'
     }
@@ -43,28 +45,31 @@ export const ReadyToUse = () => {
   }, []);
 
   return (
-    <Card className="mx-[22px]">
-      <div className="flex flex-col items-center px-6 py-10 text-center">
-        <img
-          src={RoundedLogo}
-          alt="Rampnow logo"
-          className="w-[48px] h-[48px] mb-6"
-        />
+    <UiProvider>
+      <Container>
+        <HeaderNavPage />
+        <Content>
+          <img
+            src={RoundedLogo}
+            alt="Rampnow logo"
+            className="w-[48px] h-[48px] mb-6"
+          />
+          <div className="flex flex-col gap-2 items-center text-[24px] font-semibold text-r-neutral-title1">
+            <div>Your Rampnow wallet is</div>
+            <div className=" text-primary">ready</div>
+          </div>
 
-        <div className="text-[24px] font-semibold text-r-neutral-title1">
-          Your Rampnow wallet is ready
-        </div>
+          <div className="mt-8 flex items-center gap-3">
+            {shortcutKeys.map((key) => (
+              <ShortcutKey key={key} label={key} />
+            ))}
+          </div>
 
-        <div className="mt-8 flex items-center gap-3">
-          {shortcutKeys.map((key) => (
-            <ShortcutKey key={key} label={key} />
-          ))}
-        </div>
-
-        <div className="mt-4 text-[14px] text-r-neutral-body max-w-[280px]">
-          Try pressing the shortcut to quickly open the wallet.
-        </div>
-        <footer className="w-full mt-auto">
+          <div className="mt-4 text-[14px] text-r-neutral-body max-w-[280px]">
+            Try pressing the shortcut key to quickly open the wallet. 👀
+          </div>
+        </Content>
+        <Action>
           <Button
             onClick={() => window.close()}
             className={
@@ -73,8 +78,8 @@ export const ReadyToUse = () => {
           >
             Open Rampnow Wallet
           </Button>
-        </footer>
-      </div>
-    </Card>
+        </Action>
+      </Container>
+    </UiProvider>
   );
 };

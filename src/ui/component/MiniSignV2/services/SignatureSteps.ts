@@ -214,7 +214,6 @@ export class SignatureSteps {
       cancelText: t('global.Cancel'),
       placeholder: t('page.manageAddress.enterThePassphrase'),
       title: t('page.manageAddress.enterPassphraseTitle'),
-      getContainer: getContainer || undefined,
       forceRender: true,
       async validationHandler(input) {
         passphrase = input;

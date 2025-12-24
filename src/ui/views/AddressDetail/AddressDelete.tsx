@@ -81,7 +81,6 @@ export const AddressDelete = ({
         onCancel() {
           // do nothing
         },
-        getContainer,
         wallet,
       });
     } else {

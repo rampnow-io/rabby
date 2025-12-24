@@ -1,250 +1,206 @@
-import React, { useEffect } from 'react';
-import { Card } from '@/ui/component/NewUserImport';
-import { useHistory } from 'react-router-dom';
-import { Form, Input } from 'antd';
-import WordsMatrix from '@/ui/component/WordsMatrix';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';
-import { useRabbyDispatch } from '@/ui/store';
-import { getUiType, useWallet } from '@/ui/utils';
+import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import styled from 'styled-components';
-import { useNewUserGuideStore } from './hooks/useNewUserGuideStore';
-import * as bip39 from '@scure/bip39';
-import { wordlist } from '@scure/bip39/wordlists/english';
+
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormControl,
+  FormMessage,
+} from '@repo/ui/primitives/form';
+import { Input } from '@repo/ui/primitives';
 import { Button } from '@repo/ui/primitives';
+import * as z from 'zod';
+import WordsMatrix from '@/ui/component/WordsMatrix';
+import { useWallet, getUiType } from '@/ui/utils';
+import { clearClipboard } from '@/ui/utils/clipboard';
+import { KEYRING_CLASS } from '@/constant';
+import { connectStore, useRabbyDispatch } from '../../store';
+import { UiProvider } from '@/ui/component/NewUserImport';
+import SectionHeader from '@/ui/component/section-header/section-header';
+import { Container, Content, Action } from '@repo/ui';
 
-const FormItemWrapper = styled.div`
-  .mnemonics-with-error,
-  .ant-form-item-has-error {
-    .ant-form-item-control-input
-      + .ant-form-item-explain.ant-form-item-explain-error {
-      display: none;
-    }
-  }
-`;
+const importMnemonicSchema = z.object({
+  mnemonics: z.string().min(1, 'Seed phrase is required'),
+  passphrase: z.string().optional(),
+});
 
-type IFormStates = {
-  mnemonics: string;
-  passphrase: string;
-};
+type ImportMnemonicForm = z.infer<typeof importMnemonicSchema>;
 
-export const ImportSeedPhrase = () => {
+const ImportMnemonics = () => {
   const history = useHistory();
-  const { store, setStore } = useNewUserGuideStore();
-
   const wallet = useWallet();
-  const [form] = Form.useForm<IFormStates>();
-  const { t } = useTranslation();
   const dispatch = useRabbyDispatch();
-  const [needPassphrase, setNeedPassphrase] = React.useState(false);
-  const [slip39ErrorIndex, setSlip39ErrorIndex] = React.useState<number>(-1);
-  const [isSlip39, setIsSlip39] = React.useState(false);
-  const [slip39GroupNumber, setSlip39GroupNumber] = React.useState(1);
+  const { t } = useTranslation();
+
+  const [needPassphrase, setNeedPassphrase] = useState(false);
+  const [isSlip39, setIsSlip39] = useState(false);
+  const [slip39GroupNumber, setSlip39GroupNumber] = useState(1);
+  const [slip39ErrorIndex, setSlip39ErrorIndex] = useState<number>(-1);
+  const [secretShares, setSecretShares] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
   let keyringId: number | null;
 
-  const onPassphrase = React.useCallback((val: boolean) => {
-    setNeedPassphrase(val);
-  }, []);
-
-  const checkSubmitSlip39Mnemonics = React.useCallback(
-    async (mnemonics: string) => {
-      if (!isSlip39) return;
-      const secretShares = mnemonics.split('\n').filter((v) => v);
-
-      for (let i = 0; i < secretShares.length; i++) {
-        try {
-          await wallet.slip39DecodeMnemonic(secretShares[i]);
-        } catch (err) {
-          setSlip39ErrorIndex(i);
-          throw new Error(err.message);
-        }
-      }
+  const form = useForm<ImportMnemonicForm>({
+    resolver: zodResolver(importMnemonicSchema),
+    defaultValues: {
+      mnemonics: '',
+      passphrase: '',
     },
-    [isSlip39]
-  );
+  });
 
-  // if is pop, redirect to dashboard
+  // popup safety
   if (getUiType().isPop) {
     history.replace('/dashboard');
     return null;
   }
 
-  useEffect(() => {
-    (async () => {
-      if (await wallet.hasPageStateCache()) {
-        const cache = await wallet.getPageStateCache();
-        if (cache && cache.path === history.location.pathname) {
-          form.setFieldsValue({
-            ...cache.states,
-            mnemonics: '',
-            passphrase: '',
-          });
-        }
-      }
-    })();
-
-    return () => {
-      wallet.clearPageStateCache();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!needPassphrase) {
-      form.setFieldsValue({
-        passphrase: '',
-      });
-    }
-  }, [needPassphrase]);
-
-  const [secretShares, setSecretShares] = React.useState<string[]>([]);
-  const checkSlip39Mnemonics = React.useCallback(
+  const checkSlip39Mnemonics = useCallback(
     async (mnemonics: string) => {
       if (!isSlip39) return;
-      const _secretShares = mnemonics.split('\n').filter((v) => v);
 
-      setSecretShares(_secretShares);
+      const shares = mnemonics.split('\n').filter(Boolean);
+      setSecretShares(shares);
+
       try {
-        const groupThreshold = await wallet.slip39GetThreshold(_secretShares);
-        setSlip39GroupNumber(groupThreshold);
-        form.setFieldsValue({
-          mnemonics: _secretShares.slice(0, groupThreshold).join('\n'),
-        });
-      } catch (err) {
-        console.log('slip39GetThreshold error', err);
+        const threshold = await wallet.slip39GetThreshold(shares);
+        setSlip39GroupNumber(threshold);
+
+        form.setValue('mnemonics', shares.slice(0, threshold).join('\n'));
+      } catch (e) {
+        console.log('slip39 error', e);
       }
     },
     [isSlip39]
   );
 
-  const [errMsgs, setErrMsgs] = React.useState<string[]>();
+  const onSubmit = async (values: ImportMnemonicForm) => {
+    try {
+      setLoading(true);
 
-  const disabledButton = React.useMemo(() => {
-    if (!isSlip39) return;
-    return secretShares.length < slip39GroupNumber;
-  }, [isSlip39, secretShares, slip39GroupNumber]);
+      const { mnemonics, passphrase } = values;
 
-  const validateMnemonic = React.useCallback(
-    async (mnemonics: string, skipSlip39?: boolean) => {
-      try {
-        if (skipSlip39 && isSlip39) return true;
-        if (!isSlip39) {
-          return bip39.validateMnemonic(mnemonics, wordlist);
+      if (isSlip39) {
+        const shares = mnemonics.split('\n').filter(Boolean);
+        for (let i = 0; i < shares.length; i++) {
+          try {
+            await wallet.slip39DecodeMnemonic(shares[i]);
+          } catch (err: any) {
+            setSlip39ErrorIndex(i);
+            throw new Error(err.message);
+          }
         }
-        const result = await wallet.validateMnemonic(mnemonics);
-        return result;
-      } catch (err) {
-        return false;
       }
-    },
-    [isSlip39]
-  );
 
-  const run = React.useCallback(
-    async ({
-      mnemonics,
-      passphrase,
-    }: {
-      mnemonics: string;
-      passphrase: string;
-    }) => {
-      try {
-        await checkSubmitSlip39Mnemonics(mnemonics);
+      const {
+        keyringId: stashKeyringId,
+        isExistedKR,
+      } = await wallet.generateKeyringWithMnemonic(mnemonics, passphrase || '');
 
-        if (!(await validateMnemonic(mnemonics))) {
-          throw new Error(
-            t('page.newAddress.theSeedPhraseIsInvalidPleaseCheck')
-          );
-        }
+      dispatch.importMnemonics.switchKeyring({
+        finalMnemonics: mnemonics,
+        passphrase,
+        isExistedKeyring: isExistedKR,
+        stashKeyringId,
+      });
 
-        setStore({ seedPhrase: mnemonics, passphrase });
-        history.push('/new-user/import/seed-phrase/set-password');
-      } catch (err) {
-        form.setFields([
-          {
-            name: 'mnemonics',
-            value: form.getFieldValue('mnemonics'),
-          },
-        ]);
-        setErrMsgs([
+      const accounts = await dispatch.importMnemonics.getAccounts({
+        start: 0,
+        end: 1,
+      });
+      await dispatch.importMnemonics.setSelectedAccounts([accounts[0].address]);
+      await dispatch.importMnemonics.confirmAllImportingAccountsAsync();
+
+      keyringId = stashKeyringId;
+      clearClipboard();
+
+      history.push({
+        pathname: '/new-user/success',
+        search: `?hd=${KEYRING_CLASS.MNEMONIC}&keyringId=${keyringId}&isCreated=false`,
+      });
+    } catch (err: any) {
+      form.setError('mnemonics', {
+        message:
           err?.message ||
-            t('page.newAddress.theSeedPhraseIsInvalidPleaseCheck'),
-        ]);
-      }
-    },
-    [validateMnemonic, checkSubmitSlip39Mnemonics, setStore, form, t]
-  );
+          t('page.newAddress.theSeedPhraseIsInvalidPleaseCheck'),
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const disabledButton = isSlip39 && secretShares.length < slip39GroupNumber;
 
   return (
-    <Card
-      onBack={() => {
-        if (history.length) {
-          history.goBack();
-        } else {
-          history.replace('/new-user/import-list');
-        }
-      }}
-      step={1}
-      className="flex flex-col"
-    >
-      <div className="mt-18 mb-16 text-center text-20 font-medium text-r-neutral-title1">
-        {t('page.newUserImport.importSeedPhrase.title')}
-      </div>
-      <Form
-        form={form}
-        className={clsx('flex flex-col flex-1')}
-        onFinish={run}
-        onValuesChange={async (states) => {
-          setErrMsgs([]);
-          setSlip39ErrorIndex(-1);
-        }}
-      >
-        <FormItemWrapper className="relative mb-16">
-          <Form.Item
-            name="mnemonics"
-            className={clsx(
-              isSlip39 ? 'mb-16' : 'mb-[24px]',
-              errMsgs?.length && 'mnemonics-with-error'
-            )}
-          >
-            <WordsMatrix.MnemonicsInputs
-              newUserImport
-              slip39GroupNumber={slip39GroupNumber}
-              isSlip39={isSlip39}
-              onSlip39Change={setIsSlip39}
-              onPassphrase={onPassphrase}
-              errMsgs={errMsgs}
-              onChange={checkSlip39Mnemonics}
-              setSlip39GroupNumber={setSlip39GroupNumber}
-              errorIndexes={[slip39ErrorIndex]}
-            />
-          </Form.Item>
-          {needPassphrase && (
-            <Form.Item name="passphrase" className={clsx('mb-[12px]')}>
-              <Input
-                type="password"
-                className={clsx(
-                  isSlip39 ? 'h-[56px] text-15' : 'h-[44px]',
-                  'border-rabby-neutral-line bg-rabby-neutral-card-1 focus:border-blue text-r-neutral-title-1'
-                )}
-                spellCheck={false}
-                placeholder={t('page.newAddress.seedPhrase.passphrase')}
-              />
-            </Form.Item>
-          )}
-        </FormItemWrapper>
+    <UiProvider>
+      <Container>
+        <SectionHeader
+          className="flex flex-col items-center"
+          title={t('page.newUserImport.importSeedPhrase.title')}
+        />
 
-        <Button
-          type="submit"
-          disabled={disabledButton}
-          className={clsx(
-            'mt-auto h-[56px] shadow-none rounded-[8px]',
-            'text-[17px] font-medium'
-          )}
-        >
-          {t('global.confirm')}
-        </Button>
-      </Form>
-    </Card>
+        <Content>
+          <Form {...form}>
+            <FormField
+              control={form.control}
+              name="mnemonics"
+              render={({ field }) => (
+                <FormItem className="mb-6">
+                  <FormControl>
+                    <WordsMatrix.MnemonicsInputs
+                      {...field}
+                      newUserImport
+                      isSlip39={isSlip39}
+                      slip39GroupNumber={slip39GroupNumber}
+                      onSlip39Change={setIsSlip39}
+                      onPassphrase={setNeedPassphrase}
+                      onChange={checkSlip39Mnemonics}
+                      setSlip39GroupNumber={setSlip39GroupNumber}
+                      errorIndexes={[slip39ErrorIndex]}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {needPassphrase && (
+              <FormField
+                control={form.control}
+                name="passphrase"
+                render={({ field }) => (
+                  <FormItem className="mb-4">
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder={t('page.newAddress.seedPhrase.passphrase')}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+          </Form>
+        </Content>
+        <Action>
+          <Button
+            onSubmit={form.handleSubmit(onSubmit)}
+            disabled={disabledButton}
+            className="mt-auto h-[56px] w-full rounded-[8px]"
+          >
+            {t('global.confirm')}
+          </Button>
+        </Action>
+      </Container>
+    </UiProvider>
   );
 };
+
+export default connectStore()(ImportMnemonics);

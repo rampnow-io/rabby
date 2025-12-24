@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import clsx from 'clsx';
 import { useHistory } from 'react-router-dom';
-import { Card } from '@/ui/component/NewUserImport';
+import { UiProvider } from '@/ui/component/NewUserImport';
 import { ReactComponent as RcIconArrowDownCC } from '@/ui/assets/new-user-import/arrow-down-cc.svg';
 import {
   BRAND_ALIAN_TYPE_TEXT,
@@ -11,10 +11,12 @@ import {
   WALLET_BRAND_CONTENT,
   WALLET_BRAND_TYPES,
 } from '@/constant';
-import { Item } from '@/ui/component';
+import { HeaderNavPage, Item } from '@/ui/component';
 import { useTranslation } from 'react-i18next';
 import { Tooltip } from 'antd';
 import qs from 'qs';
+import { Container, Content } from '@repo/ui';
+import SectionHeader from '@/ui/component/section-header/section-header';
 
 export const ImportWalletList = () => {
   const { t } = useTranslation();
@@ -103,61 +105,69 @@ export const ImportWalletList = () => {
   };
 
   return (
-    <Card
-      onBack={() => {
-        history.length ? history.goBack() : history.replace('/new-user/guide');
-      }}
-      title={t('page.newUserImport.importList.title')}
-    >
-      {/* LIST */}
-      <div
-        className={clsx(
-          'mt-6 gap-4 w-full transition-all duration-300 ease-in-out',
-          showMore
-            ? 'max-h-[520px] overflow-y-auto'
-            : 'max-h-[220px] overflow-hidden'
-        )}
-      >
-        {tipList.map((item, index) => (
+    <UiProvider>
+      <Container>
+        <HeaderNavPage
+          handleBack={() => {
+            history.length
+              ? history.goBack()
+              : history.replace('/new-user/guide');
+          }}
+        />
+        <SectionHeader
+          className="flex flex-col items-center"
+          title={t('page.newUserImport.importList.title')}
+        />
+        <Content>
           <div
-            key={item.type + index}
-            className={!showMore && index >= 3 ? 'hidden' : ''}
+            className={clsx(
+              'mt-6 gap-4 w-full transition-all duration-300 ease-in-out',
+              showMore
+                ? 'max-h-[520px] overflow-y-auto'
+                : 'max-h-[220px] overflow-hidden'
+            )}
           >
-            <Tooltip
-              title={item.tipI18nKey ? t(item.tipI18nKey) : undefined}
-              overlayClassName="rectangle"
-            >
-              <Item
-                bgColor="var(--r-neutral-card2, #F2F4F7)"
-                px={16}
-                py={20}
-                leftIcon={item.logo}
-                leftIconClassName="w-6 h-6 mr-12"
-                disabled={item.preventClick}
-                onClick={() => {
-                  if (!item.preventClick) {
-                    gotoImport(item.type, item.brand);
-                  }
-                }}
-                className="rounded-[8px] text-[17px] font-medium text-r-neutral-title1"
+            {tipList.map((item, index) => (
+              <div
+                key={item.type + index}
+                className={!showMore && index >= 3 ? 'hidden' : ''}
               >
-                {item.brand || BRAND_ALIAN_TYPE_TEXT[item.type]}
-              </Item>
-            </Tooltip>
+                <Tooltip
+                  title={item.tipI18nKey ? t(item.tipI18nKey) : undefined}
+                  overlayClassName="rectangle"
+                >
+                  <Item
+                    bgColor="var(--r-neutral-card2, #F2F4F7)"
+                    px={16}
+                    py={20}
+                    leftIcon={item.logo}
+                    leftIconClassName="w-6 h-6 mr-12"
+                    disabled={item.preventClick}
+                    onClick={() => {
+                      if (!item.preventClick) {
+                        gotoImport(item.type, item.brand);
+                      }
+                    }}
+                    className="rounded-[8px] text-[17px] font-medium text-r-neutral-title1"
+                  >
+                    {item.brand || BRAND_ALIAN_TYPE_TEXT[item.type]}
+                  </Item>
+                </Tooltip>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {/* MORE BUTTON */}
-      {!showMore && (
-        <div
-          onClick={() => setShowMore(true)}
-          className="mt-4 flex justify-center items-center gap-2 cursor-pointer text-13 text-r-neutral-foot"
-        >
-          <span>More</span>
-          <RcIconArrowDownCC className="w-[12px] h-[12px]" />
-        </div>
-      )}
-    </Card>
+          {!showMore && (
+            <div
+              onClick={() => setShowMore(true)}
+              className="mt-4 flex justify-center items-center gap-2 cursor-pointer text-13 text-r-neutral-foot"
+            >
+              <span>More</span>
+              <RcIconArrowDownCC className="w-[12px] h-[12px]" />
+            </div>
+          )}
+        </Content>
+      </Container>
+    </UiProvider>
   );
 };

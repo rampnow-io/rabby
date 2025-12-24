@@ -144,7 +144,6 @@ const BridgeToTokenSelect = ({
             chainId={chainId}
             disabledTips={'Not supported'}
             supportChains={supportChains}
-            getContainer={getContainer}
             type="bridgeTo"
           />
         )}
