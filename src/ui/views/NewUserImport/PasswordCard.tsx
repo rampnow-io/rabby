@@ -155,7 +155,14 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack }) => {
           </Form>
         </Content>
         <Action>
-          <Button onClick={form.handleSubmit(formSubmit)} className="w-full">
+          <Button
+            disabled={
+              form.watch('password') !== form.watch('confirmPassword') ||
+              !form.watch('password')
+            }
+            onClick={form.handleSubmit(formSubmit)}
+            className="w-full"
+          >
             {t('global.Confirm')}
           </Button>
         </Action>
