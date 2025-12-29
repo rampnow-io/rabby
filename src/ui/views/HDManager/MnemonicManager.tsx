@@ -86,7 +86,7 @@ export const MnemonicManager: React.FC = () => {
         </div>
       </div>
 
-      <MainContainer setting={setting} loading={loading} HDName="Seed Phrase" />
+      <MainContainer setting={setting} loading={loading} HDName="wallet" />
 
       <Modal
         destroyOnClose

@@ -1437,7 +1437,7 @@ declare global {
 export const IS_RD = typeof window === 'undefined' ? false : window.__is_rd__;
 
 export const BRAND_ALIAN_TYPE_TEXT = {
-  [KEYRING_TYPE.HdKeyring]: 'Seed Phrase',
+  [KEYRING_TYPE.HdKeyring]: 'Wallet',
   [KEYRING_TYPE.SimpleKeyring]: 'Private Key',
   [KEYRING_TYPE.WatchAddressKeyring]: 'Contact',
   [KEYRING_CLASS.HARDWARE.LEDGER]: 'Ledger',

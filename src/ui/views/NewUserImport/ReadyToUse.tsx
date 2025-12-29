@@ -49,35 +49,30 @@ export const ReadyToUse = () => {
       <Container>
         <HeaderNavPage />
         <Content>
-          <img
-            src={RoundedLogo}
-            alt="Rampnow logo"
-            className="w-[48px] h-[48px] mb-6"
-          />
-          <div className="flex flex-col gap-2 items-center text-[24px] font-semibold text-r-neutral-title1">
-            <div>Your Rampnow wallet is</div>
-            <div className=" text-primary">ready</div>
-          </div>
+          <div className="flex flex-col items-center gap-4">
+            <img
+              src={RoundedLogo}
+              alt="Rampnow logo"
+              className="w-[48px] h-[48px]"
+            />
+            <div className="flex flex-col items-center text-[24px] font-medium text-primary-foreground">
+              <div>Your Rampnow wallet is</div>
+              <div className=" text-primary">ready 🎉</div>
+            </div>
 
-          <div className="mt-8 flex items-center gap-3">
-            {shortcutKeys.map((key) => (
-              <ShortcutKey key={key} label={key} />
-            ))}
-          </div>
+            <div className="mt-8 flex items-center gap-3">
+              {shortcutKeys.map((key) => (
+                <ShortcutKey key={key} label={key} />
+              ))}
+            </div>
 
-          <div className="mt-4 text-[14px] text-r-neutral-body max-w-[280px]">
-            Try pressing the shortcut key to quickly open the wallet. 👀
+            <div className="text-xs text-center text-[#454745]">
+              Try pressing the shortcut key to quickly open the wallet. 👀
+            </div>
           </div>
         </Content>
         <Action>
-          <Button
-            onClick={() => window.close()}
-            className={
-              'mt-8 w-full h-[56px] rounded-[12px] text-[17px] font-medium shadow-none'
-            }
-          >
-            Open Rampnow Wallet
-          </Button>
+          <Button onClick={() => window.close()}>Open Rampnow Wallet</Button>
         </Action>
       </Container>
     </UiProvider>

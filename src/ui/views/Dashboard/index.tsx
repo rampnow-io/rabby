@@ -1,37 +1,21 @@
 import clsx from 'clsx';
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useEffect } from 'react';
+
 import { useHistory } from 'react-router-dom';
-import remarkGfm from 'remark-gfm';
-
-import { Modal } from 'ui/component';
-import { connectStore, useRabbyDispatch, useRabbySelector } from 'ui/store';
+import { connectStore, useRabbyDispatch } from 'ui/store';
 import { useWallet } from 'ui/utils';
-
-import PendingApproval from './components/PendingApproval';
-
-import { CurrentConnection } from './components/CurrentConnection';
 import { DashboardHeader } from './components/DashboardHeader';
 import { DashboardPanel } from './components/DashboardPanel';
 import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
-import { GasPriceBar } from './components/GasPriceBar';
-import { CHAINS_ENUM } from '@/constant';
 import Settings from './components/Settings';
-import { useMemoizedFn } from 'ahooks';
-import { Button } from '@repo/ui/primitives';
-import { useOpenClose } from '@repo/ui';
+import { Container, useOpenClose } from '@repo/ui';
+import { UIContainer } from '@/ui/provider';
 
 const Dashboard = () => {
   const history = useHistory();
   const wallet = useWallet();
   const dispatch = useRabbyDispatch();
   const currentAccount = useCurrentAccount();
-
-  const { firstNotice, updateContent, version } = useRabbySelector((s) => ({
-    ...s.appVersion,
-  }));
-
-  const [pendingApprovalCount, setPendingApprovalCount] = useState(0);
 
   const getCurrentAccount = async () => {
     const account = await dispatch.account.getCurrentAccountAsync();
@@ -59,7 +43,6 @@ const Dashboard = () => {
       await dispatch.addressManagement.getHilightedAddressesAsync();
       dispatch.accountToDisplay.getAllAccountsToDisplay();
       const pendingCount = await wallet.getPendingApprovalCount();
-      setPendingApprovalCount(pendingCount);
       const hasAnyAccountClaimedGift = await wallet.getHasAnyAccountClaimedGift();
       dispatch.gift.setField({ hasClaimedGift: hasAnyAccountClaimedGift });
     })();
@@ -69,39 +52,18 @@ const Dashboard = () => {
     dispatch.appVersion.checkIfFirstLoginAsync();
   }, [dispatch]);
 
-  const { t } = useTranslation();
-
-  const [settingVisible, setSettingVisible] = useState(false);
-  const toggleShowMoreSettings = useMemoizedFn(() => {
-    setSettingVisible(!settingVisible);
-  });
-
   const [isVisible, openModal, closeModal] = useOpenClose(false);
 
   return (
     <>
       <div className={clsx('bg-[#18181B05] flex flex-col gap-3')}>
-        <DashboardHeader onSettingClick={openModal} />
-        <DashboardPanel />
+        <UIContainer>
+          <Container className="bg-card-border">
+            <DashboardHeader onSettingClick={openModal} />
+            <DashboardPanel />
+          </Container>
+        </UIContainer>
       </div>
-      <Modal
-        visible={firstNotice && updateContent}
-        title={t('page.dashboard.home.whatsNew')}
-        className="first-notice"
-        onCancel={() => {
-          dispatch.appVersion.afterFirstLogin();
-        }}
-        maxHeight="420px"
-      ></Modal>
-
-      {pendingApprovalCount > 0 && (
-        <PendingApproval
-          onRejectAll={() => {
-            setPendingApprovalCount(0);
-          }}
-          count={pendingApprovalCount}
-        />
-      )}
 
       <Settings visible={isVisible} onClose={closeModal} />
     </>

@@ -127,7 +127,7 @@ export const PrivatekeyWaiting = ({
         };
       case KEYRING_CLASS.MNEMONIC:
         return {
-          name: 'Seed Phrase',
+          name: 'wallet',
           icon:
             pickKeyringThemeIcon(KEYRING_CLASS.MNEMONIC, isDarkTheme) ||
             KEYRING_ICONS[KEYRING_CLASS.MNEMONIC],

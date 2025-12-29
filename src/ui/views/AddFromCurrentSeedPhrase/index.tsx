@@ -51,7 +51,7 @@ const Group = ({
   return (
     <div className="relative w-full p-[16px] bg-r-neutral-card-1 overflow-hidden rounded-[6px] pt-0">
       <div className="h-[48px] flex items-center mb-14 text-r-neutral-title1 text-[15px] font-medium">
-        Seed Phrase {index + 1}
+        wallets {index + 1}
       </div>
       <div className="absolute left-0 top-[48px] w-full h-0 border-b-[0.5px] border-rabby-neutral-line" />
 

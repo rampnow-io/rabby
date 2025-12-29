@@ -3575,7 +3575,7 @@
       "failed": "Transaction failed"
     },
     "alias": {
-      "HdKeyring": "Seed Phrase",
+      "HdKeyring": "Wallet",
       "simpleKeyring": "Private Key",
       "watchAddressKeyring": "Contact"
     },

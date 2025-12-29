@@ -28,9 +28,7 @@ export function generateAliasName({
   addressCount?: number;
 }) {
   if (keyringType === KEYRING_CLASS.MNEMONIC) {
-    return `${t('background.alias.HdKeyring')} ${keyringCount + 1} #${
-      addressCount + 1
-    }`;
+    return `${t('background.alias.HdKeyring')} ${keyringCount + 1}`;
   } else if (keyringType === KEYRING_TYPE.SimpleKeyring) {
     return `${t('background.alias.simpleKeyring')} ${keyringCount + 1}`;
   } else {
