@@ -8,7 +8,7 @@ import { DashboardHeader } from './components/DashboardHeader';
 import { DashboardPanel } from './components/DashboardPanel';
 import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 import Settings from './components/Settings';
-import { Container, useOpenClose } from '@repo/ui';
+import { Container, Content, useOpenClose } from '@repo/ui';
 import { UIContainer } from '@/ui/provider';
 
 const Dashboard = () => {
@@ -55,18 +55,17 @@ const Dashboard = () => {
   const [isVisible, openModal, closeModal] = useOpenClose(false);
 
   return (
-    <>
-      <div className={clsx('bg-[#18181B05] flex flex-col gap-3')}>
-        <UIContainer>
-          <Container className="bg-card-border">
+    <UIContainer>
+      <Container className="bg-card-border">
+        <Content className="px-0 py-0">
+          <div className="flex h-full flex-col gap-3">
             <DashboardHeader onSettingClick={openModal} />
             <DashboardPanel />
-          </Container>
-        </UIContainer>
-      </div>
-
+          </div>
+        </Content>
+      </Container>
       <Settings visible={isVisible} onClose={closeModal} />
-    </>
+    </UIContainer>
   );
 };
 

@@ -47,28 +47,29 @@ export const ChainList = ({
       chainsToHide: [] as ChainItemType[],
     };
 
+    const allChains = [...chainList, ...(apps?.map(formatAppChain) || [])];
     const chainCount = chainList.length;
-    [...chainList, ...(apps?.map(formatAppChain) || [])].forEach((item) => {
+
+    allChains.forEach((item) => {
       const chainItem: ChainItemType = {
         ...item,
         percent: (item.usd_value / balance) * 100,
       };
       res.allItems.push(chainItem);
-
-      if (chainCount <= 6 || shouldChainRevealed(chainItem)) {
-        res.chainsToReveal.push(chainItem);
-      } else {
-        res.chainsToHide.push(chainItem);
-      }
     });
 
-    if (res.chainsToHide.length <= 2) {
-      res.chainsToReveal = [...res.allItems];
-      res.chainsToHide = [];
-    }
+    // Sort all items by value
+    res.allItems.sort(sortChainWithValueDesc);
 
-    res.chainsToReveal.sort(sortChainWithValueDesc);
-    res.chainsToHide.sort(sortChainWithValueDesc);
+    // Show top 10 chains by default
+    const topN = 10;
+    if (res.allItems.length <= topN) {
+      res.chainsToReveal = res.allItems;
+      res.chainsToHide = [];
+    } else {
+      res.chainsToReveal = res.allItems.slice(0, topN);
+      res.chainsToHide = res.allItems.slice(topN);
+    }
 
     return res;
   }, [chainList, balance, apps]);
@@ -91,7 +92,8 @@ export const ChainList = ({
     );
   }
 
-  if (balance <= 0) {
+  // Always show chains, even if balance is 0
+  if (!chainList || chainList.length === 0) {
     return null;
   }
 

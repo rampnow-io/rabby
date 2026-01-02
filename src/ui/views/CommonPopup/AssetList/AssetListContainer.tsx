@@ -3,7 +3,7 @@ import { TokenSearchInput } from './TokenSearchInput';
 import AddTokenEntry, { AddTokenEntryInst } from './AddTokenEntry';
 import { useRabbySelector } from '@/ui/store';
 import { HomeTokenList } from './TokenList';
-import useSortTokens from 'ui/hooks/useSortTokens';
+
 import useSearchToken from '@/ui/hooks/useSearchToken';
 import {
   TokenListSkeleton,
@@ -15,6 +15,8 @@ import { Input, InputRef } from 'antd';
 import { useFilterProtocolList } from './useFilterProtocolList';
 import { useAppChain } from '@/ui/hooks/useAppChain';
 import { useCommonPopupView } from '@/ui/utils';
+import { StablecoinMapAggregatedByChain } from '@/constant/dex-swap';
+import { findChain } from '@/utils/chain';
 
 interface Props {
   className?: string;
@@ -39,6 +41,7 @@ export const AssetListContainer: React.FC<Props> = ({
   const { currentAccount } = useRabbySelector((s) => ({
     currentAccount: s.account.currentAccount,
   }));
+  console.log('currentAccount:', currentAccount);
   const { setApps } = useCommonPopupView();
   const {
     isTokensLoading,
@@ -64,12 +67,52 @@ export const AssetListContainer: React.FC<Props> = ({
     isTestnet
   );
   const displayTokenList = useMemo(() => {
-    const result = search ? list : tokenList;
+    let result = search ? list : tokenList;
+
+    // If no tokens found, generate sample tokens from stablecoin map
+    if (result.length === 0 && !isTokensLoading) {
+      const sampleTokens: any[] = [];
+
+      // Create sample tokens from the stablecoin map
+      const stableTokens = ['usdc', 'usdt', 'dai'];
+      const chainIds = ['eth', 'bnb', 'op', 'arb', 'avax', 'polygon'];
+
+      for (const chainId of chainIds) {
+        for (const tokenSymbol of stableTokens) {
+          const chainData = StablecoinMapAggregatedByChain[chainId];
+          if (chainData && chainData[tokenSymbol]) {
+            const address = chainData[tokenSymbol];
+            sampleTokens.push({
+              chain: chainId,
+              id: address,
+              symbol: tokenSymbol.toUpperCase(),
+              logo_url: `https://static.debank.com/image/token/logo_url/${chainId}/${address}/default.png`,
+              _usdValue: 0,
+              amount: 0,
+              _tokenId: address,
+              decimals: tokenSymbol === 'dai' ? 18 : 6,
+              display_symbol: tokenSymbol.toUpperCase(),
+              is_core: true,
+              is_verified: true,
+              name:
+                tokenSymbol === 'usdc'
+                  ? 'USD Coin'
+                  : tokenSymbol === 'usdt'
+                  ? 'Tether USD'
+                  : 'Dai Stablecoin',
+            });
+          }
+        }
+      }
+
+      result = sampleTokens.slice(0, 10);
+    }
+
     if (selectChainId) {
       return result.filter((item) => item.chain === selectChainId);
     }
     return result;
-  }, [list, tokenList, search, selectChainId]);
+  }, [list, tokenList, search, selectChainId, isTokensLoading]);
 
   const displayPortfolios = useMemo(() => {
     const combinedPortfolios = [
@@ -110,7 +153,16 @@ export const AssetListContainer: React.FC<Props> = ({
     onEmptyAssets(isEmptyAssets);
   }, [isEmptyAssets, onEmptyAssets]);
 
-  const sortTokens = useSortTokens(displayTokenList);
+  // Get top 10 tokens by USD value
+  const topTokens = useMemo(() => {
+    const sorted = [...displayTokenList].sort(
+      (a, b) => (b._usdValue || 0) - (a._usdValue || 0)
+    );
+    const top10 = sorted.slice(0, 10);
+    return top10;
+  }, [displayTokenList]);
+
+  const sortTokens = topTokens;
   const filteredPortfolios = useFilterProtocolList({
     list: displayPortfolios,
     kw: search,

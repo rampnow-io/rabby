@@ -13,11 +13,11 @@
     --primary: 76 90% 60%;
     --primary-foreground: 240, 6%, 10%;
     --secondary: 0 0% 100%;
-    --secondary-foreground: 120 1% 27%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+    --secondary-foreground: 240, 4%, 46%; 
+    --muted: 240 4.8% 95.9%; 
+    --muted-foreground: 240 5% 65%;
     --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --accent-foreground:120 1% 27%;
     --destructive: 349 96% 90%;
     --destructive-foreground: 343 79% 50%;
     --button-primary: 149 100% 9%;

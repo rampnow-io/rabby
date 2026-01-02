@@ -31,7 +31,10 @@ export default ({
       style={{ cursor: onClick ? 'pointer' : 'inherit' }}
     >
       <div
-        className={cx('address-viewer-text', className)}
+        className={cx(
+          'text-base text-primary-foreground font-semibold',
+          className
+        )}
         title={address?.toLowerCase()}
       >
         {showIndex && index >= 0 && (

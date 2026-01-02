@@ -29,7 +29,7 @@ const buttonVariants = cva(
         [ButtonType.DESTRUCTIVE]: "bg-destructive !text-button-primary",
         [ButtonType.SECONDARY]:
           "bg-secondary border border-button-primary text-button-primary",
-        [ButtonType.GHOST]: "hover:bg-accent hover:text-accent-foreground",
+        [ButtonType.GHOST]: "hover:bg-accent hover:text-secondary-foreground",
         [ButtonType.LINK]:
           "bg-secondary text-button-primary underline underline-offset-4",
         [ButtonType.NONE]: "",

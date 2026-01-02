@@ -210,6 +210,16 @@ export const BalanceView = ({
   const { activePopup, setData, componentName } = useCommonPopupView();
   const onClickViewAssets = () => {
     activePopup('AssetList');
+    // Set data immediately when opening AssetList
+    setData({
+      matteredChainBalances: chainBalancesWithValue,
+      matteredTestnetChainBalances: [],
+      balance,
+      testnetBalance: 0,
+      balanceLoading,
+      isEmptyAssets: !matteredChainBalances.length,
+      isOffline: !loadBalanceSuccess,
+    });
     // wallet.openInDesktop('/desktop/profile');
     // window.close();
   };

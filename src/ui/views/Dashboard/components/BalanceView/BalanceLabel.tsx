@@ -21,7 +21,7 @@ export const BalanceLabel: React.FC<Props> = ({ balance }) => {
   return (
     <div
       className={clsx(
-        'cursor-pointer transition-opacity truncate'
+        'cursor-pointer transition-opacity truncate  py-6'
         // isCache && 'opacity-80'
       )}
       title={splitBalance}
@@ -30,14 +30,20 @@ export const BalanceLabel: React.FC<Props> = ({ balance }) => {
       {hiddenBalance ? (
         <div
           className={clsx(
-            'font-bold text-[30px] leading-[36px] tracking-[16px]',
-            'mr-[-16px] ml-4'
+            'font-bold text-[40px] leading-[36px] text-primary-foreground tracking-[16px]'
           )}
         >
           *****
         </div>
       ) : (
-        <div>${splitBalance}</div>
+        <div className="flex gap-1">
+          <div className="text-muted-foreground font-normal text-[34px] pt-1">
+            $
+          </div>
+          <div className="font-bold text-[40px] leading-[36px] text-primary-foreground tracking-[16px]">
+            {splitBalance}
+          </div>
+        </div>
       )}
     </div>
   );

@@ -74,61 +74,27 @@ export const AssetList = ({
         />
       )} */}
       <div className={clsx(selectedTab === 'mainnet' ? 'block' : 'hidden')}>
-        <div className={clsx('mt-[120px]', isEmptyAssets ? 'block' : 'hidden')}>
-          <AssetEmptySVG className="m-auto" />
-          <div className="mt-0 text-r-neutral-foot text-[14px] text-center">
-            {t('page.dashboard.assets.noAssets')}
-          </div>
-
-          {isEmptyAssets ? (
-            <div className="w-[100%] flex justify-center items-center">
-              <Button
-                className="w-[200px] h-[44px] mt-[50px]"
-                onClick={() => {
-                  openModal();
-                }}
-              >
-                {t('page.dashboard.assets.customButtonText')}
-              </Button>
-              {isVisible && (
-                <AddCustomTokenPopup
-                  isVisible={isVisible}
-                  onClose={() => {
-                    closeModal();
-                  }}
-                  onConfirm={(addedToken) => {
-                    closeModal();
-                    setShowCustomizedTokens(true);
-                  }}
-                />
-              )}
-            </div>
-          ) : (
-            <SpecialTokenListPopup
-              label={
-                tokens?.length > 1
-                  ? t('page.dashboard.tokenDetail.customizedButtons')
-                  : t('page.dashboard.tokenDetail.customizedButton')
-              }
-              buttonText={t('page.dashboard.assets.customButtonText')}
-              description={t('page.dashboard.assets.customDescription')}
-              onClickButton={() => {
-                setShowCustomizedTokens(true);
-              }}
-              tokens={tokens}
-              visible={showCustomizedTokens}
-              onClose={() => setShowCustomizedTokens(false)}
-            />
-          )}
-        </div>
-        <div className={clsx(isEmptyAssets ? 'hidden' : 'block')}>
-          <ChainList onChange={handleSelectChainChange} />
-          <AssetListContainer
-            selectChainId={selectChainId}
-            visible={visible}
-            onEmptyAssets={setIsEmptyAssets}
-          />
-        </div>
+        <ChainList onChange={handleSelectChainChange} />
+        <AssetListContainer
+          selectChainId={selectChainId}
+          visible={visible}
+          onEmptyAssets={setIsEmptyAssets}
+        />
+        <SpecialTokenListPopup
+          label={
+            tokens?.length > 1
+              ? t('page.dashboard.tokenDetail.customizedButtons')
+              : t('page.dashboard.tokenDetail.customizedButton')
+          }
+          buttonText={t('page.dashboard.assets.customButtonText')}
+          description={t('page.dashboard.assets.customDescription')}
+          onClickButton={() => {
+            setShowCustomizedTokens(true);
+          }}
+          tokens={tokens}
+          visible={showCustomizedTokens}
+          onClose={() => setShowCustomizedTokens(false)}
+        />
       </div>
       <div className={clsx(selectedTab === 'testnet' ? 'block' : 'hidden')}>
         <TestnetChainList onChange={handleTestnetSelectChainChange} />
