@@ -11,7 +11,7 @@ import {
 } from './TokenListViewSkeleton';
 import ProtocolList from './ProtocolList';
 import { useQueryProjects } from 'ui/utils/portfolio';
-import { Input, InputRef } from 'antd';
+import { InputRef } from 'antd';
 import { useFilterProtocolList } from './useFilterProtocolList';
 import { useAppChain } from '@/ui/hooks/useAppChain';
 import { useCommonPopupView } from '@/ui/utils';
@@ -73,43 +73,58 @@ export const AssetListContainer: React.FC<Props> = ({
     if (result.length === 0 && !isTokensLoading) {
       const sampleTokens: any[] = [];
 
-      // Create sample tokens from the stablecoin map
-      const stableTokens = ['usdc', 'usdt', 'dai'];
-      const chainIds = ['eth', 'bnb', 'op', 'arb', 'avax', 'polygon'];
+      // Native tokens for EVM chains
+      const nativeTokens: Record<
+        string,
+        { symbol: string; name: string; decimals: number }
+      > = {
+        eth: { symbol: 'ETH', name: 'Ethereum', decimals: 18 },
+        bnb: { symbol: 'BNB', name: 'BNB', decimals: 18 },
+        op: { symbol: 'ETH', name: 'Ethereum', decimals: 18 },
+        arb: { symbol: 'ETH', name: 'Ethereum', decimals: 18 },
+        avax: { symbol: 'AVAX', name: 'Avalanche', decimals: 18 },
+        polygon: { symbol: 'MATIC', name: 'Polygon', decimals: 18 },
+        era: { symbol: 'ETH', name: 'Ethereum', decimals: 18 },
+      };
 
-      for (const chainId of chainIds) {
-        for (const tokenSymbol of stableTokens) {
-          const chainData = StablecoinMapAggregatedByChain[chainId];
-          if (chainData && chainData[tokenSymbol]) {
-            const address = chainData[tokenSymbol];
-            sampleTokens.push({
-              chain: chainId,
-              id: address,
-              symbol: tokenSymbol.toUpperCase(),
-              logo_url: `https://static.debank.com/image/token/logo_url/${chainId}/${address}/default.png`,
-              _usdValue: 0,
-              amount: 0,
-              _tokenId: address,
-              decimals: tokenSymbol === 'dai' ? 18 : 6,
-              display_symbol: tokenSymbol.toUpperCase(),
-              is_core: true,
-              is_verified: true,
-              name:
-                tokenSymbol === 'usdc'
-                  ? 'USD Coin'
-                  : tokenSymbol === 'usdt'
-                  ? 'Tether USD'
-                  : 'Dai Stablecoin',
-            });
-          }
-        }
+      // Add native tokens first
+      for (const [chainId, tokenInfo] of Object.entries(nativeTokens)) {
+        sampleTokens.push({
+          id: chainId,
+          chain: chainId,
+          name: tokenInfo.name,
+          symbol: tokenInfo.symbol,
+          display_symbol: null,
+          optimized_symbol: tokenInfo.symbol,
+          decimals: tokenInfo.decimals,
+          logo_url: `https://static.debank.com/image/coin/logo_url/${chainId.toLowerCase()}/6443cdccced33e204d90cb723c632917.png`,
+          protocol_id: '',
+          price: 0,
+          price_24h_change: 0,
+          credit_score: 0,
+          total_supply: 0,
+          is_verified: true,
+          is_core: true,
+          is_wallet: true,
+          is_scam: false,
+          is_suspicious: false,
+          time_at: null,
+          amount: 0,
+          raw_amount: 0,
+          raw_amount_hex_str: '0x0',
+          raw_amount_str: '0',
+          cex_ids: [],
+          fdv: 0,
+          _usdValue: 0,
+        });
       }
 
       result = sampleTokens.slice(0, 10);
     }
 
     if (selectChainId) {
-      return result.filter((item) => item.chain === selectChainId);
+      const filtered = result.filter((item) => item.chain === selectChainId);
+      return filtered;
     }
     return result;
   }, [list, tokenList, search, selectChainId, isTokensLoading]);
@@ -222,7 +237,7 @@ export const AssetListContainer: React.FC<Props> = ({
       {isTokensLoading || isSearching ? (
         <TokenListSkeleton />
       ) : (
-        <div className="mt-18">
+        <div className="mt-4">
           <HomeTokenList
             list={sortTokens}
             onFocusInput={handleFocusInput}
