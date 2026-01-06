@@ -37,10 +37,10 @@ export const BalanceLabel: React.FC<Props> = ({ balance }) => {
         </div>
       ) : (
         <div className="flex gap-1">
-          <div className="text-muted-foreground font-normal text-[34px] pt-1">
+          <div className="text-muted-foreground font-normal text-[18px] -mt-1.5">
             $
           </div>
-          <div className="font-bold text-[40px] leading-[36px] text-primary-foreground tracking-[16px]">
+          <div className="font-bold text-[40px] text-primary-foreground ">
             {splitBalance}
           </div>
         </div>

@@ -454,10 +454,65 @@ export const useTokens = (
 
   const tokens = useMemo(() => {
     const list = isTestnet ? testnetTokens.list : mainnetTokens.list;
-    if (showAll) {
-      return list;
+    const coreList = showAll ? list : list.filter((token) => token.is_core);
+
+    // Show native tokens instantly for first-time users when wallet is empty.
+    // These placeholders get replaced automatically once real data arrives.
+    if (!coreList.length && !isTestnet) {
+      const placeholderChains = [
+        'eth',
+        'bsc',
+        'matic',
+        'avax',
+        'ron',
+        'pls',
+        'celo',
+      ];
+
+      const placeholders = placeholderChains
+        .map((serverId) => {
+          const chain = findChain({ serverId });
+          if (!chain) return null;
+
+          const nativeSymbol = chain.nativeTokenSymbol || chain.enum;
+          const nativeAddress = chain.nativeTokenAddress || serverId;
+          const decimals = chain.nativeTokenDecimals || 18;
+
+          return {
+            id: nativeAddress,
+            chain: chain.serverId,
+            name: nativeSymbol,
+            symbol: nativeSymbol,
+            display_symbol: nativeSymbol,
+            optimized_symbol: nativeSymbol,
+            decimals,
+            logo_url: chain.nativeTokenLogo,
+            protocol_id: '',
+            price: 0,
+            price_24h_change: 0,
+            credit_score: 0,
+            total_supply: 0,
+            is_verified: true,
+            is_core: true,
+            is_wallet: true,
+            is_scam: false,
+            is_suspicious: false,
+            time_at: 0,
+            amount: 0,
+            raw_amount: '0',
+            raw_amount_hex_str: '0x0',
+            raw_amount_str: '0',
+            cex_ids: [],
+            fdv: 0,
+            usd_value: 0,
+          } as TokenItem;
+        })
+        .filter(Boolean) as TokenItem[];
+
+      return placeholders;
     }
-    return list.filter((token) => token.is_core);
+
+    return coreList;
   }, [isTestnet, testnetTokens.list, mainnetTokens.list, showAll]);
 
   return {
@@ -468,7 +523,7 @@ export const useTokens = (
       ? testnetTokens.customize
       : mainnetTokens.customize,
     blockedTokens: isTestnet ? testnetTokens.blocked : mainnetTokens.blocked,
-    hasValue: !!data?._portfolios?.length,
+    hasValue: tokens.length > 0 || !!data?._portfolios?.length,
     updateData: loadProcess,
     walletProject: data,
   };

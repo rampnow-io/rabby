@@ -44,40 +44,17 @@ export const TokenTable: React.FC<Props> = ({
         EmptyComponent
       ) : (
         <Table className="!w-full ml-0 mr-0">
-          {virtual ? (
-            <VirtualList
-              {...({ height: virtual.height } as any)}
-              width="100%"
-              itemData={list}
-              itemCount={list?.length || 0}
-              itemSize={virtual.itemSize}
-              children={
-                (({ data, index, style }) => {
-                  const item = data[index];
-                  return (
-                    <TokenItem
-                      onClick={() => setSelected(item)}
-                      style={style}
-                      key={`${item.chain}-${item.id}`}
-                      item={item}
-                    />
-                  );
-                }) as any
-              }
-            />
-          ) : (
-            <TBody className="mt-0">
-              {list?.map((item) => {
-                return (
-                  <TokenItem
-                    onClick={() => setSelected(item)}
-                    key={`${item.chain}-${item.id}`}
-                    item={item}
-                  />
-                );
-              })}
-            </TBody>
-          )}
+          <TBody className="mt-0 flex flex-col gap-5">
+            {list?.map((item) => {
+              return (
+                <TokenItem
+                  onClick={() => setSelected(item)}
+                  key={`${item.chain}-${item.id}`}
+                  item={item}
+                />
+              );
+            })}
+          </TBody>
         </Table>
       )}
       <TokenDetailPopup

@@ -54,15 +54,6 @@ export const HomeTokenList = ({
   }, [currentList, list, isSearch, customizeTokens]);
   const { t } = useTranslation();
 
-  if (isNoResults) {
-    return (
-      <TokenListEmpty
-        className="mt-[92px]"
-        text={t('page.dashboard.assets.table.noMatch')}
-      />
-    );
-  }
-
   const hasList = !!(
     list?.length ||
     currentList?.length ||
@@ -82,20 +73,6 @@ export const HomeTokenList = ({
           <TokenLowValueItem list={lowValueList} className="h-[44px]" />
         )}
       </div>
-      {!isSearch && hasList && (
-        <div className="flex gap-12 pt-12 mt-[1px]">
-          <CustomizedButton
-            onClickButton={onOpenAddEntryPopup}
-            isTestnet={isTestnet}
-            selectChainId={selectChainId}
-          />
-          <BlockedButton
-            onClickLink={onFocusInput}
-            isTestnet={isTestnet}
-            selectChainId={selectChainId}
-          />
-        </div>
-      )}
     </div>
   );
 };

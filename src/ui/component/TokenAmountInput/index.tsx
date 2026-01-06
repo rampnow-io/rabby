@@ -18,6 +18,7 @@ import useSearchToken from 'ui/hooks/useSearchToken';
 import useSortToken from 'ui/hooks/useSortTokens';
 import { formatUsdValue, useWallet } from 'ui/utils';
 import { abstractTokenToTokenItem, getTokenSymbol } from 'ui/utils/token';
+import { AbstractPortfolioToken } from '@/ui/utils/portfolio/types';
 import TokenSelector, { TokenSelectorProps } from '../TokenSelector';
 import TokenWithChain from '../TokenWithChain';
 import { INPUT_NUMBER_RE, filterNumber } from '@/constant/regexp';
@@ -152,10 +153,10 @@ const TokenAmountInput = ({
     chainServerId
   );
 
-  const allDisplayTokens = useMemo(
-    () => allTokens.map(abstractTokenToTokenItem),
-    [allTokens]
-  );
+  const allDisplayTokens = useMemo(() => {
+    const abstractTokens = (allTokens as unknown) as AbstractPortfolioToken[];
+    return abstractTokens.map(abstractTokenToTokenItem);
+  }, [allTokens]);
 
   const { list: searchedTokenByQuery } = useSearchToken(
     currentAccount?.address,

@@ -13,7 +13,6 @@ import { formatUsdValue, useCommonPopupView, useWallet } from 'ui/utils';
 import { KEYRING_TYPE } from 'consts';
 import { SvgIconOffline } from '@/ui/assets';
 import clsx from 'clsx';
-import { Skeleton } from 'antd';
 import { Chain } from '@debank/common';
 import { ChainList } from './ChainList';
 import { formChartData, useCurve } from './useCurve';
@@ -36,6 +35,7 @@ import type { Account } from '@/background/service/preference';
 import { IExtractFromPromise } from '@/ui/utils/type';
 import { OfflineChainNotify } from '../OfflineChainNotify';
 import { RcIconArrowRightCC } from '@/ui/assets/dashboard';
+import { Skeleton } from '@repo/ui/primitives';
 
 export const BalanceView = ({
   currentAccount,
@@ -341,10 +341,7 @@ export const BalanceView = ({
             )}
           >
             {shouldShowBalanceLoading ? (
-              <Skeleton.Input
-                active
-                className="w-[200px] h-[36px] rounded block"
-              />
+              <Skeleton className="w-[200px] h-[36px] rounded block" />
             ) : (
               <BalanceLabel
                 // isCache={balanceFromCache}

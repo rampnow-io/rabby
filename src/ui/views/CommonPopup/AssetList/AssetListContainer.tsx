@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo } from 'react';
-import { TokenSearchInput } from './TokenSearchInput';
 import AddTokenEntry, { AddTokenEntryInst } from './AddTokenEntry';
 import { useRabbySelector } from '@/ui/store';
 import { HomeTokenList } from './TokenList';
@@ -17,6 +16,7 @@ import { useAppChain } from '@/ui/hooks/useAppChain';
 import { useCommonPopupView } from '@/ui/utils';
 import { StablecoinMapAggregatedByChain } from '@/constant/dex-swap';
 import { findChain } from '@/utils/chain';
+import { AbstractPortfolioToken } from '@/ui/utils/portfolio/types';
 
 interface Props {
   className?: string;
@@ -67,67 +67,12 @@ export const AssetListContainer: React.FC<Props> = ({
     isTestnet
   );
   const displayTokenList = useMemo(() => {
-    let result = search ? list : tokenList;
-
-    // If no tokens found, generate sample tokens from stablecoin map
-    if (result.length === 0 && !isTokensLoading) {
-      const sampleTokens: any[] = [];
-
-      // Native tokens for EVM chains
-      const nativeTokens: Record<
-        string,
-        { symbol: string; name: string; decimals: number }
-      > = {
-        eth: { symbol: 'ETH', name: 'Ethereum', decimals: 18 },
-        bnb: { symbol: 'BNB', name: 'BNB', decimals: 18 },
-        op: { symbol: 'ETH', name: 'Ethereum', decimals: 18 },
-        arb: { symbol: 'ETH', name: 'Ethereum', decimals: 18 },
-        avax: { symbol: 'AVAX', name: 'Avalanche', decimals: 18 },
-        polygon: { symbol: 'MATIC', name: 'Polygon', decimals: 18 },
-        era: { symbol: 'ETH', name: 'Ethereum', decimals: 18 },
-      };
-
-      // Add native tokens first
-      for (const [chainId, tokenInfo] of Object.entries(nativeTokens)) {
-        sampleTokens.push({
-          id: chainId,
-          chain: chainId,
-          name: tokenInfo.name,
-          symbol: tokenInfo.symbol,
-          display_symbol: null,
-          optimized_symbol: tokenInfo.symbol,
-          decimals: tokenInfo.decimals,
-          logo_url: `https://static.debank.com/image/coin/logo_url/${chainId.toLowerCase()}/6443cdccced33e204d90cb723c632917.png`,
-          protocol_id: '',
-          price: 0,
-          price_24h_change: 0,
-          credit_score: 0,
-          total_supply: 0,
-          is_verified: true,
-          is_core: true,
-          is_wallet: true,
-          is_scam: false,
-          is_suspicious: false,
-          time_at: null,
-          amount: 0,
-          raw_amount: 0,
-          raw_amount_hex_str: '0x0',
-          raw_amount_str: '0',
-          cex_ids: [],
-          fdv: 0,
-          _usdValue: 0,
-        });
-      }
-
-      result = sampleTokens.slice(0, 10);
-    }
-
+    const result = search ? list : tokenList;
     if (selectChainId) {
-      const filtered = result.filter((item) => item.chain === selectChainId);
-      return filtered;
+      return result.filter((item) => item.chain === selectChainId);
     }
     return result;
-  }, [list, tokenList, search, selectChainId, isTokensLoading]);
+  }, [list, tokenList, search, selectChainId]) as AbstractPortfolioToken[];
 
   const displayPortfolios = useMemo(() => {
     const combinedPortfolios = [
@@ -154,30 +99,17 @@ export const AssetListContainer: React.FC<Props> = ({
     return customizeTokens;
   }, [customizeTokens, selectChainId]);
 
-  const isEmptyAssets =
-    !isTokensLoading &&
-    !displayTokenList.length &&
-    !isPortfoliosLoading &&
-    !displayPortfolios?.length &&
-    !displayBlockedTokens?.length &&
-    !displayCustomizeTokens?.length &&
-    !isAppPortfoliosLoading &&
-    !appPortfolios?.length;
+  // Sort all tokens by USD value (showing all tokens, not just top 10)
+  const sortedTokens = useMemo(() => {
+    const getUsdValue = (item: any) => item?._usdValue ?? item?.usd_value ?? 0;
 
-  React.useEffect(() => {
-    onEmptyAssets(isEmptyAssets);
-  }, [isEmptyAssets, onEmptyAssets]);
-
-  // Get top 10 tokens by USD value
-  const topTokens = useMemo(() => {
     const sorted = [...displayTokenList].sort(
-      (a, b) => (b._usdValue || 0) - (a._usdValue || 0)
+      (a, b) => getUsdValue(b) - getUsdValue(a)
     );
-    const top10 = sorted.slice(0, 10);
-    return top10;
+    return sorted;
   }, [displayTokenList]);
 
-  const sortTokens = topTokens;
+  const sortTokens = sortedTokens;
   const filteredPortfolios = useFilterProtocolList({
     list: displayPortfolios,
     kw: search,
@@ -197,6 +129,24 @@ export const AssetListContainer: React.FC<Props> = ({
       inputRef.current?.blur();
     }
   }, [visible]);
+
+  // Log token data for debugging live values
+  useEffect(() => {
+    if (sortTokens.length > 0 && visible) {
+      console.log(
+        'Token data check (first 5):',
+        sortTokens.slice(0, 5).map((t) => ({
+          symbol: t.symbol,
+          chain: t.chain,
+          _usdValue: t._usdValue ?? 0,
+          _usdValueStr: t._usdValueStr ?? '$0.00',
+          price: t.price,
+          price_24h_change: t.price_24h_change,
+          amount: t.amount,
+        }))
+      );
+    }
+  }, [sortTokens, visible]);
 
   useEffect(() => {
     if (appPortfolios) {

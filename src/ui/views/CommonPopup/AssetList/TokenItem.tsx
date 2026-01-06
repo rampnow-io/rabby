@@ -1,13 +1,12 @@
 import React from 'react';
 import { TCell, TRow } from './components/Table';
-import { CHAINS_LIST } from '@debank/common';
 import { AbstractPortfolioToken } from '@/ui/utils/portfolio/types';
 import clsx from 'clsx';
 import IconUnknown from '@/ui/assets/token-default.svg';
 import { Image } from 'antd';
 import { isNil } from 'lodash';
-import { TooltipWithMagnetArrow } from '@/ui/component/Tooltip/TooltipWithMagnetArrow';
 import { findChain } from '@/utils/chain';
+import { TooltipView } from '@repo/ui/primitives';
 
 export interface Props {
   item: AbstractPortfolioToken;
@@ -21,52 +20,74 @@ const TokenItemAsset: React.FC<Props> = ({ item }) => {
   });
 
   return (
-    <TCell className="py-8 flex gap-10 w-[160px] items-center">
-      <div className="relative h-[32px]">
-        <Image
-          className="w-8 h-8 rounded-full"
+    <TCell className="py-8 flex gap-3 items-center">
+      <div className="relative w-8 h-8">
+        <img
           src={item.logo_url || IconUnknown}
           alt={item.symbol}
-          fallback={IconUnknown}
-          preview={false}
+          className="w-8 h-8 rounded-full"
         />
-        <TooltipWithMagnetArrow
-          title={chain?.name}
-          className="rectangle w-[max-content]"
-        >
+
+        <TooltipView content={chain?.name}>
           <img
-            className="w-4 h-4 absolute right-[-2px] top-[-2px] rounded-full"
             src={chain?.logo || IconUnknown}
             alt={item.chain}
+            className="absolute w-[14px] h-[14px] right-[-4px] bottom-[-4px] rounded-full border-2 border-white bg-white"
           />
-        </TooltipWithMagnetArrow>
+        </TooltipView>
       </div>
+
       <div className="flex flex-1 flex-col gap-2 overflow-hidden">
-        <span className="text-r-neutral-title-1 text-13 font-medium leading-[15px] truncate">
-          {item._amountStr}
+        <span className="text-primary-foreground text-base font-medium leading-[15px] truncate">
+          {chain?.name}
         </span>
-        <span className="text-r-neutral-foot text-12 leading-[14px] whitespace-nowrap overflow-ellipsis overflow-hidden">
-          {item.symbol}
+        <span className="text-secondary-foreground text-12 leading-[14px] whitespace-nowrap overflow-ellipsis overflow-hidden">
+          {item._amountStr ?? '0'} {item.symbol}
         </span>
       </div>
     </TCell>
   );
 };
 
-const TokenItemPrice: React.FC<Props> = ({ item }) => {
+// const TokenItemPrice: React.FC<Props> = ({ item }) => {
+//   return (
+//     <TCell
+//       className={clsx(
+//         'py-8 text-r-neutral-title1 text-13 w-[90px]',
+//         'flex flex-col gap-2'
+//       )}
+//     >
+//       <div>${item._priceStr}</div>
+//       {isNil(item.price_24h_change) ? null : (
+//         <div
+//           className={clsx('font-normal text-12', {
+//             'text-green': item.price_24h_change > 0,
+//             'text-red-forbidden': item.price_24h_change < 0,
+//           })}
+//         >
+//           {item.price_24h_change > 0 ? '+' : ''}
+//           {(item.price_24h_change * 100).toFixed(2)}%
+//         </div>
+//       )}
+//     </TCell>
+//   );
+// };
+
+const TokenItemUSDValue: React.FC<Props> = ({ item }) => {
   return (
     <TCell
       className={clsx(
         'py-8 text-r-neutral-title1 text-13 w-[90px]',
-        'flex flex-col gap-2'
+        'flex flex-col items-end gap-2'
       )}
     >
-      <div>${item._priceStr}</div>
-      {isNil(item.price_24h_change) ? null : (
+      <div>{item._usdValueStr || '$0.00'}</div>
+      {isNil(item.price_24h_change) || item.price_24h_change === null ? null : (
         <div
           className={clsx('font-normal text-12', {
             'text-green': item.price_24h_change > 0,
             'text-red-forbidden': item.price_24h_change < 0,
+            'text-r-neutral-title1': item.price_24h_change === 0,
           })}
         >
           {item.price_24h_change > 0 ? '+' : ''}
@@ -77,30 +98,16 @@ const TokenItemPrice: React.FC<Props> = ({ item }) => {
   );
 };
 
-const TokenItemUSDValue: React.FC<Props> = ({ item }) => {
-  return (
-    <TCell className="py-8 text-r-neutral-title-1 text-13 font-medium text-right w-[110px] truncate">
-      {item._usdValueStr || '<$0.01'}
-    </TCell>
-  );
-};
-
 export const TokenItem: React.FC<Props> = ({ item, style, onClick }) => {
   return (
     <TRow
       onClick={onClick}
-      style={{
-        ...style,
-        boxShadow: '0px 4px 16px 0px rgba(0, 0, 0, 0.04)',
-      }}
       className={clsx(
-        'cursor-pointer',
-        'rounded-[8px] border border-transparent bg-r-neutral-card1 h-[60px] px-2',
-        'hover:border-blue-light hover:bg-blue-light hover:bg-opacity-10'
+        'cursor-pointer flex items-center justify-between px-4',
+        'rounded-[16px] border border-transparent bg-[#FAFAFA] hover:bg-[#F4F4F4] h-[60px] '
       )}
     >
       <TokenItemAsset item={item} />
-      <TokenItemPrice item={item} />
       <TokenItemUSDValue item={item} />
     </TRow>
   );

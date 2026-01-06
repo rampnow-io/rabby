@@ -15,7 +15,10 @@ import ProjectOverview from './ProjectOverview';
 import BigNumber from 'bignumber.js';
 import { getTokenWalletFakeProject } from './utils';
 import { useSwitchNetTab } from '@/ui/component/PillsSwitch/NetSwitchTabs';
-import { AbstractProject } from '@/ui/utils/portfolio/types';
+import {
+  AbstractProject,
+  AbstractPortfolioToken,
+} from '@/ui/utils/portfolio/types';
 import { useTranslation } from 'react-i18next';
 
 interface Props {
@@ -121,7 +124,7 @@ export const TokensTabPane: React.FC<Props> = ({
 
   const tokenListTotalValue = React.useMemo(() => {
     return sortTokens
-      ?.reduce((acc, item) => acc.plus(item._usdValue || 0), new BigNumber(0))
+      ?.reduce((acc, item) => acc.plus(item.usd_value || 0), new BigNumber(0))
       .toNumber();
   }, [sortTokens]);
 
@@ -182,7 +185,7 @@ export const TokensTabPane: React.FC<Props> = ({
         <TokenList
           allMode={allMode}
           onAllModeChange={setAllMode}
-          list={sortTokens}
+          list={(sortTokens as unknown) as AbstractPortfolioToken[]}
           isNoResults={isNoResults}
           totalValue={tokenListTotalValue}
           selectedTab={selectedTab}

@@ -47,7 +47,7 @@ export default ({
               ?.toLowerCase()
               .slice(0, longEllipsis ? 8 : 6)}...${address
               ?.toLowerCase()
-              .slice(longEllipsis ? -6 : -4)}`
+              .slice(longEllipsis ? -4 : -3)}`
           : address?.toLowerCase()}
       </div>
     </div>

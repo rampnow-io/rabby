@@ -12,6 +12,7 @@ import { abstractTokenToTokenItem, getTokenSymbol } from 'ui/utils/token';
 import TokenWithChain from '../TokenWithChain';
 import TokenSelector, { isSwapTokenType } from '../TokenSelector';
 import styled from 'styled-components';
+import { AbstractPortfolioToken } from '@/ui/utils/portfolio/types';
 import LessPalette, { ellipsis } from '@/ui/style/var-defs';
 import { ReactComponent as SvgIconArrowDownTriangle } from '@/ui/assets/swap/arrow-caret-down2.svg';
 import { useTokens } from '@/ui/utils/portfolio/token';
@@ -202,7 +203,8 @@ const TokenSelect = forwardRef<
 
     const allDisplayTokens = useMemo(() => {
       if (useSwapTokenList) return swapTokenList || [];
-      return allTokens.map(abstractTokenToTokenItem);
+      const abstractTokens = (allTokens as unknown) as AbstractPortfolioToken[];
+      return abstractTokens.map(abstractTokenToTokenItem);
     }, [allTokens, swapTokenList, useSwapTokenList]);
 
     const {

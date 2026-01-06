@@ -428,7 +428,7 @@ const TokenSelector = ({
     >
       {visible && (
         <BottomDrawer variant="semi" rootSelector="body" close={onCancel}>
-          <div className="custom-popup is-support-darkmode is-new p-4 max-h-[600px] overflow-auto">
+          <div className="custom-popup is-support-darkmode is-new p-4 min-h-[600px] overflow-auto">
             <div className="flex justify-between items-center">
               <div className="text-base font-medium text-primary-foreground text-center">
                 {t('component.TokenSelector.header.title')}

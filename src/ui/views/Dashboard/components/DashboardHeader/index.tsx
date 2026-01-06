@@ -158,7 +158,7 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
 
             <div
               onClick={handleSwitchAddress}
-              className="flex flex-col items-center justify-start cursor-pointer"
+              className="flex flex-col justify-start cursor-pointer pr-2"
             >
               {/* <CommonSignal
               type={currentAccount.type}
