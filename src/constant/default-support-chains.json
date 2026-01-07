@@ -1159,8 +1159,8 @@
     "block_interval": 2.0
   },
   {
-    "id": "pulse",
-    "community_id": 20230525,
+    "id": "pulse-chain",
+    "community_id": 369,
     "name": "PulseChain",
     "native_token": {
       "id": "pls",
@@ -1172,7 +1172,7 @@
     "white_logo_url": "https://cdn.rampnow.io/image/icon/chain/pulse-chain.svg?format=auto&width=64",
     "eip_1559": true,
     "is_disabled": false,
-    "explorer_host": "https://scan.pulsechain.com",
+    "explorer_host": "https://ipfs.scan.pulsechain.com",
     "need_estimate_gas": false,
     "severity": 1,
     "block_interval": 10.0

@@ -23,7 +23,6 @@ export const TokenTable: React.FC<Props> = ({
   const [selected, setSelected] = React.useState<TokenItemProps['item']>();
   const [visible, setVisible] = React.useState(false);
   const [token, setToken] = React.useState<TokenItemType>();
-  const { t } = useTranslation();
 
   React.useEffect(() => {
     setVisible(!!selected);
@@ -38,25 +37,26 @@ export const TokenTable: React.FC<Props> = ({
     }
   }, [selected]);
 
+  if (EmptyComponent && !list?.length) {
+    return <>{EmptyComponent}</>;
+  }
+
   return (
     <>
-      {EmptyComponent && !list?.length ? (
-        EmptyComponent
-      ) : (
-        <Table className="!w-full ml-0 mr-0">
-          <TBody className="mt-0 flex flex-col gap-5">
-            {list?.map((item) => {
-              return (
-                <TokenItem
-                  onClick={() => setSelected(item)}
-                  key={`${item.chain}-${item.id}`}
-                  item={item}
-                />
-              );
-            })}
+      <div className="h-full">
+        <Table className="!w-full  ml-0 mr-0">
+          <TBody className="flex flex-col gap-5 pb-5">
+            {list?.map((item) => (
+              <TokenItem
+                key={`${item.chain}-${item.id}`}
+                item={item}
+                onClick={() => setSelected(item)}
+              />
+            ))}
           </TBody>
         </Table>
-      )}
+      </div>
+
       <TokenDetailPopup
         variant="add"
         token={token}

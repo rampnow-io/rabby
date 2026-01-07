@@ -142,6 +142,9 @@ export const AssetListContainer: React.FC<Props> = ({
           _usdValueStr: t._usdValueStr ?? '$0.00',
           price: t.price,
           price_24h_change: t.price_24h_change,
+          price_24h_change_type: typeof t.price_24h_change,
+          price_24h_change_isNull: t.price_24h_change === null,
+          price_24h_change_isUndefined: t.price_24h_change === undefined,
           amount: t.amount,
         }))
       );
@@ -187,7 +190,7 @@ export const AssetListContainer: React.FC<Props> = ({
       {isTokensLoading || isSearching ? (
         <TokenListSkeleton />
       ) : (
-        <div className="mt-4">
+        <div className="mt-4 ">
           <HomeTokenList
             list={sortTokens}
             onFocusInput={handleFocusInput}

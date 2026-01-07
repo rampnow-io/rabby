@@ -465,7 +465,7 @@ export const useTokens = (
         'matic',
         'avax',
         'ron',
-        'pls',
+        'pulse-chain',
         'celo',
       ];
 

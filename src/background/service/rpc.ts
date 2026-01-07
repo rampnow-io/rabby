@@ -117,6 +117,14 @@ class RPCService {
         this.store.customRPC = { ...this.store.customRPC };
       }
     }
+
+    // Set up default RPC for PulseChain if not already configured
+    if (!this.store.customRPC['pulse-chain']) {
+      this.store.customRPC['pulse-chain'] = {
+        url: 'https://rpc.pulsechain.com',
+        enable: true,
+      };
+    }
   };
 
   syncDefaultRPC = async () => {

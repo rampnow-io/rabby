@@ -450,7 +450,7 @@ export const ChainConfigMap: Record<string, ChainConfig> = {
     addressRegex: /^(0x)[0-9A-Fa-f]{40}$/,
     addressType: '60',
     hashRegex: /^(0x)[0-9A-Fa-f]{64}$/,
-    hashExplorerUrl: 'https://otter.pulsechain.com/tx/%s',
+    hashExplorerUrl: 'https://ipfs.scan.pulsechain.com/tx/%s',
     nativeToken: 'PLS',
     chainId: '369',
     walletConnectChain: walletConnect.pulsechain,

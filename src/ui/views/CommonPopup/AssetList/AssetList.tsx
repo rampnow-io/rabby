@@ -1,20 +1,14 @@
 import { useCommonPopupView, useWallet } from '@/ui/utils';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { ChainList } from './ChainList';
 import { AssetListContainer } from './AssetListContainer';
-import NetSwitchTabs, {
-  useSwitchNetTab,
-} from 'ui/component/PillsSwitch/NetSwitchTabs';
-import { ReactComponent as AssetEmptySVG } from '@/ui/assets/dashboard/asset-empty.svg';
+import { useSwitchNetTab } from 'ui/component/PillsSwitch/NetSwitchTabs';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { CustomTestnetAssetList } from './CustomTestnetAssetList';
-import { AddCustomTokenPopup } from './CustomAssetList/AddCustomTokenPopup';
 import { SpecialTokenListPopup } from './components/TokenButton';
 import { TestnetChainList } from './TestnetChainList';
 import { useFilteredTokens } from './useFilteredTokens';
-import { RcIconExternal1CC, RcIconExternalCC } from '@/ui/assets/dashboard';
-import { Button } from '@repo/ui/primitives';
 import { useOpenClose } from '@repo/ui';
 
 export const AssetList = ({
@@ -58,11 +52,8 @@ export const AssetList = ({
     }
   }, [visible]);
 
-  const [isVisible, openModal, closeModal] = useOpenClose(false);
-
   const { sortedCustomize: tokens } = useFilteredTokens(selectChainId, false);
   const [showCustomizedTokens, setShowCustomizedTokens] = React.useState(false);
-  const wallet = useWallet();
 
   return (
     <div ref={containerRef}>

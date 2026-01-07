@@ -13,9 +13,9 @@ const className =
 
 export const DashboardPanel: React.FC = () => {
   return (
-    <div className="relative !bg-white rounded-t-[24px] px-[16px] pt-[14px] pb-[12px] h-full flex flex-col">
+    <div className="bg-white rounded-t-[24px] px-[16px] pt-[14px] pb-[12px] flex flex-col h-full">
       <Tabs defaultValue="assets" className="flex flex-col h-full">
-        <TabsList className="bg-white justify-start shrink-0">
+        <TabsList className="bg-white justify-start shrink-0 sticky top-0 z-10 w-full py-2">
           <TabsTrigger className={className} value="assets">
             Assets
           </TabsTrigger>
@@ -27,8 +27,7 @@ export const DashboardPanel: React.FC = () => {
           </TabsTrigger>
         </TabsList>
 
-        {/* IMPORTANT */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-y-auto">
           <TabsContent value="assets" className="h-full">
             <AssetList visible={true} onClose={() => {}} />
           </TabsContent>

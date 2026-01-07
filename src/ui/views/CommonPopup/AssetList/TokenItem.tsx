@@ -21,18 +21,18 @@ const TokenItemAsset: React.FC<Props> = ({ item }) => {
 
   return (
     <TCell className="py-8 flex gap-3 items-center">
-      <div className="relative w-8 h-8">
+      <div className="relative w-10 h-10">
         <img
           src={item.logo_url || IconUnknown}
           alt={item.symbol}
-          className="w-8 h-8 rounded-full"
+          className="w-10 h-10 rounded-full"
         />
 
         <TooltipView content={chain?.name}>
           <img
             src={chain?.logo || IconUnknown}
             alt={item.chain}
-            className="absolute w-[14px] h-[14px] right-[-4px] bottom-[-4px] rounded-full border-2 border-white bg-white"
+            className="absolute w-4 h-4 right-[-4px] bottom-[-4px] rounded-full border-2 border-white bg-white"
           />
         </TooltipView>
       </div>
@@ -74,26 +74,40 @@ const TokenItemAsset: React.FC<Props> = ({ item }) => {
 // };
 
 const TokenItemUSDValue: React.FC<Props> = ({ item }) => {
+  const hasPriceChange = typeof item.price_24h_change === 'number';
+
+  // Debug logging
+  React.useEffect(() => {
+    if (item.symbol === 'ETH' || item.symbol === 'USDC') {
+      console.log(`[TokenItem Debug] ${item.symbol} on ${item.chain}:`, {
+        price_24h_change: item.price_24h_change,
+        type: typeof item.price_24h_change,
+        isNull: item.price_24h_change === null,
+        isUndefined: item.price_24h_change === undefined,
+        hasPriceChange,
+        _usdValue: item._usdValue,
+        _usdValueStr: item._usdValueStr,
+      });
+    }
+  }, [item]);
+
   return (
-    <TCell
-      className={clsx(
-        'py-8 text-r-neutral-title1 text-13 w-[90px]',
-        'flex flex-col items-end gap-2'
-      )}
-    >
-      <div>{item._usdValueStr || '$0.00'}</div>
-      {isNil(item.price_24h_change) || item.price_24h_change === null ? null : (
+    <TCell className={clsx('flex flex-col items-end gap-2 py-8')}>
+      <div className="text-base text-primary-foreground">
+        {item._usdValueStr || '$0.00'}
+      </div>
+      {hasPriceChange ? (
         <div
           className={clsx('font-normal text-12', {
-            'text-green': item.price_24h_change > 0,
-            'text-red-forbidden': item.price_24h_change < 0,
+            'text-green': item.price_24h_change! > 0,
+            'text-red-forbidden': item.price_24h_change! < 0,
             'text-r-neutral-title1': item.price_24h_change === 0,
           })}
         >
-          {item.price_24h_change > 0 ? '+' : ''}
-          {(item.price_24h_change * 100).toFixed(2)}%
+          {item.price_24h_change! > 0 ? '+' : ''}
+          {(item.price_24h_change! * 100).toFixed(1)}%
         </div>
-      )}
+      ) : null}
     </TCell>
   );
 };

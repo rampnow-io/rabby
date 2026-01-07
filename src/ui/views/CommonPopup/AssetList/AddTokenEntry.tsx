@@ -47,9 +47,9 @@ const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
           className={clsx(
             'flex flex-row justify-start items-center',
             'border-[1px] border-transparent',
-            'hover:border-rabby-blue-default hover:bg-r-blue-light1',
+            'hover:border-primary hover:bg-r-blue-light1',
             'h-[32px] px-[14px] py-[8px] bg-r-neutral-card1 rounded-[6px] cursor-pointer',
-            'text-r-neutral-body text-[13px] text-center',
+            'text-primary-foreground text-[13px] text-center',
             'whitespace-nowrap'
           )}
           onClick={() => {
@@ -57,9 +57,6 @@ const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
           }}
         >
           <div className="text-[13px] leading-[16px] flex items-center gap-x-[4px] justify-center">
-            <span className="text-r-neutral-body">
-              <RcIconAdd className="w-[14px] h-[14px]" />
-            </span>
             {t('page.dashboard.assets.addTokenEntryText')}
           </div>
         </div>
