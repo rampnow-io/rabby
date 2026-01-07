@@ -8,22 +8,19 @@ import clsx from 'clsx';
 import React, { useMemo } from 'react';
 import { getChain } from '@/utils';
 import { numberWithCommasIsLtOne } from 'ui/utils';
-import { TokenChange, TxId, TxInterAddressExplain } from '@/ui/component';
+// compact item does not use these heavy sub-components
 import { useTranslation } from 'react-i18next';
 import { useAsync } from 'react-use';
 
 import IconInputData from '../icons/input-data.svg';
-import { useRabbySelector } from '@/ui/store';
 import { Skeleton, Tooltip } from 'antd';
-import { AddressType } from '@/ui/utils/address';
 import { Chain } from '@debank/common';
-import {
-  useCheckAddressType,
-  useParseContractAddress,
-} from '@/ui/hooks/useParseAddress';
+import { useParseContractAddress } from '@/ui/hooks/useParseAddress';
 import { formatTxInputDataOnERC20 } from '@/ui/utils/transaction';
 import { findChainByServerID } from '@/utils/chain';
-import { TooltipWithMagnetArrow } from '@/ui/component/Tooltip/TooltipWithMagnetArrow';
+import IconUnknown from 'ui/assets/token-default.svg';
+import { ellipsis } from '@/ui/utils/address';
+import { getTokenSymbol } from '@/ui/utils/token';
 
 export type HistoryItemActionContext = {
   parsedInputData: string;
@@ -240,10 +237,7 @@ export const HistoryItem = ({
   const isFailed = data.tx?.status === 0;
   const isScam = data.is_scam;
 
-  const { addressType } = useCheckAddressType(data.tx?.to_addr, chainItem);
-
   const { t } = useTranslation();
-  const account = useRabbySelector((state) => state.account.currentAccount);
 
   const cateName =
     data.cate_id && cateDict ? cateDict[data.cate_id]?.name : undefined;
@@ -251,6 +245,26 @@ export const HistoryItem = ({
   if (!chainItem) {
     return <div></div>;
   }
+
+  // derive a primary token and simple subtitle like: "102 USDC from 0xabc...123"
+  const tokens = tokenDict || {};
+  const mainChange =
+    (data.receives && data.receives[0]) || (data.sends && data.sends[0]);
+  const isReceive = !!(data.receives && data.receives[0]);
+  const tokenId = mainChange?.token_id;
+  const tokenUUID = tokenId ? `${data.chain}_token:${tokenId}` : undefined;
+  const token = tokenId
+    ? tokens[tokenId] || (tokenUUID ? tokens[tokenUUID] : undefined)
+    : undefined;
+  const tokenLogo = token?.logo_url || chainItem.logo || IconUnknown;
+  const tokenSymbol = token
+    ? getTokenSymbol(token)
+    : chainItem.nativeTokenSymbol;
+  const amountText = mainChange
+    ? numberWithCommasIsLtOne(mainChange.amount, 2)
+    : '';
+  const counterparty = isReceive ? data.tx?.from_addr : data.tx?.to_addr;
+  const counterpartyLabel = counterparty ? ellipsis(counterparty) : '';
 
   return (
     <div
@@ -260,75 +274,54 @@ export const HistoryItem = ({
         (isScam || isFailed) && 'opacity-70'
       )}
     >
-      {/* ===== HEADER ===== */}
-      <div className="flex items-start justify-between gap-[8px]">
-        <div className="flex flex-col gap-[2px]">
+      <div className="flex items-center">
+        {/* Left: token icon with chain badge */}
+        <div className="relative w-10 h-10 mr-[12px]">
+          <img
+            src={tokenLogo}
+            alt={tokenSymbol || 'token'}
+            className="w-10 h-10 rounded-full object-cover"
+          />
+          <Tooltip title={chainItem?.name} placement="bottomRight">
+            <img
+              src={chainItem?.logo || IconUnknown}
+              alt={chainItem?.name || 'chain'}
+              className="absolute w-4 h-4 right-[-4px] bottom-[-4px] rounded-full border-2 border-white bg-white"
+            />
+          </Tooltip>
+        </div>
+
+        {/* Middle: title and subtitle */}
+        <div className="flex-1 min-w-0">
           <div className="flex items-center gap-[6px]">
             <span className="text-[14px] font-medium text-r-neutral-title-1">
-              {cateName || 'Transaction'}
+              {cateName || (isReceive ? 'Received' : 'Sent')}
             </span>
-
             {isFailed && (
               <span className="text-[11px] px-[6px] py-[1px] rounded-full bg-r-red-light text-r-red-default font-medium">
                 {t('global.failed')}
               </span>
             )}
-
             {isScam && (
               <span className="text-[11px] px-[6px] py-[1px] rounded-full bg-r-neutral-line text-r-neutral-foot">
                 {t('global.scamTx')}
               </span>
             )}
           </div>
-
-          <div className="text-[12px] text-r-neutral-foot">
-            {sinceTime(data.time_at)}
+          <div className="text-[13px] text-r-neutral-foot truncate">
+            {amountText && tokenSymbol
+              ? `${amountText} ${tokenSymbol} ${
+                  isReceive ? 'from' : 'to'
+                } ${counterpartyLabel}`
+              : undefined}
           </div>
         </div>
 
-        <div className="flex items-center gap-[6px]">
-          <TxId chain={data.chain} id={data.id} />
-          {addressType === AddressType.EOA && !data.is_scam && (
-            <ViewMessageTriggerForEoa
-              userAddress={account?.address || ''}
-              txInputData={data.tx?.message || ''}
-              chainItem={chainItem}
-              onViewInputData={onViewInputData}
-            />
-          )}
+        {/* Right: time */}
+        <div className="ml-[12px] text-[12px] text-r-neutral-foot whitespace-nowrap">
+          {sinceTime(data.time_at)}
         </div>
       </div>
-
-      {/* ===== BODY ===== */}
-      <div className="mt-[10px] flex flex-col gap-[8px]">
-        <TxInterAddressExplain
-          data={data}
-          projectDict={projectDict}
-          tokenDict={tokenDict}
-          cateDict={cateDict}
-        />
-
-        <TokenChange data={data} tokenDict={tokenDict} />
-      </div>
-
-      {/* ===== FOOTER ===== */}
-      {(data.tx?.eth_gas_fee || isFailed) && (
-        <div className="mt-[10px] flex items-center justify-between text-[12px] text-r-neutral-foot border-t pt-[8px]">
-          {data.tx?.eth_gas_fee ? (
-            <span>
-              {t('global.gas')}{' '}
-              {numberWithCommasIsLtOne(data.tx.eth_gas_fee, 2)}{' '}
-              {chainItem.nativeTokenSymbol}
-              {' · $'}
-              {numberWithCommasIsLtOne(data.tx.usd_gas_fee ?? 0, 2)}
-            </span>
-          ) : (
-            <span />
-          )}
-
-          <span className="uppercase text-[11px]">{chainItem.name}</span>
-        </div>
-      )}
     </div>
   );
 };

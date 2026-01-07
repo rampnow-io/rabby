@@ -29,6 +29,7 @@ import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
 import { useThemeMode } from '@/ui/hooks/usePreference';
 import { CurrentConnection } from '../CurrentConnection';
 import IconAlertRed from 'ui/assets/alert-red.svg';
+import SwitchAddressModal from '@/ui/component/address-management/switch-address-modal';
 
 type IPanelItem = {
   icon: ThemeIconType;
@@ -59,6 +60,7 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
   const [displayName, setDisplayName] = useState('');
   const { isDarkTheme } = useThemeMode();
   const currentAccount = useCurrentAccount();
+  const [visible, setVisible] = useState(false);
 
   const isGnosis = currentAccount?.type === KEYRING_TYPE.GnosisKeyring;
 
@@ -95,8 +97,12 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
       event_category: 'Front Page Click',
     });
 
-    history.push('/switch-address');
+    setVisible(true);
   });
+
+  const onClose = () => {
+    setVisible(false);
+  };
 
   const panelItems: Record<'receive' | 'send' | 'swap' | 'buy', IPanelItem> = {
     receive: {
@@ -131,7 +137,7 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
   );
 
   return (
-    <div className="w-full bg-white pt-[60px] px-4 pb-4 rounded-b-[24px]">
+    <div className="w-full bg-white pt-[60px] px-4 pb-6 rounded-b-[24px]">
       {/* Top Right */}
 
       {/* Account */}
@@ -151,7 +157,7 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
                 });
               }}
               className="h-10 w-10 flex items-center justify-center rounded-full cursor-pointer
-                       bg-gradient-to-br from-[#BFDBFE] to-[#0071FF]"
+                       bg-gradient-to-br from-[#BFDBFE] to-[#0071FF] text-xl"
             >
               👀
             </div>
@@ -251,6 +257,7 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
           );
         })}
       </div>
+      <SwitchAddressModal visible={visible} closeAndReject={onClose} />
     </div>
   );
 };

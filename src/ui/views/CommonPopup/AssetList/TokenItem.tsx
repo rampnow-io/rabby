@@ -38,7 +38,7 @@ const TokenItemAsset: React.FC<Props> = ({ item }) => {
       </div>
 
       <div className="flex flex-1 flex-col gap-2 overflow-hidden">
-        <span className="text-primary-foreground text-base font-medium leading-[15px] truncate">
+        <span className="text-primary-foreground text-base font-medium truncate">
           {chain?.name}
         </span>
         <span className="text-secondary-foreground text-12 leading-[14px] whitespace-nowrap overflow-ellipsis overflow-hidden">

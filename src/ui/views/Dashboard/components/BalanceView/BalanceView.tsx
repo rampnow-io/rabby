@@ -329,12 +329,10 @@ export const BalanceView = ({
   return (
     <div onMouseLeave={onMouseLeave} className={clsx('w-full')}>
       <div
-        className="!min-h-[70px] w-full cursor-pointer rounded-[8px] bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)]"
+        className="w-full cursor-pointer rounded-[8px] bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)]"
         onClick={onClickViewAssets}
       >
-        <div
-          className={clsx('group w-full flex items-end px-[12px] pt-[10px]')}
-        >
+        <div className={clsx('group w-full flex items-end px-2')}>
           <div
             className={clsx(
               'text-rb-neutral-black text-[30px] leading-[36px] font-bold max-w-full'
@@ -382,7 +380,6 @@ export const BalanceView = ({
             </div>
           </div>
         </div>
-        <div className={clsx('h-[20px] w-full relative')}></div>{' '}
       </div>
       <OfflineChainNotify />
     </div>

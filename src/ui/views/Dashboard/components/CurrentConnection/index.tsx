@@ -24,6 +24,7 @@ import { useRabbyDispatch, useRabbySelector } from '@/ui/store';
 import GnosisWrongChainAlertBar from '../GnosisWrongChainAlertBar';
 import { useGnosisNetworks } from '@/ui/hooks/useGnosisNetworks';
 import styled from 'styled-components';
+import { TooltipView } from '@repo/ui/primitives';
 
 const Container = styled.div`
   display: flex;
@@ -56,8 +57,8 @@ const Container = styled.div`
     }
     &.is-empty {
       .site-icon {
-        width: 24px;
-        height: 24px;
+        width: 20px;
+        height: 20px;
         border-radius: none;
       }
       .site-content {
@@ -313,26 +314,24 @@ export const CurrentConnection = memo((props: CurrentConnectionProps) => {
                   <FallbackSiteLogo
                     url={site.icon}
                     origin={site.origin}
-                    width="28px"
+                    width="20px"
                     className="site-icon"
                   ></FallbackSiteLogo>
                   {site.isMetamaskMode ? (
-                    <TooltipWithMagnetArrow
-                      placement="top"
-                      overlayClassName={clsx(
-                        'rectangle max-w-[360px] w-[360px]'
-                      )}
-                      align={{
-                        offset: [0, 4],
-                      }}
-                      title={t(
+                    <TooltipView
+                      className={clsx('rectangle max-w-[360px] w-[360px]')}
+                      content={t(
                         'page.dashboard.recentConnection.metamaskModeTooltipNew'
                       )}
                     >
                       <div className="absolute top-[-4px] right-[-4px] text-r-neutral-title-2">
-                        <img src={IconMetamaskMode} alt="metamask mode"></img>
+                        <img
+                          src={IconMetamaskMode}
+                          alt="metamask mode"
+                          className="h-5 w-5"
+                        />
                       </div>
-                    </TooltipWithMagnetArrow>
+                    </TooltipView>
                   ) : null}
                 </div>
                 <div className="site-content">
@@ -353,7 +352,7 @@ export const CurrentConnection = memo((props: CurrentConnectionProps) => {
             </>
           ) : (
             <div className="site is-empty">
-              <img src={IconDapps} className="site-icon ml-6" alt="" />
+              <img src={IconDapps} className="site-icon ml-6 h-5 w-5" alt="" />
             </div>
           )}
         </Container>
