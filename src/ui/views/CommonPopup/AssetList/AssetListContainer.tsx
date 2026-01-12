@@ -115,6 +115,8 @@ export const AssetListContainer: React.FC<Props> = ({
     kw: search,
   });
 
+  console.log(sortTokens, 'sortTokens');
+
   const handleFocusInput = React.useCallback(() => {
     inputRef.current?.focus();
   }, []);
@@ -133,21 +135,46 @@ export const AssetListContainer: React.FC<Props> = ({
   // Log token data for debugging live values
   useEffect(() => {
     if (sortTokens.length > 0 && visible) {
-      console.log(
-        'Token data check (first 5):',
-        sortTokens.slice(0, 5).map((t) => ({
-          symbol: t.symbol,
-          chain: t.chain,
-          _usdValue: t._usdValue ?? 0,
-          _usdValueStr: t._usdValueStr ?? '$0.00',
-          price: t.price,
-          price_24h_change: t.price_24h_change,
-          price_24h_change_type: typeof t.price_24h_change,
-          price_24h_change_isNull: t.price_24h_change === null,
-          price_24h_change_isUndefined: t.price_24h_change === undefined,
-          amount: t.amount,
-        }))
+      const debugInfo = sortTokens.slice(0, 5).map((t) => ({
+        symbol: t.symbol,
+        chain: t.chain,
+        _usdValue: t._usdValue ?? 0,
+        _usdValueStr: t._usdValueStr ?? '$0.00',
+        price: t.price,
+        price_24h_change: t.price_24h_change,
+        price_24h_change_type: typeof t.price_24h_change,
+        price_24h_change_isNull: t.price_24h_change === null,
+        price_24h_change_isUndefined: t.price_24h_change === undefined,
+        amount: t.amount,
+      }));
+
+      console.log('Token data check (first 5):', debugInfo);
+
+      // Check for tokens with missing price change data
+      const tokensWithMissingPriceChange = sortTokens.filter(
+        (t) => t.price_24h_change === null || t.price_24h_change === undefined
       );
+
+      if (tokensWithMissingPriceChange.length > 0) {
+        console.warn(
+          `⚠️ ${tokensWithMissingPriceChange.length}/${sortTokens.length} tokens have missing price_24h_change:`,
+          tokensWithMissingPriceChange
+            .slice(0, 3)
+            .map((t) => ({ symbol: t.symbol, chain: t.chain, price: t.price }))
+        );
+      }
+
+      // Debug: Check for Pulse Chain tokens
+      const pulseTokens = sortTokens.filter((t) => t.chain === 'pls');
+      if (pulseTokens.length > 0) {
+        console.log(
+          '✅ Found Pulse Chain tokens:',
+          pulseTokens.length,
+          pulseTokens.slice(0, 3)
+        );
+      } else {
+        console.warn('⚠️ No Pulse Chain tokens found in displayTokenList');
+      }
     }
   }, [sortTokens, visible]);
 

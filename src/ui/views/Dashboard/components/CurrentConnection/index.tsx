@@ -6,7 +6,14 @@ import { message } from 'antd';
 import { ConnectedSite } from 'background/service/permission';
 import clsx from 'clsx';
 import { CHAINS_ENUM, KEYRING_TYPE } from 'consts';
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  Fragment,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import IconDapps from 'ui/assets/dapps.svg';
@@ -23,128 +30,15 @@ import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 import { useRabbyDispatch, useRabbySelector } from '@/ui/store';
 import GnosisWrongChainAlertBar from '../GnosisWrongChainAlertBar';
 import { useGnosisNetworks } from '@/ui/hooks/useGnosisNetworks';
-import styled from 'styled-components';
-import { TooltipView } from '@repo/ui/primitives';
-
-const Container = styled.div`
-  display: flex;
-  &.site-group:hover {
-    .site-icon-container.is-support {
-      cursor: pointer;
-      border: 1px solid var(--r-blue-default, #7084ff);
-      background: var(--r-blue-light1, #eef1ff);
-    }
-    .global-account-selector:not(.is-disabled) {
-      border: 1px solid var(--r-blue-default, #7084ff);
-      background: var(--r-blue-light1, #eef1ff);
-    }
-    .site-status-icon {
-      color: var(--r-red-default, #e34935) !important;
-    }
-  }
-
-  .site {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-    .prefer-metamask-badge {
-      position: absolute;
-      top: -10px;
-      left: -10px;
-      width: 24px;
-      height: 24px;
-    }
-    &.is-empty {
-      .site-icon {
-        width: 20px;
-        height: 20px;
-        border-radius: none;
-      }
-      .site-content {
-        font-weight: 400;
-        font-size: 12px;
-        line-height: 14px;
-        color: var(--r-neutral-foot, #6a7587);
-      }
-    }
-    & .site-status.active .site-status-icon {
-      display: block;
-    }
-    &-icon {
-      flex-shrink: 0;
-      width: 10px;
-      height: 10px;
-      border-radius: 28px;
-    }
-    &-icon-container {
-      padding: 3px;
-      border-radius: 1000px;
-      border: 1px solid transparent;
-
-      &.is-support:hover {
-        cursor: pointer;
-        border: 1px solid var(--r-blue-default, #7084ff);
-        background: var(--r-blue-light1, #eef1ff);
-      }
-    }
-
-    &-content {
-      flex: 1;
-      overflow: hidden;
-    }
-    &-name {
-      font-weight: 400;
-      font-size: 13px;
-      line-height: 15px;
-      color: var(--r-neutral-title-1, rgba(25, 41, 69, 1));
-      margin-bottom: 2px;
-    }
-    &-status {
-      font-weight: 400;
-      font-size: 11px;
-      line-height: 13px;
-      color: var(--r-neutral-foot, #6a7587);
-      display: flex;
-      align-items: center;
-      &.active {
-        color: #27c193;
-      }
-      &-icon {
-        display: none;
-        margin-left: 8px;
-        width: 12px;
-        cursor: pointer;
-      }
-    }
-  }
-
-  .chain-selector {
-    margin-left: auto;
-    background-color: transparent;
-    height: 36px;
-    border-radius: 8px;
-    padding-left: 8px;
-    color: var(--r-neutral-title-1, rgba(25, 41, 69, 1));
-
-    .chain-logo {
-      width: 20px;
-      height: 20px;
-      margin-right: 6px;
-    }
-    .icon-arrow-down {
-      margin-left: 6px;
-      margin-right: 8px;
-    }
-    &.disabled {
-      opacity: 0.4;
-      pointer-events: none;
-    }
-    &:hover {
-      background-color: rgba(134, 151, 255, 0.2);
-    }
-  }
-`;
+import {
+  TooltipView,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Button,
+  ButtonType,
+  ButtonSize,
+} from '@repo/ui/primitives';
 
 interface CurrentConnectionProps {
   onChainChange?: (chain: CHAINS_ENUM) => void;
@@ -167,6 +61,8 @@ export const CurrentConnection = memo((props: CurrentConnectionProps) => {
   const [visible, setVisible] = useState(
     trigger === 'current-connection' && showChainsModal
   );
+
+  const [popoverVisible, setPopoverVisible] = useState(false);
 
   const getCurrentSite = useCallback(async () => {
     const tab = await getCurrentTab();
@@ -270,6 +166,12 @@ export const CurrentConnection = memo((props: CurrentConnectionProps) => {
     });
   });
 
+  const handleSiteIconClick = useMemoizedFn(() => {
+    if (site?.isConnected) {
+      setPopoverVisible(!popoverVisible);
+    }
+  });
+
   const dispatch = useRabbyDispatch();
 
   const { data: gnosisNetworks, loading } = useGnosisNetworks({
@@ -303,84 +205,81 @@ export const CurrentConnection = memo((props: CurrentConnectionProps) => {
     loading,
   ]);
 
-  if (!isEnabledDappAccount) {
-    return (
-      <>
-        <Container>
-          {site ? (
-            <>
-              <div className="site">
-                <div className="relative">
-                  <FallbackSiteLogo
-                    url={site.icon}
-                    origin={site.origin}
-                    width="20px"
-                    className="site-icon"
-                  ></FallbackSiteLogo>
-                  {site.isMetamaskMode ? (
-                    <TooltipView
-                      className={clsx('rectangle max-w-[360px] w-[360px]')}
-                      content={t(
-                        'page.dashboard.recentConnection.metamaskModeTooltipNew'
-                      )}
-                    >
-                      <div className="absolute top-[-4px] right-[-4px] text-r-neutral-title-2">
-                        <img
-                          src={IconMetamaskMode}
-                          alt="metamask mode"
-                          className="h-5 w-5"
-                        />
-                      </div>
-                    </TooltipView>
-                  ) : null}
-                </div>
-                <div className="site-content">
-                  <div
-                    className={clsx(
-                      'site-status text-[12px]',
-                      site?.isConnected && 'active'
-                    )}
-                  >
-                    <RCIconDisconnectCC
-                      viewBox="0 0 14 14"
-                      className="site-status-icon w-3 h-3 ml-1 text-r-neutral-foot hover:text-rabby-red-default"
-                      onClick={() => handleRemove(site!.origin)}
-                    />
-                  </div>
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="site is-empty">
-              <img src={IconDapps} className="site-icon ml-6 h-5 w-5" alt="" />
-            </div>
-          )}
-        </Container>
-        {isShowGnosisAlert ? <GnosisWrongChainAlertBar /> : null}
-      </>
-    );
-  }
+  // if (!isEnabledDappAccount) {
+  //   return (
+  //     <>
+  //       <div>
+  //         {site ? (
+  //           <>
+  //             <div className="site">
+  //               <div className="relative">
+  //                 <FallbackSiteLogo
+  //                   url={site.icon}
+  //                   origin={site.origin}
+  //                   width="20px"
+  //                   className="site-icon"
+  //                 />
+  //                 {site.isMetamaskMode ? (
+  //                   <TooltipView
+  //                     className={clsx('rectangle max-w-[360px] w-[360px]')}
+  //                     content={t(
+  //                       'page.dashboard.recentConnection.metamaskModeTooltipNew'
+  //                     )}
+  //                   >
+  //                     <div className="absolute top-[-4px] right-[-4px] text-r-neutral-title-2">
+  //                       <img
+  //                         src={IconMetamaskMode}
+  //                         alt="metamask mode"
+  //                         className="h-5 w-5"
+  //                       />
+  //                     </div>
+  //                   </TooltipView>
+  //                 ) : null}
+  //               </div>
+  //               <div className="site-content">
+  //                 <div
+  //                   className={clsx(
+  //                     'site-status text-[12px]',
+  //                     site?.isConnected && 'active'
+  //                   )}
+  //                 >
+  //                   <RCIconDisconnectCC
+  //                     viewBox="0 0 14 14"
+  //                     className="site-status-icon w-3 h-3 ml-1 text-r-neutral-foot hover:text-rabby-red-default"
+  //                     onClick={() => handleRemove(site!.origin)}
+  //                   />
+  //                 </div>
+  //               </div>
+  //             </div>
+  //           </>
+  //         ) : (
+  //           <div className="site is-empty">
+  //             <img src={IconDapps} className="site-icon ml-6 h-5 w-5" alt="" />
+  //           </div>
+  //         )}
+  //       </div>
+  //       {isShowGnosisAlert ? <GnosisWrongChainAlertBar /> : null}
+  //     </>
+  //   );
+  // }
 
   return (
     <>
-      <Container
-        className={clsx('h-[52px]', site?.isConnected ? 'site-group' : '')}
-      >
-        {site ? (
-          <div className={clsx('site mr-[18px]')}>
+      {site ? (
+        <Popover open={popoverVisible} onOpenChange={setPopoverVisible}>
+          <PopoverTrigger asChild>
             <div
               className={clsx(
                 'site-icon-container',
                 site?.isConnected ? 'is-support' : ''
               )}
-              onClick={handleClickChain}
+              onClick={handleSiteIconClick}
             >
               <div className="relative">
                 <FallbackSiteLogo
                   url={site.icon}
                   origin={site.origin}
-                  width="28px"
-                  className="site-icon"
+                  width="20px"
                 ></FallbackSiteLogo>
                 {site.isMetamaskMode ? (
                   <TooltipWithMagnetArrow
@@ -409,45 +308,90 @@ export const CurrentConnection = memo((props: CurrentConnectionProps) => {
                 ) : null}
               </div>
             </div>
-            <div className="site-content">
-              <div
-                className={clsx(
-                  'site-status text-[12px]',
-                  site?.isConnected && 'active'
-                )}
-              >
-                <RCIconDisconnectCC
-                  viewBox="0 0 14 14"
-                  className="site-status-icon w-12 h-12 ml-4 text-rb-neutral-black hover:text-rabby-red-default"
-                  onClick={() => handleRemove(site!.origin)}
+          </PopoverTrigger>
+          <PopoverContent
+            align="start"
+            side="bottom"
+            className="!mr-1 rounded-[32px] border border-[#CACACD] bg-[rgba(250,250,250,0.75)] shadow-[0_23px_14px_4px_rgba(24,24,27,0.03)] backdrop-blur-[12px]"
+          >
+            <div className="p-2">
+              <div className="flex items-center gap-4 mb-3">
+                <FallbackSiteLogo
+                  url={site.icon}
+                  origin={site.origin}
+                  width="32px"
                 />
+                <div className="flex-1">
+                  <div className="font-medium text-sm text-primary-foreground truncate text-nowrap">
+                    {site.rdns}
+                  </div>
+                  <div className="text-xs text-secondary-foreground">
+                    {site.origin}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 py-2 rounded mb-3 text-xs">
+                {site.isConnected ? (
+                  <Fragment>
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#27c193]" />
+                    <div className="font-medium text-primary-foreground">
+                      {t('page.dashboard.recentConnection.connected')}
+                    </div>
+                  </Fragment>
+                ) : (
+                  <Fragment>
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#ff5c5c]" />
+                    <div className="font-medium text-primary-foreground">
+                      {t('page.dashboard.recentConnection.disconnected')}
+                    </div>
+                  </Fragment>
+                )}
+
+                {chain ? (
+                  <div className="flex items-center gap-1 ml-auto">
+                    <img src={chain.logo} alt="chain" className="w-4 h-4" />
+                    <span className="text-secondary-foreground">
+                      {chain.name}
+                    </span>
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Button
+                  buttonType={ButtonType.SECONDARY}
+                  buttonSize={ButtonSize.SM}
+                  onClick={() => {
+                    setVisible(true);
+                    setPopoverVisible(false);
+                  }}
+                >
+                  Manage connections
+                </Button>
+                {site.isConnected && (
+                  <Button
+                    buttonType={ButtonType.SECONDARY}
+                    buttonSize={ButtonSize.SM}
+                    className="border-red-500 text-red-500"
+                    onClick={() => {
+                      handleRemove(site.origin);
+                      setPopoverVisible(false);
+                    }}
+                  >
+                    Disconnect
+                  </Button>
+                )}
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="site is-empty">
-            <img src={IconDapps} className="site-icon ml-6" alt="" />
-          </div>
-        )}
-        {site ? (
-          <AccountSelector
-            className="ml-auto"
-            disabled={!site?.isConnected}
-            value={currentSiteAccount}
-            onChange={handleSiteAccountChange}
-          />
-        ) : null}
-        <ChainSelectorModal
-          account={currentSiteAccount}
-          value={site?.chain || CHAINS_ENUM.ETH}
-          onChange={handleChangeDefaultChain}
-          showRPCStatus={true}
-          visible={visible}
-          onCancel={() => {
-            setVisible(false);
-          }}
-        />
-      </Container>
+          </PopoverContent>
+        </Popover>
+      ) : (
+        <div className="site is-empty">
+          <img src={IconDapps} className="site-icon ml-6 h-5 w-5" alt="" />
+        </div>
+      )}
+
       {isShowGnosisAlert ? <GnosisWrongChainAlertBar /> : null}
     </>
   );

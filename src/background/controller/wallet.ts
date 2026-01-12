@@ -102,6 +102,7 @@ import { QuoteResult } from '@rabby-wallet/rabby-swap/dist/quote';
 import transactionWatcher from '../service/transactionWatcher';
 import Safe from '@rabby-wallet/gnosis-sdk';
 import { Chain } from '@debank/common';
+import { Chain as LocalChain } from '@/types/chain';
 import { fromHex, isAddress, zeroAddress } from 'viem';
 import {
   ensureChainListValid,
@@ -2075,7 +2076,7 @@ export class WalletController extends BaseController {
     permissionService.setSite(data);
     broadcastChainChanged({
       origin: data.origin,
-      chain: chainItem,
+      chain: chainItem as LocalChain,
     });
   };
 
@@ -2173,7 +2174,7 @@ export class WalletController extends BaseController {
 
     broadcastChainChanged({
       origin: data.origin,
-      chain: chainItem,
+      chain: chainItem as LocalChain,
     });
   };
   addConnectedSiteV2 = permissionService.addConnectedSiteV2;
@@ -3219,7 +3220,7 @@ export class WalletController extends BaseController {
 
     const error = new Error(t('background.error.invalidPrivateKey'));
     try {
-      if (!isValidPrivate(buffer)) {
+      if (!isValidPrivate(buffer as Uint8Array)) {
         throw error;
       }
     } catch {
@@ -3233,7 +3234,7 @@ export class WalletController extends BaseController {
 
     const error = new Error(t('background.error.invalidPrivateKey'));
     try {
-      if (!isValidPrivate(buffer)) {
+      if (!isValidPrivate(buffer as Uint8Array)) {
         throw error;
       }
     } catch {

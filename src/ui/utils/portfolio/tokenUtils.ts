@@ -34,7 +34,36 @@ export const batchQueryTokens = async (
 ) => {
   if (!chainId && !isTestnet) {
     const usedChains = await wallet.openapi.usedChainList(user_id);
-    const chainIdList = usedChains.map((item) => item.id);
+    let chainIdList = usedChains.map((item) => item.id);
+
+    console.log('📊 usedChainList returned:', chainIdList.length, 'chains');
+
+    // IMPORTANT FIX: Always include major chains even if not in usedChainList
+    // This ensures we get tokens even if user hasn't used the chain yet
+    const majorChains = [
+      'eth',
+      'bsc',
+      'matic',
+      'avax',
+      'op',
+      'arb',
+      'pls',
+      'celo',
+    ];
+    const missingMajorChains = majorChains.filter(
+      (chain) => !chainIdList.includes(chain)
+    );
+
+    if (missingMajorChains.length > 0) {
+      console.warn(
+        `⚠️ Adding ${missingMajorChains.length} major chains not in usedChainList:`,
+        missingMajorChains
+      );
+      chainIdList = [...chainIdList, ...missingMajorChains];
+    }
+
+    console.log('🔍 Querying tokens for chains:', chainIdList);
+
     const res = await Promise.all(
       chainIdList.map((serverId) =>
         pQueue.add(() => {
@@ -48,7 +77,26 @@ export const batchQueryTokens = async (
         })
       )
     );
-    return flatten(res);
+
+    const flatRes = flatten(res);
+
+    // Debug: Log API response for Pulse tokens
+    const pulseTokensFromAPI = flatRes.filter((t) => t.chain === 'pls');
+    console.log(
+      `📡 API Response: Total tokens=${flatRes.length}, Pulse tokens=${pulseTokensFromAPI.length}`
+    );
+    if (pulseTokensFromAPI.length > 0) {
+      console.log(
+        '✅ Pulse tokens from API:',
+        pulseTokensFromAPI
+          .slice(0, 3)
+          .map((t) => ({ symbol: t.symbol, chain: t.chain }))
+      );
+    } else {
+      console.warn('⚠️ No Pulse tokens returned from API');
+    }
+
+    return flatRes;
   }
   return requestOpenApiWithChainId(
     ({ openapi }) => openapi.listToken(user_id, chainId, isAll),

@@ -11,6 +11,7 @@ import { useMemoizedFn, useMount, useRequest } from 'ahooks';
 import { useWallet } from '@/ui/utils';
 import { useNewUserGuideStore } from './hooks/useNewUserGuideStore';
 import { GnosisChainList } from './GnosisChainList';
+import { Chain as LocalChain } from '@/types/chain';
 
 import { UiProvider } from '@/ui/component/NewUserImport';
 import { Container as PageContainer, Content, Action } from '@repo/ui';
@@ -68,7 +69,7 @@ export const NewUserImportGnosisAddress = () => {
     setStore({
       gnosis: {
         address,
-        chainList: chainList || [],
+        chainList: (chainList || []) as LocalChain[],
       },
     });
 
@@ -168,7 +169,10 @@ export const NewUserImportGnosisAddress = () => {
           )}
 
           {!loading && !errorMessage && !!chainList?.length && (
-            <GnosisChainList chainList={chainList} className="mt-[20px]" />
+            <GnosisChainList
+              chainList={chainList as LocalChain[]}
+              className="mt-[20px]"
+            />
           )}
         </Content>
 

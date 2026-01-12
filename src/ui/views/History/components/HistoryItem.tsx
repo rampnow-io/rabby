@@ -21,6 +21,7 @@ import { findChainByServerID } from '@/utils/chain';
 import IconUnknown from 'ui/assets/token-default.svg';
 import { ellipsis } from '@/ui/utils/address';
 import { getTokenSymbol } from '@/ui/utils/token';
+import { ActivityReceived, ActivitySent } from '@/ui/assets';
 
 export type HistoryItemActionContext = {
   parsedInputData: string;
@@ -242,11 +243,10 @@ export const HistoryItem = ({
   const cateName =
     data.cate_id && cateDict ? cateDict[data.cate_id]?.name : undefined;
 
-  if (!chainItem) {
+  if (!chainItem || isFailed) {
     return <div></div>;
   }
 
-  // derive a primary token and simple subtitle like: "102 USDC from 0xabc...123"
   const tokens = tokenDict || {};
   const mainChange =
     (data.receives && data.receives[0]) || (data.sends && data.sends[0]);
@@ -269,14 +269,19 @@ export const HistoryItem = ({
   return (
     <div
       className={clsx(
-        'relative mb-[12px] rounded-[12px] bg-white px-[14px] py-[12px]',
-        'shadow-[0_2px_8px_rgba(0,0,0,0.04)]',
-        (isScam || isFailed) && 'opacity-70'
+        'relative',
+        'cursor-pointer flex items-center justify-between px-4',
+        'rounded-[16px] border border-transparent bg-[#FAFAFA] hover:bg-[#F4F4F4] h-[60px] mt-4'
       )}
     >
       <div className="flex items-center">
-        {/* Left: token icon with chain badge */}
         <div className="relative w-10 h-10 mr-[12px]">
+          {isReceive ? (
+            <ActivityReceived className="absolute w-4 h-4 right-[30px] bottom-[25px] rounded-full" />
+          ) : (
+            <ActivitySent className="absolute w-4 h-4 right-[30px] bottom-[25px] rounded-full" />
+          )}
+
           <img
             src={tokenLogo}
             alt={tokenSymbol || 'token'}
@@ -291,7 +296,6 @@ export const HistoryItem = ({
           </Tooltip>
         </div>
 
-        {/* Middle: title and subtitle */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-[6px]">
             <span className="text-[14px] font-medium text-r-neutral-title-1">
@@ -317,7 +321,6 @@ export const HistoryItem = ({
           </div>
         </div>
 
-        {/* Right: time */}
         <div className="ml-[12px] text-[12px] text-r-neutral-foot whitespace-nowrap">
           {sinceTime(data.time_at)}
         </div>

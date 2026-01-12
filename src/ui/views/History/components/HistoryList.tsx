@@ -133,16 +133,25 @@ export const HistoryList = ({
           ref={scrollRef}
           className="h-full overflow-y-auto overscroll-contain"
         >
-          {data?.list?.map((item) => (
-            <HistoryItem
-              key={item.id}
-              data={item}
-              projectDict={item.projectDict}
-              cateDict={item.cateDict}
-              tokenDict={item.tokenDict || item.tokenUUIDDict || {}}
-              onViewInputData={setFocusingHistoryItem}
-            />
-          ))}
+          {data?.list?.map((item) => {
+            const isFailed = item.tx?.status === 0;
+
+            if (isFailed) {
+              return null;
+            }
+
+            return (
+              <div key={item.id} className="flex flex-col gap-4">
+                <HistoryItem
+                  data={item}
+                  projectDict={item.projectDict}
+                  cateDict={item.cateDict}
+                  tokenDict={item.tokenDict || item.tokenUUIDDict || {}}
+                  onViewInputData={setFocusingHistoryItem}
+                />
+              </div>
+            );
+          })}
 
           {loadingMore && <Loading count={2} active />}
         </div>

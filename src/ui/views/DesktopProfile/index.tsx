@@ -250,7 +250,9 @@ export const DesktopProfile = () => {
                           <DesktopChainSelector
                             value={chain}
                             onChange={(v) =>
-                              dispatch.desktopProfile.setField({ chain: v })
+                              dispatch.desktopProfile.setField({
+                                chain: (v as any)?.enum,
+                              })
                             }
                           />
                         </div>

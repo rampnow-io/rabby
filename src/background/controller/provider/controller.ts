@@ -59,6 +59,7 @@ import BigNumber from 'bignumber.js';
 import { AddEthereumChainParams } from '@/ui/views/Approval/components/AddChain/type';
 import { formatTxMetaForRpcResult } from 'background/utils/tx';
 import { findChain, findChainByEnum, isTestnet } from '@/utils/chain';
+import { Chain as LocalChain } from '@/types/chain';
 import eventBus from '@/eventBus';
 import { StatsData } from '../../service/notification';
 import {
@@ -106,7 +107,7 @@ const convertToHex = (data: Buffer | bigint) => {
   if (typeof data === 'bigint') {
     return `0x${data.toString(16)}`;
   }
-  return bytesToHex(data);
+  return bytesToHex(data as Uint8Array);
 };
 
 interface Web3WalletPermission {
@@ -280,7 +281,7 @@ class ProviderController extends BaseController {
       if (chain) {
         broadcastChainChanged({
           origin,
-          chain,
+          chain: chain as LocalChain,
         });
       }
     }
@@ -1366,7 +1367,7 @@ class ProviderController extends BaseController {
 
     broadcastChainChanged({
       origin,
-      chain,
+      chain: chain as LocalChain,
     });
     return null;
   };
@@ -1431,7 +1432,7 @@ class ProviderController extends BaseController {
 
     broadcastChainChanged({
       origin,
-      chain,
+      chain: chain as LocalChain,
     });
     return null;
   };

@@ -19,6 +19,25 @@
     "block_interval": 12.0
   },
   {
+    "id": "pls",
+    "community_id": 369,
+    "name": "Pulse",
+    "native_token": {
+      "id": "pls",
+      "symbol": "PLS",
+      "logo": "https://static.debank.com/image/chain/logo_url/pls/aa6be079fa9eb568e02150734ebb3db0.png",
+      "decimals": 18
+    },
+    "logo_url": "https://static.debank.com/image/chain/logo_url/pls/aa6be079fa9eb568e02150734ebb3db0.png",
+    "white_logo_url": "https://static.debank.com/image/chain/logo_url/pls/aa6be079fa9eb568e02150734ebb3db0.png",
+    "eip_1559": true,
+    "is_disabled": false,
+    "explorer_host": "https://scan.pulsechain.com",
+    "need_estimate_gas": false,
+    "severity": 0,
+    "block_interval": 10
+  },
+  {
     "id": "bsc",
     "community_id": 56,
     "name": "BNB Chain",
@@ -1157,25 +1176,6 @@
     "need_estimate_gas": false,
     "severity": 1,
     "block_interval": 2.0
-  },
-  {
-    "id": "pulse-chain",
-    "community_id": 369,
-    "name": "PulseChain",
-    "native_token": {
-      "id": "pls",
-      "symbol": "PLS",
-      "logo": "https://cdn.rampnow.io/image/icon/chain/pulse-chain.svg?format=auto&width=64",
-      "decimals": 18
-    },
-    "logo_url": "https://cdn.rampnow.io/image/icon/chain/pulse-chain.svg?format=auto&width=64",
-    "white_logo_url": "https://cdn.rampnow.io/image/icon/chain/pulse-chain.svg?format=auto&width=64",
-    "eip_1559": true,
-    "is_disabled": false,
-    "explorer_host": "https://ipfs.scan.pulsechain.com",
-    "need_estimate_gas": false,
-    "severity": 1,
-    "block_interval": 10.0
   },
   {
     "id": "croze",

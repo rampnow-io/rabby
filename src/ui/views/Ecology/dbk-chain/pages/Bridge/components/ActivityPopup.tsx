@@ -377,7 +377,7 @@ const ActivityItem = ({
       <ActivityBridgeStatus
         item={item}
         status={status}
-        chain={fromChain!}
+        chain={fromChain as Chain}
         onWithdrawStep={onWithdrawStep}
       ></ActivityBridgeStatus>
     </div>

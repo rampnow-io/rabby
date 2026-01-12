@@ -74,11 +74,17 @@ const TokenItemAsset: React.FC<Props> = ({ item }) => {
 // };
 
 const TokenItemUSDValue: React.FC<Props> = ({ item }) => {
+  // Only show price change if it's a valid number (including 0)
+  // null/undefined means no data is available
   const hasPriceChange = typeof item.price_24h_change === 'number';
 
-  // Debug logging
+  // Debug logging for tokens with price data
   React.useEffect(() => {
-    if (item.symbol === 'ETH' || item.symbol === 'USDC') {
+    if (
+      item.symbol === 'ETH' ||
+      item.symbol === 'USDC' ||
+      item.chain === 'pls'
+    ) {
       console.log(`[TokenItem Debug] ${item.symbol} on ${item.chain}:`, {
         price_24h_change: item.price_24h_change,
         type: typeof item.price_24h_change,
@@ -87,6 +93,8 @@ const TokenItemUSDValue: React.FC<Props> = ({ item }) => {
         hasPriceChange,
         _usdValue: item._usdValue,
         _usdValueStr: item._usdValueStr,
+        price: item.price,
+        amount: item.amount,
       });
     }
   }, [item]);
@@ -96,12 +104,12 @@ const TokenItemUSDValue: React.FC<Props> = ({ item }) => {
       <div className="text-base text-primary-foreground">
         {item._usdValueStr || '$0.00'}
       </div>
-      {hasPriceChange ? (
+      {hasPriceChange && item.price_24h_change !== null ? (
         <div
           className={clsx('font-normal text-12', {
-            'text-green': item.price_24h_change! > 0,
-            'text-red-forbidden': item.price_24h_change! < 0,
-            'text-r-neutral-title1': item.price_24h_change === 0,
+            'text-green-700': item.price_24h_change! > 0,
+            'text-red-700': item.price_24h_change! < 0,
+            'text-primary-foreground': item.price_24h_change === 0,
           })}
         >
           {item.price_24h_change! > 0 ? '+' : ''}

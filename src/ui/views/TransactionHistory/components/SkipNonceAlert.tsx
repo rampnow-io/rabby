@@ -117,7 +117,7 @@ const ClearPendingAlertDetail = ({
           <span
             className="link"
             onClick={() => {
-              onClearPending?.(chain!);
+              onClearPending?.(chain as Chain);
             }}
           >
             Clear Pending Locally

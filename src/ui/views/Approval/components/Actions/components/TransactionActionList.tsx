@@ -44,13 +44,14 @@ import MultiSwap from '../MultiSwap';
 import SwapLimitPay from '../SwapLimitPay';
 import { Result } from '@rabby-wallet/rabby-security-engine';
 import { Chain } from '@debank/common';
+import { Chain as LocalChain } from '@/types/chain';
 import AddLiquidity from '../AddLiquidity';
 
 const SingleAction: React.FC<{
   data: ParsedTransactionActionData;
   requireData: ActionRequireData;
   engineResults: Result[];
-  chain: Chain;
+  chain: LocalChain;
   raw: Record<string, string | number>;
   isTypedData?: boolean;
   onChange(tx: Record<string, any>): void;
@@ -295,7 +296,7 @@ export const TransactionActionList: React.FC<{
     <SingleAction
       data={data}
       requireData={requireData}
-      chain={chain}
+      chain={chain as LocalChain}
       engineResults={engineResults}
       onChange={onChange}
       raw={raw}

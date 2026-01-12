@@ -84,9 +84,14 @@ const SwitchAddressModal = ({ visible, closeAndReject: onClose }: Props) => {
 
   return (
     <>
-      <BottomFloatingSheet hideCloseButton open={visible} onClose={onClose}>
+      <BottomFloatingSheet
+        contentClassName="px-4 pt-4 pb-4"
+        hideCloseButton
+        open={visible}
+        onClose={onClose}
+      >
         <div className="h-full flex flex-col">
-          <div className="px-5 pt-5 pb-3 flex justify-between items-center">
+          <div className="pt-5 pb-3 flex justify-between items-center">
             <div className="text-xl font-medium">Accounts</div>
             <X
               size={22}
@@ -95,7 +100,7 @@ const SwitchAddressModal = ({ visible, closeAndReject: onClose }: Props) => {
             />
           </div>
 
-          <div className="flex-1 overflow-y-auto px-5 pb-[120px]">
+          <div className="flex-1 overflow-y-auto pb-[120px]">
             {filteredAccounts.map((acc) => (
               <div key={acc.address} className="mb-3">
                 <AddressCard
@@ -123,7 +128,7 @@ const SwitchAddressModal = ({ visible, closeAndReject: onClose }: Props) => {
             ))}
           </div>
 
-          <div className="sticky bottom-0 bg-white px-5 py-4 border-t">
+          <div className="sticky bottom-0 bg-white  py-4 ">
             <Button
               buttonType={ButtonType.SECONDARY}
               onClick={handleAddNewAddress}

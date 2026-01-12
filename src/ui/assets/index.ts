@@ -50,3 +50,6 @@ export { default as IconCancel } from 'ui/assets/icon-cancel.svg';
 export { default as Illustration } from 'ui/assets/Illustration.svg';
 export { default as IconLock } from 'ui/assets/icon-lock.svg';
 export { default as RoundedLogo } from 'ui/assets/logo-rounded.svg';
+
+export { ReactComponent as ActivitySent } from './activity/sent.svg';
+export { ReactComponent as ActivityReceived } from './activity/received.svg';

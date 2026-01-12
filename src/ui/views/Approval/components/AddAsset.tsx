@@ -320,7 +320,7 @@ const AddAsset = ({ params, account }: AddAssetProps) => {
     const chain = findChain({
       enum: site?.chain,
     });
-    setCurrentChain(chain);
+    setCurrentChain(chain as any);
     if (chain?.isTestnet) {
       if (account) {
         const { address } = params.data.options;
@@ -358,7 +358,7 @@ const AddAsset = ({ params, account }: AddAssetProps) => {
           const target = findChain({
             serverId: token.chain,
           });
-          setCurrentChain(target || CHAINS[CHAINS_ENUM.ETH]);
+          setCurrentChain((target || CHAINS[CHAINS_ENUM.ETH]) as Chain);
         }
       }
       setCustomTokens(customTokens);

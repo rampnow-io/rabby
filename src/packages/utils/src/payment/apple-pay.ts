@@ -1,11 +1,18 @@
-// Type declarations for ApplePayJS
+// Minimal ApplePayJS type definitions
+declare class ApplePaySession {
+  constructor(version: number, data: any);
+  static STATUS_SUCCESS?: number;
+  static STATUS_FAILURE?: number;
+  static canMakePayments?: () => boolean;
+  static canMakePaymentsWithActiveCard?: (merchantIdentifier: string) => Promise<boolean>;
+}
+
 declare global {
   interface Window {
     ApplePaySession?: typeof ApplePaySession;
   }
 }
 
-// Minimal ApplePayJS type definitions
 interface ApplePayValidateMerchantEvent {
   validationURL: string;
 }

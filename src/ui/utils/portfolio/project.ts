@@ -362,7 +362,11 @@ export class DisplayedToken implements AbstractPortfolioToken {
     this.is_wallet = token.is_wallet;
     this.name = token.name;
     this.time_at = token.time_at;
-    this.price_24h_change = token.price_24h_change;
+    // Ensure price_24h_change is either a number or null (not undefined)
+    this.price_24h_change =
+      typeof token.price_24h_change === 'number'
+        ? token.price_24h_change
+        : null;
     this.low_credit_score = token.low_credit_score;
     this.raw_amount_hex_str = token.raw_amount_hex_str;
     this.cex_ids = token.cex_ids || [];

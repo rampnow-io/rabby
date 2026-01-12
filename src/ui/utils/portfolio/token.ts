@@ -36,18 +36,33 @@ const filterDisplayToken = (
   tokens: AbstractPortfolioToken[],
   blocked: Token[]
 ) => {
-  return tokens.filter((token) => {
+  const filtered = tokens.filter((token) => {
     const chain = findChain({
       serverId: token.chain,
     });
-    return (
-      !blocked.find(
-        (item) =>
-          isSameAddress(token._tokenId, item.address) &&
-          item.chain === token.chain
-      ) && findChainByEnum(chain?.enum)
+    const isBlocked = blocked.find(
+      (item) =>
+        isSameAddress(token._tokenId, item.address) &&
+        item.chain === token.chain
     );
+    const shouldInclude = !isBlocked && chain;
+
+    // Debug logging for Pulse Chain tokens
+    if (token.chain === 'pls' && !shouldInclude) {
+      console.warn('🔴 Pulse token filtered out:', {
+        symbol: token.symbol,
+        chain: token.chain,
+        isBlocked: !!isBlocked,
+        chainFound: !!chain,
+      });
+    }
+
+    return shouldInclude;
   });
+
+  const pulseTokensAfter = filtered.filter((t) => t.chain === 'pls');
+
+  return filtered;
 };
 
 export const useTokens = (
@@ -329,6 +344,14 @@ export const useTokens = (
         ...formattedCustomTokenList,
       ]);
     }
+
+    // Debug: Log tokens after Redux dispatch
+    const allDispatchedTokens = [
+      ...filterDisplayToken(_tokens, blocked),
+      ...formattedCustomTokenList,
+    ];
+    const pulseInRedux = allDispatchedTokens.filter((t) => t.chain === 'pls');
+
     setLoading(false);
 
     loadHistory(_data, currentAbort);
@@ -456,6 +479,10 @@ export const useTokens = (
     const list = isTestnet ? testnetTokens.list : mainnetTokens.list;
     const coreList = showAll ? list : list.filter((token) => token.is_core);
 
+    // Debug: Log Pulse tokens at each stage
+    const totalPulseTokens = list.filter((t) => t.chain === 'pls').length;
+    const corePulseTokens = coreList.filter((t) => t.chain === 'pls').length;
+
     // Show native tokens instantly for first-time users when wallet is empty.
     // These placeholders get replaced automatically once real data arrives.
     if (!coreList.length && !isTestnet) {
@@ -465,14 +492,41 @@ export const useTokens = (
         'matic',
         'avax',
         'ron',
-        'pulse-chain',
+        'pls',
         'celo',
       ];
 
       const placeholders = placeholderChains
         .map((serverId) => {
-          const chain = findChain({ serverId });
-          if (!chain) return null;
+          let chain = findChain({ serverId });
+
+          // Fallback: if chain not found by serverId, try by enum mapping
+          // This handles edge cases where store might not be fully initialized
+          if (!chain && serverId === 'pls') {
+            chain = findChainByEnum('PULSE');
+          } else if (!chain && serverId === 'eth') {
+            chain = findChainByEnum('ETH');
+          } else if (!chain && serverId === 'bsc') {
+            chain = findChainByEnum('BSC');
+          } else if (!chain && serverId === 'matic') {
+            chain = findChainByEnum('POLYGON');
+          } else if (!chain && serverId === 'avax') {
+            chain = findChainByEnum('AVAX');
+          } else if (!chain && serverId === 'ron') {
+            chain = findChainByEnum('RONIN');
+          } else if (!chain && serverId === 'celo') {
+            chain = findChainByEnum('CELO');
+          }
+
+          if (!chain) {
+            // Debug: Log which chain failed to load
+            if (serverId === 'pls') {
+              console.warn(
+                '⚠️ Pulse Chain not found in store during placeholder creation. Chain store may not be initialized yet.'
+              );
+            }
+            return null;
+          }
 
           const nativeSymbol = chain.nativeTokenSymbol || chain.enum;
           const nativeAddress = chain.nativeTokenAddress || serverId;
@@ -480,6 +534,7 @@ export const useTokens = (
 
           return {
             id: nativeAddress,
+            _tokenId: nativeAddress,
             chain: chain.serverId,
             name: nativeSymbol,
             symbol: nativeSymbol,
@@ -508,6 +563,43 @@ export const useTokens = (
           } as TokenItem;
         })
         .filter(Boolean) as TokenItem[];
+
+      const hasPulse = placeholders.some((p) => p.chain === 'pls');
+      if (!hasPulse) {
+        console.warn(
+          '🔴 Pulse Chain missing from placeholders! Adding fallback...'
+        );
+        placeholders.push({
+          id: 'pls',
+          _tokenId: 'pls',
+          chain: 'pls',
+          name: 'PLS',
+          symbol: 'PLS',
+          display_symbol: 'PLS',
+          optimized_symbol: 'PLS',
+          decimals: 18,
+          logo_url:
+            'https://static.debank.com/image/chain/logo_url/pls/aa6be079fa9eb568e02150734ebb3db0.png',
+          protocol_id: '',
+          price: 0,
+          price_24h_change: 0,
+          credit_score: 0,
+          total_supply: 0,
+          is_verified: true,
+          is_core: true,
+          is_wallet: true,
+          is_scam: false,
+          is_suspicious: false,
+          time_at: 0,
+          amount: 0,
+          raw_amount: '0',
+          raw_amount_hex_str: '0x0',
+          raw_amount_str: '0',
+          cex_ids: [],
+          fdv: 0,
+          usd_value: 0,
+        } as TokenItem);
+      }
 
       return placeholders;
     }

@@ -35,9 +35,7 @@ export const AddressBackup = ({ address, type }: Props) => {
 
   const handleBackup = useCallback(
     async (backupType: 'mneonics' | 'private-key') => {
-      console.log('🔐 Backup clicked:', backupType);
       if (authLockRef.current) {
-        console.log('🔐 Authentication already in progress, ignoring click');
         return;
       }
       authLockRef.current = true;
@@ -45,7 +43,6 @@ export const AddressBackup = ({ address, type }: Props) => {
       let data = '';
 
       try {
-        console.log('🔐 Opening authentication modal...');
         await AuthenticationModalPromise({
           confirmText: t('global.confirm'),
           cancelText: t('global.Cancel'),
@@ -54,7 +51,6 @@ export const AddressBackup = ({ address, type }: Props) => {
               ? t('page.addressDetail.backup-private-key')
               : t('page.addressDetail.backup-seed-phrase'),
           validationHandler: async (password: string) => {
-            console.log('🔐 Validation handler triggered');
             if (type === KEYRING_TYPE.HdKeyring) {
               await invokeEnterPassphrase(address);
             }
@@ -67,11 +63,9 @@ export const AddressBackup = ({ address, type }: Props) => {
             } else {
               data = await wallet.getMnemonics(password, address);
             }
-            console.log('🔐 Data retrieved:', data ? 'Success' : 'Failed');
           },
           wallet,
         });
-        console.log('🔐 Authentication finished, navigating...');
         const backupPath = backupType;
         if (UI_TYPE.isDesktop) {
           history.push({
@@ -124,7 +118,6 @@ export const AddressBackup = ({ address, type }: Props) => {
             'text-left'
           )}
           onClick={() => {
-            console.log('Seed Phrase button clicked');
             handleBackup('mneonics');
           }}
         >
@@ -160,7 +153,6 @@ export const AddressBackup = ({ address, type }: Props) => {
           'text-left'
         )}
         onClick={() => {
-          console.log('Private Key button clicked');
           handleBackup('private-key');
         }}
       >
