@@ -29,7 +29,8 @@ import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
 import { useThemeMode } from '@/ui/hooks/usePreference';
 import { CurrentConnection } from '../CurrentConnection';
 import IconAlertRed from 'ui/assets/alert-red.svg';
-import SwitchAddressModal from '@/ui/component/address-management/switch-address-modal';
+import SwitchAddressModalTrigger from '@/ui/component/address-management/switch-address-modal';
+import { useEventRef } from '@repo/ui';
 
 type IPanelItem = {
   icon: ThemeIconType;
@@ -61,6 +62,7 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
   const { isDarkTheme } = useThemeMode();
   const currentAccount = useCurrentAccount();
   const [visible, setVisible] = useState(false);
+  const [openModal, openModalRef] = useEventRef();
 
   const isGnosis = currentAccount?.type === KEYRING_TYPE.GnosisKeyring;
 
@@ -97,12 +99,8 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
       event_category: 'Front Page Click',
     });
 
-    setVisible(true);
+    history.push('/switch-address');
   });
-
-  const onClose = () => {
-    setVisible(false);
-  };
 
   const panelItems: Record<'receive' | 'send' | 'swap' | 'buy', IPanelItem> = {
     receive: {
@@ -257,7 +255,7 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
           );
         })}
       </div>
-      <SwitchAddressModal visible={visible} closeAndReject={onClose} />
+      {/* <SwitchAddressModalTrigger actionRef={openModalRef} /> */}
     </div>
   );
 };

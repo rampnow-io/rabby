@@ -93,6 +93,9 @@ import { PortalHost } from '../component/PortalHost';
 import { GlobalSignerPortal } from '../component/MiniSignV2/components/GlobalSignerPortal';
 import SelectToAddress from './SelectToAddress';
 import ImportSeedPhrase from './NewUserImport/ImportSeedPhrase';
+import SwitchAddress from '../component/address-management/switch-address-modal';
+import AddWalletPage from '../component/address-management/add-wallet';
+import AddWallet from '../component/address-management/add-wallet';
 
 declare global {
   interface Window {
@@ -417,7 +420,12 @@ const Main = () => {
         </PrivateRoute>
 
         <PrivateRoute exact path="/switch-address">
-          <AddressManagement />
+          {/* <AddressManagement /> */}
+          <SwitchAddress />
+        </PrivateRoute>
+
+        <PrivateRoute exact path="/add-wallet">
+          <AddWallet />
         </PrivateRoute>
 
         <PrivateRoute exact path="/dex-swap">
