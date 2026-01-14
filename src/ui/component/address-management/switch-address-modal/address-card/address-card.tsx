@@ -11,7 +11,13 @@ import SkeletonInput from 'antd/lib/skeleton/Input';
 import AddressViewer from '@/ui/component/AddressViewer';
 import { splitNumberByStep, useAlias } from '@/ui/utils';
 import { getAvatarColor } from '../../utils';
-import { Button, Input } from '@repo/ui/primitives';
+import {
+  Button,
+  Input,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@repo/ui/primitives';
 import BottomFloatingSheet from '@/ui/component/BottomFloatingPopup';
 
 export interface AddressItemProps {
@@ -31,7 +37,7 @@ export interface AddressItemProps {
   onDelete?: () => void;
 }
 
-const AddressCard = ({
+const AddressCardModal = ({
   balance,
   address,
   brandName,
@@ -44,22 +50,51 @@ const AddressCard = ({
   const [_alias, updateAlias] = useAlias(address);
   const alias = _alias || aliasName || 'Account';
 
-  const [showMenu, setShowMenu] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [newName, setNewName] = useState(alias);
   const [isRenaming, setIsRenaming] = useState(false);
 
-  const avatarColor = getAvatarColor(address + brandName);
+  // 🔥 PRODUCTION FIX: Track if a child interaction is happening
+  const isChildInteractingRef = useRef(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
+  const avatarColor = getAvatarColor(address + brandName);
+
+  // 🔥 Prevent click if any modal is open
+  const canSwitchAccount = useCallback(() => {
+    return !popoverOpen && !showRenameModal;
+  }, [popoverOpen, showRenameModal]);
+
+  // 🔥 Robust click handler using event target verification
   const handleCardClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (showMenu || showRenameModal) return;
+      // Prevent if child interaction flag is set
+      if (isChildInteractingRef.current) {
+        isChildInteractingRef.current = false;
+        return;
+      }
 
+      // Prevent if any modal/popover is open
+      if (!canSwitchAccount()) {
+        return;
+      }
+
+      // Verify click target is the card itself, not a descendant control
+      if (
+        e.target !== cardRef.current &&
+        !cardRef.current?.contains(e.target as Node)
+      ) {
+        return;
+      }
+
+      // Final check: ensure click wasn't from interactive elements
       const target = e.target as HTMLElement;
       if (
+        target.closest('[role="button"]') ||
+        target.closest('[role="menuitem"]') ||
+        target.closest('[role="dialog"]') ||
         target.closest('button') ||
-        target.closest('[data-menu]') ||
         target.closest('[data-no-switch]')
       ) {
         return;
@@ -67,30 +102,37 @@ const AddressCard = ({
 
       onSwitchCurrentAccount?.();
     },
-    [showMenu, showRenameModal, onSwitchCurrentAccount]
+    [canSwitchAccount, onSwitchCurrentAccount]
   );
 
   const handleRename = async () => {
-    if (!newName.trim()) return;
+    if (!newName.trim()) {
+      return;
+    }
 
     try {
       setIsRenaming(true);
       await updateAlias(newName.trim());
-      setShowRenameModal(false);
-    } finally {
+      // Wait a bit for the backend to update
+      setTimeout(() => {
+        setShowRenameModal(false);
+        setIsRenaming(false);
+      }, 300);
+    } catch (error) {
+      console.error('Failed to rename wallet:', error);
       setIsRenaming(false);
     }
   };
 
-  const handleCopyAddress = () => {
+  const handleCopyAddress = useCallback(() => {
+    isChildInteractingRef.current = true;
     navigator.clipboard.writeText(address);
-    setShowMenu(false);
-  };
+  }, [address]);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
+    isChildInteractingRef.current = true;
     onDelete?.();
-    setShowMenu(false);
-  };
+  }, [onDelete]);
 
   return (
     <div
@@ -99,19 +141,21 @@ const AddressCard = ({
       className={`relative group flex items-center justify-between
         rounded-[16px] border-2 h-[60px] px-3
         transition-colors hover:bg-[#F4F4F4] bg-[#FAFAFA]
-        ${isCurrentAccount ? 'border-[#8ACE00]' : 'border-transparent'}`}
+        ${isCurrentAccount ? 'border-[#DCFFB3]' : 'border-transparent'}
+        ${!canSwitchAccount() ? 'pointer-events-auto' : ''}`}
     >
       {/* LEFT */}
       <div className="flex items-center gap-3 flex-1 min-w-0">
         <div
           className={`h-9 w-9 rounded-full flex items-center justify-center
-          text-white text-sm font-medium ${avatarColor}`}
+          text-white text-sm font-medium flex-shrink-0 ${avatarColor}`}
         >
           {alias.charAt(0).toUpperCase()}
         </div>
 
         <div className="flex flex-col gap-1 flex-1 min-w-0">
           <div className="text-sm font-medium truncate">{alias}</div>
+
           <AddressViewer
             address={address.toLowerCase()}
             showArrow={false}
@@ -122,7 +166,7 @@ const AddressCard = ({
 
       {/* BALANCE */}
       {isCurrentAccount && (
-        <div className="ml-auto text-right min-w-[90px]">
+        <div className="ml-auto text-right min-w-[90px] flex-shrink-0">
           {isUpdatingBalance ? (
             <SkeletonInput active style={{ width: 96, height: 24 }} />
           ) : (
@@ -133,64 +177,87 @@ const AddressCard = ({
         </div>
       )}
 
-      {/* MENU */}
-      <div
-        data-menu
-        onMouseEnter={() => setShowMenu(true)}
-        onMouseLeave={() => setShowMenu(false)}
-        className="relative ml-2"
-      >
-        <button
-          data-no-switch
+      {/* POPOVER */}
+      <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+        <PopoverTrigger
+          asChild
           onClick={(e) => {
             e.stopPropagation();
-            setShowMenu((v) => !v);
+            setPopoverOpen(true);
           }}
-          className="p-1 rounded hover:bg-gray-300
-          opacity-0 group-hover:opacity-100 transition-opacity"
         >
-          <MoreVertical size={18} />
-        </button>
-
-        {showMenu && (
           <div
-            className="absolute right-0 mt-1 w-[180px]
-            bg-white rounded-lg shadow-lg border z-50 overflow-hidden"
+            data-no-switch
+            className="ml-2 p-1 rounded hover:bg-gray-300
+              opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
           >
-            <button
-              onClick={() => {
-                setShowMenu(false);
-                setNewName(alias);
-                setShowRenameModal(true);
-              }}
-              className="w-full px-4 py-2 text-sm text-left
-              hover:bg-gray-100 flex items-center gap-2"
-            >
-              <Edit size={16} />
-              Rename wallet
-            </button>
-
-            <button
-              onClick={handleCopyAddress}
-              className="w-full px-4 py-2 text-sm text-left
-              hover:bg-gray-100 flex items-center gap-2 border-t"
-            >
-              <Copy size={16} />
-              Copy address
-            </button>
-
-            <button
-              onClick={handleDelete}
-              className="w-full px-4 py-2 text-sm text-left text-red-600
-              hover:bg-red-50 flex items-center gap-2 border-t"
-            >
-              <Trash2 size={16} />
-              Remove wallet
-            </button>
+            <MoreVertical size={18} className="text-gray-600" />
           </div>
-        )}
-      </div>
+        </PopoverTrigger>
 
+        <PopoverContent
+          align="end"
+          side="bottom"
+          sideOffset={6}
+          className="w-[180px] border-[#CACACD] bg-[rgba(250,250,250,0.75)] shadow-[0_23px_14px_4px_rgba(24,24,27,0.03)] backdrop-blur-[12px] p-0 rounded-lg overflow-hidden"
+          onClick={(e) => {
+            e.stopPropagation();
+            isChildInteractingRef.current = true;
+          }}
+        >
+          {/* RENAME */}
+          <div
+            role="menuitem"
+            onClick={(e) => {
+              e.stopPropagation();
+              isChildInteractingRef.current = true;
+              setPopoverOpen(false); // Close popover first
+              // Use setTimeout to ensure popover closes before modal opens
+              setTimeout(() => {
+                setNewName(alias); // Reset to current alias when opening
+                setShowRenameModal(true);
+              }, 100);
+            }}
+            className="w-full px-4 py-2 text-sm
+              hover:bg-gray-100 flex items-center gap-2 cursor-pointer"
+          >
+            <Edit size={16} />
+            Rename wallet
+          </div>
+
+          {/* COPY */}
+          <div
+            role="menuitem"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCopyAddress();
+              setPopoverOpen(false);
+            }}
+            className="w-full px-4 py-2 text-sm
+              hover:bg-gray-100 flex items-center gap-2 border-t cursor-pointer"
+          >
+            <Copy size={16} />
+            Copy address
+          </div>
+
+          {/* DELETE */}
+          <div
+            role="menuitem"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete();
+              setPopoverOpen(false);
+            }}
+            className="w-full px-4 py-2 text-sm text-red-600
+              hover:bg-red-50 flex items-center gap-2 border-t cursor-pointer"
+          >
+            <Trash2 size={16} />
+            Remove wallet
+          </div>
+        </PopoverContent>
+      </Popover>
+
+      {/* RENAME MODAL */}
       <BottomFloatingSheet
         open={showRenameModal}
         contentClassName="!px-6 !pb-2"
@@ -216,11 +283,14 @@ const AddressCard = ({
           <div className="flex flex-col items-center gap-3 mt-6">
             <div
               className={`h-12 w-12 rounded-full flex items-center justify-center
-              text-secondary-foreground text-base font-medium ${avatarColor}`}
+              text-white text-base font-medium ${avatarColor}`}
             >
               {alias.charAt(0).toUpperCase()}
             </div>
-            <AddressViewer address={address.toLowerCase()} />
+            <AddressViewer
+              className="text-secondary-foreground"
+              address={address.toLowerCase()}
+            />
           </div>
 
           <div className="mt-6">
@@ -250,4 +320,4 @@ const AddressCard = ({
   );
 };
 
-export default AddressCard;
+export default AddressCardModal;

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { X, Eye, EyeOff } from 'lucide-react';
 import { useRequest } from 'ahooks';
+import { truncate } from '@repo/utils';
 
 import {
   Action,
@@ -171,24 +172,25 @@ const SwitchAddress = () => {
                      p-4"
                 >
                   <div className="flex gap-2 items-center">
-                    <div className="w-6 h-6  flex items-center justify-center text-[10px]">
-                      🙂
+                    <div
+                      className="w-10 h-10  rounded-full flex items-center justify-center text-primary-foreground text-base font-medium bg-[#DCFFB3]"
+                    >
+                      {allSortedAccountList[currentAccountIndex].alianName
+                        .charAt(0)
+                        .toUpperCase()}
                     </div>
 
                     <div>
-                      <div className="text-xs font-semibold text-[#8A8B89]">
+                      <div className="text-xs font-semibold text-primary-foreground">
                         {allSortedAccountList[currentAccountIndex].alianName ||
                           `Account ${currentAccountIndex + 1}`}
                       </div>
 
-                      <div className="text-[10px] text-[#8A8B89]">
-                        {allSortedAccountList[
-                          currentAccountIndex
-                        ].address.slice(0, 6)}
-                        …
-                        {allSortedAccountList[
-                          currentAccountIndex
-                        ].address.slice(-4)}
+                      <div className="text-[10px] text-primary-foreground">
+                        {truncate(
+                          allSortedAccountList[currentAccountIndex].address,
+                          [6, 4]
+                        )}
                       </div>
                     </div>
                   </div>
