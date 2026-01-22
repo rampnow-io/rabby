@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { connectStore, useRabbyDispatch, useRabbySelector } from 'ui/store';
 import { useWallet } from 'ui/utils';
 import { IconCopyCC } from 'ui/assets/component/IconCopyCC';
+import { Copy as CopyIcon } from 'lucide-react';
 import IconSuccess from 'ui/assets/success.svg';
 import { message } from 'antd';
 import { copyTextToClipboard } from '@/ui/utils/clipboard';
@@ -74,47 +75,40 @@ const DisplayMnemonic = () => {
       <Container>
         <HeaderNavPage
           handleBack={() => dispatch.createMnemonics.stepTo('risk-check')}
-        />
-        <SectionHeader
-          className="text-center "
-          title={t('page.newAddress.seedPhrase.backup')}
-          description={t('page.newAddress.seedPhrase.backupTips')}
-        />
-        <Content>
-          {mnemonics && (
-            <WordsMatrix
-              focusable={false}
-              closable={false}
-              words={mnemonics.split(' ')}
-              className="bg-transparent"
-            />
-          )}
+        >
+          <div className="text-primary-foreground text-xl font-normal">
+            {t('page.newAddress.seedPhrase.backup')}
+          </div>
+        </HeaderNavPage>
 
-          <div
-            className={clsx(
-              'mx-auto mt-[24px] mb-[47px]',
-              'cursor-pointer',
-              'flex justify-center items-center gap-8',
-              'text-14 font-medium text-rabby-blue-default',
-              'hover:text-rabby-blue-default'
+        <Content>
+          <div className="flex flex-col items-center gap-6 pt-5">
+            {mnemonics && (
+              <WordsMatrix
+                focusable={false}
+                closable={false}
+                words={mnemonics.split(' ')}
+                className="bg-transparent"
+              />
             )}
-            onClick={onCopyMnemonics}
-          >
-            <IconCopyCC
-              className="w-20 h-20 text-rabby-blue-default"
-              strokeColor={isDarkTheme ? '#1C1F2BFF' : 'white'}
-            />
-            <span>{t('page.newAddress.seedPhrase.copy')}</span>
+
+            <div
+              className={clsx(
+                'cursor-pointer',
+                'flex justify-center items-center gap-4'
+              )}
+              onClick={onCopyMnemonics}
+            >
+              <span>{t('page.newAddress.seedPhrase.copy')}</span>
+              <CopyIcon className="h-3 w-3" />
+            </div>
           </div>
         </Content>
-        <Action>
-          <Button
-            onClick={onSubmit}
-            className={clsx(
-              'shadow-none rounded-[8px]',
-              'text-[17px] font-medium'
-            )}
-          >
+        <Action className="flex flex-col gap-4">
+          <div className="text-[10px] font-medium text-r-neutral-title1 text-center">
+            {t('page.newAddress.seedPhrase.backupTips2')}
+          </div>
+          <Button onClick={onSubmit}>
             {t('page.newAddress.seedPhrase.saved')}
           </Button>
         </Action>

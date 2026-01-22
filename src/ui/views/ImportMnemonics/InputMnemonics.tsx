@@ -25,7 +25,7 @@ import SectionHeader from '@/ui/component/section-header/section-header';
 import { Container, Content, Action } from '@repo/ui';
 
 const importMnemonicSchema = z.object({
-  mnemonics: z.string().min(1, 'Seed phrase is required'),
+  mnemonics: z.string().min(1, 'Seed phrase is required').trim(),
   passphrase: z.string().optional(),
 });
 
@@ -52,13 +52,14 @@ const ImportMnemonics = () => {
       mnemonics: '',
       passphrase: '',
     },
+    mode: 'onChange', // Add this to validate on change
   });
 
   // popup safety
-  if (getUiType().isPop) {
-    history.replace('/dashboard');
-    return null;
-  }
+  // if (getUiType().isPop) {
+  //   history.replace('/dashboard');
+  //   return null;
+  // }
 
   const checkSlip39Mnemonics = useCallback(
     async (mnemonics: string) => {
@@ -76,7 +77,7 @@ const ImportMnemonics = () => {
         console.log('slip39 error', e);
       }
     },
-    [isSlip39]
+    [isSlip39, form]
   );
 
   const onSubmit = async (values: ImportMnemonicForm) => {
@@ -84,6 +85,14 @@ const ImportMnemonics = () => {
       setLoading(true);
 
       const { mnemonics, passphrase } = values;
+
+      // Validate mnemonics is not empty after trim
+      if (!mnemonics || !mnemonics.trim()) {
+        form.setError('mnemonics', {
+          message: t('page.newAddress.theSeedPhraseIsInvalidPleaseCheck'),
+        });
+        return;
+      }
 
       if (isSlip39) {
         const shares = mnemonics.split('\n').filter(Boolean);
@@ -120,7 +129,7 @@ const ImportMnemonics = () => {
       clearClipboard();
 
       history.push({
-        pathname: '/new-user/success',
+        pathname: '/dashboard',
         search: `?hd=${KEYRING_CLASS.MNEMONIC}&keyringId=${keyringId}&isCreated=false`,
       });
     } catch (err: any) {
@@ -159,7 +168,11 @@ const ImportMnemonics = () => {
                       slip39GroupNumber={slip39GroupNumber}
                       onSlip39Change={setIsSlip39}
                       onPassphrase={setNeedPassphrase}
-                      onChange={checkSlip39Mnemonics}
+                      onChange={(value) => {
+                        // Update form field value directly
+                        field.onChange(value);
+                        checkSlip39Mnemonics(value);
+                      }}
                       setSlip39GroupNumber={setSlip39GroupNumber}
                       errorIndexes={[slip39ErrorIndex]}
                     />
@@ -191,9 +204,8 @@ const ImportMnemonics = () => {
         </Content>
         <Action>
           <Button
-            onSubmit={form.handleSubmit(onSubmit)}
-            disabled={disabledButton}
-            className="mt-auto h-[56px] w-full rounded-[8px]"
+            onClick={form.handleSubmit(onSubmit)}
+            disabled={disabledButton || loading}
           >
             {t('global.confirm')}
           </Button>

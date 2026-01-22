@@ -50,7 +50,11 @@ export { default as IconCancel } from 'ui/assets/icon-cancel.svg';
 export { default as Illustration } from 'ui/assets/Illustration.svg';
 export { default as IconLock } from 'ui/assets/icon-lock.svg';
 export { default as RoundedLogo } from 'ui/assets/logo-rounded.svg';
-export { default as WalletHolder } from 'ui/assets/address-wallet-holder.svg';
 
 export { ReactComponent as ActivitySent } from './activity/sent.svg';
 export { ReactComponent as ActivityReceived } from './activity/received.svg';
+export { ReactComponent as IconSeedPhrase } from './wallet-icon/seed-phrase.svg';
+export { ReactComponent as IconPrivateKey } from './wallet-icon/private-key.svg';
+export { ReactComponent as IconCreate } from './wallet-icon/create.svg';
+export { ReactComponent as IconImport } from './wallet-icon/import.svg';
+export { ReactComponent as IconConnectHardware } from './wallet-icon/hardware.svg';

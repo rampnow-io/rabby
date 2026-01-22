@@ -122,7 +122,7 @@ const SwitchAddress = () => {
   };
 
   const handleAddNewAddress = () => {
-    history.push('/add-wallet');
+    history.push('/add-new-wallet');
   };
 
   const handleToggleBalance = (e: React.MouseEvent<HTMLElement>) => {
@@ -172,9 +172,7 @@ const SwitchAddress = () => {
                      p-4"
                 >
                   <div className="flex gap-2 items-center">
-                    <div
-                      className="w-10 h-10  rounded-full flex items-center justify-center text-primary-foreground text-base font-medium bg-[#DCFFB3]"
-                    >
+                    <div className="w-10 h-10  rounded-full flex items-center justify-center text-primary-foreground text-base font-medium bg-[#DCFFB3]">
                       {allSortedAccountList[currentAccountIndex].alianName
                         .charAt(0)
                         .toUpperCase()}

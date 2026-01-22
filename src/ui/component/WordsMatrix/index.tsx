@@ -37,7 +37,10 @@ function WordsMatrix({
 
   return (
     <div
-      className={clsx('grid grid-cols-3 gap-[26px] overflow-y-auto', className)}
+      className={clsx(
+        'grid grid-cols-3 w-full sm:grid-cols-2 gap-[26px] overflow-y-auto',
+        className
+      )}
       style={{
         gridTemplateRows: `repeat(${rowCount}, ${ITEM_H}px)`,
       }}

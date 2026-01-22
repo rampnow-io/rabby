@@ -94,8 +94,11 @@ import { GlobalSignerPortal } from '../component/MiniSignV2/components/GlobalSig
 import SelectToAddress from './SelectToAddress';
 import ImportSeedPhrase from './NewUserImport/ImportSeedPhrase';
 import SwitchAddress from '../component/address-management/switch-address-modal';
-import AddWalletPage from '../component/address-management/add-wallet';
-import AddWallet from '../component/address-management/add-wallet';
+// import AddWalletPage from '../component/address-management/add-wallet';
+// import AddWallet from '../component/address-management/add-wallet';
+import AddExistingWallet from './add-existing-wallet';
+import AddWallet from './add-new-wallet';
+import ImportPrivateKeyPage from './import-private-key';
 
 declare global {
   interface Window {
@@ -184,6 +187,13 @@ const Main = () => {
         {/* todo remove */}
         <Route exact path="/sync">
           <SyncToMobile />
+        </Route>
+        <Route exact path="/add-existing-wallet">
+          <AddExistingWallet />
+        </Route>
+
+        <Route exact path="/add-new-wallet">
+          <AddWallet />
         </Route>
 
         <Route exact path="/new-user/guide">
@@ -274,7 +284,7 @@ const Main = () => {
           <ImportMode />
         </PrivateRoute>
         <PrivateRoute exact path="/import/key">
-          <ImportPrivateKey />
+          <ImportPrivateKeyPage />
         </PrivateRoute>
         <PrivateRoute exact path="/import/json">
           <ImportJson />
