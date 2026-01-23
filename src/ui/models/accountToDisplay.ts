@@ -14,6 +14,7 @@ export type IDisplayedAccountWithBalance = IDisplayedAccount & {
   publicKey?: string;
   hdPathBasePublicKey?: string;
   hdPathType?: string;
+  color?: string;
 };
 
 type IState = {

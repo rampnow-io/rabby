@@ -18,6 +18,7 @@ import { useAccounts } from '@/ui/hooks/useAccounts';
 import { useRabbyDispatch, useRabbySelector } from '@/ui/store';
 import { obj2query } from '@/ui/utils/url';
 import useDebounceValue from '@/ui/hooks/useDebounceValue';
+import { getAvatarColor, getAvatarColorStyle } from '../utils';
 
 import AddressCard from './address-card/address-card';
 import AddWalletModal from '../add-wallet';
@@ -172,11 +173,35 @@ const SwitchAddress = () => {
                      p-4"
                 >
                   <div className="flex gap-2 items-center">
-                    <div className="w-10 h-10  rounded-full flex items-center justify-center text-primary-foreground text-base font-medium bg-[#DCFFB3]">
-                      {allSortedAccountList[currentAccountIndex].alianName
-                        .charAt(0)
-                        .toUpperCase()}
-                    </div>
+                    {(() => {
+                      const colorOrClass = allSortedAccountList[
+                        currentAccountIndex
+                      ]?.color
+                        ? getAvatarColor(
+                            allSortedAccountList[currentAccountIndex]?.color
+                          )
+                        : 'bg-[#DCFFB3]';
+                      const avatarClass = colorOrClass?.startsWith('#')
+                        ? ''
+                        : colorOrClass;
+                      const avatarStyle = getAvatarColorStyle(colorOrClass);
+
+                      return (
+                        <div
+                          className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-base font-medium ${avatarClass}`}
+                          style={
+                            avatarStyle || {
+                              backgroundColor: '#DCFFB3',
+                              color: '#000',
+                            }
+                          }
+                        >
+                          {allSortedAccountList[currentAccountIndex].alianName
+                            .charAt(0)
+                            .toUpperCase()}
+                        </div>
+                      );
+                    })()}
 
                     <div>
                       <div className="text-xs font-semibold text-primary-foreground">
@@ -239,6 +264,7 @@ const SwitchAddress = () => {
                 type={acc.type}
                 brandName={acc.brandName}
                 alias={acc.alianName}
+                color={acc.color}
                 isUpdatingBalance={isUpdatingBalance}
                 enableSwitch={enableSwitch}
                 isCurrentAccount={

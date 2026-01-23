@@ -10,6 +10,10 @@ import { useRabbyDispatch } from 'ui/store';
 import { useWallet } from 'ui/utils';
 import { getKRCategoryByType } from '@/utils/transaction';
 import {
+  getAvatarColor,
+  getAvatarColorStyle,
+} from '@/ui/component/address-management/utils';
+import {
   RcIconSettingCC,
   RcIconReceiveCC,
   RcIconSendCC,
@@ -142,23 +146,35 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
       {currentAccount && (
         <div className="flex justify-between">
           <div className="flex items-center gap-2 p-2 rounded-full bg-black/[0.02] max-w-[200px]">
-            <div
-              onClick={() => {
-                copyAddress(currentAccount.address);
-                matomoRequestEvent({
-                  category: 'AccountInfo',
-                  action: 'headCopyAddress',
-                  label: [
-                    getKRCategoryByType(currentAccount.type),
-                    currentAccount.brandName,
-                  ].join('|'),
-                });
-              }}
-              className="h-10 w-10 flex items-center justify-center rounded-full cursor-pointer
-                       bg-gradient-to-br from-[#BFDBFE] to-[#0071FF] text-xl"
-            >
-              👀
-            </div>
+            {(() => {
+              const color = currentAccount.color
+                ? getAvatarColor(currentAccount.color)
+                : getAvatarColor(
+                    currentAccount.address + currentAccount.brandName
+                  );
+              const avatarStyle = { backgroundColor: color };
+
+              return (
+                <div
+                  onClick={() => {
+                    copyAddress(currentAccount.address);
+                    matomoRequestEvent({
+                      category: 'AccountInfo',
+                      action: 'headCopyAddress',
+                      label: [
+                        getKRCategoryByType(currentAccount.type),
+                        currentAccount.brandName,
+                      ].join('|'),
+                    });
+                  }}
+                  className={`h-10 w-10 flex items-center justify-center rounded-full cursor-pointer
+                           text-xl font-medium text-white`}
+                  style={avatarStyle}
+                >
+                  👀
+                </div>
+              );
+            })()}
 
             <div
               onClick={handleSwitchAddress}

@@ -4346,6 +4346,18 @@ export class WalletController extends BaseController {
     contactBookService.updateCexId(address, cexId);
   };
 
+  updateAccountColor = (address: string, color: string) => {
+    return preferenceService.updateAccountColor(address, color);
+  };
+
+  getAccountColor = (address: string) => {
+    return preferenceService.getAccountColor(address);
+  };
+
+  updateAccountCreatedTime = (address: string, timestamp: number) => {
+    return preferenceService.updateAccountCreatedTime(address, timestamp);
+  };
+
   getAllAlianNameByMap = () => {
     return contactBookService.listAlias().reduce((res, item) => {
       if (!item.address) return res;

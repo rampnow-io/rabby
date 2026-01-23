@@ -34,6 +34,10 @@ export interface Account {
   displayBrandName?: string;
   index?: number;
   balance?: number;
+  /** Account creation timestamp */
+  createdAt?: number;
+  /** Account avatar color (hex code) */
+  color?: string;
 }
 
 export interface ChainGas {
@@ -79,6 +83,10 @@ export interface PreferenceStore {
   testnetBalanceMap: {
     [address: string]: TotalBalanceResponse;
   };
+  /**
+   * Account colors mapping by address (lowercase)
+   */
+  accountColors?: Record<string, string>;
   /**
    * @why only mainnet assets would be calculated in Dashboard, we don't need curvePointsMap for testnet
    */
@@ -224,6 +232,7 @@ class PreferenceService {
         rateGuideLastExposure: getDefaultRateGuideLastExposure(),
         desktopTabId: undefined,
         desktopTokensAllMode: false,
+        accountColors: {},
       },
     });
 
@@ -525,6 +534,14 @@ class PreferenceService {
   getCurrentAccount = (): Account | undefined | null => {
     const account = cloneDeep(this.store.currentAccount);
     if (!account) return account;
+    
+    // Load the account color from the accountColors mapping if it exists and not already set
+    const key = account.address.toLowerCase();
+    const savedColor = this.store.accountColors?.[key];
+    if (savedColor && !account.color) {
+      account.color = savedColor;
+    }
+    
     return {
       ...account,
       address: account.address.toLowerCase(),
@@ -532,6 +549,14 @@ class PreferenceService {
   };
 
   setCurrentAccount = (account: Account | null) => {
+    if (account) {
+      // Load the account color from the accountColors mapping if it exists
+      const key = account.address.toLowerCase();
+      const savedColor = this.store.accountColors?.[key];
+      if (savedColor && !account.color) {
+        account.color = savedColor;
+      }
+    }
     this.store.currentAccount = account;
     if (account) {
       if (!this.store.isEnabledDappAccount) {
@@ -937,6 +962,49 @@ class PreferenceService {
         ...exposure[LAST_EXPOSURE_VERSIONED_KEY],
       },
     };
+  };
+
+  updateAccountColor = (address: string, color: string) => {
+    const key = address.toLowerCase();
+    // Store color in the accountColors mapping
+    if (!this.store.accountColors) {
+      this.store.accountColors = {};
+    }
+    this.store.accountColors[key] = color;
+    
+    if (process.env.DEBUG) {
+      console.log(`[Preference] Saved color for ${address}: ${color}`);
+    }
+
+    // Also update the color on currentAccount if it's the same address
+    if (this.store.currentAccount && isSameAddress(this.store.currentAccount.address, address)) {
+      this.store.currentAccount = {
+        ...this.store.currentAccount,
+        color,
+      };
+      // Sync the updated account with color back to UI
+      syncStateToUI(BROADCAST_TO_UI_EVENTS.accountsChanged, this.store.currentAccount);
+    }
+  };
+
+  getAccountColor = (address: string): string | undefined => {
+    const key = address.toLowerCase();
+    return this.store.accountColors?.[key];
+  };
+
+  updateAccountCreatedTime = (address: string, timestamp: number) => {
+    const key = address.toLowerCase();
+    if (!this.store.currentAccount) {
+      return;
+    }
+    if (
+      isSameAddress(this.store.currentAccount.address, address)
+    ) {
+      this.store.currentAccount = {
+        ...this.store.currentAccount,
+        createdAt: timestamp,
+      };
+    }
   };
 }
 

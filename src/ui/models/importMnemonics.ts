@@ -400,11 +400,37 @@ export const importMnemonics = createModel<RootModel>()({
         await store.app.wallet.addHDKeyRingLastAddAddrTime(basePublicKey);
       }
 
+      // Get color from newUserGuide store if available
+      const accountColor = store.newUserGuide?.accountColor;
+
       await Promise.all(
         accountsToImport.map((account) => {
           return store.app.wallet.updateAlianName(
             account.address?.toLowerCase(),
             account.alianName || ''
+          );
+        })
+      );
+
+      // Update account color for all imported accounts
+      if (accountColor) {
+        await Promise.all(
+          accountsToImport.map((account) => {
+            return store.app.wallet.updateAccountColor(
+              account.address?.toLowerCase(),
+              accountColor
+            );
+          })
+        );
+      }
+
+      // Update creation timestamp
+      const now = Date.now();
+      await Promise.all(
+        accountsToImport.map((account) => {
+          return store.app.wallet.updateAccountCreatedTime(
+            account.address?.toLowerCase(),
+            now
           );
         })
       );

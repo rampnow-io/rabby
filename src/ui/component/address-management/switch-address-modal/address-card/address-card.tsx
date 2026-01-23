@@ -10,7 +10,7 @@ import SkeletonInput from 'antd/lib/skeleton/Input';
 
 import AddressViewer from '@/ui/component/AddressViewer';
 import { splitNumberByStep, useAlias } from '@/ui/utils';
-import { getAvatarColor } from '../../utils';
+import { getAvatarColor, getAvatarColorStyle } from '../../utils';
 import {
   Button,
   Input,
@@ -35,6 +35,8 @@ export interface AddressItemProps {
   isUpdatingBalance?: boolean;
   children?: React.ReactNode;
   onDelete?: () => void;
+  /** Avatar color (hex code) */
+  color?: string;
 }
 
 const AddressCardModal = ({
@@ -46,6 +48,7 @@ const AddressCardModal = ({
   isCurrentAccount = false,
   isUpdatingBalance,
   onDelete,
+  color,
 }: AddressItemProps) => {
   const [_alias, updateAlias] = useAlias(address);
   const alias = _alias || aliasName || 'Account';
@@ -59,7 +62,13 @@ const AddressCardModal = ({
   const isChildInteractingRef = useRef(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const avatarColor = getAvatarColor(address + brandName);
+  // Use stored color if available, fallback to computed color based on address
+  const colorOrClass = color
+    ? getAvatarColor(color)
+    : getAvatarColor(address + brandName);
+
+  const avatarColor = colorOrClass?.startsWith('#') ? '' : colorOrClass;
+  const avatarStyle = getAvatarColorStyle(colorOrClass);
 
   // 🔥 Prevent click if any modal is open
   const canSwitchAccount = useCallback(() => {
@@ -149,6 +158,7 @@ const AddressCardModal = ({
         <div
           className={`h-9 w-9 rounded-full flex items-center justify-center
           text-white text-sm font-medium flex-shrink-0 ${avatarColor}`}
+          style={avatarStyle}
         >
           {alias.charAt(0).toUpperCase()}
         </div>
@@ -284,6 +294,7 @@ const AddressCardModal = ({
             <div
               className={`h-12 w-12 rounded-full flex items-center justify-center
               text-white text-base font-medium ${avatarColor}`}
+              style={avatarStyle}
             >
               {alias.charAt(0).toUpperCase()}
             </div>

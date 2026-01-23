@@ -12,6 +12,7 @@ interface State {
   };
   passphrase?: string;
   clearKeyringId?: number;
+  accountColor?: string;
 }
 
 export const newUserGuide = createModel<RootModel>()({

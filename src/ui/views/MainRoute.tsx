@@ -98,6 +98,7 @@ import SwitchAddress from '../component/address-management/switch-address-modal'
 // import AddWallet from '../component/address-management/add-wallet';
 import AddExistingWallet from './add-existing-wallet';
 import AddWallet from './add-new-wallet';
+import SelectColor from './SelectColor';
 import ImportPrivateKeyPage from './import-private-key';
 
 declare global {
@@ -180,14 +181,14 @@ const Main = () => {
     <>
       <Route path="/" component={LogPageView} />
       <Switch>
-        <Route exact path="/welcome">
+        {/* <Route exact path="/welcome">
           <Welcome />
-        </Route>
+        </Route> */}
 
-        {/* todo remove */}
+        {/* todo remove
         <Route exact path="/sync">
           <SyncToMobile />
-        </Route>
+        </Route> */}
         <Route exact path="/add-existing-wallet">
           <AddExistingWallet />
         </Route>
@@ -208,9 +209,9 @@ const Main = () => {
           <NewUserImportPrivateKey />
         </Route>
 
-        <Route exact path="/new-user/import/gnosis-address">
+        {/* <Route exact path="/new-user/import/gnosis-address">
           <NewUserImportGnosisAddress />
-        </Route>
+        </Route> */}
 
         <Route exact path="/new-user/import/seed-phrase">
           <ImportSeedPhrase />
@@ -259,6 +260,10 @@ const Main = () => {
 
         <Route exact path="/new-user/ready">
           <ReadyToUse />
+        </Route>
+
+        <Route exact path="/new-user/select-color">
+          <SelectColor />
         </Route>
 
         <Route exact path="/new-user/import/select-address">
@@ -316,9 +321,9 @@ const Main = () => {
         <PrivateRoute exact path="/import/hardware/qrcode">
           <QRCodeConnect />
         </PrivateRoute>
-        <PrivateRoute exact path="/import/watch-address">
+        {/* <PrivateRoute exact path="/import/watch-address">
           <ImportWatchAddress />
-        </PrivateRoute>
+        </PrivateRoute> */}
         <PrivateRoute exact path="/import/wallet-connect">
           <WalletConnectTemplate />
         </PrivateRoute>
@@ -363,9 +368,9 @@ const Main = () => {
         <PrivateRoute exact path="/token-approval">
           <TokenApproval />
         </PrivateRoute>
-        <PrivateRoute exact path="/nft-approval">
+        {/* <PrivateRoute exact path="/nft-approval">
           <NFTApproval />
-        </PrivateRoute>
+        </PrivateRoute> */}
         <PrivateRoute exact path="/settings/address">
           <ManageAddress />
         </PrivateRoute>
@@ -402,9 +407,9 @@ const Main = () => {
         <PrivateRoute exact path="/select-to-address">
           <SelectToAddress />
         </PrivateRoute>
-        <PrivateRoute exact path="/send-nft">
+        {/* <PrivateRoute exact path="/send-nft">
           <SendNFT />
-        </PrivateRoute>
+        </PrivateRoute> */}
         <PrivateRoute exact path="/whitelist-input">
           <WhitelistInput />
         </PrivateRoute>
@@ -425,9 +430,9 @@ const Main = () => {
           <DappSearchPage />
         </PrivateRoute>
 
-        <PrivateRoute exact path="/import/metamask">
+        {/* <PrivateRoute exact path="/import/metamask">
           <ImportMyMetaMaskAccount />
-        </PrivateRoute>
+        </PrivateRoute> */}
 
         <PrivateRoute exact path="/switch-address">
           {/* <AddressManagement /> */}
@@ -438,22 +443,22 @@ const Main = () => {
           <AddWallet />
         </PrivateRoute>
 
-        <PrivateRoute exact path="/dex-swap">
+        {/* <PrivateRoute exact path="/dex-swap">
           <Swap />
-        </PrivateRoute>
-        <PrivateRoute exact path="/custom-rpc">
+        </PrivateRoute> */}
+        {/* <PrivateRoute exact path="/custom-rpc">
           <CustomRPC />
         </PrivateRoute>
         <PrivateRoute exact path="/custom-testnet">
           <CustomTestnet />
-        </PrivateRoute>
-        <PrivateRoute exact path="/metamask-mode-dapps">
+        </PrivateRoute> */}
+        {/* <PrivateRoute exact path="/metamask-mode-dapps">
           <MetamaskModeDappsGuide />
         </PrivateRoute>
         <PrivateRoute exact path="/metamask-mode-dapps/list">
           <MetamaskModeDappsList />
-        </PrivateRoute>
-        <PrivateRoute exact path="/nft">
+        </PrivateRoute> */}
+        {/* <PrivateRoute exact path="/nft">
           <NFTView />
         </PrivateRoute>
         <PrivateRoute exact path="/rabby-points">
@@ -464,8 +469,8 @@ const Main = () => {
         </PrivateRoute>
         <PrivateRoute path="/gas-account">
           <GasAccount />
-        </PrivateRoute>
-        <PrivateRoute exact path="/perps">
+        </PrivateRoute> */}
+        {/* <PrivateRoute exact path="/perps">
           <Perps />
         </PrivateRoute>
         <PrivateRoute exact path="/perps/single-coin/:coin">
@@ -473,10 +478,10 @@ const Main = () => {
         </PrivateRoute>
         <PrivateRoute exact path="/perps/explore">
           <ExploreMore />
-        </PrivateRoute>
-        <PrivateRoute exact path="/perps/history/:coin">
+        </PrivateRoute> */}
+        {/* <PrivateRoute exact path="/perps/history/:coin">
           <PerpsHistoryPage />
-        </PrivateRoute>
+        </PrivateRoute> */}
       </Switch>
 
       <CommonPopup />

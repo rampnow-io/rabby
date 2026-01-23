@@ -167,6 +167,13 @@ export const ImportOrCreatedSuccess = () => {
 
   const isCreated = React.useMemo(() => created === 'true', [created]);
 
+  // Redirect to color selector if account was created
+  useEffect(() => {
+    if (isCreated) {
+      history.push('/new-user/select-color');
+    }
+  }, [isCreated, history]);
+
   const isSeedPhrase = React.useMemo(() => hd === KEYRING_CLASS.MNEMONIC, [hd]);
 
   const documentVisibility = useDocumentVisibility();
