@@ -46,7 +46,8 @@ const rabbyAppColors = getRabbyColors(appThemeColors, rabbyAppCssPrefix);
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './src/**/*.{js,ts,jsx,tsx,html,css,less}',
+    './src/**/*.{js,jsx,tsx,html,css,less}', // Exclude .ts files to avoid node_modules scan
+    './src/packages/ui/src/**/*.{js,ts,jsx,tsx}', // Scan UI package source files for Tailwind classes
     './src/packages/ui/dist/**/*.css',
   ],
   presets: [uiConfig],

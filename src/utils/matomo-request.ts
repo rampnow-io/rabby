@@ -12,11 +12,18 @@ async function postData(url = '', params: URLSearchParams) {
   return response;
 }
 
-let { extensionId } = await browser.storage.local.get('extensionId');
-if (!extensionId) {
-  extensionId = genExtensionId();
-  browser.storage.local.set({ extensionId });
-}
+let extensionId: string;
+
+// Initialize extensionId asynchronously without top-level await
+(async () => {
+  const { extensionId: storedId } = await browser.storage.local.get('extensionId');
+  if (storedId) {
+    extensionId = storedId;
+  } else {
+    extensionId = genExtensionId();
+    browser.storage.local.set({ extensionId });
+  }
+})();
 
 const getParams = async () => {
   const gaParams = new URLSearchParams();
