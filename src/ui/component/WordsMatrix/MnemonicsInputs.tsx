@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo } from 'react';
-import styled, { css } from 'styled-components';
 import { wordlist } from '@scure/bip39/wordlists/english';
 import {
   Input,
@@ -11,8 +10,6 @@ import {
   SelectValue,
   TooltipView,
 } from '@repo/ui/primitives';
-
-import { styid } from 'ui/utils/styled';
 
 import { ReactComponent as RcIconClearAll } from './icon-clear-all.svg';
 import IconSuccess from 'ui/assets/success.svg';
@@ -31,14 +28,6 @@ const ITEM_H = 40;
 const ROW_COUNT = 3;
 const DEFAULT_MEMONICS_COUNT = 12;
 
-const NumberFlag = styled.div`
-  color: var(--r-neutral-body);
-  font-weight: 400;
-  font-size: 10px;
-  line-height: 12px;
-  height: 12px;
-`;
-
 const useClearClipboardToast = () => {
   const { t } = useTranslation();
 
@@ -49,183 +38,6 @@ const useClearClipboardToast = () => {
   return clearClipboardToast;
 };
 
-const MatrixWrapper = styled.div<{
-  $rowCount?: number;
-  $totalCount?: number;
-}>`
-  background-color: var(--r-neutral-card-3, #f7fafc);
-  display: flex;
-  flex-wrap: wrap;
-
-  &.new-user-import {
-    background-color: transparent;
-    gap: 8px;
-    .matrix-word-item {
-      width: calc(calc(100% - 16px) / 3);
-      border-color: transparent;
-
-      .mnemonics-input {
-        background-color: rgba(217, 217, 217, 0.2);
-        border-radius: 8px;
-        border: 1.5px solid var(--r-neutral-line, #e0e5ec);
-        text-align: center;
-        font-size: 22px;
-        color: var(--r-neutral-title-1, #192945);
-        &:hover {
-          border-color: var(--r-blue-default, #7084ff);
-        }
-        &:focus,
-        &.ant-input-focused {
-          box-shadow: none;
-        }
-      }
-
-      &:not(.invalid) {
-        .mnemonics-input:hover {
-          border-color: var(--r-blue-default, #7084ff);
-          border-right-width: 1.5px !important;
-        }
-      }
-
-      ${styid(NumberFlag)} {
-        top: 6px;
-        left: 8px;
-        color: var(--r-neutral-body, #3e495e);
-        font-size: 10px;
-        line-height: 12px;
-        font-style: normal;
-        font-weight: 400;
-      }
-    }
-    .matrix-word-item.invalid {
-      ${styid(NumberFlag)} {
-        color: var(--r-red-default, #e34935);
-      }
-    }
-  }
-
-  .matrix-word-item {
-    box-sizing: border-box;
-    height: ${ITEM_H}px;
-    text-align: center;
-    display: block;
-
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--r-neutral-title-1);
-    position: relative;
-
-    border-right: 1px solid var(--r-neutral-line);
-    border-bottom: 1px solid var(--r-neutral-line);
-
-    ${(props) => {
-      const rowCount = props.$rowCount || ROW_COUNT;
-      const totalCount = props.$totalCount || DEFAULT_MEMONICS_COUNT;
-
-      return css`
-        width: ${(1 / rowCount) * 100}%;
-
-        &:nth-child(${rowCount}n) {
-          border-right: 0;
-        }
-
-        &:nth-last-child(-n + ${rowCount}) {
-          border-bottom: 0;
-        }
-
-        // &:nth-child(1) .mnemonics-input {
-        //   border-top-left-radius: 6px;
-        // }
-        // &:nth-child(${rowCount}) .mnemonics-input {
-        //   border-top-right-radius: 6px;
-        // }
-        // &:nth-child(${totalCount - rowCount + 1}) .mnemonics-input {
-        //   border-bottom-left-radius: 6px;
-        // }
-        // &:nth-child(${totalCount}) .mnemonics-input {
-        //   border-bottom-right-radius: 6px;
-        // }
-        // &:not(.invalid):nth-child(-n + ${rowCount}) .mnemonics-input:not(:focus) {
-        //   border-top: 1px solid var(--r-neutral-line);
-        // }
-        // &:not(.invalid):nth-child(${rowCount}n+1) .mnemonics-input:not(:focus) {
-        //   border-left: 1px solid var(--r-neutral-line);
-        // }
-      `;
-    }}
-
-    &:hover {
-      .mnemonics-input,
-      ${styid(NumberFlag)} {
-        opacity: 1 !important;
-      }
-    }
-  }
-
-  ${styid(NumberFlag)} {
-    position: absolute;
-    top: 17px;
-    left: 8px;
-  }
-
-  /* for MnemonicsInputs :start */
-  .mnemonics-input {
-    background-color: transparent;
-    color: var(--r-neutral-title-1, #192945);
-    height: 100%;
-    display: inline-block;
-    line-height: ${ITEM_H}px;
-    border-color: transparent;
-    border-radius: 6px;
-
-    &:focus,
-    &.ant-input-focused {
-      border-color: var(--r-blue-default, #7084ff);
-      border-width: 1.5px;
-      border-right-width: 1.5px !important;
-      background-color: var(--r-neutral-bg-1, #fff);
-      box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.24);
-    }
-  }
-  .matrix-word-item.invalid {
-    .mnemonics-input {
-      opacity: 1;
-      border-width: 1.5px;
-      border-color: var(--r-red-default, #e34935);
-    }
-    ${styid(NumberFlag)} {
-      color: var(--r-red-default, #e34935);
-    }
-  }
-  .visible-switch-icon-wrapper {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    top: 0;
-    right: 0;
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-end;
-    cursor: pointer;
-    visibility: hidden;
-    z-index: 9;
-
-    > img {
-      width: 12px;
-      height: 12px;
-    }
-  }
-
-  .matrix-word-item:hover .visible-switch-icon-wrapper {
-    visibility: visible;
-  }
-
-  .matrix-word-item.is-mnemonics-input ${styid(NumberFlag)} {
-    z-index: 9;
-  }
-  /* for MnemonicsInputs :end */
-`;
-
 function fillMatrix(words: string[], mnemonicsCount: number) {
   const matrix = words.slice() as string[];
   while (matrix.length < mnemonicsCount) {
@@ -234,17 +46,6 @@ function fillMatrix(words: string[], mnemonicsCount: number) {
 
   return matrix;
 }
-
-const HeadToolbar = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-weight: 400;
-  font-size: 13px;
-  line-height: 14px;
-
-  color: var(--r-neutral-body);
-`;
 
 const DFLT_FOCUSING = { index: -1, visible: false };
 const DFLT_HOVERING = { index: -1, isHovering: false };
@@ -442,7 +243,7 @@ function MnemonicsInputs({
 
   return (
     <div className={clsx(!!errMsgs.length && 'with-error')}>
-      <HeadToolbar className="mb-[20px] text-r-neutral-body">
+      <div className="mb-[20px] text-r-neutral-body flex items-center justify-between font-normal text-[13px] leading-[14px]">
         {hasInputValue && (
           <div
             className={clsx(
@@ -465,17 +266,16 @@ function MnemonicsInputs({
             )}
           </div>
         )}
-      </HeadToolbar>
-      <MatrixWrapper
+      </div>
+      <div
         className={clsx(
           'rounded-[6px] text-center',
-          !newUserImport && 'border border-rabby-neutral-line border-solid',
+          !newUserImport &&
+            'border border-rabby-neutral-line border-solid bg-r-neutral-card-3 flex flex-wrap',
           isSlip39 && 'hidden',
-          newUserImport && 'new-user-import',
+          newUserImport && 'bg-transparent gap-y-3 gap-x-3 grid grid-cols-2',
           className
         )}
-        $rowCount={rowCount}
-        $totalCount={mnemonicsCount}
       >
         {wordPlaceHolders.map((_, idx) => {
           const word = inputTexts[idx] || '';
@@ -483,13 +283,35 @@ function MnemonicsInputs({
 
           const isCurrentFocusing = focusing.index === idx;
           const isCurrentVisible = focusing.visible && focusing.index === idx;
+          const isInvalid = invalidWords.includes(idx);
 
           return (
             <div
               key={`word-item-${idx}`}
-              className={clsx('matrix-word-item is-mnemonics-input', {
-                invalid: invalidWords.includes(idx),
-              })}
+              className={clsx(
+                'box-border text-center font-medium text-[15px] text-r-neutral-title-1 relative',
+                newUserImport
+                  ? [
+                      'w-full h-12 flex items-stretch rounded-lg border border-r-neutral-line bg-transparent overflow-hidden',
+                      'hover:border-r-neutral-body focus-within:border-r-blue-default',
+                      isInvalid && 'border-r-red-default',
+                    ]
+                  : [
+                      'h-10 block border-r border-b border-r-neutral-line',
+                      '[&:hover_.mnemonics-input]:opacity-100 [&:hover_.number-flag]:opacity-100',
+                    ]
+              )}
+              style={
+                !newUserImport
+                  ? {
+                      width: `${(1 / rowCount) * 100}%`,
+                      borderRight:
+                        (idx + 1) % rowCount === 0 ? 'none' : undefined,
+                      borderBottom:
+                        idx >= mnemonicsCount - rowCount ? 'none' : undefined,
+                    }
+                  : undefined
+              }
               onClick={() => {
                 setFocusing({ index: idx, visible: isCurrentVisible });
                 setMnemonics(word);
@@ -497,9 +319,48 @@ function MnemonicsInputs({
               onMouseEnter={() => handleMouseEnter(idx)}
               onMouseLeave={() => handleMouseLeave(idx)}
             >
+              <div
+                className={clsx(
+                  'number-flag font-normal',
+                  newUserImport
+                    ? [
+                        'flex items-center justify-center px-3 text-r-neutral-body text-[14px] leading-4 h-full flex-shrink-0 w-auto border-r border-r-neutral-line',
+                        isInvalid && 'text-r-red-default border-r-red-default',
+                      ]
+                    : [
+                        'absolute top-[17px] left-2 text-r-neutral-body text-[10px] leading-3 h-3 z-[9]',
+                        isInvalid && 'text-r-red-default',
+                      ],
+                  {
+                    'opacity-50':
+                      focusing.index !== -1 && focusing.index !== idx,
+                  }
+                )}
+              >
+                {number}
+              </div>
               <TooltipView variant="dark" content={word}>
-                <div className="h-14 p-1">
+                <div
+                  className={clsx(
+                    newUserImport ? 'flex-1 flex items-center' : 'h-14 p-1'
+                  )}
+                >
                   <Input
+                    className={clsx(
+                      'mnemonics-input',
+                      newUserImport
+                        ? [
+                            'bg-transparent border-0 text-left px-3 text-[15px] font-normal text-r-neutral-title-1 h-full w-full',
+                            'focus:shadow-none focus:border-0 focus:outline-none',
+                            isInvalid && 'text-r-red-default',
+                          ]
+                        : [
+                            'bg-transparent text-r-neutral-title-1 h-full inline-block leading-10 border-transparent rounded-md',
+                            'focus:border-r-blue-default focus:border-[1.5px] focus:bg-r-neutral-bg-1 focus:shadow-[0px_4px_8px_0px_rgba(0,0,0,0.24)]',
+                            isInvalid &&
+                              'opacity-100 border-[1.5px] border-r-red-default',
+                          ]
+                    )}
                     key={`word-input-${ver}-${idx}`}
                     type={isCurrentVisible ? 'text' : 'password'}
                     sizeVariant={InputSize.SM}
@@ -529,17 +390,10 @@ function MnemonicsInputs({
                   />
                 </div>
               </TooltipView>
-              <NumberFlag
-                className={clsx({
-                  'opacity-50': focusing.index !== -1 && focusing.index !== idx,
-                })}
-              >
-                {number}.
-              </NumberFlag>
             </div>
           );
         })}
-      </MatrixWrapper>
+      </div>
       <Select
         value={isSlip39 ? 'slip39' : mnemonicsCount.toString()}
         onValueChange={(value) => {
@@ -552,25 +406,38 @@ function MnemonicsInputs({
           }
         }}
       >
-        <SelectTrigger className="w-auto border-0 bg-transparent p-0 text-r-neutral-body hover:text-r-neutral-title-1 focus:ring-0">
+        <SelectTrigger
+          className={clsx(
+            'w-auto border-0 bg-transparent p-0 text-r-neutral-body hover:text-r-neutral-title-1 focus:ring-0',
+            newUserImport && 'mt-4 text-center justify-center w-full'
+          )}
+        >
           <SelectValue
             placeholder={
               !isSlip39 ? (
-                <Trans
-                  t={t}
-                  i18nKey={
-                    needPassphrase
-                      ? 'page.newAddress.seedPhrase.wordPhraseAndPassphrase'
-                      : 'page.newAddress.seedPhrase.wordPhrase'
-                  }
-                  values={{ count: mnemonicsCount }}
-                >
-                  I have a
-                  <b style={{ color: 'var(--r-blue-default, #7084ff)' }}>
-                    {mnemonicsCount}
-                  </b>
-                  -word phrase
-                </Trans>
+                newUserImport ? (
+                  <span className="text-sm text-r-neutral-body">
+                    {t('page.newAddress.seedPhrase.iAmUsing', {
+                      count: mnemonicsCount,
+                    })}
+                  </span>
+                ) : (
+                  <Trans
+                    t={t}
+                    i18nKey={
+                      needPassphrase
+                        ? 'page.newAddress.seedPhrase.wordPhraseAndPassphrase'
+                        : 'page.newAddress.seedPhrase.wordPhrase'
+                    }
+                    values={{ count: mnemonicsCount }}
+                  >
+                    I have a
+                    <b className="text-primary-foreground font-bold">
+                      {mnemonicsCount}
+                    </b>
+                    -word phrase
+                  </Trans>
+                )
               ) : (
                 <Trans
                   t={t}
@@ -596,9 +463,7 @@ function MnemonicsInputs({
                 values={{ count }}
               >
                 I have a
-                <b style={{ color: 'var(--r-blue-default, #7084ff)' }}>
-                  {count}
-                </b>
+                <b className="text-primary-foreground font-bold">{count}</b>
                 -word phrase
               </Trans>
             </SelectItem>
@@ -619,9 +484,7 @@ function MnemonicsInputs({
                 values={{ count }}
               >
                 I have a
-                <b style={{ color: 'var(--r-blue-default, #7084ff)' }}>
-                  {count}
-                </b>
+                <b className="text-primary-foreground font-bold">{count}</b>
                 -word phrase and Passphrase
               </Trans>
             </SelectItem>

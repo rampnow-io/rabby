@@ -3,9 +3,27 @@
   "i18n-ally.keystyle": "nested",
   "i18n-ally.extract.ignored": ["Gwei"],
   "i18n-ally.sourceLanguage": "en",
-  "cSpell.words": [
-    "hyperliquid",
-    "Perps",
-    "rabby"
-  ]
+  "cSpell.words": ["hyperliquid", "Perps", "rabby"],
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[javascript]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

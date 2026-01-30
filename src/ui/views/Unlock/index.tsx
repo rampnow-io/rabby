@@ -1,7 +1,10 @@
-import React, { useEffect, useMemo, useRef } from 'react';
-import { Input, InputRef, Form } from 'antd';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Eye, EyeOff } from 'lucide-react';
 import {
   useWallet,
   useApproval,
@@ -9,51 +12,51 @@ import {
   getUiType,
   openInternalPageInTab,
 } from 'ui/utils';
-import rabbyLogo from '@/ui/assets/unlock/rabby.svg';
-import { ReactComponent as BackgroundSVG } from '@/ui/assets/unlock/background.svg';
-import clsx from 'clsx';
-import styled from 'styled-components';
-import { FullscreenContainer } from '@/ui/component/FullscreenContainer';
+import { BackgroundSVG } from '@/ui/assets';
 import qs from 'qs';
 import { isString } from 'lodash';
-import { Button } from '@repo/ui/primitives';
-import { UIContainer } from '@/ui/provider';
-import { Container, Content } from '@repo/ui';
+import {
+  Button,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+  Input,
+} from '@repo/ui/primitives';
+import { UiProvider } from '@/ui/component/NewUserImport';
+import { Action, Container, Content } from '@repo/ui';
+import { ResetWalletModal } from './components/reset-wallet';
 
-const InputFormStyled = styled(Form.Item)`
-  .ant-form-item-explain {
-    font-size: 13px;
-    line-height: 16px;
-    margin-top: 16px;
-    margin-bottom: 24px;
-    min-height: 0px;
-    color: var(--r-red-default);
-    font-weight: 500;
-  }
-`;
+const unlockSchema = z.object({
+  password: z.string().min(1, 'Password is required'),
+});
+
+type UnlockForm = z.infer<typeof unlockSchema>;
 
 const Unlock = () => {
   const wallet = useWallet();
   const [, resolveApproval] = useApproval();
-  const [form] = Form.useForm();
-  const inputEl = useRef<InputRef>(null);
+  const [open, setOpen] = useState(false);
   const UiType = getUiType();
   const { t } = useTranslation();
   const history = useHistory();
   const isUnlockingRef = useRef(false);
-  const [hasForgotPassword, setHasForgotPassword] = React.useState(false);
+  const [hasForgotPassword, setHasForgotPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const location = useLocation();
-  const [inputError, setInputError] = React.useState('');
   const query = useMemo(() => {
     return qs.parse(location.search, {
       ignoreQueryPrefix: true,
     });
   }, [location.search]);
 
-  useEffect(() => {
-    if (!inputEl.current) return;
-    inputEl.current.focus();
-  }, []);
+  const form = useForm<UnlockForm>({
+    resolver: zodResolver(unlockSchema),
+    defaultValues: {
+      password: '',
+    },
+  });
 
   const [run] = useWalletRequest(wallet.unlock, {
     onSuccess() {
@@ -71,15 +74,16 @@ const Unlock = () => {
     },
     onError(err) {
       console.log('error', err);
-      setInputError(err?.message || t('page.unlock.password.error'));
-      form.validateFields(['password']);
+      form.setError('password', {
+        message: err?.message || t('page.unlock.password.error'),
+      });
     },
   });
 
-  const handleSubmit = async ({ password }: { password: string }) => {
+  const handleSubmit = async (values: UnlockForm) => {
     if (isUnlockingRef.current) return;
     isUnlockingRef.current = true;
-    await run(password);
+    await run(values.password);
     isUnlockingRef.current = false;
   };
 
@@ -94,122 +98,92 @@ const Unlock = () => {
   }, []);
 
   return (
-    <>
-      <div className="unlock page-has-ant-input relative h-full min-h-[550px]">
-        <BackgroundSVG className="absolute inset-0 z-[-1]" />
-        <div className="pt-80">
-          <img src={rabbyLogo} className="m-auto w-[100px] h-[100px]" />
-          <h1
-            className={clsx(
-              'text-[24px] font-semibold',
-              'text-r-neutral-title1',
-              'mt-12',
-              'text-center'
-            )}
-          >
-            {t('page.unlock.title')}
-          </h1>
-          <p
-            className={clsx(
-              'text-[14px] font-normal leading-[20px]',
-              'text-r-neutral-foot',
-              'mt-12 mx-[52px]',
-              'text-center'
-            )}
-          >
-            {t('page.unlock.description')}
-          </p>
-        </div>
-        <Form autoComplete="off" form={form} onFinish={handleSubmit}>
-          <InputFormStyled
-            className="mt-[34px] mx-20"
-            name="password"
-            rules={[
-              {
-                required: true,
-                message: t('page.unlock.password.required'),
-              },
-              {
-                validator: (_, value) => {
-                  if (inputError) {
-                    return Promise.reject(
-                      <div>
-                        <span>{inputError}</span>
-                        {hasForgotPassword && (
-                          <button
-                            className={clsx(
-                              'text-r-blue-default font-medium',
-                              'underline',
-                              'ml-[8px]'
-                            )}
-                            onClick={() =>
-                              openInternalPageInTab('forgot-password')
-                            }
-                          >
-                            {t('page.unlock.btnForgotPassword')}
-                          </button>
-                        )}
-                      </div>
-                    );
-                  }
-                  return Promise.resolve();
-                },
-              },
-            ]}
-          >
-            <Input
-              placeholder={t('page.unlock.password.placeholder')}
-              className={clsx(
-                'bg-r-neutral-card1 hover:border-rabby-blue-default focus:border-rabby-blue-default placeholder-r-neutral-foot',
-                'h-[56px]',
-                'text-13',
-                'rounded-[8px]'
-              )}
-              size="large"
-              type="password"
-              ref={inputEl}
-              spellCheck={false}
-              onChange={() => {
-                setInputError('');
-              }}
-            />
-          </InputFormStyled>
+    <UiProvider>
+      <Container>
+        <Content>
+          <img src={BackgroundSVG} className="mt-[-19px] w-[500px] h-[255px]" />
+          <div className="flex flex-col items-center gap-2 mb-10">
+            <div className="text-2xl font-medium text-primary-foreground text-center">
+              Welcome Back!
+            </div>
+            <div className="max-w-[320px] text-sm font-normal text-[#71717A] text-center">
+              Enter your password to unlock
+            </div>
+          </div>
 
-          <footer className="absolute bottom-32 left-0 right-0 text-center">
-            <Form.Item className="mx-20 mb-20">
-              <Button
-                className={clsx(
-                  'w-full py-18 h-auto rounded-[8px] border-none',
-                  'text-[17px] leading-[20px]',
-                  'font-medium'
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full">
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Enter password"
+                        autoFocus
+                        spellCheck={false}
+                        iconRight={
+                          showPassword ? (
+                            <EyeOff
+                              className="w-5 h-5 text-r-neutral-body cursor-pointer"
+                              onClick={() => setShowPassword(false)}
+                            />
+                          ) : (
+                            <Eye
+                              className="w-5 h-5 text-r-neutral-body cursor-pointer"
+                              onClick={() => setShowPassword(true)}
+                            />
+                          )
+                        }
+                      />
+                    </FormControl>
+                    {fieldState.error && (
+                      <FormMessage className="text-[13px] leading-4 mt-4 text-r-red-default font-medium">
+                        <div>
+                          <span>{fieldState.error.message}</span>
+                          {hasForgotPassword && (
+                            <button
+                              type="button"
+                              className="text-r-blue-default font-medium underline ml-2"
+                              onClick={() => setOpen(true)}
+                            >
+                              {t('page.unlock.btnForgotPassword')}
+                            </button>
+                          )}
+                        </div>
+                      </FormMessage>
+                    )}
+                  </FormItem>
                 )}
-                type="submit"
-              >
-                {t('page.unlock.btn.unlock')}
-              </Button>
-            </Form.Item>
+              />
+            </form>
+          </Form>
+        </Content>
 
-            {hasForgotPassword && (
-              <button
-                className={clsx(
-                  'text-r-neutral-body',
-                  'text-13 leading-[16px] font-medium',
-                  'hover:underline'
-                )}
-                onClick={() => openInternalPageInTab('forgot-password')}
-              >
-                {t('page.unlock.btnForgotPassword')}
-              </button>
-            )}
-          </footer>
-        </Form>
-      </div>
-      <UIContainer>
-        <Container>
-          <Content></Content>
-        </Container>
-      </UIContainer>
-    </>
+        <Action className="flex flex-col gap-3 items-center">
+          <Button
+            onClick={form.handleSubmit(handleSubmit)}
+            className="w-full text-[16px] font-medium"
+          >
+            {t('page.unlock.btn.unlock')}
+          </Button>
+
+          {hasForgotPassword && (
+            <button
+              type="button"
+              className="text-r-neutral-body text-[13px] leading-4 font-medium hover:underline"
+              onClick={() => setOpen(true)}
+            >
+              {t('page.unlock.btnForgotPassword')}
+            </button>
+          )}
+        </Action>
+      </Container>
+      <ResetWalletModal open={open} onOpenChange={setOpen} />
+    </UiProvider>
   );
 };
 

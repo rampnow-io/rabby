@@ -23,6 +23,7 @@ import { connectStore, useRabbyDispatch } from '../../store';
 import { UiProvider } from '@/ui/component/NewUserImport';
 import SectionHeader from '@/ui/component/section-header/section-header';
 import { Container, Content, Action } from '@repo/ui';
+import { HeaderNavPage } from '@/ui/component';
 
 const importMnemonicSchema = z.object({
   mnemonics: z.string().min(1, 'Seed phrase is required').trim(),
@@ -148,10 +149,17 @@ const ImportMnemonics = () => {
   return (
     <UiProvider>
       <Container>
-        <SectionHeader
-          className="text-center"
-          title={t('page.newUserImport.importSeedPhrase.title')}
-        />
+        <HeaderNavPage
+          handleBack={() => {
+            if (history.length) {
+              history.goBack();
+            }
+          }}
+        >
+          <div className="text-primary-foreground text-xl font-normal">
+            {t('page.newUserImport.importSeedPhrase.title')}
+          </div>
+        </HeaderNavPage>
 
         <Content>
           <Form {...form}>

@@ -1473,8 +1473,8 @@
         "sendingFrom": "Sending from {{chain}}",
         "swap": "Swap",
         "beReturnFailed": "Bridge failed. Your assets have been returned.",
-        "receivedDifferentTokenNeedSwap" :"You received a different token. You can swap it to the token you selected.",
-        "receivedDifferentTokenFromSource" : "Bridge failed. A different token was returned on the source chain.",
+        "receivedDifferentTokenNeedSwap": "You received a different token. You can swap it to the token you selected.",
+        "receivedDifferentTokenFromSource": "Bridge failed. A different token was returned on the source chain.",
         "BridgeStatusUnavailable": "Bridge status unavailable. Please checkridyour transaction history to confirm the funds arrived.",
         "fromFailed": "Transaction didn’t go through. Try again.",
         "longTimeNoReceive": "Network is busy. This may take longer than usual. Please wait patiently.",
@@ -2009,7 +2009,7 @@
         "showSeedPhrase": "Show Seed Phrase",
         "backup": "Secret recovery phrase",
         "backupTips": "Never pass the seed phrase from your wallet to anyone",
-        "backupTips2":"Just make sure nobody's looking! 👀",
+        "backupTips2": "Just make sure nobody's looking! 👀",
         "copy": "Copy to clipboard",
         "saved": "Continue",
         "pleaseSelectWords": "Please select words",
@@ -2019,6 +2019,7 @@
         "fillInTheBackupSeedPhraseInOrder": "Fill in the backup seed phrase in order",
         "wordPhrase": "I have a <1>{{count}}</1>-word phrase",
         "wordPhraseAndPassphrase": "I have a <1>{{count}}</1>-word phrase with Passphrase",
+        "iAmUsing": "I'm using {{count}} words",
         "slip39SeedPhrase": "I have a <0>{{SLIP39}}</0> Seed Phrase",
         "slip39SeedPhraseWithPassphrase": "I have a <0>{{SLIP39}}</0> Seed Phrase with Passphrase",
         "slip39SeedPhrasePlaceholder_one": "Enter your {{count}}st seed phrase shares here",
@@ -2966,7 +2967,7 @@
         "desc": "A wallet buit to be tour ultimate gate to Crypto, NFTs, DeFi and so on",
         "createNewAddress": "Create new wallet",
         "importAddress": "I already have a wallet",
-        "terms":"By continuing, you accept our Terms & Conditions and Privacy Policy."
+        "terms": "By continuing, you accept our Terms & Conditions and Privacy Policy."
       },
       "createNewAddress": {
         "title": "Before You Start",
@@ -3021,6 +3022,9 @@
       },
       "importSeedPhrase": {
         "title": "Import Seed Phrase"
+      },
+      "importYourWallet": {
+        "title": "Import your wallet"
       },
       "importOneKey": {
         "qrcode": {
@@ -3488,10 +3492,7 @@
       "title": "Risk Detected"
     },
     "DappActions": {
-      "__skip_translation": [
-        "withdraw",
-        "claim"
-      ],
+      "__skip_translation": ["withdraw", "claim"],
       "withdraw": "Withdraw",
       "claim": "Claim",
       "queueDescription": "Current withdrawal​ will enter a waiting queue. Once processed, it can be ​withdrawn​ to your wallet."

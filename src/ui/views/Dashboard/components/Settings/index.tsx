@@ -19,6 +19,7 @@ import { ReactComponent as RcIconArrowRight } from 'ui/assets/dashboard/settings
 import { ReactComponent as RCIconRabbyMobile } from 'ui/assets/dashboard/rabby-mobile.svg';
 import { useRabbyDispatch, useRabbySelector } from '@/ui/store';
 import { ReactComponent as RcIconAddresses } from 'ui/assets/dashboard/addresses.svg';
+import { ReactComponent as RcThemeIcon } from 'ui/assets/dashboard/settings/theme.svg';
 import { ReactComponent as RcIconCustomRPC } from 'ui/assets/dashboard/custom-rpc.svg';
 import { ReactComponent as RcIconCustomTestnet } from 'ui/assets/dashboard/icon-custom-testnet.svg';
 import { ReactComponent as RcIconPreferMetamask } from 'ui/assets/dashboard/icon-prefer-metamask.svg';
@@ -57,6 +58,9 @@ import { ReactComponent as RcIconSettingsSearchDapps } from 'ui/assets/dashboard
 import { ReactComponent as RcIconI18n } from 'ui/assets/dashboard/settings/i18n.svg';
 import { ReactComponent as RcIconFeedback } from 'ui/assets/dashboard/settings/feedback.svg';
 import { ReactComponent as RcIconWarning } from 'ui/assets/warning-cc.svg';
+import { ReactComponent as RcIconPrivacy } from 'ui/assets/dashboard/settings/privacy-icon.svg';
+import { ReactComponent as RcIconRecovery } from 'ui/assets/dashboard/settings/recovery-phrase-icon.svg';
+import { ReactComponent as RcIconChangePassword } from 'ui/assets/dashboard/settings/change-password-icon.svg';
 import IconIntro from 'ui/assets/dashboard/dapp-account-intro.png';
 
 import stats from '@/stats';
@@ -80,6 +84,9 @@ import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 import { copyAddress } from '@/ui/utils/clipboard';
 import { getKRCategoryByType } from '@/utils/transaction';
 import { CommonSignal } from '@/ui/component/ConnectStatus/CommonSignal';
+import { getAvatarColor } from '@/ui/component/address-management/utils';
+import AuthenticationModalPromise from '@/ui/component/AuthenticationModal';
+import { useEnterPassphraseModal } from '@/ui/hooks/useEnterPassphraseModal';
 
 const useAutoLockOptions = () => {
   const { t } = useTranslation();
@@ -778,24 +785,6 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
             reportSettings('Manage Address');
           },
         },
-        {
-          leftIcon: RcIconActivities,
-          content: t('page.dashboard.settings.features.signatureRecord'),
-          onClick: () => {
-            history.push('/activities');
-            matomoRequestEvent({
-              category: 'Setting',
-              action: 'clickToUse',
-              label: 'Signature Record',
-            });
-
-            ga4.fireEvent('More_SignatureRecord', {
-              event_category: 'Click More',
-            });
-
-            reportSettings('Signature Record');
-          },
-        },
 
         // {
         //   leftIcon: RcIconEcosystemCC,
@@ -839,24 +828,6 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
         //     openInternalPageInTab('dapp-search');
         //   },
         // },
-        {
-          leftIcon: RcIconSettingsFeatureConnectedDapps,
-          content: t('page.dashboard.settings.features.connectedDapp'),
-          onClick: () => {
-            setConnectedDappsVisible(true);
-            matomoRequestEvent({
-              category: 'Setting',
-              action: 'clickToUse',
-              label: 'Connected Dapps',
-            });
-
-            ga4.fireEvent('More_ConnectedDapps', {
-              event_category: 'Click More',
-            });
-
-            reportSettings('Connected Dapps');
-          },
-        },
       ] as SettingItem[],
     },
     settings: {
@@ -942,7 +913,7 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
           ),
         },
         {
-          leftIcon: RcIconThemeMode,
+          leftIcon: RcThemeIcon,
           content: t('page.dashboard.settings.settings.toggleThemeMode'),
           onClick: () => {
             matomoRequestEvent({
@@ -1053,6 +1024,131 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
         //     />
         //   ),
         // },
+      ] as SettingItem[],
+    },
+    privacyAndSupport: {
+      label: 'Privacy and support',
+      items: [
+        {
+          leftIcon: RcIconPrivacy,
+          content: 'Privacy',
+          onClick: () => {
+            matomoRequestEvent({
+              category: 'Setting',
+              action: 'clickToUse',
+              label: 'Privacy',
+            });
+
+            ga4.fireEvent('More_Privacy', {
+              event_category: 'Click More',
+            });
+
+            reportSettings('Privacy');
+            history.push('/settings/privacy');
+          },
+          rightIcon: (
+            <ThemeIcon
+              src={RcIconArrowRight}
+              className="icon icon-arrow-right"
+            />
+          ),
+        },
+        {
+          leftIcon: RcIconRecovery,
+          content: 'Recovery Phrase',
+          onClick: async () => {
+            if (!currentAccount) return;
+
+            matomoRequestEvent({
+              category: 'Setting',
+              action: 'clickToUse',
+              label: 'Recovery Phrase',
+            });
+
+            ga4.fireEvent('More_RecoveryPhrase', {
+              event_category: 'Click More',
+            });
+
+            reportSettings('Recovery Phrase');
+
+            try {
+              await AuthenticationModalPromise({
+                confirmText: t('page.manageAddress.confirm'),
+                cancelText: t('page.manageAddress.cancel'),
+                title: t('page.manageAddress.backup-seed-phrase'),
+
+                async onFinished() {
+                  try {
+                    // Get all class accounts to find the seed phrase account
+                    const allClassAccounts = await wallet.getAllClassAccounts();
+                    const hdKeyringAccounts = allClassAccounts?.find(
+                      (item) => item.type === KEYRING_TYPE['HdKeyring']
+                    );
+
+                    if (hdKeyringAccounts?.publicKey) {
+                      const mnemonics = await wallet.getMnemonicFromPublicKey(
+                        hdKeyringAccounts.publicKey
+                      );
+
+                      if (mnemonics) {
+                        history.push({
+                          pathname: '/settings/address-backup/mnemonics',
+                          state: {
+                            data: mnemonics,
+                            goBack: true,
+                          },
+                        });
+                      } else {
+                        message.error('Could not retrieve recovery phrase');
+                      }
+                    } else {
+                      message.error('No seed phrase wallet found');
+                    }
+                  } catch (error) {
+                    console.error('Error retrieving recovery phrase:', error);
+                    message.error('Failed to retrieve recovery phrase');
+                  }
+                },
+                onCancel() {
+                  // do nothing
+                },
+                wallet,
+              });
+            } catch (error) {
+              console.error('Error:', error);
+            }
+          },
+          rightIcon: (
+            <ThemeIcon
+              src={RcIconArrowRight}
+              className="icon icon-arrow-right"
+            />
+          ),
+        },
+        {
+          leftIcon: RcIconChangePassword,
+          content: 'Change password',
+          onClick: () => {
+            matomoRequestEvent({
+              category: 'Setting',
+              action: 'clickToUse',
+              label: 'Change Password',
+            });
+
+            ga4.fireEvent('More_ChangePassword', {
+              event_category: 'Click More',
+            });
+
+            reportSettings('Change Password');
+            history.push('/settings/change-password');
+          },
+          rightIcon: (
+            <ThemeIcon
+              src={RcIconArrowRight}
+              className="icon icon-arrow-right"
+            />
+          ),
+        },
       ] as SettingItem[],
     },
     // debugkits: {
@@ -1337,49 +1433,57 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
             <div />
           </div>
           {currentAccount && (
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-[8px] p-2 border-none !rounded-[40px] min-w-[153px] max-w-[200px]">
-                <div
-                  onClick={() => {
-                    copyAddress(currentAccount.address);
-                    matomoRequestEvent({
-                      category: 'AccountInfo',
-                      action: 'headCopyAddress',
-                      label: [
-                        getKRCategoryByType(currentAccount?.type),
-                        currentAccount?.brandName,
-                      ].join('|'),
-                    });
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2 p-2 rounded-full  max-w-[200px]">
+                {(() => {
+                  const color = currentAccount.color
+                    ? getAvatarColor(currentAccount.color)
+                    : getAvatarColor(
+                        currentAccount.address + currentAccount.brandName
+                      );
+                  const avatarStyle = { backgroundColor: color };
 
-                    ga4.fireEvent('Click_CopyAddress', {
-                      event_category: 'Front Page Click',
-                    });
-                  }}
-                  className="h-10 w-10 cursor-pointer flex items-center justify-center rounded-full bg-gradient-to-br from-[#BFDBFE] to-[#0071FF]"
+                  return (
+                    <div
+                      onClick={() => {
+                        copyAddress(currentAccount.address);
+                        matomoRequestEvent({
+                          category: 'AccountInfo',
+                          action: 'headCopyAddress',
+                          label: [
+                            getKRCategoryByType(currentAccount.type),
+                            currentAccount.brandName,
+                          ].join('|'),
+                        });
+                      }}
+                      className={`h-10 w-10 flex items-center justify-center rounded-full cursor-pointer
+                                    text-xl font-medium text-white`}
+                      style={avatarStyle}
+                    >
+                      👀
+                    </div>
+                  );
+                })()}
+
+                <div
+                  onClick={handleSwitchAddress}
+                  className="flex flex-col justify-start cursor-pointer pr-2"
                 >
-                  <p className="text-xl">👀</p>
-                </div>
-                <div className="flex items-center flex-col gap-1 justify-center rounded-[6px] cursor-pointer bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)]">
-                  <div className="relative">
-                    <CommonSignal
-                      type={currentAccount.type}
-                      brandName={currentAccount.brandName}
-                      address={currentAccount.address}
-                    />
-                  </div>
+                  {/* <CommonSignal
+                       type={currentAccount.type}
+                       brandName={currentAccount.brandName}
+                       address={currentAccount.address}
+                     /> */}
                   <div
-                    className="text-[15px] leading-[18px] font-medium text-black truncate max-w-[86px]"
+                    className="text-[13px] text-secondary-foreground font-medium truncate max-w-[86px]"
                     title={displayName}
                   >
                     {displayName}
                   </div>
-                  {currentAccount && (
-                    <AddressViewer
-                      address={currentAccount.address}
-                      showArrow={false}
-                      className="text-[12px] leading-[14px] text-black opacity-60"
-                    />
-                  )}
+                  <AddressViewer
+                    address={currentAccount.address}
+                    showArrow={false}
+                  />
                 </div>
               </div>
               <ThemeIcon

@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { UiProvider } from '@/ui/component/NewUserImport';
 import { Button } from '@repo/ui/primitives';
 import { RoundedLogo } from '@/ui/assets';
 import { Action, Container, Content } from '@repo/ui';
 import { HeaderNavPage } from '@/ui/component';
+import { useWallet } from '@/ui/utils';
 
 const ShortcutKey = ({ label }: { label: string }) => (
   <div
@@ -18,31 +19,17 @@ const ShortcutKey = ({ label }: { label: string }) => (
 );
 
 export const ReadyToUse = () => {
+  const wallet = useWallet();
   const shortcutKeys = useMemo(() => {
-    const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
-    return isMac ? ['Shift', 'Cmd', 'R'] : ['Shift', 'Ctrl', 'R'];
+    return ['Ctrl', 'Shift', 'R'];
   }, []);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Check for Shift+Command+R on macOS or Shift+Ctrl+R on Windows
-      const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
-      const isShiftR = event.shiftKey && event.code === 'KeyR';
-
-      if (isMac && isShiftR && event.metaKey) {
-        event.preventDefault();
-        window.close();
-      } else if (!isMac && isShiftR && event.ctrlKey) {
-        event.preventDefault();
-        window.close();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
+  const handleOpenWallet = () => {
+    // Send message to background script to open side panel
+    chrome.runtime.sendMessage({ type: 'SETUP_COMPLETE' }, () => {
+      window.close();
+    });
+  };
 
   return (
     <UiProvider>
@@ -72,7 +59,13 @@ export const ReadyToUse = () => {
           </div>
         </Content>
         <Action>
-          <Button onClick={() => window.close()}>Open Rampnow Wallet</Button>
+          <Button
+            onClick={() => {
+              handleOpenWallet();
+            }}
+          >
+            Open Rampnow Wallet
+          </Button>
         </Action>
       </Container>
     </UiProvider>

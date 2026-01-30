@@ -1,6 +1,5 @@
-import { Modal } from '@/ui/component';
+import { HeaderNavPage, Modal } from '@/ui/component';
 import { Account } from 'background/service/preference';
-import QRCode from 'qrcode.react';
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { matomoRequestEvent } from '@/utils/matomo-request';
@@ -20,7 +19,10 @@ import { filterRbiSource, useRbiSource } from '@/ui/utils/ga-event';
 import { useTranslation } from 'react-i18next';
 import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
 import { copyAddress } from '@/ui/utils/clipboard';
-import { Button } from '@repo/ui/primitives';
+import { Button, Copy } from '@repo/ui/primitives';
+import { UiProvider } from '@/ui/component/NewUserImport';
+import { Container, Content, CopyField, QrCode } from '@repo/ui';
+import { ReactComponent as RcChainGroup } from 'ui/assets/receive/chain-group.svg';
 
 /* -------------------- hooks -------------------- */
 
@@ -138,82 +140,49 @@ const Receive = () => {
   }, [account?.type]);
 
   return (
-    <div className="bg-[#F5F6FA] min-h-screen px-4 pt-2">
-      {/* Header */}
-      <div className="flex items-center justify-between h-[56px]">
-        <button onClick={() => history.goBack()}>
-          <IconBack className="w-5 h-5" />
-        </button>
-
-        <div className="text-[16px] font-semibold">Receive</div>
-
-        <button onClick={() => setIsShowAccount((v) => !v)}>
-          <img
-            src={isShowAccount ? IconEye : IconEyeHide}
-            className="w-5 h-5"
-          />
-        </button>
-      </div>
-
-      {/* Account info */}
-      {isShowAccount && (
-        <div className="flex items-center gap-2 mb-4">
-          <img
-            className="w-5 h-5"
-            src={
-              WALLET_BRAND_CONTENT[account?.brandName ?? '']?.image ||
-              KEYRING_ICONS_WHITE[account?.type ?? '']
+    <UiProvider>
+      <Container>
+        <HeaderNavPage
+          handleBack={() => {
+            if (history.length) {
+              history.goBack();
             }
-          />
-          <div className="text-sm font-medium">
-            {account?.alianName || 'Account'}
-            <span className="text-gray-500 ml-2">
-              ${splitNumberByStep((account?.balance || 0).toFixed(2))}
-            </span>
+          }}
+        >
+          <div className="text-primary-foreground text-xl font-normal">
+            Receive
           </div>
-        </div>
-      )}
-
-      {/* Card */}
-      <div className="bg-white rounded-[16px] px-4 py-8">
-        <h2 className="text-center text-[17px] font-medium mb-6">
-          Receive EVM Address
-        </h2>
-
-        {/* QR */}
-        <div className="bg-white rounded-[16px] p-4 w-[240px] mx-auto mb-6 shadow-sm">
-          {account?.address && <QRCode value={account.address} size={200} />}
-        </div>
-
-        {/* Address */}
-        <div className="flex items-center justify-center gap-2 text-sm text-gray-600 mb-4">
-          <span>
-            {account?.address?.slice(0, 6)}...
-            {account?.address?.slice(-4)}
-          </span>
-          <button onClick={handleCopyAddress}>
-            <RcIconCopy className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Copy button */}
-        <Button onClick={handleCopyAddress} className="mx-auto block">
-          {t('global.copyAddress')}
-        </Button>
-
-        {/* Info */}
-        <div className="mt-6 text-center">
-          <p className="text-[13px] text-gray-500">
-            Only EVM compatible networks are supported
-          </p>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="mt-8 flex justify-center opacity-50">
-        <img src="/images/logo-white.svg" className="h-6" />
-      </div>
-    </div>
+        </HeaderNavPage>
+        <Content>
+          <div className="mt-20">
+            {account?.address && (
+              <div className="flex flex-col items-center gap-8">
+                <CopyField
+                  value={account?.address}
+                  group={[4, 4]}
+                  className="text-[16px] text-primary-foreground font-medium"
+                />
+                <div className="mx-auto mb-4 ">
+                  {account?.address && (
+                    <QrCode
+                      data={account.address}
+                      size={200}
+                      icon="https://cdn.rampnow.io/image/logo/qr.svg"
+                    />
+                  )}
+                </div>{' '}
+              </div>
+            )}
+            <div className="flex justify-center py-3">
+              <RcChainGroup className="w-[140px]" />
+            </div>
+            <p className="text-[16px] text-center text-primary-foreground">
+              You can send and receive tokens on all supported networks
+            </p>
+          </div>
+        </Content>
+      </Container>
+    </UiProvider>
   );
 };
 
