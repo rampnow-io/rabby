@@ -41,7 +41,6 @@ export const AssetListContainer: React.FC<Props> = ({
   const { currentAccount } = useRabbySelector((s) => ({
     currentAccount: s.account.currentAccount,
   }));
-  console.log('currentAccount:', currentAccount);
   const { setApps } = useCommonPopupView();
   const {
     isTokensLoading,
@@ -114,8 +113,6 @@ export const AssetListContainer: React.FC<Props> = ({
     list: displayPortfolios,
     kw: search,
   });
-
-  console.log(sortTokens, 'sortTokens');
 
   const handleFocusInput = React.useCallback(() => {
     inputRef.current?.focus();

@@ -10,7 +10,14 @@ import {
   ThemeIconType,
   ThemeModes,
 } from 'consts';
-import React, { Fragment, useEffect, useMemo, useState } from 'react';
+import React, {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { ReactComponent as RcIconActivities } from 'ui/assets/dashboard/activities.svg';
@@ -87,6 +94,13 @@ import { CommonSignal } from '@/ui/component/ConnectStatus/CommonSignal';
 import { getAvatarColor } from '@/ui/component/address-management/utils';
 import AuthenticationModalPromise from '@/ui/component/AuthenticationModal';
 import { useEnterPassphraseModal } from '@/ui/hooks/useEnterPassphraseModal';
+import { useForm } from 'antd/lib/form/Form';
+
+type Props = {
+  address: string;
+  type: string;
+  brandName?: string;
+};
 
 const useAutoLockOptions = () => {
   const { t } = useTranslation();
@@ -380,8 +394,8 @@ const ResetAccountModal = ({
                     <path
                       d="M7.97578 13.7748C11.179 13.7748 13.7758 11.1781 13.7758 7.9748C13.7758 4.77155 11.179 2.1748 7.97578 2.1748C4.77253 2.1748 2.17578 4.77155 2.17578 7.9748C2.17578 11.1781 4.77253 13.7748 7.97578 13.7748Z"
                       stroke="var(--r-neutral-body)"
-                      stroke-width="0.90625"
-                      stroke-miterlimit="10"
+                      strokeWidth="0.90625"
+                      strokeMiterlimit="10"
                     />
                   </svg>
                 )
@@ -600,6 +614,8 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
   const [isShowDappAccountModal, setIsShowDappAccountModal] = useState(false);
   const currentAccount = useCurrentAccount();
   const [displayName, setDisplayName] = useState<string>('');
+  const authLockRef = useRef(false);
+  const recoveryPhraseDataRef = useRef<string>('');
 
   const autoLockTime = useRabbySelector(
     (state) => state.preference.autoLockTime || 0
@@ -650,6 +666,7 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
       setIsShowDappAccountModal(true);
     }
   });
+  const [form] = useForm();
 
   useInterval(() => {
     if (!currentAccount) return;
@@ -1076,43 +1093,45 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
                 confirmText: t('page.manageAddress.confirm'),
                 cancelText: t('page.manageAddress.cancel'),
                 title: t('page.manageAddress.backup-seed-phrase'),
-
-                async onFinished() {
+                wallet,
+                validationHandler: async (password: string) => {
                   try {
-                    // Get all class accounts to find the seed phrase account
-                    const allClassAccounts = await wallet.getAllClassAccounts();
-                    const hdKeyringAccounts = allClassAccounts?.find(
-                      (item) => item.type === KEYRING_TYPE['HdKeyring']
+                    // Get mnemonic for the current account if it's an HD keyring
+                    const mnemonics = await wallet.getMnemonics(
+                      password,
+                      currentAccount.address
                     );
 
-                    if (hdKeyringAccounts?.publicKey) {
-                      const mnemonics = await wallet.getMnemonicFromPublicKey(
-                        hdKeyringAccounts.publicKey
-                      );
-
-                      if (mnemonics) {
-                        history.push({
-                          pathname: '/settings/address-backup/mnemonics',
-                          state: {
-                            data: mnemonics,
-                            goBack: true,
-                          },
-                        });
-                      } else {
-                        message.error('Could not retrieve recovery phrase');
-                      }
-                    } else {
-                      message.error('No seed phrase wallet found');
+                    if (!mnemonics) {
+                      message.error('Could not retrieve recovery phrase');
+                      throw new Error('Could not retrieve recovery phrase');
                     }
+
+                    // Store mnemonic in ref for navigation after modal closes
+                    recoveryPhraseDataRef.current = mnemonics;
                   } catch (error) {
                     console.error('Error retrieving recovery phrase:', error);
                     message.error('Failed to retrieve recovery phrase');
+                    throw error;
+                  }
+                },
+                onFinished() {
+                  // Navigate after modal closes and password is validated
+                  if (recoveryPhraseDataRef.current) {
+                    const mnemonics = recoveryPhraseDataRef.current;
+                    recoveryPhraseDataRef.current = '';
+                    history.push({
+                      pathname: '/settings/address-backup/mneonics',
+                      state: {
+                        data: mnemonics,
+                        goBack: true,
+                      },
+                    });
                   }
                 },
                 onCancel() {
-                  // do nothing
+                  recoveryPhraseDataRef.current = '';
                 },
-                wallet,
               });
             } catch (error) {
               console.error('Error:', error);
