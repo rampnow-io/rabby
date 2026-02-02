@@ -34,7 +34,7 @@ const AddWallet = () => {
       icon: <IconConnectHardware />,
       desc: 'Add accounts from your hardware wallet',
       onClick: () => {
-        history.push('/add-existing-wallet/private-key');
+        history.push('/hardware-wallet-list');
       },
     },
   ];

@@ -100,6 +100,7 @@ import AddExistingWallet from './add-existing-wallet';
 import AddWallet from './add-new-wallet';
 import SelectColor from './SelectColor';
 import ImportPrivateKeyPage from './import-private-key';
+import HardwareWalletList from './import-hardware-wallet/wallet-list';
 
 declare global {
   interface Window {
@@ -284,6 +285,9 @@ const Main = () => {
 
         <PrivateRoute exact path="/mnemonics/create">
           <CreateMnemonics />
+        </PrivateRoute>
+        <PrivateRoute exact path="/hardware-wallet-list">
+          <HardwareWalletList />
         </PrivateRoute>
         <PrivateRoute exact path="/import">
           <ImportMode />

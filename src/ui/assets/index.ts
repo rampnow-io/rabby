@@ -7,8 +7,8 @@ export { default as QrScan } from './qr-scan.svg';
 export { default as IconDebank } from './debank.svg';
 
 export { default as IconBitBox02 } from './icon-bitbox02.svg';
-export { default as IconLedger } from './icon-ledger.svg';
-export { default as IconTrezor } from './icon-trezor.svg';
+// export { default as IconLedger } from './icon-ledger.svg';
+// export { default as IconTrezor } from './icon-trezor.svg';
 export { default as IconOnekey } from './icon-onekey.svg';
 
 export { ReactComponent as SvgIconCross } from './cross.svg';
@@ -59,3 +59,6 @@ export { ReactComponent as IconPrivateKey } from './wallet-icon/private-key.svg'
 export { ReactComponent as IconCreate } from './wallet-icon/create.svg';
 export { ReactComponent as IconImport } from './wallet-icon/import.svg';
 export { ReactComponent as IconConnectHardware } from './wallet-icon/hardware.svg';
+export { ReactComponent as IconAlertWarning } from 'ui/assets/secret-recovery-phrase/warning.svg';
+export { ReactComponent as IconLedger } from 'ui/assets/hardware-wallet/ledger.svg';
+export { ReactComponent as IconTrezor } from 'ui/assets/hardware-wallet/trezor.svg';
