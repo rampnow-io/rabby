@@ -56,29 +56,33 @@ const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
           <PopoverTrigger asChild>
             <EllipsisVertical />
           </PopoverTrigger>
-          <PopoverContent className="!mr-1 rounded-[32px] border border-[#CACACD] bg-[rgba(250,250,250,0.75)] shadow-[0_23px_14px_4px_rgba(24,24,27,0.03)] backdrop-blur-[12px]">
+          <PopoverContent
+            align="start"
+            side="bottom"
+            className="!mr-1 max-w-[200px] rounded-[32px] border border-[#CACACD] bg-[rgba(250,250,250,0.75)] shadow-[0_23px_14px_4px_rgba(24,24,27,0.03)] backdrop-blur-[12px]"
+          >
             <div className="flex flex-col gap-2 rounded-lg overflow-hidden">
               <button
                 onClick={() => {
                   history.push('/add-token');
                 }}
-                className="px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center justify-between rounded-lg border-gray-200"
+                className="px-5 py-[10px] text-left bg-gray-50 transition-colors flex items-center gap-3  rounded-lg border-gray-200"
               >
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-sm font-medium text-primary-foreground">
                   Import tokens
                 </span>
-                <Plus className="w-5 h-5 text-gray-600" />
+                <Plus className="w-5 h-5 text-primary-foreground" />
               </button>
               <button
                 onClick={() => {
                   // handle refresh
                 }}
-                className="px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center justify-between rounded-lg"
+                className="px-5 py-[10px] text-left bg-gray-50 transition-colors flex items-center justify-between rounded-lg"
               >
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-sm font-medium text-primary-foreground">
                   Refresh list
                 </span>
-                <RotateCw className="w-5 h-5 text-gray-600" />
+                <RotateCw className="w-5 h-5 text-primary-foreground" />
               </button>
             </div>
           </PopoverContent>
