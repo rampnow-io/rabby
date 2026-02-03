@@ -53,7 +53,7 @@ export const HistoryList = ({
       : await wallet.openapi.listTxHisotry({
           id: address,
           start_time: startTime,
-          page_count: PAGE_COUNT,
+          page_count: 100,
         });
 
     const { project_dict, cate_dict, history_list } = res;
@@ -85,6 +85,7 @@ export const HistoryList = ({
   );
 
   const isEmpty = !loading && (data?.list?.length || 0) === 0;
+  console.log('HistoryList Rendered:', data);
 
   return (
     <div className="h-full relative">
@@ -136,9 +137,9 @@ export const HistoryList = ({
           {data?.list?.map((item) => {
             const isFailed = item.tx?.status === 0;
 
-            if (isFailed) {
-              return null;
-            }
+            // if (isFailed) {
+            //   return null;
+            // }
 
             return (
               <div key={item.id} className="flex flex-col gap-4">

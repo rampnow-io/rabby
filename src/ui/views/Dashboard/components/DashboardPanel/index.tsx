@@ -22,9 +22,6 @@ export const DashboardPanel: React.FC = () => {
           <TabsTrigger className={className} value="activity">
             Activity
           </TabsTrigger>
-          <TabsTrigger className={className} value="approvals">
-            Approvals
-          </TabsTrigger>
         </TabsList>
 
         <div className="flex-1 overflow-y-auto">
@@ -34,10 +31,6 @@ export const DashboardPanel: React.FC = () => {
 
           <TabsContent value="activity" className="h-full">
             <HistoryList />
-          </TabsContent>
-
-          <TabsContent value="approvals" className="h-full">
-            <ApprovalsTabPane isDesktop={false} />
           </TabsContent>
         </div>
       </Tabs>

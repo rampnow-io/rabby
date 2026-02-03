@@ -5,7 +5,7 @@ import {
 } from '@/background/service/openapi';
 import { sinceTime, useWallet } from 'ui/utils';
 import clsx from 'clsx';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { getChain } from '@/utils';
 import { numberWithCommasIsLtOne } from 'ui/utils';
 // compact item does not use these heavy sub-components
@@ -22,6 +22,9 @@ import IconUnknown from 'ui/assets/token-default.svg';
 import { ellipsis } from '@/ui/utils/address';
 import { getTokenSymbol } from '@/ui/utils/token';
 import { ActivityReceived, ActivitySent } from '@/ui/assets';
+import { TooltipView } from '@repo/ui/primitives';
+import { Console } from 'console';
+import ViewModal from './view-modal';
 
 export type HistoryItemActionContext = {
   parsedInputData: string;
@@ -175,7 +178,7 @@ function useClientParseTx({
       !data.is_scam &&
       !!chainItem?.nativeTokenSymbol &&
       data.cate_id &&
-      ['send', 'receive'].includes(data.cate_id) &&
+      ['send', 'receive', 'bridge', 'swap'].includes(data.cate_id) &&
       ((!data.receives.length && !data.receives.length) ||
         data.receives?.filter((v) => {
           const tokenId = v.token_id;
@@ -236,8 +239,8 @@ export const HistoryItem = ({
 }: HistoryItemProps) => {
   const chainItem = getChain(data.chain);
   const isFailed = data.tx?.status === 0;
-  const isScam = data.is_scam;
-
+  // const isScam = data.is_scam;
+  const [isViewModal, setIsViewModal] = useState(false);
   const { t } = useTranslation();
 
   const cateName =
@@ -246,7 +249,7 @@ export const HistoryItem = ({
   if (!chainItem || isFailed) {
     return <div></div>;
   }
-
+  // console.log('History Item Rendered:', data);
   const tokens = tokenDict || {};
   const mainChange =
     (data.receives && data.receives[0]) || (data.sends && data.sends[0]);
@@ -267,64 +270,90 @@ export const HistoryItem = ({
   const counterpartyLabel = counterparty ? ellipsis(counterparty) : '';
 
   return (
-    <div
-      className={clsx(
-        'relative',
-        'cursor-pointer flex items-center justify-between px-4',
-        'rounded-[16px] border border-transparent bg-[#FAFAFA] hover:bg-[#F4F4F4] h-[60px] mt-4'
-      )}
-    >
-      <div className="flex items-center">
-        <div className="relative w-10 h-10 mr-[12px]">
-          {isReceive ? (
-            <ActivityReceived className="absolute w-4 h-4 right-[30px] bottom-[25px] rounded-full" />
-          ) : (
-            <ActivitySent className="absolute w-4 h-4 right-[30px] bottom-[25px] rounded-full" />
-          )}
+    <>
+      <div
+        className={clsx(
+          'relative',
+          'cursor-pointer flex items-center justify-between px-4',
+          'rounded-[16px] border border-transparent bg-[#FAFAFA] hover:bg-[#F4F4F4] h-[60px] mt-4'
+        )}
+        onClick={() => setIsViewModal(true)}
+      >
+        <div className="flex items-center">
+          <div className="relative w-10 h-10 mr-[12px]">
+            {cateName?.toLowerCase() !== 'authorize' && (
+              <>
+                {isReceive ? (
+                  <ActivityReceived className="absolute w-4 h-4 right-[30px] bottom-[25px] rounded-full" />
+                ) : (
+                  <ActivitySent className="absolute w-4 h-4 right-[30px] bottom-[25px] rounded-full" />
+                )}
+              </>
+            )}
 
-          <img
-            src={tokenLogo}
-            alt={tokenSymbol || 'token'}
-            className="w-10 h-10 rounded-full object-cover"
-          />
-          <Tooltip title={chainItem?.name} placement="bottomRight">
             <img
-              src={chainItem?.logo || IconUnknown}
-              alt={chainItem?.name || 'chain'}
-              className="absolute w-4 h-4 right-[-4px] bottom-[-4px] rounded-full border-2 border-white bg-white"
+              src={tokenLogo}
+              alt={tokenSymbol || 'token'}
+              className="w-10 h-10 rounded-full object-cover"
             />
-          </Tooltip>
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-[6px]">
-            <span className="text-[14px] font-medium text-r-neutral-title-1">
-              {cateName || (isReceive ? 'Received' : 'Sent')}
-            </span>
-            {isFailed && (
-              <span className="text-[11px] px-[6px] py-[1px] rounded-full bg-r-red-light text-r-red-default font-medium">
-                {t('global.failed')}
-              </span>
-            )}
-            {isScam && (
-              <span className="text-[11px] px-[6px] py-[1px] rounded-full bg-r-neutral-line text-r-neutral-foot">
-                {t('global.scamTx')}
-              </span>
-            )}
+            <TooltipView content={chainItem?.name}>
+              <img
+                src={chainItem?.logo || IconUnknown}
+                alt={chainItem?.name || 'chain'}
+                className="absolute w-4 h-4 right-[-4px] bottom-[-4px] rounded-full border-2 border-white bg-white"
+              />
+            </TooltipView>
           </div>
-          <div className="text-[13px] text-r-neutral-foot truncate">
-            {amountText && tokenSymbol
-              ? `${amountText} ${tokenSymbol} ${
-                  isReceive ? 'from' : 'to'
-                } ${counterpartyLabel}`
-              : undefined}
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-[6px]">
+              <span className="text-[14px] font-medium text-r-neutral-title-1">
+                {cateName || (isReceive ? 'Received' : 'Sent')}
+              </span>
+              {isFailed && (
+                <span className="text-[11px] px-[6px] py-[1px] rounded-full bg-r-red-light text-r-red-default font-medium">
+                  {t('global.failed')}
+                </span>
+              )}
+            </div>
+            <div className="text-[13px] max-w-[200px] text-secondary-foreground truncate">
+              {amountText && tokenSymbol
+                ? `${amountText} ${tokenSymbol} ${
+                    isReceive ? 'from' : 'to'
+                  } ${counterpartyLabel}`
+                : undefined}
+            </div>
           </div>
         </div>
+        <div className="ml-[12px] text-[12px] text-primary-foreground whitespace-nowrap">
+          {(() => {
+            const now = Date.now() / 1000;
+            const diffSeconds = now - data.time_at;
 
-        <div className="ml-[12px] text-[12px] text-r-neutral-foot whitespace-nowrap">
-          {sinceTime(data.time_at)}
+            if (diffSeconds < 60) {
+              return `${Math.round(diffSeconds)}s`;
+            } else if (diffSeconds < 3600) {
+              return `${Math.round(diffSeconds / 60)}m`;
+            } else if (diffSeconds < 86400) {
+              return `${Math.round(diffSeconds / 3600)}h`;
+            } else {
+              const date = new Date(data.time_at * 1000);
+              const month = date.toLocaleString('en-US', { month: 'short' });
+              const day = date.getDate();
+              return `${month} ${day}`;
+            }
+          })()}
         </div>
       </div>
-    </div>
+      <ViewModal
+        chainItem={chainItem}
+        visible={isViewModal}
+        onClose={() => setIsViewModal(false)}
+        data={data}
+        tokenDict={tokenDict}
+        cateDict={cateDict}
+        projectDict={projectDict}
+      />
+    </>
   );
 };
