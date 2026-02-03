@@ -61,7 +61,7 @@ const ViewModal = ({
 
   return (
     <BottomFloatingSheet hideCloseButton open={visible} onClose={onClose}>
-      <div className="px-4">
+      <div>
         {/* Header */}
         <div className="flex items-center justify-between mb-3 pb-2 border-r-neutral-line">
           <div className="flex items-center justify-between gap-3">
@@ -98,7 +98,7 @@ const ViewModal = ({
           </div>
           <button
             onClick={onClose}
-            className="bg-[#6C6C76] ml-2 rounded-full hover:text-r-neutral-title-1 p-1"
+            className="bg-gray-100 h-6 w-6 ml-2 rounded-full flex items-center justify-center"
           >
             <Ellipsis className="text-primary-foreground" size={12} />
           </button>
@@ -119,12 +119,14 @@ const ViewModal = ({
             </>
           ) : (
             <>
-              <div className="text-[32px] font-semibold truncate text-primary-foreground">
+              <div>
                 <TooltipView
                   className="px-2"
                   content={`${amountText} ${tokenSymbol}`}
                 >
-                  {amountText} {truncate(tokenSymbol, [5, 1])}
+                  <p className="text-primary-foreground text-[26px] font-medium">
+                    {amountText} {truncate(tokenSymbol, [5, 1])}
+                  </p>
                 </TooltipView>
               </div>
               <div className="flex items-center gap-[10px] text-[16px] text-r-neutral-body">
