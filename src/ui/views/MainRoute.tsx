@@ -101,6 +101,7 @@ import AddWallet from './add-new-wallet';
 import SelectColor from './SelectColor';
 import ImportPrivateKeyPage from './import-private-key';
 import HardwareWalletList from './import-hardware-wallet/wallet-list';
+import AddToken from './add-token';
 
 declare global {
   interface Window {
@@ -285,6 +286,9 @@ const Main = () => {
 
         <PrivateRoute exact path="/mnemonics/create">
           <CreateMnemonics />
+        </PrivateRoute>
+        <PrivateRoute exact path="/add-token">
+          <AddToken />
         </PrivateRoute>
         <PrivateRoute exact path="/hardware-wallet-list">
           <HardwareWalletList />

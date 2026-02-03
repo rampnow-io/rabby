@@ -172,17 +172,6 @@ export const SelectChainItem = forwardRef(
                 )}
               </div>
             </div>
-            <ThemeIcon
-              className={clsx(
-                'select-chain-item-star w-4 h-4',
-                stared ? 'is-active' : ''
-              )}
-              src={stared ? RcIconPinnedFill : RcIconPinned}
-              onClick={(e) => {
-                e.stopPropagation();
-                onStarChange?.(!stared);
-              }}
-            />
             {value === data.enum ? (
               <img className="w-[20px] h-[20px] ml-[8px]" src={IconCheck}></img>
             ) : null}

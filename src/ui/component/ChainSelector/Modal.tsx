@@ -197,7 +197,7 @@ const ChainSelectorBottomDrawer = ({
       className={clsx(className)}
     >
       <div className="h-[600px] flex flex-col p-4">
-        <div className="pt-[16px] pb-[12px] border-b">
+        <div className="pt-[16px] pb-[12px]">
           <div className="flex items-center justify-between">
             <h2 className="text-[16px] font-semibold">
               {title || t('page.bridge.select-chain')}
@@ -219,7 +219,6 @@ const ChainSelectorBottomDrawer = ({
           )}
 
           <Search
-            iconRight={<img src={IconSearch} />}
             placeholder={t('component.ChainSelectorModal.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}

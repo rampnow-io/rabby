@@ -2,6 +2,7 @@ import React, { useImperativeHandle } from 'react';
 
 import { ReactComponent as RcAddEntryCC } from './icons/add-entry-cc.svg';
 import { ReactComponent as RcIconAdd } from '@/ui/assets/dashboard/portfolio/cc-add.svg';
+import { EllipsisVertical, RotateCw, Plus } from 'lucide-react';
 import clsx from 'clsx';
 import { AddCustomTokenPopup } from './CustomAssetList/AddCustomTokenPopup';
 import { TokenItem } from '@rabby-wallet/rabby-api/dist/types';
@@ -10,6 +11,13 @@ import { SpecialTokenListPopup } from './components/TokenButton';
 import { useRabbySelector } from '@/ui/store';
 import useSortToken from '@/ui/hooks/useSortTokens';
 import { useOpenClose } from '@repo/ui';
+import { useHistory } from 'react-router-dom';
+import {
+  Button,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@repo/ui/primitives';
 
 type Props = {
   onConfirm?: React.ComponentProps<typeof AddCustomTokenPopup>['onConfirm'];
@@ -20,6 +28,7 @@ export type AddTokenEntryInst = {
 const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
   function AddTokenEntryPorto({ onConfirm }, ref) {
     const { t } = useTranslation();
+    const history = useHistory();
     const [isShowAddModal, setIsShowAddModal] = React.useState<boolean>(false);
 
     useImperativeHandle(ref, () => ({
@@ -43,23 +52,38 @@ const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
 
     return (
       <>
-        <div
-          className={clsx(
-            'flex flex-row justify-start items-center',
-            'border-[1px] border-transparent',
-            'hover:border-primary hover:bg-r-blue-light1',
-            'h-[32px] px-[14px] py-[8px] bg-r-neutral-card1 rounded-[6px] cursor-pointer',
-            'text-primary-foreground text-[13px] text-center',
-            'whitespace-nowrap'
-          )}
-          onClick={() => {
-            openModal();
-          }}
-        >
-          <div className="text-[13px] leading-[16px] flex items-center gap-x-[4px] justify-center">
-            {t('page.dashboard.assets.addTokenEntryText')}
-          </div>
-        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <EllipsisVertical />
+          </PopoverTrigger>
+          <PopoverContent className="!mr-1 rounded-[32px] border border-[#CACACD] bg-[rgba(250,250,250,0.75)] shadow-[0_23px_14px_4px_rgba(24,24,27,0.03)] backdrop-blur-[12px]">
+            <div className="flex flex-col gap-2 rounded-lg overflow-hidden">
+              <button
+                onClick={() => {
+                  history.push('/add-token');
+                }}
+                className="px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center justify-between rounded-lg border-gray-200"
+              >
+                <span className="text-sm font-medium text-gray-900">
+                  Import tokens
+                </span>
+                <Plus className="w-5 h-5 text-gray-600" />
+              </button>
+              <button
+                onClick={() => {
+                  // handle refresh
+                }}
+                className="px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center justify-between rounded-lg"
+              >
+                <span className="text-sm font-medium text-gray-900">
+                  Refresh list
+                </span>
+                <RotateCw className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+          </PopoverContent>
+        </Popover>
+
         {isVisible && (
           <AddCustomTokenPopup
             isVisible={isVisible}

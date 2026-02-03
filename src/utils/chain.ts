@@ -418,7 +418,6 @@ export function supportedChainToChain(item: SupportedChain): Chain {
     mtr: 'METER',
     etc: 'ETC',
     fsn: 'FSN',
-    pls: 'PULSE',
     rose: 'ROSE',
     ron: 'RONIN',
     oas: 'OAS',
