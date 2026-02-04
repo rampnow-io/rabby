@@ -12,6 +12,7 @@ export { default as ReQ } from './required-field';
 export { default as Select } from './select';
 export { default as Snackbar } from './snackbar';
 export { default as TextAreaEditor } from './text-area-editor/text-area-editor';
+export { default as AssetSelector } from './asset-selector';
 
 export * from './calendar';
 export * from './carousel';

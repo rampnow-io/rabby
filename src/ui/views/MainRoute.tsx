@@ -102,6 +102,7 @@ import SelectColor from './SelectColor';
 import ImportPrivateKeyPage from './import-private-key';
 import HardwareWalletList from './import-hardware-wallet/wallet-list';
 import AddToken from './add-token';
+import BuyPage from './buy/page';
 
 declare global {
   interface Window {
@@ -301,6 +302,9 @@ const Main = () => {
         </PrivateRoute>
         <PrivateRoute exact path="/import/json">
           <ImportJson />
+        </PrivateRoute>
+        <PrivateRoute exact path="/buy">
+          <BuyPage />
         </PrivateRoute>
         <PrivateRoute exact path="/import/mnemonics">
           <InputMnemonics />
