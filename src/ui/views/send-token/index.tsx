@@ -1,7 +1,7 @@
 import { HeaderNavPage } from '@/ui/component';
 import { UIContainer } from '@/ui/provider';
 import { Action, Container, Content } from '@repo/ui';
-import { Button } from '@repo/ui/primitives';
+import { Button, ButtonType } from '@repo/ui/primitives';
 import React, {
   useState,
   useMemo,
@@ -13,7 +13,6 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { useWallet } from '@/ui/utils';
 import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 import { findChain, findChainByEnum, findChainByID } from '@/utils/chain';
-import styled from 'styled-components';
 import BigNumber from 'bignumber.js';
 import { TokenItem } from '@rabby-wallet/rabby-api/dist/types';
 import { GasLevel, Tx } from '@/background/service/openapi';
@@ -76,74 +75,6 @@ const MINI_SIGN_ERROR = {
   CANT_PROCESS: 'CANT_PROCESS',
   PREFETCH_FAILURE: 'PREFETCH_FAILURE',
 };
-
-const ReviewContainer = styled.div`
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-`;
-
-const ReviewItem = styled.div`
-  border: 1px solid var(--r-neutral-line, rgba(255, 255, 255, 0.1));
-  border-radius: 8px;
-  padding: 16px;
-  background-color: var(--r-neutral-bg-1, rgba(255, 255, 255, 0.05));
-
-  .review-label {
-    font-size: 12px;
-    color: var(--r-neutral-body, #b3b3b3);
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    font-weight: 600;
-  }
-
-  .review-value {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--r-neutral-title-1, #fff);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    .token-symbol {
-      font-size: 14px;
-      color: var(--r-neutral-body, #b3b3b3);
-    }
-  }
-
-  .review-address {
-    font-size: 12px;
-    font-family: monospace;
-    color: var(--r-neutral-body, #b3b3b3);
-    word-break: break-all;
-    margin-top: 4px;
-  }
-`;
-
-const GasInfoContainer = styled.div`
-  padding: 12px 16px;
-  background-color: var(--r-neutral-bg-2, rgba(255, 255, 255, 0.02));
-  border-radius: 8px;
-  border: 1px solid var(--r-neutral-line, rgba(255, 255, 255, 0.1));
-  font-size: 12px;
-  color: var(--r-neutral-body, #b3b3b3);
-
-  .gas-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-
-    .gas-value {
-      color: var(--r-neutral-title-1, #fff);
-      font-weight: 600;
-    }
-  }
-`;
 
 const SendToken = () => {
   const history = useHistory();
@@ -451,12 +382,6 @@ const SendToken = () => {
     () => !!formData.token && !!formData.recipient && !!formData.amount,
     [formData.token, formData.recipient, formData.amount]
   );
-
-  useEffect(() => {
-    if (step === 'recipient' && formData.recipient) {
-      setStep('token');
-    }
-  }, [step, formData.recipient]);
 
   const balanceAmount = useMemo(() => {
     if (!formData.token) return new BigNumber(0);
@@ -932,6 +857,7 @@ const SendToken = () => {
               selectedToken={formData.token}
               loading={tokensLoading}
               tokens={tokenList}
+              recipientAddress={formData.recipient}
             />
           )}
           {step === 'amount' && (
@@ -946,107 +872,53 @@ const SendToken = () => {
               gasList={gasList}
               onGasChange={handleGasChange}
               isLoading={gasLoading}
+              recipientAddress={formData.recipient}
             />
-          )}
-          {step === 'review' && (
-            <ReviewContainer>
-              <ReviewItem>
-                <div className="review-label">From</div>
-                <div className="review-address">{currentAccount?.address}</div>
-              </ReviewItem>
-
-              <ReviewItem>
-                <div className="review-label">To</div>
-                <div className="review-address">{formData.recipient}</div>
-              </ReviewItem>
-
-              <ReviewItem>
-                <div className="review-label">Amount</div>
-                <div className="review-value">
-                  {formData.amount}
-                  <span className="token-symbol">{formData.token?.symbol}</span>
-                </div>
-                {formData.token?.price && (
-                  <div className="review-address">
-                    ≈ $
-                    {new BigNumber(formData.amount || 0)
-                      .multipliedBy(formData.token.price)
-                      .toFixed(2)}
-                  </div>
-                )}
-              </ReviewItem>
-
-              <GasInfoContainer>
-                <div className="gas-row">
-                  <span>Network Fee:</span>
-                  <span className="gas-value">
-                    {selectedGasLevel
-                      ? `${new BigNumber(selectedGasLevel.price)
-                          .div(1e9)
-                          .toFixed(2)} Gwei`
-                      : 'Estimating...'}
-                  </span>
-                </div>
-                {selectedGasLevel && (
-                  <div className="gas-row">
-                    <span>Estimated Time:</span>
-                    <span className="gas-value">
-                      ~{Math.ceil(selectedGasLevel.estimated_seconds / 60)}m
-                    </span>
-                  </div>
-                )}
-                <div
-                  className="gas-row"
-                  style={{
-                    marginTop: '8px',
-                    paddingTop: '8px',
-                    borderTop: '1px solid rgba(255,255,255,0.1)',
-                  }}
-                >
-                  <span style={{ fontWeight: 600 }}>Total:</span>
-                  <span className="gas-value" style={{ fontSize: '14px' }}>
-                    {formData.amount} {formData.token?.symbol}
-                  </span>
-                </div>
-              </GasInfoContainer>
-            </ReviewContainer>
           )}
         </Content>
       </Container>
       <Action>
-        {step !== 'review' && (
-          <Button
-            disabled={
-              (step === 'recipient' && !canProceedToToken) ||
-              (step === 'token' && !canProceedToAmount) ||
-              (step === 'amount' && (!formData.amount || insufficientError))
-            }
-            onClick={
-              step === 'recipient'
-                ? handleRecipientNext
-                : step === 'token'
-                ? () => {
-                    const token = formData.token;
-                    if (token) handleTokenSelect(token);
-                  }
-                : handleAmountNext
-            }
-          >
-            {step === 'amount' ? 'Review' : 'Next'}
-          </Button>
-        )}
-        {step === 'review' && (
-          <Button
-            onClick={() => handleSubmit({ amount: formData.amount })}
-            disabled={isSubmitLoading || miniSignLoading || !selectedGasLevel}
-          >
-            {miniSignLoading
-              ? 'Authorizing...'
-              : isSubmitLoading
-              ? 'Sending...'
-              : 'Send'}
-          </Button>
-        )}
+        <div className="flex gap-3">
+          {step !== 'review' && (
+            <Button
+              disabled={
+                (step === 'recipient' && !canProceedToToken) ||
+                (step === 'token' && !canProceedToAmount) ||
+                (step === 'amount' && (!formData.amount || insufficientError))
+              }
+              onClick={
+                step === 'recipient'
+                  ? handleRecipientNext
+                  : step === 'token'
+                  ? () => {
+                      const token = formData.token;
+                      if (token) handleTokenSelect(token);
+                    }
+                  : handleAmountNext
+              }
+              className="flex-1"
+            >
+              {step === 'amount' ? 'Review' : 'Next'}
+            </Button>
+          )}
+          {step === 'review' && (
+            <>
+              <Button
+                onClick={() => handleSubmit({ amount: formData.amount })}
+                disabled={
+                  isSubmitLoading || miniSignLoading || !selectedGasLevel
+                }
+                className="flex-1"
+              >
+                {miniSignLoading
+                  ? 'Authorizing...'
+                  : isSubmitLoading
+                  ? 'Sending...'
+                  : 'Send'}
+              </Button>
+            </>
+          )}
+        </div>
       </Action>
     </UIContainer>
   );

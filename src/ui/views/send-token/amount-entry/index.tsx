@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import styled from 'styled-components';
 import { TokenItem, GasLevel } from '@rabby-wallet/rabby-api/dist/types';
 import BigNumber from 'bignumber.js';
 import TokenAmountInput from '@/ui/component/TokenAmountInput';
+import { Input, InputSize, Separator } from '@repo/ui/primitives';
 
 interface AmountEntryProps {
   token: TokenItem | null;
@@ -27,71 +27,8 @@ interface AmountEntryProps {
   };
   gasList?: GasLevel[];
   onGasChange?: (gasLevel: GasLevel) => void;
+  recipientAddress?: string;
 }
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 16px;
-`;
-
-const SectionTitle = styled.div`
-  font-size: 13px;
-  font-weight: 600;
-  color: #999999;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 12px;
-`;
-
-const GasSelectionContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
-
-const GasLevelItem = styled.div<{ selected?: boolean }>`
-  padding: 14px 16px;
-  background-color: ${(props) => (props.selected ? '#eef1ff' : '#f5f5f5')};
-  border: 1px solid
-    ${(props) =>
-      props.selected ? 'var(--r-blue-default, #7084ff)' : '#e5e7eb'};
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  &:hover {
-    border-color: var(--r-blue-default, #7084ff);
-    background-color: #eef1ff;
-  }
-`;
-
-const GasLevelInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const GasLevelName = styled.span`
-  font-size: 14px;
-  font-weight: 600;
-  color: #000;
-`;
-
-const GasLevelPrice = styled.span`
-  font-size: 12px;
-  color: #999999;
-`;
-
-const GasLevelFee = styled.span`
-  font-size: 14px;
-  font-weight: 600;
-  color: #000;
-`;
 
 const AmountEntry: React.FC<AmountEntryProps> = ({
   token,
@@ -109,6 +46,7 @@ const AmountEntry: React.FC<AmountEntryProps> = ({
   disableItemCheck,
   gasList = [],
   onGasChange,
+  recipientAddress = '',
 }) => {
   const [selectedGasLevel, setSelectedGasLevel] = useState<string>('normal');
 
@@ -143,7 +81,22 @@ const AmountEntry: React.FC<AmountEntryProps> = ({
   };
 
   return (
-    <Container>
+    <div className="flex flex-col gap-5 ">
+      <div
+        className={`flex items-center gap-3 px-2 bg-r-neutral-bg-1 rounded-lg border ${'border-r-neutral-line'}`}
+      >
+        <label className="text-14 flex items-center text-secondary-foreground justify-center font-medium min-w-8">
+          To
+        </label>
+        <Separator orientation="vertical" />
+        <Input
+          placeholder="Wallet Address (0x...)"
+          value={recipientAddress}
+          sizeVariant={InputSize.SM}
+          readOnly
+          className="flex-1 text-14 border-0 outline-0 bg-transparent p-0"
+        />
+      </div>
       <TokenAmountInput
         token={token}
         value={value}
@@ -161,33 +114,39 @@ const AmountEntry: React.FC<AmountEntryProps> = ({
       />
 
       {gasList && gasList.length > 0 && (
-        <GasSelectionContainer>
-          <SectionTitle>Network Fee</SectionTitle>
+        <div className="flex flex-col gap-3">
+          <div className="text-13 font-semibold text-r-neutral-body uppercase tracking-wider mb-3">
+            Network Fee
+          </div>
           {sortedGasList.map((gas) => {
             const isSelected = selectedGasLevel === gas.level;
             const gasPrice = new BigNumber(gas.price / 1e9).toFixed(2);
             const estimatedTime = Math.ceil(gas.estimated_seconds / 60);
 
             return (
-              <GasLevelItem
+              <div
                 key={gas.level}
-                selected={isSelected}
+                className={`p-3.5 rounded-lg cursor-pointer transition-all duration-200 flex justify-between items-center ${
+                  isSelected
+                    ? 'border border-r-blue-default bg-r-blue-light-1'
+                    : 'border border-r-neutral-line bg-transparent hover:border-r-blue-default hover:bg-r-blue-light-1'
+                }`}
                 onClick={() => handleGasLevelSelect(gas)}
               >
-                <GasLevelInfo>
-                  <GasLevelName>
+                <div className="flex flex-col gap-1">
+                  <span className="text-14 font-semibold text-r-neutral-title-1">
                     {gasLevelNameMap[gas.level] || gas.level}
-                  </GasLevelName>
-                  <GasLevelPrice>
+                  </span>
+                  <span className="text-12 text-r-neutral-body">
                     {gasPrice} Gwei • ~{estimatedTime}m
-                  </GasLevelPrice>
-                </GasLevelInfo>
-              </GasLevelItem>
+                  </span>
+                </div>
+              </div>
             );
           })}
-        </GasSelectionContainer>
+        </div>
       )}
-    </Container>
+    </div>
   );
 };
 

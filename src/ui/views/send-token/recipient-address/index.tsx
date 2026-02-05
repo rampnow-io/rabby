@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Input } from '@repo/ui/primitives';
-import styled from 'styled-components';
+import { Input, InputSize, Separator } from '@repo/ui/primitives';
 import { useRabbyDispatch, useRabbySelector } from '@/ui/store';
 import { isSameAddress } from '@/ui/utils';
 
@@ -19,111 +18,6 @@ interface Account {
   name?: string;
 }
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 16px;
-  background-color: var(--r-neutral-bg-2, #ffffff);
-`;
-
-const ToSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  background-color: var(--r-neutral-bg-1, #f5f5f5);
-  border-radius: 8px;
-  border: 1px solid var(--r-neutral-line, rgba(0, 0, 0, 0.1));
-`;
-
-const ToLabel = styled.label`
-  font-size: 14px;
-  color: var(--r-neutral-body, #999999);
-  min-width: 40px;
-  font-weight: 500;
-`;
-
-const AddressInput = styled(Input)`
-  flex: 1;
-  font-size: 14px;
-  font-family: monospace;
-
-  &::placeholder {
-    color: var(--r-neutral-foot, #cccccc);
-  }
-`;
-
-const SectionTitle = styled.div`
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--r-neutral-body, #999999);
-  text-transform: uppercase;
-  margin-bottom: 12px;
-  letter-spacing: 0.5px;
-`;
-
-const AddressItemsList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-const AddressItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background-color: var(--r-neutral-bg-1, #f5f5f5);
-  border-radius: 8px;
-  border: 1px solid var(--r-neutral-line, rgba(0, 0, 0, 0.1));
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    border-color: var(--r-blue-default, #7084ff);
-    background-color: var(--r-blue-light-1, #eef1ff);
-  }
-`;
-
-const AvatarCircle = styled.div`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
-  background-color: var(--r-neutral-line, rgba(0, 0, 0, 0.1));
-`;
-
-const AddressItemContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex: 1;
-  min-width: 0;
-`;
-
-const AddressItemName = styled.div`
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--r-neutral-title-1, #000000);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-const AddressItemText = styled.div`
-  font-size: 12px;
-  color: var(--r-neutral-body, #999999);
-  font-family: monospace;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
 // Validation helper
 const isValidAddress = (address: string): boolean => {
   return /^0x[a-fA-F0-9]{40}$/.test(address);
@@ -136,12 +30,6 @@ const formatAddress = (address: string): string => {
 };
 
 // Mock avatar emojis for recent addresses
-const MOCK_RECENT_ADDRESSES: Array<{ address: string; emoji: string }> = [
-  {
-    address: '0xC48D7FD0dE04e4cvB2c5...8468a9B76C50F',
-    emoji: '😂',
-  },
-];
 
 const RecipientAddress: React.FC<RecipientAddressProps> = ({
   value,
@@ -168,7 +56,7 @@ const RecipientAddress: React.FC<RecipientAddressProps> = ({
   // Validate address
   useEffect(() => {
     if (value && !isValidAddress(value)) {
-      setError('Invalid Ethereum address');
+      setError('Invalid  address');
     } else {
       setError('');
     }
@@ -180,10 +68,12 @@ const RecipientAddress: React.FC<RecipientAddressProps> = ({
       .filter((account) => account?.address)
       .map((account) => {
         const contact = contactsByAddr[account.address.toLowerCase()];
+        const walletName =
+          contact?.name || account.alias || account.brandName || 'Wallet';
         return {
           address: account.address,
-          name: contact?.name || account.alias || account.brandName || 'Wallet',
-          emoji: '👓', // Default wallet emoji - can be customized per wallet type
+          name: walletName,
+          firstLetter: walletName.charAt(0).toUpperCase(),
           type: account.type,
         };
       })
@@ -194,94 +84,65 @@ const RecipientAddress: React.FC<RecipientAddressProps> = ({
     onChange(address);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && value && isValidAddress(value)) {
+      onNext();
+    }
+  };
+
   return (
-    <Container>
+    <div className="flex flex-col gap-4">
       {/* To Address Input Section */}
-      <ToSection>
-        <ToLabel>To</ToLabel>
-        <AddressInput
-          placeholder="0x7fdF0d0e4cvB2c.....8468a9B76C50F"
+      <div
+        className={`flex items-center gap-3 px-2 bg-r-neutral-bg-1 rounded-lg border ${
+          error ? 'border-r-red-default' : 'border-r-neutral-line'
+        }`}
+      >
+        <label className="text-14 flex items-center text-secondary-foreground justify-center font-medium min-w-8">
+          To
+        </label>
+        <Separator orientation="vertical" />
+        <Input
+          placeholder="Wallet Address (0x...)"
           value={value}
-          onChange={(e) => onChange(e.target.value)}
-          style={{
-            border: 'none',
-            outline: 'none',
-            background: 'transparent',
-            padding: '0',
-          }}
+          sizeVariant={InputSize.SM}
+          onChange={(e) => onChange(e.target.value.trim())}
+          onKeyDown={handleKeyDown}
+          className="flex-1 text-14 border-0 outline-0 bg-transparent p-0"
         />
-      </ToSection>
+      </div>
 
-      {error && (
-        <div
-          style={{
-            fontSize: '12px',
-            color: 'var(--r-red-default, #ff0000)',
-            paddingLeft: '16px',
-          }}
-        >
-          {error}
-        </div>
-      )}
+      {error && <div className="text-12 text-r-red-default pl-4">{error}</div>}
 
-      {/* Recent Recipients Section - only show when input is empty */}
-      {value === '' && MOCK_RECENT_ADDRESSES.length > 0 && (
-        <div style={{ paddingLeft: '16px', paddingRight: '16px' }}>
-          <SectionTitle>Recents</SectionTitle>
-          <AddressItemsList>
-            {MOCK_RECENT_ADDRESSES.map((item, idx) => (
-              <AddressItem
-                key={idx}
-                onClick={() => handleAddressClick(item.address)}
-              >
-                <AvatarCircle>{item.emoji}</AvatarCircle>
-                <AddressItemContent>
-                  <AddressItemText>{item.address}</AddressItemText>
-                </AddressItemContent>
-              </AddressItem>
-            ))}
-          </AddressItemsList>
-        </div>
-      )}
-
-      {/* Your Wallets Section */}
       {value === '' && walletsList.length > 0 && (
-        <div style={{ paddingLeft: '16px', paddingRight: '16px' }}>
-          <SectionTitle>Your wallets</SectionTitle>
-          <AddressItemsList>
+        <div className="flex flex-col gap-4 px-2">
+          <div className="text-sm font-normal text-secondary-foreground mb-4">
+            Your wallets
+          </div>
+          <div className="flex flex-col gap-4">
             {walletsList.map((wallet, idx) => (
-              <AddressItem
+              <div
                 key={wallet.address}
+                className="flex items-center gap-3   rounded-lg  cursor-pointer transition-all duration-200  "
                 onClick={() => handleAddressClick(wallet.address)}
               >
-                <AvatarCircle>{wallet.emoji}</AvatarCircle>
-                <AddressItemContent>
-                  <AddressItemName>{wallet.name}</AddressItemName>
-                  <AddressItemText>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-18 flex-shrink-0 bg-r-neutral-line">
+                  {wallet.firstLetter}
+                </div>
+                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                  <div className="text-base font-medium text-primary-foreground truncate">
+                    {wallet.name}
+                  </div>
+                  <div className="text-sm text-secondary-foreground  truncate">
                     {formatAddress(wallet.address)}
-                  </AddressItemText>
-                </AddressItemContent>
-              </AddressItem>
+                  </div>
+                </div>
+              </div>
             ))}
-          </AddressItemsList>
+          </div>
         </div>
       )}
-
-      {isValid && (
-        <div
-          style={{
-            padding: '12px 16px',
-            backgroundColor: 'var(--r-green-light-1, #f0f9f7)',
-            border: '1px solid var(--r-green-default, #2dd4bf)',
-            borderRadius: '8px',
-            fontSize: '12px',
-            color: 'var(--r-green-default, #2dd4bf)',
-          }}
-        >
-          ✓ Valid address
-        </div>
-      )}
-    </Container>
+    </div>
   );
 };
 

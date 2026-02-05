@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { Input } from '@repo/ui/primitives';
-import styled from 'styled-components';
+import { Input, InputSize, Separator } from '@repo/ui/primitives';
 import { Spin } from '@/ui/component';
 import { useRabbySelector } from '@/ui/store';
 import { useTokens } from '@/ui/utils/portfolio/token';
@@ -30,93 +29,8 @@ interface TokenSelectionProps {
     reason: string;
     shortReason: string;
   };
+  recipientAddress?: string;
 }
-
-const TokenListContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px 0;
-`;
-
-const TokenItemWrapper = styled.div<{ selected?: boolean; disabled?: boolean }>`
-  padding: 12px 16px;
-  border: 1px solid
-    ${(props) =>
-      props.selected
-        ? 'var(--r-blue-default, #7084ff)'
-        : 'var(--r-neutral-line, rgba(255, 255, 255, 0.1))'};
-  border-radius: 8px;
-  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
-  background-color: ${(props) =>
-    props.selected ? 'var(--r-blue-light-1, #eef1ff)' : 'transparent'};
-  opacity: ${(props) => (props.disabled ? 0.6 : 1)};
-  transition: all 0.2s ease;
-
-  &:hover {
-    ${(props) =>
-      !props.disabled &&
-      `
-    border-color: var(--r-blue-default, #7084ff);
-    background-color: var(--r-blue-light-1, #eef1ff);
-    `}
-  }
-
-  display: flex;
-  align-items: center;
-  gap: 12px;
-`;
-
-const TokenLogo = styled.img`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-`;
-
-const TokenInfo = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-`;
-
-const TokenName = styled.div`
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--r-neutral-title-1, #fff);
-`;
-
-const TokenSymbol = styled.div`
-  font-size: 12px;
-  color: var(--r-neutral-body, #b3b3b3);
-`;
-
-const TokenBalance = styled.div`
-  font-size: 12px;
-  color: var(--r-neutral-body, #b3b3b3);
-  text-align: right;
-`;
-
-const TokenPriceSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  text-align: right;
-`;
-
-const TokenPrice = styled.div`
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--r-neutral-title-1, #000);
-`;
-
-const DisabledText = styled.div`
-  font-size: 11px;
-  color: var(--r-red-default, #ff0000);
-  max-width: 120px;
-  text-align: right;
-`;
 
 const TokenSelection: React.FC<TokenSelectionProps> = ({
   onSelect,
@@ -126,6 +40,7 @@ const TokenSelection: React.FC<TokenSelectionProps> = ({
   chainId,
   excludeTokens = [],
   disableItemCheck,
+  recipientAddress = '',
 }) => {
   const { t } = useTranslation();
   const currentAccount = useRabbySelector(
@@ -133,6 +48,12 @@ const TokenSelection: React.FC<TokenSelectionProps> = ({
   );
   const [searchQuery, setSearchQuery] = useState('');
   const [updateNonce, setUpdateNonce] = useState(0);
+
+  // Format address - shows first 8 and last 4 chars with ellipsis
+  const formatAddress = (address: string): string => {
+    if (!address || address.length < 10) return address;
+    return `${address.slice(0, 8)}...${address.slice(-4)}`;
+  };
 
   // Use external tokens if provided, otherwise fetch from wallet
   const shouldLoadTokens = useMemo(
@@ -188,12 +109,20 @@ const TokenSelection: React.FC<TokenSelectionProps> = ({
   );
 
   return (
-    <div className="p-4">
-      <div className="pb-4">
+    <div className="flex flex-col gap-5 ">
+      <div
+        className={`flex items-center gap-3 px-2 bg-r-neutral-bg-1 rounded-lg border ${'border-r-neutral-line'}`}
+      >
+        <label className="text-14 flex items-center text-secondary-foreground justify-center font-medium min-w-8">
+          To
+        </label>
+        <Separator orientation="vertical" />
         <Input
-          placeholder={t('page.sendToken.tokenSearch') || 'Search tokens...'}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Wallet Address (0x...)"
+          value={recipientAddress}
+          sizeVariant={InputSize.SM}
+          readOnly
+          className="flex-1 text-14 border-0 outline-0 bg-transparent p-0"
         />
       </div>
 
@@ -202,49 +131,69 @@ const TokenSelection: React.FC<TokenSelectionProps> = ({
           <Spin />
         </div>
       ) : (
-        <TokenListContainer>
+        <div className="flex flex-col gap-2 py-0">
           {displayTokenList.map((token) => {
             const disableInfo = disableItemCheck?.(token);
             const isDisabled = disableInfo?.disable || false;
+            const isSelected =
+              selectedToken?.id === token.id &&
+              selectedToken?.chain === token.chain;
 
             return (
-              <TokenItemWrapper
+              <div
                 key={`${token.chain}-${token.id}`}
-                selected={
-                  selectedToken?.id === token.id &&
-                  selectedToken?.chain === token.chain
-                }
-                disabled={isDisabled}
+                className={`p-3 border rounded-lg cursor-pointer bg-transparent transition-all duration-200 flex items-center gap-3 ${
+                  isSelected
+                    ? 'border-gray-400 bg-r-blue-light-1'
+                    : 'border-gray-400'
+                } ${
+                  isDisabled
+                    ? 'opacity-60 cursor-not-allowed'
+                    : 'hover:border-gray-400 hover:bg-r-blue-light-1'
+                }`}
                 onClick={() => handleTokenClick(token)}
               >
                 {token.logo_url && (
-                  <TokenLogo src={token.logo_url} alt={token.symbol} />
+                  <img
+                    src={token.logo_url}
+                    alt={token.symbol}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
                 )}
-                <TokenInfo>
-                  <TokenName>{token.name}</TokenName>
-                  <TokenSymbol>{getTokenSymbol(token)}</TokenSymbol>
-                </TokenInfo>
+                <div className="flex flex-col gap-0.5 flex-1">
+                  <div className="font-semibold text-14 text-r-neutral-title-1">
+                    {token.name}
+                  </div>
+                  <div className="text-12 text-r-neutral-body">
+                    {getTokenSymbol(token)}
+                  </div>
+                </div>
 
                 {isDisabled ? (
-                  <DisabledText title={disableInfo?.reason}>
+                  <div
+                    className="text-11 text-r-red-default max-w-30 text-right"
+                    title={disableInfo?.reason}
+                  >
                     {disableInfo?.shortReason}
-                  </DisabledText>
+                  </div>
                 ) : (
-                  <TokenPriceSection>
+                  <div className="flex flex-col gap-1 text-right">
                     {token.amount !== undefined && token.amount > 0 && (
-                      <TokenBalance>
+                      <div className="text-12 text-r-neutral-body">
                         {token.amount?.toFixed(4)} {getTokenSymbol(token)}
-                      </TokenBalance>
+                      </div>
                     )}
                     {token.price !== undefined && token.price > 0 && (
-                      <TokenPrice>${token.price.toFixed(2)}</TokenPrice>
+                      <div className="text-12 font-medium text-r-neutral-title-1">
+                        ${token.price.toFixed(2)}
+                      </div>
                     )}
-                  </TokenPriceSection>
+                  </div>
                 )}
-              </TokenItemWrapper>
+              </div>
             );
           })}
-        </TokenListContainer>
+        </div>
       )}
 
       {!isLoading && displayTokenList.length === 0 && (
