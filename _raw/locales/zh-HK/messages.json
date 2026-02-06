@@ -24,7 +24,7 @@
     "scamTx": "詐騙交易",
     "unknownNFT": "未知 NFT",
     "watchModeAddress": "觀察模式地址",
-    "appName": "Rabby Wallet",
+    "appName": "Rampnow Wallet",
     "Deleted": "已刪除",
     "Loading": "加載中",
     "Balance": "結餘",
@@ -70,11 +70,11 @@
       "feedback": {
         "directMessage": {
           "content": "發送私信",
-          "description": "在 DeBank 上與 Rabby Wallet 官方1v1聯系"
+          "description": "在 DeBank 上與 Rampnow Wallet 官方1v1聯系"
         },
         "proposal": {
           "content": "發起提案",
-          "description": "在 DeBank 上發布對 Rabby Wallet 的提案"
+          "description": "在 DeBank 上發布對 Rampnow Wallet 的提案"
         },
         "title": "反饋"
       },
@@ -172,7 +172,7 @@
         "noConnectedDapps": "沒有連接的 Dapps",
         "dapps": "Dapps",
         "metamaskModeTooltip": "無法在此 Dapp 連接 Rabby？嘗試啟用 <1>MetaMask 模式</1>",
-        "metamaskModeTooltipNew": "Rabby Wallet 會在你在 Dapp 選擇 \"MetaMask\" 時連接。你可以在 更多 > 偽裝成 MetaMask 連接 Rabby 中管理。"
+        "metamaskModeTooltipNew": "Rampnow Wallet 會在你在 Dapp 選擇 \"MetaMask\" 時連接。你可以在 更多 > 偽裝成 MetaMask 連接 Rabby 中管理。"
       },
       "contacts": {
         "noData": "沒有數據",
@@ -189,7 +189,7 @@
         "learnMoreOnDebank": "跳轉至 DeBank 領取",
         "noCode": "你尚未激活該地址的邀請碼",
         "rabbyValuedUserNo": "Rabby Valued User No.{{num}}",
-        "swapTip": "你需要先在 Rabby Wallet 中完成一筆與知名dex的兌換",
+        "swapTip": "你需要先在 Rampnow Wallet 中完成一筆與知名dex的兌換",
         "title": "領取 Rabby Badge",
         "viewOnDebank": "在 DeBank 上查看",
         "viewYourClaimCode": "查看你的邀請碼",
@@ -263,7 +263,7 @@
         "testnetBackendServiceUrl": "測試網後端服務 URL",
         "updateAvailable": "更新版本",
         "updateVersion": {
-          "content": "檢測到 Rabby Wallet 更新版本\n點擊查看如何手動更新",
+          "content": "檢測到 Rampnow Wallet 更新版本\n點擊查看如何手動更新",
           "okText": "查看教程",
           "successTip": "你正在使用最新版本",
           "title": "有可用的更新"
@@ -279,7 +279,7 @@
           "desc": "啟用後，您可以獨立選擇連接至每個 Dapp 的地址。更改您的主要地址不會影響每個 Dapp 的連接地址。\n"
         },
         "rateModalTriggerOnHome": {
-          "description": "你如何評價 Rabby Wallet？"
+          "description": "你如何評價 Rampnow Wallet？"
         },
         "rateModal": {
           "submitFeedbackButton": "提交",
@@ -1630,7 +1630,7 @@
       "sigCantDecode": "該簽名無法被 Rabby 解碼",
       "signTransactionOnChain": "簽署 {{chain}} 交易",
       "speedUpTooltip": "本次加速交易和原交易，最終只會完成其中一項",
-      "decodedTooltip": "該簽名已被 Rabby Wallet 解析",
+      "decodedTooltip": "該簽名已被 Rampnow Wallet 解析",
       "submitMultisig": {
         "multisigAddress": "多簽地址",
         "title": "提交多簽交易"
@@ -1809,7 +1809,7 @@
         "selfHostConfirm": {
           "title": "切換到 Rabby's Safe Service",
           "button": "OK",
-          "content": "Safe API 無法使用。切換至由 Rabby 部署的 Safe 服務，以保持您的 Safe 功能正常。<strong>所有 Safe 簽署者必須使用 Rabby Wallet 來授權交易。<strong>"
+          "content": "Safe API 無法使用。切換至由 Rabby 部署的 Safe 服務，以保持您的 Safe 功能正常。<strong>所有 Safe 簽署者必須使用 Rampnow Wallet 來授權交易。<strong>"
         }
       },
       "errorRetry": {
@@ -1953,8 +1953,8 @@
         "button": "知道了",
         "wallet": "錢包",
         "title": "Rabby fee",
-        "bridgeDesc": "Rabby Wallet 將始終從頂級聚合器中尋找最佳率，並驗證其報價的可靠性。Rabby 收取 0.25% 的費用，此費用已自動包含在報價中。",
-        "swapDesc": "Rabby Wallet 會始終從頂級聚合器中找到最佳匯率，並驗證其報價的可靠性。Rabby 收取 0.25% 的費用（包裝免收），該費用已自動包括在報價中。"
+        "bridgeDesc": "Rampnow Wallet 將始終從頂級聚合器中尋找最佳率，並驗證其報價的可靠性。Rabby 收取 0.25% 的費用，此費用已自動包含在報價中。",
+        "swapDesc": "Rampnow Wallet 會始終從頂級聚合器中找到最佳匯率，並驗證其報價的可靠性。Rabby 收取 0.25% 的費用（包裝免收），該費用已自動包括在報價中。"
       },
       "lowCreditModal": {
         "title": "此代币的信用值低。",
@@ -2007,7 +2007,7 @@
         "required": "輸入密碼解鎖"
       },
       "btnForgotPassword": "忘記密碼?",
-      "title": "Rabby Wallet",
+      "title": "Rampnow Wallet",
       "description": "您首选的以太坊和 EVM 钱包"
     },
     "addressDetail": {
@@ -2638,7 +2638,7 @@
         "title4": "GasAccount 安全嗎",
         "title1": "GasAccount 是什麼",
         "title2": "如何使用 GasAccount",
-        "desc3": "Rabby Wallet 不收取額外費用。您只需支付交易的煤氣費，以及將煤氣從 GasAccount 轉至您地址的少量煤氣費。",
+        "desc3": "Rampnow Wallet 不收取額外費用。您只需支付交易的煤氣費，以及將煤氣從 GasAccount 轉至您地址的少量煤氣費。",
         "desc2": "將資金添加到您的 GasAccount 並將其用於任何交易。在簽署時，選擇使用原生代幣或 GasAccount 來支付手續費，隨時切換。",
         "desc1": "GasAccount 是支付 gas 费用的一種新方式。您可以使用一個帳戶來覆蓋所有鏈上所有地址的 gas，而不必在每個鏈上使用原生代幣。簡單，可選，且永不缺少 gas。",
         "desc4": "GasAccount 無需合約批准或許可。您將資金存入 Rabby 的 GasAccount 地址，當需要時，Rabby 會將 Gas 發送到您的地址。設計上完全安全。"
@@ -2699,12 +2699,12 @@
       "readyToUse": {
         "pin": "將 Rabby 錢包釘選",
         "guides": {
-          "step2": "將 Rabby Wallet 釘選至頂部",
+          "step2": "將 Rampnow Wallet 釘選至頂部",
           "step1": "點擊瀏覽器擴展圖標"
         },
         "extensionTip": "点击 <1/> 然后 <3/>",
-        "desc": "尋找 Rabby Wallet 並將其固定",
-        "title": "您的 Rabby Wallet 已準備好！"
+        "desc": "尋找 Rampnow Wallet 並將其固定",
+        "title": "您的 Rampnow Wallet 已準備好！"
       },
       "importSeedPhrase": {
         "title": "導入種子片語"
@@ -2775,8 +2775,8 @@
       "home": {
         "title": "忘記密碼",
         "button": "開始重設流程",
-        "description": "Rabby Wallet 不會存儲你的密碼，因此無法協助你找回。重設你的錢包以設定一個新的。",
-        "descriptionNoData": "Rabby Wallet 不會儲存你的密碼並無法協助你取回。如果忘記了密碼，請設定一個新密碼。",
+        "description": "Rampnow Wallet 不會存儲你的密碼，因此無法協助你找回。重設你的錢包以設定一個新的。",
+        "descriptionNoData": "Rampnow Wallet 不會儲存你的密碼並無法協助你取回。如果忘記了密碼，請設定一個新密碼。",
         "buttonNoData": "設置密碼"
       },
       "reset": {
@@ -2793,20 +2793,20 @@
           "title": "數據將被保留：",
           "safe": "Imported Safe Wallets"
         },
-        "title": "重設 Rabby Wallet",
+        "title": "重設 Rampnow Wallet",
         "button": "確認重設",
         "confirm": "在框中输入<1>RESET</1>以确认并继续"
       },
       "tip": {
         "buttonNoData": "新增地址",
-        "title": "Rabby Wallet 重置完成",
+        "title": "Rampnow Wallet 重置完成",
         "descriptionNoData": "添加你的地址以開始",
         "button": "設置密碼",
         "description": "創建新密碼以繼續"
       },
       "success": {
         "title": "密碼設定成功",
-        "description": "您已準備好使用 Rabby Wallet",
+        "description": "您已準備好使用 Rampnow Wallet",
         "button": "完成"
       }
     },
@@ -2825,7 +2825,7 @@
       "step2Desc": "重新整理並通過 MetaMask 連接",
       "step2": "步驟 2",
       "manage": "管理已授權的 Dapps",
-      "alert": "無法連接到 Dapp，因為它沒有顯示 Rabby Wallet 作為選項？"
+      "alert": "無法連接到 Dapp，因為它沒有顯示 Rampnow Wallet 作為選項？"
     },
     "syncToMobile": {
       "downloadGooglePlay": "Google Play",
@@ -3478,7 +3478,7 @@
     "EcologyNoticeModal": {
       "title": "通知",
       "notRemind": "不要再提醒我",
-      "desc": "以下服務將由第三方生態合作夥伴直接提供。Rabby Wallet 不承擔這些服務的安全性責任。"
+      "desc": "以下服務將由第三方生態合作夥伴直接提供。Rampnow Wallet 不承擔這些服務的安全性責任。"
     },
     "ReserveGasPopup": {
       "fast": "正常",
@@ -3489,8 +3489,8 @@
     },
     "OpenExternalWebsiteModal": {
       "button": "繼續",
-      "content": "您即將訪問一個外部網站。Rabby Wallet 對該網站的內容或安全性不承擔責任。",
-      "title": "您即將離開 Rabby Wallet"
+      "content": "您即將訪問一個外部網站。Rampnow Wallet 對該網站的內容或安全性不承擔責任。",
+      "title": "您即將離開 Rampnow Wallet"
     },
     "TokenChart": {
       "holding": "持有價值",

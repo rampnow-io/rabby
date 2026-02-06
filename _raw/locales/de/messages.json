@@ -328,7 +328,7 @@
       },
       "nativeTokenForGas": "Verwenden Sie den {{tokenName}}-Token auf {{chainName}}, um Gas zu bezahlen",
       "gasAccountForGas": "Verwende USD von meinem GasAccount, um Gas zu bezahlen",
-      "decodedTooltip": "Diese Signatur wird vom Rabby Wallet decodiert.",
+      "decodedTooltip": "Diese Signatur wird vom Rampnow Wallet decodiert.",
       "chain": "Chain",
       "l2GasEstimateTooltip": "Die Schätzung des Gasverbrauchs für die L2-Kette umfasst nicht die L1-Gebühr. Die tatsächliche Gebühr wird höher sein als die aktuelle Schätzung.",
       "importedAddress": "Importierte Adresse",
@@ -351,7 +351,7 @@
         "selfHostConfirm": {
           "button": "OK",
           "title": "Wechseln Sie zum Rabby Safe Service",
-          "content": "Safe API ist nicht verfügbar. Wechseln Sie zum von Rabby bereitgestellten Safe-Dienst, um Ihren Safe funktionsfähig zu halten. <strong>Alle Safe-Signierer müssen Rabby Wallet verwenden, um Transaktionen zu autorisieren.<strong>"
+          "content": "Safe API ist nicht verfügbar. Wechseln Sie zum von Rabby bereitgestellten Safe-Dienst, um Ihren Safe funktionsfähig zu halten. <strong>Alle Safe-Signierer müssen Rampnow Wallet verwenden, um Transaktionen zu autorisieren.<strong>"
         }
       },
       "errorRetry": {
@@ -1018,8 +1018,8 @@
         "title": "Rabby-Gebühr",
         "wallet": "Brieftasche",
         "rate": "Gebührensatz",
-        "swapDesc": "Rabby Wallet wird immer den bestmöglichen Kurs von den besten Aggregatoren finden und die Zuverlässigkeit ihrer Angebote überprüfen. Rabby erhebt eine Gebühr von 0,25 % (0 % für Wrapping), die automatisch in das Angebot einfließt.",
-        "bridgeDesc": "Rabby Wallet findet stets den bestmöglichen Kurs von erstklassigen Aggregatoren und überprüft die Zuverlässigkeit ihrer Angebote. Rabby erhebt eine Gebühr von 0,25 %, die automatisch in das Angebot einbezogen wird.",
+        "swapDesc": "Rampnow Wallet wird immer den bestmöglichen Kurs von den besten Aggregatoren finden und die Zuverlässigkeit ihrer Angebote überprüfen. Rabby erhebt eine Gebühr von 0,25 % (0 % für Wrapping), die automatisch in das Angebot einfließt.",
+        "bridgeDesc": "Rampnow Wallet findet stets den bestmöglichen Kurs von erstklassigen Aggregatoren und überprüft die Zuverlässigkeit ihrer Angebote. Rabby erhebt eine Gebühr von 0,25 %, die automatisch in das Angebot einbezogen wird.",
         "button": "Verstanden"
       },
       "lowCreditModal": {
@@ -1175,16 +1175,16 @@
         "dapps": "Dapps",
         "noConnectedDapps": "Keine verbundenen Dapps",
         "metamaskModeTooltip": "Kann Rabby in dieser Dapp nicht verbinden? Versuchen Sie, den <1>MetaMask-Modus</1> zu aktivieren.",
-        "metamaskModeTooltipNew": "Rabby Wallet wird verbunden, wenn Sie \"MetaMask\" in der Dapp auswählen. Sie können dies unter Mehr > Verbinde Rabby, indem Sie sich als MetaMask ausgeben, verwalten."
+        "metamaskModeTooltipNew": "Rampnow Wallet wird verbunden, wenn Sie \"MetaMask\" in der Dapp auswählen. Sie können dies unter Mehr > Verbinde Rabby, indem Sie sich als MetaMask ausgeben, verwalten."
       },
       "feedback": {
         "directMessage": {
           "content": "Direkte Nachricht",
-          "description": "Chatten Sie mit Rabby Wallet Official auf DeBank"
+          "description": "Chatten Sie mit Rampnow Wallet Official auf DeBank"
         },
         "proposal": {
           "content": "Vorschlag",
-          "description": "Vorschlag für Rabby Wallet auf DeBank einreichen"
+          "description": "Vorschlag für Rampnow Wallet auf DeBank einreichen"
         },
         "title": "Feedback"
       },
@@ -1212,7 +1212,7 @@
         "imageLabel": "Rabby Abzeichen",
         "title": "Beanspruchen Sie das Rabby Abzeichen für",
         "enterClaimCode": "Geben Sie den Anspruchscode ein",
-        "swapTip": "Sie müssen zuerst einen Tausch mit einem bekannten DEX innerhalb von Rabby Wallet abschließen.",
+        "swapTip": "Sie müssen zuerst einen Tausch mit einem bekannten DEX innerhalb von Rampnow Wallet abschließen.",
         "goToSwap": "Zum Tauschen gehen",
         "claim": "Beanspruchen",
         "viewYourClaimCode": "Sehen Sie Ihren Anspruchscode",
@@ -1268,7 +1268,7 @@
         "warning": "Warnung",
         "clearWatchAddressContent": "Sind Sie sicher, dass Sie alle Adressen im Beobachtungsmodus löschen möchten?",
         "updateVersion": {
-          "content": "Ein neues Update für Rabby Wallet ist verfügbar. Klicken Sie hier, um zu erfahren, wie Sie manuell aktualisieren können.",
+          "content": "Ein neues Update für Rampnow Wallet ist verfügbar. Klicken Sie hier, um zu erfahren, wie Sie manuell aktualisieren können.",
           "okText": "Anleitung",
           "successTip": "Sie verwenden die neueste Version",
           "title": "Update verfügbar"
@@ -1312,7 +1312,7 @@
           "desc": "Sobald aktiviert, können Sie unabhängig für jedes DApp die gewünschte Adresse auswählen.  Eine Änderung Ihrer Haupt-Adresse wirkt sich nicht auf die Adresse aus, die für jedes DApp verbunden ist.\n"
         },
         "rateModalTriggerOnHome": {
-          "description": "Wie bewerten Sie Rabby Wallet?"
+          "description": "Wie bewerten Sie Rampnow Wallet?"
         },
         "rateModal": {
           "feedbackPlaceholder": "Rabby schätzt Ihr Feedback!",
@@ -1874,7 +1874,7 @@
         "placeholder": "Geben Sie das Passwort zum Entsperren ein",
         "error": "Falsches Passwort"
       },
-      "title": "Rabby Wallet",
+      "title": "Rampnow Wallet",
       "btnForgotPassword": "Passwort vergessen?",
       "description": "Ihr bevorzugtes Wallet für Ethereum und EVM"
     },
@@ -2374,7 +2374,7 @@
       "AddFromChainList": {
         "tips": {
           "added": "Sie haben diese Chain bereits hinzugefügt",
-          "supported": "Von Rabby Wallet bereits integrierte Chain"
+          "supported": "Von Rampnow Wallet bereits integrierte Chain"
         },
         "search": "Nach benutzerdefiniertem Netzwerknamen oder ID suchen",
         "title": "Schnell hinzufügen von Chainlist",
@@ -2601,7 +2601,7 @@
         "title4": "Ist GasAccount sicher",
         "title3": "Hat GasAccount zusätzliche Gebühren?",
         "desc2": "Fügen Sie Geld zu Ihrem GasAccount hinzu und verwenden Sie es für jede Transaktion. Wählen Sie beim Signieren, ob Sie die Gebühren mit nativen Token oder GasAccount bezahlen möchten, wechseln Sie jederzeit.",
-        "desc3": "Rabby Wallet erhebt keine zusätzlichen Gebühren. Sie zahlen nur die Gasgebühren für Ihre Transaktion und einen kleinen Betrag an Gas, um dieses Gas von GasAccount an Ihre Adresse zu senden.",
+        "desc3": "Rampnow Wallet erhebt keine zusätzlichen Gebühren. Sie zahlen nur die Gasgebühren für Ihre Transaktion und einen kleinen Betrag an Gas, um dieses Gas von GasAccount an Ihre Adresse zu senden.",
         "desc4": "GasAccount benötigt keine Vertragsgenehmigungen oder Berechtigungen. Sie zahlen auf die GasAccount-Adresse von Rabby ein, und Rabby sendet Gas an Ihre Adresse, wenn es benötigt wird. Von der Konstruktion her vollständig sicher.",
         "desc1": "GasAccount ist eine neue Möglichkeit, Gasgebühren zu bezahlen. Anstatt native Tokens auf jeder Kette zu verwenden, können Sie ein Konto nutzen, um die Gasgebühren für all Ihre Adressen auf allen Ketten zu decken. Einfach, optional und niemals ohne Gas."
       }
@@ -2613,7 +2613,7 @@
     "newUserImport": {
       "guide": {
         "importAddress": "Ich habe bereits eine Adresse",
-        "title": "Willkommen bei Rabby Wallet",
+        "title": "Willkommen bei Rampnow Wallet",
         "createNewAddress": "Erstellen Sie eine neue Adresse",
         "desc": "Ihre bevorzugte Wallet für Ethereum und EVM"
       },
@@ -2659,14 +2659,14 @@
         "addMoreFrom": "Fügen Sie weitere Adressen von {{name}} hinzu"
       },
       "readyToUse": {
-        "pin": "Rabby Wallet anheften",
+        "pin": "Rampnow Wallet anheften",
         "guides": {
-          "step2": "Pin Rabby Wallet",
+          "step2": "Pin Rampnow Wallet",
           "step1": "Klicken Sie auf das Browsererweiterungssymbol"
         },
         "extensionTip": "Klicke <1/> und dann <3/>",
-        "title": "Ihr Rabby Wallet ist bereit!",
-        "desc": "Finde Rabby Wallet und pinne es."
+        "title": "Ihr Rampnow Wallet ist bereit!",
+        "desc": "Finde Rampnow Wallet und pinne es."
       },
       "importSeedPhrase": {
         "title": "Seed Phrase importieren"
@@ -2738,8 +2738,8 @@
         "buttonNoData": "Passwort festlegen",
         "title": "Passwort vergessen",
         "button": "Beginnen Sie mit dem Zurücksetzungsprozess",
-        "descriptionNoData": "Rabby Wallet speichert Ihr Passwort nicht und kann Ihnen nicht bei der Wiederherstellung helfen. Setzen Sie ein neues Passwort, wenn Sie es vergessen haben.",
-        "description": "Rabby Wallet speichert Ihr Passwort nicht und kann Ihnen nicht dabei helfen, es wiederherzustellen. Setzen Sie Ihre Wallet zurück, um eine neue einzurichten."
+        "descriptionNoData": "Rampnow Wallet speichert Ihr Passwort nicht und kann Ihnen nicht bei der Wiederherstellung helfen. Setzen Sie ein neues Passwort, wenn Sie es vergessen haben.",
+        "description": "Rampnow Wallet speichert Ihr Passwort nicht und kann Ihnen nicht dabei helfen, es wiederherzustellen. Setzen Sie Ihre Wallet zurück, um eine neue einzurichten."
       },
       "reset": {
         "alert": {
@@ -2756,19 +2756,19 @@
           "safe": "Importierte Safe Wallets"
         },
         "button": "Zurücksetzen bestätigen",
-        "title": "Rabby Wallet zurücksetzen",
+        "title": "Rampnow Wallet zurücksetzen",
         "confirm": "Geben Sie <1>RESET</1> in das Feld ein, um zu bestätigen und fortzufahren"
       },
       "tip": {
         "descriptionNoData": "Fügen Sie Ihre Adresse hinzu, um zu beginnen",
         "button": "Passwort festlegen",
-        "title": "Rabby Wallet Zurücksetzung abgeschlossen",
+        "title": "Rampnow Wallet Zurücksetzung abgeschlossen",
         "buttonNoData": "Adresse hinzufügen",
         "description": "Erstellen Sie ein neues Passwort, um fortzufahren"
       },
       "success": {
         "button": "Fertig",
-        "description": "Du bist bereit, Rabby Wallet zu verwenden",
+        "description": "Du bist bereit, Rampnow Wallet zu verwenden",
         "title": "Passwort erfolgreich festgelegt"
       }
     },
@@ -2786,7 +2786,7 @@
       "step1Desc": "Erlaube Rabby, sich auf der aktuellen Dapp als MetaMask auszugeben.",
       "step2Desc": "Aktualisieren und über MetaMask verbinden",
       "step2": "Schritt 2",
-      "alert": "Kann keine Verbindung zu einer Dapp herstellen, weil Rabby Wallet nicht als Option angezeigt wird?",
+      "alert": "Kann keine Verbindung zu einer Dapp herstellen, weil Rampnow Wallet nicht als Option angezeigt wird?",
       "title": "Verbinden Sie Rabby, indem Sie sich als MetaMask ausgeben"
     },
     "syncToMobile": {
@@ -3440,7 +3440,7 @@
     "EcologyNoticeModal": {
       "title": "Hinweis",
       "notRemind": "Nicht mehr daran erinnern",
-      "desc": "Die folgenden Dienstleistungen werden direkt von einem Drittanbieter-Ecosystem-Partner bereitgestellt. Rabby Wallet übernimmt keine Verantwortung für die Sicherheit dieser Dienstleistungen."
+      "desc": "Die folgenden Dienstleistungen werden direkt von einem Drittanbieter-Ecosystem-Partner bereitgestellt. Rampnow Wallet übernimmt keine Verantwortung für die Sicherheit dieser Dienstleistungen."
     },
     "ReserveGasPopup": {
       "instant": "Schnell",
@@ -3451,8 +3451,8 @@
     },
     "OpenExternalWebsiteModal": {
       "button": "Fortfahren",
-      "title": "Sie verlassen Rabby Wallet",
-      "content": "Sie sind dabei, eine externe Website zu besuchen. Rabby Wallet ist nicht verantwortlich für den Inhalt oder die Sicherheit dieser Seite."
+      "title": "Sie verlassen Rampnow Wallet",
+      "content": "Sie sind dabei, eine externe Website zu besuchen. Rampnow Wallet ist nicht verantwortlich für den Inhalt oder die Sicherheit dieser Seite."
     },
     "TokenChart": {
       "price": "Preis",
@@ -3500,7 +3500,7 @@
     }
   },
   "global": {
-    "appName": "Rabby Wallet",
+    "appName": "Rampnow Wallet",
     "copied": "Kopiert",
     "confirm": "Bestätigen",
     "next": "Weiter",

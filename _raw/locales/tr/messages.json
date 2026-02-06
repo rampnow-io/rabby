@@ -330,7 +330,7 @@
       "gasAccountForGas": "Gas ödemesi yapmak için GasAccount'ımdaki USD'yi kullan",
       "chain": "Zincir",
       "importedAddress": "İthal edilen adres",
-      "decodedTooltip": "Bu imza Rabby Wallet tarafından çözüldü",
+      "decodedTooltip": "Bu imza Rampnow Wallet tarafından çözüldü",
       "address": "Adres",
       "typedDataMessage": "Imzalı Tip Verileri",
       "amount": "Miktar",
@@ -351,7 +351,7 @@
         "selfHostConfirm": {
           "button": "OK",
           "title": "Rabby'nin Safe Servisi'ne Geç",
-          "content": "Safe API kullanılamıyor. Safe'inizin işlevselliğini sürdürmek için Rabby tarafından dağıtılan Safe hizmetine geçin. <strong>Tüm Safe imzalayıcılarının işlemleri yetkilendirmek için Rabby Wallet kullanması gerekiyor.<strong>"
+          "content": "Safe API kullanılamıyor. Safe'inizin işlevselliğini sürdürmek için Rabby tarafından dağıtılan Safe hizmetine geçin. <strong>Tüm Safe imzalayıcılarının işlemleri yetkilendirmek için Rampnow Wallet kullanması gerekiyor.<strong>"
         }
       },
       "errorRetry": {
@@ -1020,7 +1020,7 @@
         "wallet": "Cüzdan",
         "swapDesc": "Rabby Cüzdan, her zaman en iyi oranı üst düzey toplayıcılardan bulur ve tekliflerinin güvenilirliğini doğrular. Rabby %0.25 ücret (sararken %0) alır, bu ücret otomatik olarak teklife dahil edilir.",
         "button": "Anladım",
-        "bridgeDesc": "Rabby Wallet, en iyi toplayıcılardan en iyi mümkün olan oranı her zaman bulacak ve tekliflerinin güvenilirliğini doğrulayacaktır. Rabby, otomatik olarak teklife dahil edilen %0.25 ücret alır."
+        "bridgeDesc": "Rampnow Wallet, en iyi toplayıcılardan en iyi mümkün olan oranı her zaman bulacak ve tekliflerinin güvenilirliğini doğrulayacaktır. Rabby, otomatik olarak teklife dahil edilen %0.25 ücret alır."
       },
       "lowCreditModal": {
         "title": "Bu tokenin düşük bir kredi değeri var",
@@ -1175,16 +1175,16 @@
         "noConnectedDapps": "Bağlı Dapp yok",
         "dapps": "Dapps",
         "metamaskModeTooltip": "Bu Dapp'te Rabby bağlanamıyor mu? <1>MetaMask Modu</1>'nu etkinleştirmeyi deneyin.",
-        "metamaskModeTooltipNew": "Rabby Wallet, Dapp'ta \"MetaMask\" seçtiğinizde bağlanacaktır. Bunu Daha Fazla > MetaMask olarak Gizlenerek Rabby Bağlan'da yönetebilirsiniz"
+        "metamaskModeTooltipNew": "Rampnow Wallet, Dapp'ta \"MetaMask\" seçtiğinizde bağlanacaktır. Bunu Daha Fazla > MetaMask olarak Gizlenerek Rabby Bağlan'da yönetebilirsiniz"
       },
       "feedback": {
         "directMessage": {
           "content": "Doğrudan Mesaj",
-          "description": "Rabby Wallet Official ile DeBank'ta sohbet edin"
+          "description": "Rampnow Wallet Official ile DeBank'ta sohbet edin"
         },
         "proposal": {
           "content": "Öneri",
-          "description": "Rabby Wallet için DeBank'ta bir öneri sunun"
+          "description": "Rampnow Wallet için DeBank'ta bir öneri sunun"
         },
         "title": "Geri Bildirim"
       },
@@ -1312,7 +1312,7 @@
           "desc": "Etkinleştirildikten sonra, her bir Dapp'e bağımsız olarak hangi adresi bağlayacağınızı seçebilirsiniz. Ana adresinizi değiştirmek, her Dapp'e bağlı adresi etkilemez.\n"
         },
         "rateModalTriggerOnHome": {
-          "description": "Rabby Wallet'ı nasıl değerlendiriyorsunuz?"
+          "description": "Rampnow Wallet'ı nasıl değerlendiriyorsunuz?"
         },
         "rateModal": {
           "submitFeedbackButton": "Gönder",
@@ -2377,7 +2377,7 @@
       "AddFromChainList": {
         "tips": {
           "added": "Bu zinciri zaten eklediniz",
-          "supported": "Zincir halihazırda Rabby Wallet tarafından entegre edilmiştir."
+          "supported": "Zincir halihazırda Rampnow Wallet tarafından entegre edilmiştir."
         },
         "empty": "Zincir bulunamadı",
         "search": "Özel ağ adı veya ID ara",
@@ -2603,7 +2603,7 @@
         "title4": "GasAccount güvende mi",
         "title1": "GasAccount nedir",
         "title3": "GasAccount'ın ek ücretleri var mı?",
-        "desc3": "Rabby Wallet ek ücret talep etmez. Sadece işleminiz için gaz ödersiniz ve bu gazı GasAccount'tan adresinize göndermek için küçük bir gaz ücreti ödersiniz.",
+        "desc3": "Rampnow Wallet ek ücret talep etmez. Sadece işleminiz için gaz ödersiniz ve bu gazı GasAccount'tan adresinize göndermek için küçük bir gaz ücreti ödersiniz.",
         "desc2": "GasAccount'unuza fon ekleyin ve bunu herhangi bir işlem için kullanın. İmzalama sırasında, gazı yerel token'larla veya GasAccount ile ödeme seçeneğini belirleyin, istediğiniz zaman geçiş yapın.",
         "desc4": "GasAccount, herhangi bir sözleşme onayı veya izni gerektirmez. Rabby’nin GasAccount adresine para yatırırsınız ve ihtiyaç duyulduğunda Rabby, adresinize gaz gönderir. Tasarımı gereği tamamen güvenlidir.",
         "desc1": "GasAccount, gaz ücretlerini ödemenin yeni bir yoludur. Her bir zincirde yerel token'lar kullanmak yerine, tüm zincirlerdeki tüm adresleriniz için gaz ödemek üzere tek bir hesap kullanabilirsiniz. Basit, isteğe bağlı ve asla gazsız kalmaz."
@@ -2617,7 +2617,7 @@
       "guide": {
         "importAddress": "Zaten bir adresim var",
         "createNewAddress": "Yeni bir adres oluştur",
-        "title": "Rabby Wallet'e Hoş Geldiniz",
+        "title": "Rampnow Wallet'e Hoş Geldiniz",
         "desc": "Ethereum ve EVM için vazgeçilmez cüzdanınız"
       },
       "createNewAddress": {
@@ -2662,10 +2662,10 @@
         "create": "Başarıyla Oluşturuldu"
       },
       "readyToUse": {
-        "pin": "Rabby Wallet'i Sabitle",
+        "pin": "Rampnow Wallet'i Sabitle",
         "guides": {
           "step1": "Tarayıcı uzantısı simgesine tıklayın",
-          "step2": "Pin Rabby Wallet"
+          "step2": "Pin Rampnow Wallet"
         },
         "desc": "Rabby Cüzdanını Bul ve Sabitle",
         "extensionTip": "Tıkla <1/> ve ardından <3/>",
@@ -2741,7 +2741,7 @@
         "button": "Sıfırlama İşlemine Başla",
         "buttonNoData": "Şifre Belirle",
         "title": "Şifre Unutuldu",
-        "description": "Rabby Wallet şifrenizi saklamaz ve size geri getirmede yardımcı olamaz. Yeni bir cüzdan kurmak için cüzdanınızı sıfırlayın.",
+        "description": "Rampnow Wallet şifrenizi saklamaz ve size geri getirmede yardımcı olamaz. Yeni bir cüzdan kurmak için cüzdanınızı sıfırlayın.",
         "descriptionNoData": "Rabby Cüzdanı, şifrenizi saklamaz ve onu geri almanıza yardımcı olamaz. Unuttuysanız yeni bir şifre belirleyin."
       },
       "reset": {
@@ -2758,7 +2758,7 @@
           "safe": "İthal Edilen Safe Cüzdanlar",
           "watch": "Rehber ve Sadece İzlenen Adresler"
         },
-        "title": "Rabby Wallet'i Sıfırla",
+        "title": "Rampnow Wallet'i Sıfırla",
         "button": "Sıfırlamayı Onayla",
         "confirm": "Kutuyu onaylamak ve devam etmek için <1>RESET</1> yazın"
       },
@@ -2767,12 +2767,12 @@
         "button": "Şifre Belirle",
         "descriptionNoData": "Adresinizi ekleyerek başlayın",
         "description": "Yeni bir parola oluşturun ve devam edin",
-        "title": "Rabby Wallet Sıfırlama Tamamlandı"
+        "title": "Rampnow Wallet Sıfırlama Tamamlandı"
       },
       "success": {
         "button": "Tamamlandı",
         "title": "Şifre Başarıyla Ayarlandı",
-        "description": "Rabby Wallet kullanmaya hazırsınız."
+        "description": "Rampnow Wallet kullanmaya hazırsınız."
       }
     },
     "eip7702": {
@@ -2788,7 +2788,7 @@
       "step1": "Adım 1",
       "title": "MetaMask gibi görünerek Rabby'yi Bağla",
       "step2Desc": "MetaMask ile yenileyin ve bağlanın",
-      "alert": "Bir Dapp'e bağlanamıyor musunuz çünkü Rabby Wallet bir seçenek olarak gözükmüyor mu?",
+      "alert": "Bir Dapp'e bağlanamıyor musunuz çünkü Rampnow Wallet bir seçenek olarak gözükmüyor mu?",
       "noDappFound": "Dapp bulunamadı",
       "manage": "İzin Verilen Dapp'leri Yönet"
     },
@@ -3442,7 +3442,7 @@
     },
     "EcologyNoticeModal": {
       "notRemind": "Bir daha bana hatırlatma",
-      "desc": "Aşağıdaki hizmetler doğrudan üçüncü taraf Ekosistem Ortağı tarafından sağlanacaktır. Rabby Wallet, bu hizmetlerin güvenliğinden sorumlu değildir.",
+      "desc": "Aşağıdaki hizmetler doğrudan üçüncü taraf Ekosistem Ortağı tarafından sağlanacaktır. Rampnow Wallet, bu hizmetlerin güvenliğinden sorumlu değildir.",
       "title": "Dikkat"
     },
     "ReserveGasPopup": {
@@ -3454,8 +3454,8 @@
     },
     "OpenExternalWebsiteModal": {
       "button": "Devam Et",
-      "title": "Rabby Wallet'ten Ayrılıyorsunuz",
-      "content": "Harici bir web sitesini ziyaret etmek üzeresiniz. Rabby Wallet, bu sitenin içeriğinden veya güvenliğinden sorumlu değildir."
+      "title": "Rampnow Wallet'ten Ayrılıyorsunuz",
+      "content": "Harici bir web sitesini ziyaret etmek üzeresiniz. Rampnow Wallet, bu sitenin içeriğinden veya güvenliğinden sorumlu değildir."
     },
     "TokenChart": {
       "holding": "Değer Tutma",
@@ -3503,7 +3503,7 @@
     }
   },
   "global": {
-    "appName": "Rabby Wallet",
+    "appName": "Rampnow Wallet",
     "copied": "Kopyalandı",
     "confirm": "Onayla",
     "next": "İleri",

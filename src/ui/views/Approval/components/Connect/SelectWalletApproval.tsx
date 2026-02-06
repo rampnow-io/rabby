@@ -28,7 +28,7 @@ export const ConnectApproval: React.FC<{
       return null;
     }
     setApproval(approval);
-    document.title = 'Rabby Wallet Notification';
+    document.title = 'Rampnow Wallet Notification';
   };
 
   useEffect(() => {

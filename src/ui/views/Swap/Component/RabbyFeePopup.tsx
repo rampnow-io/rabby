@@ -22,7 +22,7 @@ const swapFee = [
     rate: '0.85%',
   },
   {
-    name: 'Rabby Wallet',
+    name: 'Rampnow Wallet',
     logo: ImgRabbyWallet,
     rate: '0.25%',
   },
@@ -35,7 +35,7 @@ const bridgeList = [
     rate: '0.875%',
   },
   {
-    name: 'Rabby Wallet',
+    name: 'Rampnow Wallet',
     logo: ImgRabbyWallet,
     rate: '0.25%',
   },

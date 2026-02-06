@@ -216,7 +216,7 @@
         "selfHostConfirm": {
           "button": "OK",
           "title": "Chuyển sang dịch vụ An toàn của Rabby",
-          "content": "API an toàn không khả dụng. Chuyển sang dịch vụ Safe được triển khai bởi Rabby để giữ cho Safe của bạn hoạt động. <strong>Tất cả các người ký Safe phải sử dụng Rabby Wallet để ủy quyền giao dịch.</strong>"
+          "content": "API an toàn không khả dụng. Chuyển sang dịch vụ Safe được triển khai bởi Rabby để giữ cho Safe của bạn hoạt động. <strong>Tất cả các người ký Safe phải sử dụng Rampnow Wallet để ủy quyền giao dịch.</strong>"
         }
       },
       "SafeNonceSelector": {
@@ -320,8 +320,8 @@
       "signTransactionOnChain": "Ký tên giao dịch {{chain}}",
       "blocked": "Bị chặn",
       "interacted": "Đã tương tác trước đây",
-      "decodedTooltip": "Chữ ký này được giải mã bởi Rabby Wallet",
-      "sigCantDecode": "Chữ ký này không thể được giải mã bởi Rabby Wallet",
+      "decodedTooltip": "Chữ ký này được giải mã bởi Rampnow Wallet",
+      "sigCantDecode": "Chữ ký này không thể được giải mã bởi Rampnow Wallet",
       "contractPopularity": "Không.{{0}} trên {{1}}",
       "transacted": "Đã giao dịch trước đó",
       "addressNote": "Ghi chú địa chỉ",
@@ -950,8 +950,8 @@
         "rate": "Tỷ lệ phí",
         "title": "Rabby phí",
         "button": "Đã hiểu",
-        "bridgeDesc": "Rabby Wallet sẽ luôn tìm ra tỷ lệ tốt nhất có thể từ các nhà tổng hợp hàng đầu và xác minh độ tin cậy của các ưu đãi của họ. Rabby tính phí 0,25%, khoản phí này sẽ tự động được bao gồm trong báo giá.",
-        "swapDesc": "Rabby Wallet sẽ luôn tìm ra tỷ lệ tốt nhất từ các nhà tổng hợp hàng đầu và xác minh độ tin cậy của các đề nghị của họ. Rabby tính phí 0,25% (0% cho việc bọc), được tự động bao gồm trong báo giá."
+        "bridgeDesc": "Rampnow Wallet sẽ luôn tìm ra tỷ lệ tốt nhất có thể từ các nhà tổng hợp hàng đầu và xác minh độ tin cậy của các ưu đãi của họ. Rabby tính phí 0,25%, khoản phí này sẽ tự động được bao gồm trong báo giá.",
+        "swapDesc": "Rampnow Wallet sẽ luôn tìm ra tỷ lệ tốt nhất từ các nhà tổng hợp hàng đầu và xác minh độ tin cậy của các đề nghị của họ. Rabby tính phí 0,25% (0% cho việc bọc), được tự động bao gồm trong báo giá."
       },
       "lowCreditModal": {
         "title": "Token này có giá trị tín dụng thấp.",
@@ -1263,18 +1263,18 @@
         "disconnectAll": "Ngắt kết nối tất cả",
         "metamaskModeTooltip": "Không thể kết nối Rabby trên Dapp này? Hãy thử bật <1>Chế độ MetaMask</1>",
         "connectedDapp": "Rabby không được kết nối với Dapp hiện tại. Để kết nối, hãy tìm và nhấn nút kết nối trên trang web của Dapp.",
-        "metamaskModeTooltipNew": "Ví dụ Rabby Wallet sẽ kết nối khi bạn chọn \"MetaMask\" trên Dapp. Bạn có thể quản lý điều này trong More > Connect Rabby bằng cách giả dạng như MetaMask.",
+        "metamaskModeTooltipNew": "Ví dụ Rampnow Wallet sẽ kết nối khi bạn chọn \"MetaMask\" trên Dapp. Bạn có thể quản lý điều này trong More > Connect Rabby bằng cách giả dạng như MetaMask.",
         "recentlyConnected": "Gần đây đã kết nối",
         "metamaskTooltip": "Bạn thích sử dụng MetaMask với dapp này. Cập nhật cài đặt này bất cứ lúc nào trong Cài đặt > Dapps ưu tiên MetaMask."
       },
       "feedback": {
         "directMessage": {
-          "description": "Trò chuyện với Rabby Wallet Official trên DeBank",
+          "description": "Trò chuyện với Rampnow Wallet Official trên DeBank",
           "content": "Tin nhắn trực tiếp"
         },
         "proposal": {
           "content": "Đề xuất",
-          "description": "Gửi một đề xuất cho Rabby Wallet trên DeBank"
+          "description": "Gửi một đề xuất cho Rampnow Wallet trên DeBank"
         },
         "title": "Phản hồi"
       },
@@ -1315,7 +1315,7 @@
         "goToSwap": "Đi đến Swap",
         "claimSuccess": "Yêu cầu thành công",
         "freeGasNoCode": "Vui lòng nhấp vào nút bên dưới để truy cập DeBank và lấy mã yêu cầu bằng địa chỉ hiện tại của bạn trước.",
-        "swapTip": "Bạn cần hoàn thành một giao dịch hoán đổi với dex nổi bật trong Rabby Wallet trước."
+        "swapTip": "Bạn cần hoàn thành một giao dịch hoán đổi với dex nổi bật trong Rampnow Wallet trước."
       },
       "contacts": {
         "noDataLabel": "không có dữ liệu",
@@ -1334,7 +1334,7 @@
           "never": "Không bao giờ"
         },
         "updateVersion": {
-          "content": "Một bản cập nhật mới cho Rabby Wallet đã có sẵn. Nhấp vào đây để kiểm tra cách cập nhật thủ công.",
+          "content": "Một bản cập nhật mới cho Rampnow Wallet đã có sẵn. Nhấp vào đây để kiểm tra cách cập nhật thủ công.",
           "successTip": "Bạn đang sử dụng phiên bản mới nhất",
           "okText": "Xem Hướng dẫn",
           "title": "Cập nhật có sẵn"
@@ -1402,7 +1402,7 @@
           "desc": "Bật tính năng này, bạn có thể chọn địa chỉ kết nối với từng ứng dụng phi tập trung (Dapp) một cách độc lập. Thay đổi địa chỉ chính của bạn sẽ không ảnh hưởng đến địa chỉ đã kết nối với từng Dapp.\n"
         },
         "rateModalTriggerOnHome": {
-          "description": "Bạn đánh giá như thế nào về Rabby Wallet?"
+          "description": "Bạn đánh giá như thế nào về Rampnow Wallet?"
         },
         "rateModal": {
           "submitFeedbackButton": "Gửi",
@@ -2371,7 +2371,7 @@
       "AddFromChainList": {
         "tips": {
           "added": "Bạn đã thêm chuỗi này rồi.",
-          "supported": "Chuỗi đã được tích hợp bởi Rabby Wallet"
+          "supported": "Chuỗi đã được tích hợp bởi Rampnow Wallet"
         },
         "empty": "Không tìm thấy chuỗi nào",
         "title": "Thêm nhanh từ Chainlist",
@@ -2600,7 +2600,7 @@
         "desc1": "GasAccount là một cách mới để thanh toán phí gas. Thay vì sử dụng các token gốc trên mỗi chuỗi, bạn có thể sử dụng một tài khoản để chi trả gas cho tất cả các địa chỉ của bạn trên tất cả các chuỗi. Đơn giản, tùy chọn và không bao giờ hết gas.",
         "desc4": "GasAccount không yêu cầu phê duyệt hoặc quyền hạn hợp đồng. Bạn gửi tiền vào địa chỉ GasAccount của Rabby, và Rabby gửi gas đến địa chỉ của bạn khi cần. Hoàn toàn an toàn theo thiết kế.",
         "desc2": "Thêm quỹ vào GasAccount của bạn và sử dụng nó cho bất kỳ giao dịch nào. Khi ký, chọn thanh toán gas bằng các token gốc hoặc GasAccount, có thể chuyển đổi bất kỳ lúc nào.",
-        "desc3": "Rabby Wallet không tính phí bổ sung. Bạn chỉ phải trả phí gas cho giao dịch của mình và một lượng nhỏ gas để gửi gas đó từ GasAccount đến địa chỉ của bạn."
+        "desc3": "Rampnow Wallet không tính phí bổ sung. Bạn chỉ phải trả phí gas cho giao dịch của mình và một lượng nhỏ gas để gửi gas đó từ GasAccount đến địa chỉ của bạn."
       }
     },
     "safeMessageQueue": {
@@ -2610,7 +2610,7 @@
     "newUserImport": {
       "guide": {
         "importAddress": "Tôi đã có một địa chỉ",
-        "title": "Chào mừng bạn đến với Rabby Wallet",
+        "title": "Chào mừng bạn đến với Rampnow Wallet",
         "createNewAddress": "Tạo một địa chỉ mới",
         "desc": "Ví dụ ví của bạn cho Ethereum và EVM"
       },
@@ -2656,14 +2656,14 @@
         "addMoreAddr": "Thêm nhiều địa chỉ từ cụm từ hạt giống này"
       },
       "readyToUse": {
-        "pin": "Ghim Rabby Wallet",
+        "pin": "Ghim Rampnow Wallet",
         "guides": {
-          "step2": "Ghim ví Rabby Wallet",
+          "step2": "Ghim ví Rampnow Wallet",
           "step1": "Nhấn vào biểu tượng mở rộng trình duyệt"
         },
         "title": "Ví của bạn trên Rabby đã sẵn sàng!",
         "extensionTip": "Click <1/> và sau đó <3/>",
-        "desc": "Tìm Rabby Wallet và ghim nó"
+        "desc": "Tìm Rampnow Wallet và ghim nó"
       },
       "importSeedPhrase": {
         "title": "Nhập cụm từ khôi phục"
@@ -2735,8 +2735,8 @@
         "buttonNoData": "Đặt Mật Khẩu",
         "title": "Quên mật khẩu",
         "button": "Bắt đầu quy trình đặt lại",
-        "description": "Rabby Wallet không lưu trữ mật khẩu của bạn và không thể giúp bạn khôi phục nó. Đặt lại ví của bạn để thiết lập một cái mới.",
-        "descriptionNoData": "Rabby Wallet không lưu trữ mật khẩu của bạn và không thể giúp bạn khôi phục nó. Đặt một mật khẩu mới nếu bạn quên."
+        "description": "Rampnow Wallet không lưu trữ mật khẩu của bạn và không thể giúp bạn khôi phục nó. Đặt lại ví của bạn để thiết lập một cái mới.",
+        "descriptionNoData": "Rampnow Wallet không lưu trữ mật khẩu của bạn và không thể giúp bạn khôi phục nó. Đặt một mật khẩu mới nếu bạn quên."
       },
       "reset": {
         "alert": {
@@ -2758,14 +2758,14 @@
       },
       "tip": {
         "buttonNoData": "Thêm Địa Chỉ",
-        "title": "Rabby Wallet Đặt Lại Hoàn Tất",
+        "title": "Rampnow Wallet Đặt Lại Hoàn Tất",
         "description": "Tạo một mật khẩu mới để tiếp tục",
         "button": "Đặt mật khẩu",
         "descriptionNoData": "Thêm địa chỉ của bạn để bắt đầu"
       },
       "success": {
         "button": "Hoàn tất",
-        "description": "Bạn đã sẵn sàng để sử dụng Rabby Wallet.",
+        "description": "Bạn đã sẵn sàng để sử dụng Rampnow Wallet.",
         "title": "Mật khẩu đã được đặt thành công"
       }
     },
@@ -2783,7 +2783,7 @@
       "title": "Kết nối Rabby bằng cách giả mạo MetaMask",
       "manage": "Quản lý Dapps Được phép",
       "step2": "Bước 2",
-      "alert": "Không thể kết nối với một Dapp vì nó không hiển thị Rabby Wallet như một tùy chọn?",
+      "alert": "Không thể kết nối với một Dapp vì nó không hiển thị Rampnow Wallet như một tùy chọn?",
       "step1Desc": "Cho phép Rabby ngụy trang thành MetaMask trên Dapp hiện tại."
     },
     "syncToMobile": {
@@ -3448,8 +3448,8 @@
     },
     "OpenExternalWebsiteModal": {
       "button": "Tiếp tục",
-      "title": "Bạn đang rời khỏi Rabby Wallet",
-      "content": "Bạn sắp truy cập một trang web bên ngoài. Rabby Wallet không chịu trách nhiệm về nội dung hoặc tính bảo mật của trang này."
+      "title": "Bạn đang rời khỏi Rampnow Wallet",
+      "content": "Bạn sắp truy cập một trang web bên ngoài. Rampnow Wallet không chịu trách nhiệm về nội dung hoặc tính bảo mật của trang này."
     },
     "TokenChart": {
       "price": "Giá",

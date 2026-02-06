@@ -216,7 +216,7 @@
         "selfHostConfirm": {
           "button": "OK",
           "title": "Beralih ke Layanan Aman Rabby",
-          "content": "API Safe tidak tersedia. Alihkan ke layanan Safe yang dikerahkan oleh Rabby untuk menjaga Safe Anda tetap berfungsi. <strong>Semua penandatangan Safe harus menggunakan Rabby Wallet untuk mengotorisasi transaksi.</strong>"
+          "content": "API Safe tidak tersedia. Alihkan ke layanan Safe yang dikerahkan oleh Rabby untuk menjaga Safe Anda tetap berfungsi. <strong>Semua penandatangan Safe harus menggunakan Rampnow Wallet untuk mengotorisasi transaksi.</strong>"
         }
       },
       "SafeNonceSelector": {
@@ -317,7 +317,7 @@
       "unknownAction": "Tipe Tanda Tangan Tidak Dikenal",
       "neverTransacted": "Belum pernah bertransaksi sebelumnya",
       "speedUpTooltip": "Transaksi yang dipercepat ini dan transaksi asli, hanya salah satunya yang pada akhirnya akan diselesaikan.",
-      "decodedTooltip": "Tanda tangan ini di-decode oleh Rabby Wallet",
+      "decodedTooltip": "Tanda tangan ini di-decode oleh Rampnow Wallet",
       "myMark": "Tanda saya",
       "deployTimeTitle": "Waktu Dideploy",
       "addressNote": "Catatan alamat",
@@ -333,7 +333,7 @@
       "noDelegatedAddress": "Tidak ada alamat delegasi yang diimpor",
       "unknownActionType": "Tipe Aksi Tidak Dikenal",
       "viewRaw": "Lihat Mentah",
-      "sigCantDecode": "Tanda tangan ini tidak dapat didekode oleh Rabby Wallet",
+      "sigCantDecode": "Tanda tangan ini tidak dapat didekode oleh Rampnow Wallet",
       "firstOnChain": "Pertama di on-chain",
       "myMarkWithContract": "Tanda saya di kontrak {{chainName}}",
       "coboSafeNotPermission": "Alamat delegasi ini tidak memiliki izin untuk memulai transaksi ini.",
@@ -949,9 +949,9 @@
         "button": "Dapatkan",
         "wallet": "Dompet",
         "rate": "Tarif biaya",
-        "bridgeDesc": "Rabby Wallet akan selalu menemukan suku bunga terbaik dari agregator teratas dan memverifikasi keandalan tawaran mereka. Rabby mengenakan biaya 0,25%, yang secara otomatis termasuk dalam kutipan.",
+        "bridgeDesc": "Rampnow Wallet akan selalu menemukan suku bunga terbaik dari agregator teratas dan memverifikasi keandalan tawaran mereka. Rabby mengenakan biaya 0,25%, yang secara otomatis termasuk dalam kutipan.",
         "title": "Rabby biaya",
-        "swapDesc": "Rabby Wallet akan selalu menemukan tarif terbaik dari agregator teratas dan memverifikasi keandalan tawaran mereka. Rabby mengenakan biaya 0,25% (0% untuk pembungkus), yang secara otomatis termasuk dalam kutipan."
+        "swapDesc": "Rampnow Wallet akan selalu menemukan tarif terbaik dari agregator teratas dan memverifikasi keandalan tawaran mereka. Rabby mengenakan biaya 0,25% (0% untuk pembungkus), yang secara otomatis termasuk dalam kutipan."
       },
       "lowCreditModal": {
         "title": "Token ini memiliki nilai kredit yang rendah",
@@ -1263,18 +1263,18 @@
         "noConnectedDapps": "Tidak ada Dapps yang terhubung",
         "dapps": "Dapps",
         "recentlyConnected": "Baru saja terhubung",
-        "metamaskModeTooltipNew": "Rabby Wallet akan terhubung ketika Anda memilih \"MetaMask\" di Dapp. Anda dapat mengatur ini di More > Connect Rabby dengan Menyamar sebagai MetaMask",
+        "metamaskModeTooltipNew": "Rampnow Wallet akan terhubung ketika Anda memilih \"MetaMask\" di Dapp. Anda dapat mengatur ini di More > Connect Rabby dengan Menyamar sebagai MetaMask",
         "metamaskModeTooltip": "Tidak bisa menghubungkan Rabby di Dapp ini? Coba aktifkan <1>MetaMask Mode</1>",
         "noRecentlyConnectedDapps": "Tidak ada Dapps yang baru terhubung"
       },
       "feedback": {
         "directMessage": {
           "content": "Pesan Langsung",
-          "description": "Chat dengan Rabby Wallet Resmi di DeBank"
+          "description": "Chat dengan Rampnow Wallet Resmi di DeBank"
         },
         "proposal": {
           "content": "Usulan",
-          "description": "Ajukan proposal untuk Rabby Wallet di DeBank"
+          "description": "Ajukan proposal untuk Rampnow Wallet di DeBank"
         },
         "title": "Umpan Balik"
       },
@@ -1306,7 +1306,7 @@
         "claim": "Klaim",
         "goToSwap": "Pergi ke Swap",
         "freeGasTitle": "Klaim Lencana Gas Gratis untuk",
-        "swapTip": "Anda perlu menyelesaikan pertukaran dengan dex terkemuka dalam Rabby Wallet terlebih dahulu.",
+        "swapTip": "Anda perlu menyelesaikan pertukaran dengan dex terkemuka dalam Rampnow Wallet terlebih dahulu.",
         "freeGasTip": "Silakan tanda tangani transaksi menggunakan Free Gas. Tombol 'Free Gas' akan muncul secara otomatis ketika gas Anda tidak cukup.",
         "rabbyFreeGasUserNo": "Rabby Free Gas Pengguna No.{{num}}",
         "rabbyValuedUserNo": "Rabby Pengguna Bernilai No.{{num}}",
@@ -1337,7 +1337,7 @@
           "okText": "Lihat Tutorial",
           "successTip": "Anda menggunakan versi terbaru",
           "title": "Pembaruan Tersedia",
-          "content": "Pembaruan baru untuk Rabby Wallet tersedia. Klik untuk memeriksa cara memperbarui secara manual."
+          "content": "Pembaruan baru untuk Rampnow Wallet tersedia. Klik untuk memeriksa cara memperbarui secara manual."
         },
         "features": {
           "searchDapps": "Cari Dapps",
@@ -1402,7 +1402,7 @@
           "button": "Aktifkan\n"
         },
         "rateModalTriggerOnHome": {
-          "description": "Bagaimana Anda menilai Rabby Wallet?"
+          "description": "Bagaimana Anda menilai Rampnow Wallet?"
         },
         "rateModal": {
           "thxTitle": "Terima kasih!",
@@ -1962,7 +1962,7 @@
         "error": "kata sandi tidak benar"
       },
       "btnForgotPassword": "Lupa Kata Sandi?",
-      "title": "Rabby Wallet",
+      "title": "Rampnow Wallet",
       "description": "Dompet andalan Anda untuk Ethereum dan EVM"
     },
     "addToken": {
@@ -2371,7 +2371,7 @@
       "AddFromChainList": {
         "tips": {
           "added": "Anda sudah menambahkan rantai ini",
-          "supported": "Chain sudah diintegrasikan oleh Rabby Wallet"
+          "supported": "Chain sudah diintegrasikan oleh Rampnow Wallet"
         },
         "title": "Tambahkan cepat dari Chainlist",
         "search": "Cari nama atau ID jaringan kustom",
@@ -2597,7 +2597,7 @@
         "title4": "Apakah GasAccount aman",
         "title3": "Apakah GasAccount memiliki biaya tambahan",
         "title2": "Cara menggunakan Gas Account",
-        "desc3": "Rabby Wallet tidak mengenakan biaya tambahan. Anda hanya membayar gas untuk transaksi Anda dan sedikit gas untuk mengirim gas tersebut dari GasAccount ke alamat Anda.",
+        "desc3": "Rampnow Wallet tidak mengenakan biaya tambahan. Anda hanya membayar gas untuk transaksi Anda dan sedikit gas untuk mengirim gas tersebut dari GasAccount ke alamat Anda.",
         "desc4": "GasAccount tidak memerlukan persetujuan atau izin kontrak. Anda menyetor ke alamat GasAccount Rabby, dan Rabby mengirimkan gas ke alamat Anda saat diperlukan. Sepenuhnya aman berdasarkan desain.",
         "desc2": "Tambahkan dana ke GasAccount Anda dan gunakan untuk transaksi apa pun. Saat menandatangani, pilih untuk membayar gas dengan token asli atau GasAccount, beralih kapan saja.",
         "desc1": "GasAccount adalah cara baru untuk membayar biaya gas. Alih-alih menggunakan token asli di setiap rantai, Anda dapat menggunakan satu akun untuk menutupi gas untuk semua alamat Anda di semua rantai. Sederhana, opsional, dan tidak pernah kehabisan gas."
@@ -2610,7 +2610,7 @@
     "newUserImport": {
       "guide": {
         "importAddress": "Saya sudah memiliki alamat",
-        "title": "Selamat datang di Rabby Wallet",
+        "title": "Selamat datang di Rampnow Wallet",
         "createNewAddress": "Buat alamat baru",
         "desc": "Dompet andalan Anda untuk Ethereum dan EVM"
       },
@@ -2661,7 +2661,7 @@
           "step1": "Klik ikon ekstensi browser",
           "step2": "Pin Dompet Rabby"
         },
-        "desc": "Temukan Rabby Wallet dan Pin itu",
+        "desc": "Temukan Rampnow Wallet dan Pin itu",
         "title": "Dompet Rabby Anda Sudah Siap!",
         "extensionTip": "Klik <1/> dan kemudian <3/>"
       },
@@ -2735,8 +2735,8 @@
         "buttonNoData": "Atur Kata Sandi",
         "button": "Mulai Proses Reset",
         "title": "Lupa Kata Sandi",
-        "description": "Rabby Wallet tidak menyimpan kata sandi Anda dan tidak dapat membantu Anda untuk mengambilnya. Reset dompet Anda untuk mengatur yang baru.",
-        "descriptionNoData": "Rabby Wallet tidak menyimpan kata sandi Anda dan tidak dapat membantu Anda mengembalikannya. Atur kata sandi baru jika Anda lupa."
+        "description": "Rampnow Wallet tidak menyimpan kata sandi Anda dan tidak dapat membantu Anda untuk mengambilnya. Reset dompet Anda untuk mengatur yang baru.",
+        "descriptionNoData": "Rampnow Wallet tidak menyimpan kata sandi Anda dan tidak dapat membantu Anda mengembalikannya. Atur kata sandi baru jika Anda lupa."
       },
       "reset": {
         "alert": {
@@ -2764,7 +2764,7 @@
         "descriptionNoData": "Tambahkan alamat Anda untuk memulai"
       },
       "success": {
-        "description": "Anda sudah siap untuk menggunakan Rabby Wallet",
+        "description": "Anda sudah siap untuk menggunakan Rampnow Wallet",
         "button": "Selesai",
         "title": "Kata Sandi Berhasil Disetel"
       }
@@ -2782,7 +2782,7 @@
       "noDappFound": "Tidak ada Dapp yang ditemukan",
       "step2Desc": "Menyegarkan dan terhubung melalui MetaMask",
       "manage": "Kelola Dapps yang Diizinkan",
-      "alert": "Tidak dapat terhubung ke Dapp karena tidak menampilkan Rabby Wallet sebagai pilihan?",
+      "alert": "Tidak dapat terhubung ke Dapp karena tidak menampilkan Rampnow Wallet sebagai pilihan?",
       "step1Desc": "Izinkan Rabby menyamar sebagai MetaMask di Dapp saat ini",
       "step1": "Langkah 1"
     },
@@ -3437,7 +3437,7 @@
     "EcologyNoticeModal": {
       "title": "Pemberitahuan",
       "notRemind": "Jangan ingatkan saya lagi",
-      "desc": "Layanan berikut akan disediakan secara langsung oleh Mitra Ekosistem pihak ketiga. Rabby Wallet tidak bertanggung jawab atas keamanan layanan ini."
+      "desc": "Layanan berikut akan disediakan secara langsung oleh Mitra Ekosistem pihak ketiga. Rampnow Wallet tidak bertanggung jawab atas keamanan layanan ini."
     },
     "ReserveGasPopup": {
       "fast": "Normal",
@@ -3448,8 +3448,8 @@
     },
     "OpenExternalWebsiteModal": {
       "button": "Lanjutkan",
-      "title": "Anda Sedang Meninggalkan Rabby Wallet",
-      "content": "Anda akan mengunjungi situs web eksternal. Rabby Wallet tidak bertanggung jawab atas konten atau keamanan situs ini."
+      "title": "Anda Sedang Meninggalkan Rampnow Wallet",
+      "content": "Anda akan mengunjungi situs web eksternal. Rampnow Wallet tidak bertanggung jawab atas konten atau keamanan situs ini."
     },
     "TokenChart": {
       "price": "Harga",
@@ -3497,7 +3497,7 @@
     }
   },
   "global": {
-    "appName": "Rabby Wallet",
+    "appName": "Rampnow Wallet",
     "Confirm": "Konfirmasi",
     "editButton": "Edit",
     "Save": "Simpan",

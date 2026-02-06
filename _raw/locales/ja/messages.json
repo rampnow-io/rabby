@@ -329,7 +329,7 @@
       "gasAccountForGas": "GasAccount の USD を使用してガス代を支払う",
       "nativeTokenForGas": "{{chainName}}でのガス料金の支払いに{{tokenName}}トークンを使用",
       "chain": "チェーン",
-      "decodedTooltip": "この署名は Rabby Wallet によってデコードされます。",
+      "decodedTooltip": "この署名は Rampnow Wallet によってデコードされます。",
       "importedAddress": "インポートされたアドレス",
       "l2GasEstimateTooltip": "L2チェーンのガス見積もりにはL1ガス料金は含まれていません。実際の料金は現在の見積もりよりも高くなります。",
       "address": "アドレス",
@@ -351,7 +351,7 @@
         "selfHostConfirm": {
           "button": "OK",
           "title": "RabbyのSafe Serviceに切り替える",
-          "content": "Safe API は利用できません。Rabby によってデプロイされた Safe サービスに切り替えて、Safe を機能させ続けてください。<strong>すべての Safe 署名者は Rabby Wallet を使用してトランザクションを承認する必要があります。<strong>"
+          "content": "Safe API は利用できません。Rabby によってデプロイされた Safe サービスに切り替えて、Safe を機能させ続けてください。<strong>すべての Safe 署名者は Rampnow Wallet を使用してトランザクションを承認する必要があります。<strong>"
         }
       },
       "errorRetry": {
@@ -1019,8 +1019,8 @@
         "rate": "手数料率",
         "title": "Rabby fee",
         "wallet": "ウォレット",
-        "bridgeDesc": "Rabby Walletは常にトップアグリゲーターから可能な限り最良のレートを見つけ、それらのオファーの信頼性を検証します。Rabbyは0.25%の手数料を請求し、この手数料は見積もりに自動的に含まれます。",
-        "swapDesc": "Rabby Walletは常にトップアグリゲーターから可能な限り最良のレートを見つけ、その提案の信頼性を確認します。Rabbyは0.25%の手数料（ラッピングには0%）を請求し、これは見積もりに自動的に含まれます。"
+        "bridgeDesc": "Rampnow Walletは常にトップアグリゲーターから可能な限り最良のレートを見つけ、それらのオファーの信頼性を検証します。Rabbyは0.25%の手数料を請求し、この手数料は見積もりに自動的に含まれます。",
+        "swapDesc": "Rampnow Walletは常にトップアグリゲーターから可能な限り最良のレートを見つけ、その提案の信頼性を確認します。Rabbyは0.25%の手数料（ラッピングには0%）を請求し、これは見積もりに自動的に含まれます。"
       },
       "lowCreditModal": {
         "desc": "低い信用価値は、ハニーポットトークンや非常に低い流動性のような高いリスクを示すことが多いです。",
@@ -1175,16 +1175,16 @@
         "dapps": "Dapps",
         "noConnectedDapps": "接続されているDappsはありません",
         "metamaskModeTooltip": "このDappでRabbyに接続できませんか？<1>MetaMaskモード</1>を有効にしてみてください。",
-        "metamaskModeTooltipNew": "Rabby Walletは、Dappで「MetaMask」を選択すると接続されます。これを管理するには、[その他] > [MetaMaskとして偽装してRabbyを接続]に進んでください。"
+        "metamaskModeTooltipNew": "Rampnow Walletは、Dappで「MetaMask」を選択すると接続されます。これを管理するには、[その他] > [MetaMaskとして偽装してRabbyを接続]に進んでください。"
       },
       "feedback": {
         "directMessage": {
           "content": "ダイレクトメッセージ",
-          "description": "DeBankのRabby Wallet公式とチャット"
+          "description": "DeBankのRampnow Wallet公式とチャット"
         },
         "proposal": {
           "content": "提案",
-          "description": "Rabby Walletに関する提案をDeBankに提出"
+          "description": "Rampnow Walletに関する提案をDeBankに提出"
         },
         "title": "フィードバック"
       },
@@ -1212,7 +1212,7 @@
         "imageLabel": "Rabby バッジ",
         "title": "Rabby バッジをクレームする",
         "enterClaimCode": "クレームコードを入力",
-        "swapTip": "Rabby Wallet内で注目のDEXでスワップを完了する必要があります。",
+        "swapTip": "Rampnow Wallet内で注目のDEXでスワップを完了する必要があります。",
         "goToSwap": "スワップに進む",
         "claim": "クレーム",
         "viewYourClaimCode": "クレームコードを表示",
@@ -1268,7 +1268,7 @@
         "warning": "警告",
         "clearWatchAddressContent": "すべてのウォッチモードアドレスを削除してもよろしいですか？",
         "updateVersion": {
-          "content": "新しいRabby Walletのアップデートが利用可能です。手動でアップデート方法を確認するにはクリックしてください。",
+          "content": "新しいRampnow Walletのアップデートが利用可能です。手動でアップデート方法を確認するにはクリックしてください。",
           "okText": "チュートリアルを見る",
           "successTip": "最新バージョンを使用中です",
           "title": "アップデート利用可能"
@@ -1312,7 +1312,7 @@
           "desc": "有効化後、各Dappに接続するアドレスを選択できます。メインアドレスの変更は、各Dappに接続されているアドレスに影響しません。\n"
         },
         "rateModalTriggerOnHome": {
-          "description": "Rabby Walletをどのように評価しますか？"
+          "description": "Rampnow Walletをどのように評価しますか？"
         },
         "rateModal": {
           "submitFeedbackButton": "提出する",
@@ -1874,7 +1874,7 @@
         "placeholder": "アンロックするにはパスワードを入力してください",
         "error": "パスワードが正しくありません"
       },
-      "title": "Rabby Wallet",
+      "title": "Rampnow Wallet",
       "btnForgotPassword": "パスワードをお忘れですか?",
       "description": "EthereumとEVMのための定番ウォレット"
     },
@@ -2374,7 +2374,7 @@
       "AddFromChainList": {
         "tips": {
           "added": "このチェーンはすでに追加されています。",
-          "supported": "Rabby Walletによってすでに統合されているチェーン"
+          "supported": "Rampnow Walletによってすでに統合されているチェーン"
         },
         "search": "カスタムネットワーク名またはIDを検索",
         "empty": "チェーンが見つかりませんでした",
@@ -2600,7 +2600,7 @@
         "title2": "Gas Accountの使い方",
         "title1": "GasAccountとは何ですか",
         "title4": "GasAccountは安全ですか",
-        "desc3": "Rabby Walletは追加料金を請求しません。あなたはトランザクションのガス代と、そのガスをGasAccountからあなたのアドレスに送るための少額のガス代のみを支払います。",
+        "desc3": "Rampnow Walletは追加料金を請求しません。あなたはトランザクションのガス代と、そのガスをGasAccountからあなたのアドレスに送るための少額のガス代のみを支払います。",
         "desc4": "GasAccountは、契約の承認や権限を必要としません。あなたはRabbyのGasAccountアドレスに入金し、必要な時にRabbyがあなたのアドレスにガスを送ります。設計上、完全に安全です。",
         "desc2": "GasAccountに資金を追加し、任意の取引に使用してください。署名する際、ネイティブトークンまたはGasAccountでガスを支払うオプションを選択し、いつでも切り替えてください。",
         "desc1": "GasAccountはガス料金を支払う新しい方法です。各チェーンのネイティブトークンを使用する代わりに、1つのアカウントを使用してすべてのチェーンのすべてのアドレスのガスをカバーできます。シンプルでオプションの機能で、ガス切れになることもありません。"
@@ -2614,7 +2614,7 @@
       "guide": {
         "createNewAddress": "新しいアドレスを作成",
         "importAddress": "すでにアドレスを持っています。",
-        "title": "Rabby Walletへようこそ",
+        "title": "Rampnow Walletへようこそ",
         "desc": "EthereumおよびEVMのためのあなたの頼りになるウォレット"
       },
       "createNewAddress": {
@@ -2659,14 +2659,14 @@
         "import": "インポートしました"
       },
       "readyToUse": {
-        "pin": "Rabby Wallet をピン留め",
+        "pin": "Rampnow Wallet をピン留め",
         "guides": {
           "step1": "ブラウザー拡張アイコンをクリックしてください",
-          "step2": "Rabby Walletをピン留めする"
+          "step2": "Rampnow Walletをピン留めする"
         },
         "title": "あなたのRabbyウォレットの準備ができました！",
         "extensionTip": "クリック<1/>、次に<3/>",
-        "desc": "Rabby Walletを見つけてピン留めしてください。"
+        "desc": "Rampnow Walletを見つけてピン留めしてください。"
       },
       "importSeedPhrase": {
         "title": "シードフレーズをインポート"
@@ -2738,8 +2738,8 @@
         "title": "パスワードを忘れた場合",
         "button": "リセットプロセスを開始",
         "buttonNoData": "パスワードを設定",
-        "descriptionNoData": "Rabby Walletはパスワードを保存せず、パスワードを取得するお手伝いはできません。忘れた場合は新しいパスワードを設定してください。",
-        "description": "Rabby Walletはパスワードを保存せず、パスワードの復元をお手伝いすることができません。ウォレットをリセットして新しいウォレットを設定してください。"
+        "descriptionNoData": "Rampnow Walletはパスワードを保存せず、パスワードを取得するお手伝いはできません。忘れた場合は新しいパスワードを設定してください。",
+        "description": "Rampnow Walletはパスワードを保存せず、パスワードの復元をお手伝いすることができません。ウォレットをリセットして新しいウォレットを設定してください。"
       },
       "reset": {
         "alert": {
@@ -2756,11 +2756,11 @@
           "title": "データの保持先："
         },
         "button": "リセットを確認",
-        "title": "Rabby Wallet をリセット",
+        "title": "Rampnow Wallet をリセット",
         "confirm": "ボックスに<1>RESET</1>と入力して確認し、続行します。"
       },
       "tip": {
-        "title": "Rabby Wallet リセットが完了しました",
+        "title": "Rampnow Wallet リセットが完了しました",
         "description": "新しいパスワードを作成して続行してください",
         "buttonNoData": "アドレスを追加",
         "button": "パスワードを設定",
@@ -2768,7 +2768,7 @@
       },
       "success": {
         "button": "完了",
-        "description": "Rabby Wallet を使用する準備が整いました。",
+        "description": "Rampnow Wallet を使用する準備が整いました。",
         "title": "パスワードが正常に設定されました"
       }
     },
@@ -2787,7 +2787,7 @@
       "step1Desc": "Rabbyに現在のDappでMetaMaskとして偽装を許可する",
       "manage": "許可されたDappsを管理",
       "title": "MetaMaskとして偽装してRabbyを接続する",
-      "alert": "Dappに接続できません。Rabby Walletがオプションとして表示されていないためですか？"
+      "alert": "Dappに接続できません。Rampnow Walletがオプションとして表示されていないためですか？"
     },
     "syncToMobile": {
       "downloadGooglePlay": "Google Play",
@@ -3440,7 +3440,7 @@
     "EcologyNoticeModal": {
       "title": "通知",
       "notRemind": "再び通知しない",
-      "desc": "以下のサービスは、サードパーティーのエコシステムパートナーによって直接提供されます。Rabby Walletはこれらのサービスのセキュリティに対して責任を負いません。"
+      "desc": "以下のサービスは、サードパーティーのエコシステムパートナーによって直接提供されます。Rampnow Walletはこれらのサービスのセキュリティに対して責任を負いません。"
     },
     "ReserveGasPopup": {
       "title": "ガスを予約する",
@@ -3450,9 +3450,9 @@
       "fast": "ノーマル"
     },
     "OpenExternalWebsiteModal": {
-      "title": "Rabby Wallet を離れようとしています",
+      "title": "Rampnow Wallet を離れようとしています",
       "button": "続行",
-      "content": "外部のウェブサイトを訪れようとしています。Rabby Walletはこのサイトの内容やセキュリティに責任を負いません。"
+      "content": "外部のウェブサイトを訪れようとしています。Rampnow Walletはこのサイトの内容やセキュリティに責任を負いません。"
     },
     "TokenChart": {
       "price": "価格",

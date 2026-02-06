@@ -62,7 +62,7 @@ const SignedTextHistoryItem = ({ item }: { item: SignTextHistoryItem }) => {
         <div className="site">
           {item.site?.origin === INTERNAL_REQUEST_ORIGIN ? (
             <span className="flex-1 whitespace-nowrap overflow-ellipsis overflow-hidden text-r-neutral-foot text-12">
-              Rabby Wallet
+              Rampnow Wallet
             </span>
           ) : (
             <>
