@@ -122,7 +122,7 @@ export const DashboardPanel: React.FC<{
             <div className="relative z-50">
               <button
                 onClick={() => setShowNetworkMenu(!showNetworkMenu)}
-                className="flex items-center gap-2 px-2 rounded-full border border-primary-foreground bg-white hover:bg-r-neutral-bg-1 transition-colors"
+                className="flex items-center gap-2 p-1 rounded-full border border-primary-foreground bg-white hover:bg-r-neutral-bg-1 transition-colors"
               >
                 {selectedNetworkLogo && (
                   <img
