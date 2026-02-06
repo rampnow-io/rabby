@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Image } from '@repo/ui/primitives';
+import { ReactComponent as IconBackCC } from '@/ui/assets/back-with-line-cc.svg';
 import { cn } from '@repo/utils';
 import { useHistory } from 'react-router-dom';
 import { X } from 'lucide-react';
@@ -44,12 +45,9 @@ function HeaderNavPage({
             disableNav && 'opacity-40 cursor-not-allowed'
           )}
         >
-          <Image
-            src="/image/icon/general/back.svg"
-            width={24}
-            height={24}
-            draggable={false}
-            alt="Back button"
+          <IconBackCC
+
+          // onClick={handleClose}
           />
         </button>
       )}

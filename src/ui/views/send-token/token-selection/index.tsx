@@ -74,7 +74,9 @@ const TokenSelection: React.FC<TokenSelectionProps> = ({
       return externalTokens as (TokenItem | AbstractPortfolioToken)[];
     }
     const abstractTokens = (allTokens as unknown) as AbstractPortfolioToken[];
-    return abstractTokens;
+    // Convert AbstractPortfolioToken to TokenItem to fix concatenated ID issue
+    // Maps _tokenId (actual address) to id field
+    return abstractTokens.map(abstractTokenToTokenItem);
   }, [allTokens, externalTokens]);
 
   const { list: searchedTokenByQuery } = useSearchToken(
@@ -84,13 +86,20 @@ const TokenSelection: React.FC<TokenSelectionProps> = ({
     true
   );
 
+  const searchedDisplayTokens = useMemo(() => {
+    // Convert searched tokens from AbstractPortfolioToken to TokenItem
+    // This ensures token.id contains the actual contract address from _tokenId
+    // instead of the concatenated id+chain value
+    return searchedTokenByQuery.map(abstractTokenToTokenItem);
+  }, [searchedTokenByQuery]);
+
   const availableTokens = useMemo(() => {
     const filtered = (searchQuery
-      ? searchedTokenByQuery
+      ? searchedDisplayTokens
       : allDisplayTokens
     ).filter((e) => !excludeTokens.includes(e.id));
     return uniqBy(filtered, (t) => `${t.chain}-${t.id}`);
-  }, [searchQuery, searchedTokenByQuery, allDisplayTokens, excludeTokens]);
+  }, [searchQuery, searchedDisplayTokens, allDisplayTokens, excludeTokens]);
 
   const displayTokenList = useSortToken(
     availableTokens as (TokenItem | AbstractPortfolioToken)[]

@@ -142,7 +142,7 @@ const SwitchAddress = () => {
             }}
             className="cursor-pointer text-gray-600 hover:text-gray-800"
           />
-          <div className="text-2xl font-semibold">Wallets</div>
+          <div className="text-2xl font-medium">Wallets</div>
           <div className="w-6" />
         </div>
 
@@ -221,33 +221,57 @@ const SwitchAddress = () => {
 
                 <div
                   className="absolute bottom-0 left-1/2 -translate-x-1/2
-                     w-[335px] h-[170px]
-                     rounded-t-[20px] rounded-b-[36px] bg-black
-                     flex flex-col items-center justify-center gap-2
-                     cursor-pointer"
+             w-[335px] h-[170px]
+             rounded-t-[20px] rounded-b-[36px]
+             bg-black
+             flex flex-col items-center justify-center gap-2
+             cursor-pointer
+             overflow-hidden"
                   onClick={handleToggleBalance}
                 >
-                  {hiddenBalance ? (
-                    <div className="text-xl tracking-widest text-[#8A8B89]">
-                      *****
-                    </div>
-                  ) : (
-                    <div className="text-xl font-semibold text-[#8A8B89]">
-                      $
-                      {Number(
-                        allSortedAccountList[currentAccountIndex]?.balance || 0
-                      ).toLocaleString('en-US', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </div>
-                  )}
+                  {/* SVG LEATHER OVERLAY */}
+                  <svg className="absolute inset-0 w-full h-full opacity-30 pointer-events-none">
+                    <filter id="noise">
+                      <feTurbulence
+                        type="fractalNoise"
+                        baseFrequency="0.8"
+                        numOctaves="2"
+                      />
+                    </filter>
+                    <rect
+                      width="100%"
+                      height="100%"
+                      filter="url(#noise)"
+                      fill="white"
+                    />
+                  </svg>
 
-                  <div className="text-[11px] text-gray-500">Total Balance</div>
+                  {/* CONTENT */}
+                  <div className="relative z-10 flex flex-col items-center gap-2">
+                    {hiddenBalance ? (
+                      <div className="text-xl tracking-widest text-[#8A8B89]">
+                        *****
+                      </div>
+                    ) : (
+                      <div className="text-xl font-semibold text-[#8A8B89]">
+                        $
+                        {Number(
+                          allSortedAccountList[currentAccountIndex]?.balance ||
+                            0
+                        ).toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </div>
+                    )}
 
-                  {/* EYE ICON */}
-                  <div className="mt-1 text-gray-500">
-                    {hiddenBalance ? <EyeOff size={16} /> : <Eye size={16} />}
+                    <div className="text-[11px] text-gray-500">
+                      Total Balance
+                    </div>
+
+                    <div className="mt-1 text-gray-500">
+                      {hiddenBalance ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </div>
                   </div>
                 </div>
               </div>

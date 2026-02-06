@@ -360,7 +360,9 @@ const BuyPage = () => {
           handleBack={() => {
             history.goBack();
           }}
-        />
+        >
+          <div className="text-primary-foreground text-xl font-normal">Buy</div>
+        </HeaderNavPage>
         <Content>
           {loadingConfig ? (
             <div className="flex items-center justify-center h-96">

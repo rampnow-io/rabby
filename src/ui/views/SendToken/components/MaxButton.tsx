@@ -6,12 +6,9 @@ export const MaxButton = styled.div`
   line-height: 1;
   padding: 4px 5px;
   cursor: pointer;
-  user-select: nonce;
+  user-select: none;
   margin-left: 6px;
-  background-color: var(--r-blue-light1);
-  color: var(--r-blue-default);
+  background-color: white;
+  color: black;
   border-radius: 2px;
-  &:hover {
-    background-color: var(--r-blue-light2);
-  }
 `;

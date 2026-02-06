@@ -3,6 +3,8 @@ import { TokenItem, GasLevel } from '@rabby-wallet/rabby-api/dist/types';
 import BigNumber from 'bignumber.js';
 import TokenAmountInput from '@/ui/component/TokenAmountInput';
 import { Input, InputSize, Separator } from '@repo/ui/primitives';
+import BottomFloatingSheet from '@/ui/component/BottomFloatingPopup';
+import { ReactComponent as RcIconArrowRight } from 'ui/assets/arrow-right-gray.svg';
 
 interface AmountEntryProps {
   token: TokenItem | null;
@@ -49,6 +51,7 @@ const AmountEntry: React.FC<AmountEntryProps> = ({
   recipientAddress = '',
 }) => {
   const [selectedGasLevel, setSelectedGasLevel] = useState<string>('normal');
+  const [isGasPopupOpen, setIsGasPopupOpen] = useState(false);
 
   const sortedGasList = useMemo(() => {
     const SORT_SCORE = { slow: 1, normal: 2, fast: 3, custom: 4 };
@@ -78,7 +81,12 @@ const AmountEntry: React.FC<AmountEntryProps> = ({
   const handleGasLevelSelect = (gas: GasLevel) => {
     setSelectedGasLevel(gas.level);
     onGasChange?.(gas);
+    setIsGasPopupOpen(false);
   };
+
+  const selectedGas = useMemo(() => {
+    return gasList.find((g) => g.level === selectedGasLevel);
+  }, [gasList, selectedGasLevel]);
 
   return (
     <div className="flex flex-col gap-5 ">
@@ -114,38 +122,71 @@ const AmountEntry: React.FC<AmountEntryProps> = ({
       />
 
       {gasList && gasList.length > 0 && (
-        <div className="flex flex-col gap-3">
-          <div className="text-13 font-semibold text-r-neutral-body uppercase tracking-wider mb-3">
-            Network Fee
-          </div>
-          {sortedGasList.map((gas) => {
-            const isSelected = selectedGasLevel === gas.level;
-            const gasPrice = new BigNumber(gas.price / 1e9).toFixed(2);
-            const estimatedTime = Math.ceil(gas.estimated_seconds / 60);
-
-            return (
-              <div
-                key={gas.level}
-                className={`p-3.5 rounded-lg cursor-pointer transition-all duration-200 flex justify-between items-center ${
-                  isSelected
-                    ? 'border border-r-blue-default bg-r-blue-light-1'
-                    : 'border border-r-neutral-line bg-transparent hover:border-r-blue-default hover:bg-r-blue-light-1'
-                }`}
-                onClick={() => handleGasLevelSelect(gas)}
-              >
-                <div className="flex flex-col gap-1">
-                  <span className="text-14 font-semibold text-r-neutral-title-1">
-                    {gasLevelNameMap[gas.level] || gas.level}
-                  </span>
-                  <span className="text-12 text-r-neutral-body">
-                    {gasPrice} Gwei • ~{estimatedTime}m
-                  </span>
-                </div>
+        <div
+          className="flex items-center justify-between p-3.5 rounded-lg border border-primary bg-white cursor-pointer hover:border-primary transition-all"
+          onClick={() => setIsGasPopupOpen(true)}
+        >
+          <div className="flex flex-col gap-1">
+            <span className="text-13 font-semibold text-primary-foreground uppercase tracking-wider">
+              Network Fee
+            </span>
+            {selectedGas && (
+              <div className="flex items-center gap-2">
+                <span className="text-14 font-semibold text-primary-foreground">
+                  {gasLevelNameMap[selectedGas.level] || selectedGas.level}
+                </span>
+                <span className="text-12 text-primary-foreground">
+                  {new BigNumber(selectedGas.price / 1e9).toFixed(2)} Gwei • ~
+                  {Math.ceil(selectedGas.estimated_seconds / 60)}m
+                </span>
               </div>
-            );
-          })}
+            )}
+          </div>
+          <RcIconArrowRight className="w-5 h-5 text-primary-foreground" />
         </div>
       )}
+
+      <BottomFloatingSheet
+        open={isGasPopupOpen}
+        hideCloseButton
+        onClose={() => setIsGasPopupOpen(false)}
+      >
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
+            {sortedGasList.map((gas) => {
+              const isSelected = selectedGasLevel === gas.level;
+              const gasPrice = new BigNumber(gas.price / 1e9).toFixed(2);
+              const estimatedTime = Math.ceil(gas.estimated_seconds / 60);
+
+              return (
+                <div
+                  key={gas.level}
+                  className={`p-3.5 rounded-lg cursor-pointer transition-all duration-200 flex justify-between items-center ${
+                    isSelected
+                      ? 'border border-primary bg-white'
+                      : 'border border-r-neutral-line bg-transparent hover:border-primary hover:bg-grey-50'
+                  }`}
+                  onClick={() => handleGasLevelSelect(gas)}
+                >
+                  <div className="flex flex-col gap-1">
+                    <span className="text-14 font-semibold text-primary-foreground">
+                      {gasLevelNameMap[gas.level] || gas.level}
+                    </span>
+                    <span className="text-12 text-primary-foreground">
+                      {gasPrice} Gwei • ~{estimatedTime}m
+                    </span>
+                  </div>
+                  {isSelected && (
+                    <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                      <div className="w-2 h-2 rounded-full bg-white" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </BottomFloatingSheet>
     </div>
   );
 };

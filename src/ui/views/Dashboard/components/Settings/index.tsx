@@ -788,7 +788,7 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
           leftIcon: RcIconAddresses,
           content: t('page.dashboard.settings.features.manageAddress'),
           onClick: () => {
-            history.push('/settings/address');
+            history.push('/switch-address');
             matomoRequestEvent({
               category: 'Setting',
               action: 'clickToUse',
@@ -897,38 +897,38 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
         //     reportSettings('Custom RPC');
         //   },
         // },
-        {
-          leftIcon: RcIconI18n,
-          content: t('page.dashboard.settings.settings.currentLanguage'),
-          onClick: () => {
-            matomoRequestEvent({
-              category: 'Setting',
-              action: 'clickToUse',
-              label: 'Current Language',
-            });
+        // {
+        //   leftIcon: RcIconI18n,
+        //   content: t('page.dashboard.settings.settings.currentLanguage'),
+        //   onClick: () => {
+        //     matomoRequestEvent({
+        //       category: 'Setting',
+        //       action: 'clickToUse',
+        //       label: 'Current Language',
+        //     });
 
-            ga4.fireEvent('More_CurrentLanguage', {
-              event_category: 'Click More',
-            });
+        //     ga4.fireEvent('More_CurrentLanguage', {
+        //       event_category: 'Click More',
+        //     });
 
-            reportSettings('Current Language');
-            setIsShowLangModal(true);
-          },
-          rightIcon: (
-            <div className="flex items-center">
-              <span
-                className="text-14 mr-[8px] text-r-neutral-title-1"
-                role="button"
-              >
-                {langLabel}
-              </span>
-              <ThemeIcon
-                src={RcIconArrowRight}
-                className="icon icon-arrow-right"
-              />
-            </div>
-          ),
-        },
+        //     reportSettings('Current Language');
+        //     setIsShowLangModal(true);
+        //   },
+        //   rightIcon: (
+        //     <div className="flex items-center">
+        //       <span
+        //         className="text-14 mr-[8px] text-r-neutral-title-1"
+        //         role="button"
+        //       >
+        //         {langLabel}
+        //       </span>
+        //       <ThemeIcon
+        //         src={RcIconArrowRight}
+        //         className="icon icon-arrow-right"
+        //       />
+        //     </div>
+        //   ),
+        // },
         {
           leftIcon: RcThemeIcon,
           content: t('page.dashboard.settings.settings.toggleThemeMode'),
@@ -1443,11 +1443,7 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
         <div className="content">
           {/* HEADER */}
           <div className="flex items-center justify-between mb-6 text-18 font-medium">
-            <IconBackCC
-              className="w-5 h-5 text-r-neutral-body"
-              viewBox="0 0 20 20"
-              onClick={handleClose}
-            />
+            <IconBackCC onClick={handleClose} />
             <p>{t('page.dashboard.home.panel.settings')}</p>
             <div />
           </div>

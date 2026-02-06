@@ -165,14 +165,21 @@ const TokenAmountInput = ({
     true
   );
 
+  const searchedDisplayTokens = useMemo(() => {
+    // Convert searched tokens from AbstractPortfolioToken to TokenItem
+    // This ensures token.id contains the actual contract address from _tokenId
+    // instead of the concatenated id+chain value
+    return searchedTokenByQuery.map(abstractTokenToTokenItem);
+  }, [searchedTokenByQuery]);
+
   const availableToken = useMemo(() => {
     return uniqBy(
-      (keyword ? searchedTokenByQuery : allDisplayTokens).filter(
+      (keyword ? searchedDisplayTokens : allDisplayTokens).filter(
         (e) => !excludeTokens.includes(e.id)
       ),
       (t) => `${t.chain}-${t.id}`
     );
-  }, [keyword, searchedTokenByQuery, allDisplayTokens, excludeTokens]);
+  }, [keyword, searchedDisplayTokens, allDisplayTokens, excludeTokens]);
 
   const displayTokenList = useSortToken(availableToken);
 

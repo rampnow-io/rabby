@@ -54,7 +54,7 @@ const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
       <>
         <Popover>
           <PopoverTrigger asChild>
-            <EllipsisVertical />
+            <EllipsisVertical size={16} />
           </PopoverTrigger>
           <PopoverContent
             align="start"

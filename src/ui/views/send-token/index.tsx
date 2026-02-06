@@ -40,6 +40,10 @@ const filterRbiSource = (source: string, rbisource: string) => rbisource;
 import TokenSelection from './token-selection';
 import RecipientAddress from './recipient-address';
 import AmountEntry from './amount-entry';
+import {
+  SendReserveGasPopup,
+  GasLevelType,
+} from '@/ui/views/Swap/Component/ReserveGasPopup';
 
 type SendFormData = {
   token: TokenItem | null;
@@ -83,7 +87,7 @@ const SendToken = () => {
   const currentAccount = useCurrentAccount();
   const [form] = Form.useForm();
 
-  const [step, setStep] = useState<'recipient' | 'token' | 'amount' | 'review'>(
+  const [step, setStep] = useState<'recipient' | 'token' | 'amount'>(
     'recipient'
   );
   const [formData, setFormData] = useState<SendFormData>({
@@ -118,8 +122,12 @@ const SendToken = () => {
   const [selectedGasLevel, setSelectedGasLevel] = useState<GasLevel | null>(
     null
   );
+  const [selectedGasLevelType, setSelectedGasLevelType] = useState<
+    GasLevelType | undefined
+  >(undefined);
   const [clickedMax, setClickedMax] = useState(false);
   const [refreshId, setRefreshId] = useState(0);
+  const [reserveGasOpen, setReserveGasOpen] = useState(false);
 
   const isGnosisSafe = useMemo(() => {
     return currentAccount?.type === KEYRING_CLASS.GNOSIS;
@@ -150,6 +158,8 @@ const SendToken = () => {
         setTokenList(tokens || []);
       } catch (e) {
         console.error('Failed to fetch tokens:', e);
+        // Fallback for testnet - set empty list or mock tokens
+        setTokenList([]);
       } finally {
         setTokensLoading(false);
       }
@@ -162,14 +172,52 @@ const SendToken = () => {
   const getParams = useCallback(
     ({ amount }: { amount: string }) => {
       if (!formData.token || !formData.recipient) {
+        console.warn('[DEBUG] getParams called without token or recipient');
         return {};
       }
+      console.log('[DEBUG] getParams called with amount:', amount);
+      console.log('[DEBUG] Token in getParams:');
+      console.log('  id:', formData.token.id);
+      console.log('  symbol:', formData.token.symbol);
+      console.log('  name:', formData.token.name);
+
       const chain = findChain({
         serverId: formData.token.chain,
       })!;
+
       const sendValue = new BigNumber(amount || 0)
         .multipliedBy(10 ** formData.token.decimals)
         .decimalPlaces(0, BigNumber.ROUND_DOWN);
+
+      console.log(
+        '[DEBUG] sendValue:',
+        sendValue.toFixed(0),
+        '(amount:',
+        amount,
+        'decimals:',
+        formData.token.decimals,
+        ')'
+      );
+
+      // Use token.id if it's a valid address, otherwise skip building params
+      const tokenId = formData.token.id;
+      if (!isNativeToken && !isValidAddress(tokenId)) {
+        console.error('[DEBUG] Invalid token address:');
+        console.error('  tokenId:', tokenId);
+        console.error('  symbol:', formData.token?.symbol);
+        console.error('  name:', formData.token?.name);
+        console.error('  type:', typeof tokenId);
+        console.error('  full token:', JSON.stringify(formData.token, null, 2));
+        return {};
+      }
+      if (isNativeToken && !isValidAddress(formData.recipient)) {
+        console.error(
+          '[DEBUG] Invalid recipient address for native token:',
+          formData.recipient
+        );
+        return {};
+      }
+
       const dataInput = [
         {
           name: 'transfer',
@@ -193,12 +241,13 @@ const SendToken = () => {
       const params: Record<string, any> = {
         chainId: chain.id,
         from: currentAccount!.address,
-        to: formData.token.id,
+        to: tokenId,
         value: '0x0',
         data: abiCoder.encodeFunctionCall(dataInput[0], dataInput[1]),
         isSend: true,
       };
       if (isNativeToken) {
+        console.log('[DEBUG] Native token detected, adjusting params');
         params.to = formData.recipient;
         delete params.data;
         params.value = `0x${sendValue.toString(16)}`;
@@ -211,19 +260,104 @@ const SendToken = () => {
 
   // Fetch gas list
   const fetchGasList = useCallback(async () => {
-    if (!formData.amount || !formData.token) return [];
-    const params = getParams({ amount: formData.amount }) as Tx;
+    if (!formData.amount || !formData.token || !currentAccount?.address) {
+      console.log('[DEBUG] fetchGasList - missing data:', {
+        amount: !!formData.amount,
+        token: !!formData.token,
+        account: !!currentAccount?.address,
+      });
+      return [];
+    }
+
+    console.log('[DEBUG] fetchGasList called');
+
+    // Build params locally to avoid dependency loop
+    const chain = findChain({ serverId: formData.token.chain })!;
+    const sendValue = new BigNumber(formData.amount || 0)
+      .multipliedBy(10 ** formData.token.decimals)
+      .decimalPlaces(0, BigNumber.ROUND_DOWN);
+
+    const isNative =
+      chainItem && formData.token.id === chainItem.nativeTokenAddress;
+
+    // Validate token.id is a valid address (not a symbol)
+    const tokenId = formData.token.id;
+    const isValidTokenAddress = isValidAddress(tokenId);
+
+    if (!isNative && !isValidTokenAddress) {
+      console.error('[DEBUG] Invalid token address:', {
+        tokenId,
+        symbol: formData.token?.symbol,
+        name: formData.token?.name,
+      });
+      return [];
+    }
+
+    const params: Record<string, any> = {
+      chainId: chain.id,
+      from: currentAccount.address,
+      to: isNative ? formData.recipient : tokenId,
+      value: isNative ? `0x${sendValue.toString(16)}` : '0x0',
+    };
+
+    // Validate recipient address
+    if (!isValidAddress(params.to)) {
+      console.error('[DEBUG] Invalid "to" address:', params.to);
+      return [];
+    }
+
+    // Add data for token transfers
+    if (!isNative && formData.recipient) {
+      const dataInput = [
+        {
+          name: 'transfer',
+          type: 'function',
+          inputs: [
+            { type: 'address', name: 'to' },
+            { type: 'uint256', name: 'value' },
+          ] as any[],
+        } as const,
+        [
+          formData.recipient || '0x0000000000000000000000000000000000000000',
+          sendValue.toFixed(0),
+        ] as any[],
+      ] as const;
+      params.data = abiCoder.encodeFunctionCall(dataInput[0], dataInput[1]);
+    }
+
+    console.log('[DEBUG] fetchGasList params:');
+    console.log('  from:', params.from);
+    console.log('  to:', params.to);
+    console.log('  chainId:', params.chainId);
+    console.log('  value:', params.value);
+    console.log('  isNative:', isNative);
+    console.log('  hasRecipient:', !!formData.recipient);
+    console.log('  isValidTokenAddress:', isValidTokenAddress);
 
     const list: GasLevel[] = chainItem?.isTestnet
       ? await wallet.getCustomTestnetGasMarket({ chainId: chainItem.id })
       : params?.from
       ? await wallet.gasMarketV2({
           chain: chainItem!,
-          tx: params,
+          tx: params as Tx,
         })
       : [];
+
+    console.log('[DEBUG] fetchGasList got list:', list?.length || 0, 'items');
+    if (list && list.length > 0) {
+      console.log(
+        '[DEBUG] Gas levels:',
+        list.map((g) => `${g.level}: ${g.price}`)
+      );
+    }
     return list;
-  }, [chainItem, formData.amount, formData.token, getParams, wallet]);
+  }, [
+    chainItem,
+    formData.amount,
+    formData.token,
+    currentAccount?.address,
+    wallet,
+  ]);
 
   const [
     { value: gasList, loading: loadingGasList },
@@ -241,6 +375,25 @@ const SendToken = () => {
     }
   }, [clickedMax, formData.amount, formData.token, step, loadGasList]);
 
+  // Auto-select normal gas level when list loads
+  useEffect(() => {
+    console.log('[DEBUG] Auto-select effect running:', {
+      gasList: gasList?.length || 0,
+      selectedGasLevel: !!selectedGasLevel,
+    });
+    if (gasList && gasList.length > 0 && !selectedGasLevel) {
+      console.log('[DEBUG] Setting default gas level');
+      const normalGas = gasList.find((g) => g.level === 'normal') || gasList[0];
+      console.log(
+        '[DEBUG] Selected gas:',
+        normalGas?.level,
+        'price:',
+        normalGas?.price
+      );
+      setSelectedGasLevel(normalGas);
+    }
+  }, [gasList, selectedGasLevel]);
+
   // Estimate gas on chain
   const estimateGasOnChain = useCallback(
     async (tokenItem?: TokenItem) => {
@@ -256,6 +409,7 @@ const SendToken = () => {
       };
 
       const targetToken = tokenItem || formData.token;
+
       if (
         !chainItem?.needEstimateGas ||
         !currentAccount?.address ||
@@ -356,9 +510,9 @@ const SendToken = () => {
       return doReturn(0, new BigNumber(l1GasFee || 0));
     },
     [
+      chainItem,
       currentAccount?.address,
       loadGasList,
-      chainItem?.id,
       formData.token,
       formData.recipient,
       wallet,
@@ -415,6 +569,12 @@ const SendToken = () => {
   };
 
   const handleTokenSelect = (token: TokenItem) => {
+    console.log('[DEBUG] Token selected:');
+    console.log('  id:', token.id);
+    console.log('  symbol:', token.symbol);
+    console.log('  name:', token.name);
+    console.log('  chain:', token.chain);
+    console.log('  decimals:', token.decimals);
     setFormData((prev) => ({ ...prev, token }));
     setStep('amount');
   };
@@ -427,25 +587,32 @@ const SendToken = () => {
   };
 
   const handleGasChange = useCallback((gasLevel: GasLevel) => {
+    console.log(
+      '[DEBUG] Gas level changed:',
+      gasLevel?.level,
+      'price:',
+      gasLevel?.price
+    );
     setSelectedGasLevel(gasLevel);
+    if (gasLevel.level && typeof gasLevel.level === 'string') {
+      setSelectedGasLevelType(gasLevel.level as GasLevelType);
+    }
   }, []);
 
-  // Check if can use direct sign
-  const canUseDirectSubmitTx = useMemo(() => {
-    return (
-      !!formData.token &&
-      !!formData.recipient &&
-      !!formData.amount &&
-      supportedDirectSign(currentAccount?.type || '') &&
-      !chainItem?.isTestnet
-    );
-  }, [
-    formData.token,
-    formData.recipient,
-    formData.amount,
-    chainItem,
-    currentAccount?.type,
-  ]);
+  const handleGasLevelChanged = useCallback((gasLevel: GasLevel) => {
+    setSelectedGasLevel(gasLevel);
+    if (gasLevel.level && typeof gasLevel.level === 'string') {
+      setSelectedGasLevelType(gasLevel.level as GasLevelType);
+    }
+    handleReserveGasClose();
+  }, []);
+
+  const handleReserveGasClose = useCallback(() => {
+    setReserveGasOpen(false);
+  }, []);
+
+  // Direct sign is disabled in this flow (mocked mini signer hooks)
+  const canUseDirectSubmitTx = useMemo(() => false, []);
 
   // Prefetch for direct sign
   useEffect(() => {
@@ -605,7 +772,10 @@ const SendToken = () => {
           amount = tokenForSend.gt(0) ? tokenForSend.toFixed() : '0';
 
           if (gasLevel) {
-            setSelectedGasLevel(gasLevel);
+            setSelectedGasLevel(gasLevel as GasLevel);
+            if (gasLevel.level && typeof gasLevel.level === 'string') {
+              setSelectedGasLevelType(gasLevel.level as GasLevelType);
+            }
           }
         }
       } catch (e) {
@@ -626,8 +796,16 @@ const SendToken = () => {
   ]);
 
   const handleAmountNext = () => {
+    console.log('[DEBUG] handleAmountNext called, canSubmit:', canSubmit);
     if (canSubmit) {
-      setStep('review');
+      console.log('[DEBUG] Calling handleSubmit');
+      handleSubmit({ amount: formData.amount });
+    } else {
+      console.warn('[DEBUG] Cannot submit:', {
+        hasToken: !!formData.token,
+        hasRecipient: !!formData.recipient,
+        hasAmount: !!formData.amount,
+      });
     }
   };
 
@@ -640,8 +818,6 @@ const SendToken = () => {
       setStep('recipient');
     } else if (step === 'amount') {
       setStep('token');
-    } else if (step === 'review') {
-      setStep('amount');
     }
   };
 
@@ -655,13 +831,39 @@ const SendToken = () => {
       forceSignPage?: boolean;
     }) => {
       if (!formData.token || !currentAccount?.address || !formData.recipient) {
+        console.error('[DEBUG] Missing required info:', {
+          token: !!formData.token,
+          address: !!currentAccount?.address,
+          recipient: !!formData.recipient,
+        });
+        message.error('Missing required information');
         return;
       }
+
+      if (!selectedGasLevel) {
+        console.error('[DEBUG] No gas level selected');
+        message.error('Please select a gas level');
+        return;
+      }
+
+      console.log('[DEBUG] Starting transaction submission:', {
+        token: formData.token?.symbol,
+        amount: formData.amount,
+        recipient: formData.recipient,
+        gasLevel: selectedGasLevel?.level,
+      });
+
       const params = getParams({ amount });
+      console.log('[DEBUG] Transaction params:', {
+        from: params.from,
+        to: params.to,
+        value: params.value,
+        data: params.data ? params.data.substring(0, 50) + '...' : undefined,
+        gas: params.gas,
+      });
 
       let shouldForceSignPage = !!forceSignPage;
 
-      // Try direct sign first
       if (canUseDirectSubmitTx && !shouldForceSignPage) {
         setMiniSignLoading(true);
         message.loading('Authorizing transaction...', 0);
@@ -680,10 +882,10 @@ const SendToken = () => {
           });
 
           message.destroy();
-          setFormData((prev) => ({ ...prev, amount: '' }));
           const hash = hashes[hashes.length - 1];
           if (hash) {
             message.success('Transaction sent successfully!');
+            setFormData((prev) => ({ ...prev, amount: '' }));
             await handleMiniSignResolve();
             // Go back to start or close
             setTimeout(() => {
@@ -692,6 +894,7 @@ const SendToken = () => {
             }, 1000);
           } else {
             setMiniSignLoading(false);
+            message.error('Transaction failed');
           }
 
           return;
@@ -749,9 +952,15 @@ const SendToken = () => {
             params.gas = intToHex(DEFAULT_GAS_USED);
           }
         }
-        if (clickedMax && selectedGasLevel?.price) {
-          params.gasPrice = selectedGasLevel?.price;
-        }
+      }
+
+      // Add gas price from selected gas level
+      if (selectedGasLevel?.price) {
+        params.gasPrice = intToHex(selectedGasLevel.price);
+        console.log('[DEBUG] Added gasPrice:', {
+          original: selectedGasLevel.price,
+          hex: params.gasPrice,
+        });
       }
 
       try {
@@ -787,6 +996,7 @@ const SendToken = () => {
           console.error('[FullSign] setLastTimeSendToken error', error);
         });
 
+        console.log('[DEBUG] Calling wallet.sendRequest with params:', params);
         const promise = wallet.sendRequest({
           method: 'eth_sendTransaction',
           params: [params],
@@ -799,14 +1009,36 @@ const SendToken = () => {
           },
         });
 
+        console.log(
+          '[DEBUG] wallet.sendRequest called, isTab:',
+          isTab,
+          'isDesktop:',
+          isDesktop
+        );
+
         if (isTab || isDesktop) {
+          console.log('[DEBUG] Awaiting promise (tab/desktop mode)');
           await promise;
+          console.log('[DEBUG] Promise resolved');
           setFormData((prev) => ({ ...prev, amount: '' }));
+          message.success('Transaction sent successfully!');
+          setTimeout(() => {
+            setStep('recipient');
+            setFormData({ token: null, recipient: '', amount: '' });
+          }, 1000);
         } else {
-          window.close();
+          console.log('[DEBUG] Not in tab/desktop mode, closing window');
+          message.success('Transaction submitted!');
+          setFormData((prev) => ({ ...prev, amount: '' }));
+          // Close after a short delay to show success message
+          setTimeout(() => {
+            console.log('[DEBUG] Closing window');
+            window.close();
+          }, 1500);
         }
       } catch (e: any) {
-        message.error(e.message);
+        console.error('[DEBUG] Transaction failed with error:', e);
+        message.error(e?.message || 'Transaction failed');
         console.error(e);
       }
     },
@@ -878,50 +1110,79 @@ const SendToken = () => {
         </Content>
       </Container>
       <Action>
-        <div className="flex gap-3">
-          {step !== 'review' && (
-            <Button
-              disabled={
-                (step === 'recipient' && !canProceedToToken) ||
-                (step === 'token' && !canProceedToAmount) ||
-                (step === 'amount' && (!formData.amount || insufficientError))
-              }
-              onClick={
-                step === 'recipient'
-                  ? handleRecipientNext
-                  : step === 'token'
-                  ? () => {
-                      const token = formData.token;
-                      if (token) handleTokenSelect(token);
-                    }
-                  : handleAmountNext
-              }
-              className="flex-1"
-            >
-              {step === 'amount' ? 'Review' : 'Next'}
-            </Button>
-          )}
-          {step === 'review' && (
-            <>
-              <Button
-                onClick={() => handleSubmit({ amount: formData.amount })}
-                disabled={
-                  isSubmitLoading || miniSignLoading || !selectedGasLevel
+        <Button
+          disabled={
+            (step === 'recipient' && !canProceedToToken) ||
+            (step === 'token' && !canProceedToAmount) ||
+            (step === 'amount' &&
+              (!formData.amount ||
+                insufficientError ||
+                !selectedGasLevel ||
+                isSubmitLoading ||
+                miniSignLoading ||
+                loadingGasList)) ||
+            (step !== 'amount' && (isSubmitLoading || miniSignLoading))
+          }
+          onClick={
+            step === 'recipient'
+              ? handleRecipientNext
+              : step === 'token'
+              ? () => {
+                  const token = formData.token;
+                  if (token) handleTokenSelect(token);
                 }
-                className="flex-1"
-              >
-                {miniSignLoading
-                  ? 'Authorizing...'
-                  : isSubmitLoading
-                  ? 'Sending...'
-                  : 'Send'}
-              </Button>
-            </>
-          )}
-        </div>
+              : () => {
+                  console.log('[DEBUG] Send button clicked, state:', {
+                    step,
+                    hasAmount: !!formData.amount,
+                    amount: formData.amount,
+                    insufficientError,
+                    hasGasLevel: !!selectedGasLevel,
+                    gasLevel: selectedGasLevel?.level,
+                    isSubmitting: isSubmitLoading,
+                    loadingGas: loadingGasList,
+                    miniSigning: miniSignLoading,
+                    tokenSymbol: formData.token?.symbol,
+                  });
+                  handleAmountNext();
+                }
+          }
+          className="w-full"
+        >
+          {miniSignLoading
+            ? 'Authorizing...'
+            : isSubmitLoading
+            ? 'Sending...'
+            : loadingGasList && step === 'amount'
+            ? 'Estimating...'
+            : step === 'amount'
+            ? 'Send'
+            : 'Next'}
+        </Button>
       </Action>
+
+      {chainItem && (
+        <SendReserveGasPopup
+          selectedItem={selectedGasLevelType}
+          chain={chain as CHAINS_ENUM}
+          limit={Math.max(chainTokenGasFees.gasLimit, MINIMUM_GAS_LIMIT)}
+          onGasChange={handleGasLevelChanged}
+          gasList={gasList || []}
+          open={reserveGasOpen}
+          isLoading={loadingGasList}
+          rawHexBalance={formData.token?.raw_amount_hex_str || '0'}
+          onClose={() => handleReserveGasClose()}
+        />
+      )}
     </UIContainer>
   );
 };
+
+// Add styling to ensure proper scrolling and button visibility
+const styles = `
+  .send-token-content {
+    padding-bottom: 100px !important;
+  }
+`;
 
 export default SendToken;
