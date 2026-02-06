@@ -6,22 +6,22 @@
   "default_locale": "en",
   "description": "__MSG_appDescription__",
   "icons": {
-    "16": "images/icon-16.png",
-    "19": "images/icon-19.png",
-    "32": "images/icon-32.png",
-    "38": "images/icon-38.png",
-    "48": "images/icon-48.png",
-    "64": "images/icon-64.png",
-    "128": "images/icon-128.png",
-    "512": "images/icon-512.png"
+    "16": "images/ramp-icon.png",
+    "19": "images/ramp-icon.png",
+    "32": "images/ramp-icon.png",
+    "38": "images/ramp-icon.png",
+    "48": "images/ramp-icon.png",
+    "64": "images/ramp-icon.png",
+    "128": "images/ramp-icon.png",
+    "512": "images/ramp-icon.png"
   },
   "action": {
     "default_icon": {
-      "16": "images/icon-16.png",
-      "19": "images/icon-19.png",
-      "32": "images/icon-32.png",
-      "48": "images/icon-48.png",
-      "128": "images/icon-128.png"
+      "16": "images/ramp-icon.png",
+      "19": "images/ramp-icon.png",
+      "32": "images/ramp-icon.png",
+      "48": "images/ramp-icon.png",
+      "128": "images/ramp-icon.png"
     },
     "default_title": "Rabby"
   },
@@ -35,15 +35,8 @@
   "content_scripts": [
     {
       "all_frames": true,
-      "js": [
-        "webextension-polyfill.js",
-        "content-script.js"
-      ],
-      "matches": [
-        "file://*/*",
-        "http://*/*",
-        "https://*/*"
-      ],
+      "js": ["webextension-polyfill.js", "content-script.js"],
+      "matches": ["file://*/*", "http://*/*", "https://*/*"],
       "run_at": "document_start"
     },
     {
@@ -51,9 +44,7 @@
         "*://connect.trezor.io/*/popup.html",
         "https://connect.onekey.so/popup.html"
       ],
-      "js": [
-        "vendor/trezor/trezor-content-script.js"
-      ]
+      "js": ["vendor/trezor/trezor-content-script.js"]
     }
   ],
   "content_security_policy": {
@@ -70,17 +61,11 @@
     "contextMenus",
     "sidePanel"
   ],
-  "host_permissions": [
-    "<all_urls>"
-  ],
+  "host_permissions": ["<all_urls>"],
   "web_accessible_resources": [
     {
-      "resources": [
-        "pageProvider.js"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
+      "resources": ["pageProvider.js"],
+      "matches": ["<all_urls>"]
     }
   ]
 }

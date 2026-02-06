@@ -5,6 +5,7 @@ import { RoundedLogo } from '@/ui/assets';
 import { Action, Container, Content } from '@repo/ui';
 import { HeaderNavPage } from '@/ui/component';
 import { useWallet } from '@/ui/utils';
+import { useRabbySelector } from '@/ui/store';
 
 const ShortcutKey = ({ label }: { label: string }) => (
   <div
@@ -20,11 +21,27 @@ const ShortcutKey = ({ label }: { label: string }) => (
 
 export const ReadyToUse = () => {
   const wallet = useWallet();
+  const selectedColor = useRabbySelector((s) => s.newUserGuide.accountColor);
   const shortcutKeys = useMemo(() => {
     return ['Ctrl', 'Shift', 'R'];
   }, []);
 
-  const handleOpenWallet = () => {
+  const handleOpenWallet = async () => {
+    // Save the selected color to the current account before closing
+    if (selectedColor) {
+      try {
+        const currentAccount = await wallet.getCurrentAccount();
+        if (currentAccount) {
+          await wallet.updateAccountColor(
+            currentAccount.address.toLowerCase(),
+            selectedColor
+          );
+        }
+      } catch (error) {
+        console.error('Failed to save account color:', error);
+      }
+    }
+
     // Send message to background script to open side panel
     chrome.runtime.sendMessage({ type: 'SETUP_COMPLETE' }, () => {
       window.close();
