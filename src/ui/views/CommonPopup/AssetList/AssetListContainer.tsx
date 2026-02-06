@@ -208,9 +208,6 @@ export const AssetListContainer: React.FC<Props> = ({
 
   return (
     <div className={className}>
-      <div className="flex items-center justify-end gap-x-12 widget-has-ant-input">
-        {isFocus || search ? null : <AddTokenEntry ref={addTokenEntryRef} />}
-      </div>
       {isTokensLoading || isSearching ? (
         <TokenListSkeleton />
       ) : (

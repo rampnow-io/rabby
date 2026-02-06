@@ -14,9 +14,13 @@ import { useOpenClose } from '@repo/ui';
 export const AssetList = ({
   visible,
   onClose,
+  selectedNetwork,
+  onNetworkChange,
 }: {
   visible: boolean;
   onClose?(): void;
+  selectedNetwork?: string | null;
+  onNetworkChange?(network: string | null): void;
 }) => {
   const { t } = useTranslation();
   const { setHeight, data } = useCommonPopupView();
@@ -52,6 +56,12 @@ export const AssetList = ({
     }
   }, [visible]);
 
+  React.useEffect(() => {
+    if (selectedNetwork !== undefined && selectedNetwork !== selectChainId) {
+      setSelectChainId(selectedNetwork);
+    }
+  }, [selectedNetwork]);
+
   const { sortedCustomize: tokens } = useFilteredTokens(selectChainId, false);
   const [showCustomizedTokens, setShowCustomizedTokens] = React.useState(false);
 
@@ -65,7 +75,12 @@ export const AssetList = ({
         />
       )} */}
       <div className={clsx(selectedTab === 'mainnet' ? 'block' : 'hidden')}>
-        <ChainList onChange={handleSelectChainChange} />
+        {/* <ChainList
+          onChange={(id) => {
+            handleSelectChainChange(id);
+            onNetworkChange?.(id);
+          }}
+        /> */}
         <AssetListContainer
           selectChainId={selectChainId}
           visible={visible}
