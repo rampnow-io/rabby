@@ -21,12 +21,13 @@ import {
 
 type Props = {
   onConfirm?: React.ComponentProps<typeof AddCustomTokenPopup>['onConfirm'];
+  onRefresh?: () => void | Promise<void>;
 };
 export type AddTokenEntryInst = {
   startAddToken: () => void;
 };
 const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
-  function AddTokenEntryPorto({ onConfirm }, ref) {
+  function AddTokenEntryPorto({ onConfirm, onRefresh }, ref) {
     const { t } = useTranslation();
     const history = useHistory();
     const [isShowAddModal, setIsShowAddModal] = React.useState<boolean>(false);
@@ -75,7 +76,7 @@ const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
               </button>
               <button
                 onClick={() => {
-                  // handle refresh
+                  onRefresh?.();
                 }}
                 className="px-5 py-[10px] text-left bg-gray-50 transition-colors flex items-center justify-between rounded-lg"
               >

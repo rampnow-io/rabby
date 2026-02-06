@@ -18,7 +18,7 @@ import { formatAppChain } from '@/ui/hooks/useAppChain';
 import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 
 const className =
-  '!bg-white data-[state=active]:!bg-white shadow-none data-[state=active]:!hover:bg-white data-[state=active]:shadow-none w-16';
+  '!bg-white text-base data-[state=active]:!bg-white shadow-none data-[state=active]:!hover:bg-white data-[state=active]:shadow-none w-16';
 
 export const DashboardPanel: React.FC<{
   onRefresh?: () => void;
@@ -72,6 +72,18 @@ export const DashboardPanel: React.FC<{
     setShowNetworkMenu(false);
   };
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await refreshBalance();
+      if (onRefresh) {
+        onRefresh();
+      }
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   // Call refreshBalance when refreshTrigger changes
   useEffect(() => {
     const performRefresh = async () => {
@@ -122,7 +134,7 @@ export const DashboardPanel: React.FC<{
             <div className="relative z-50">
               <button
                 onClick={() => setShowNetworkMenu(!showNetworkMenu)}
-                className="flex items-center gap-1 p-1 rounded-full border border-primary-foreground bg-white hover:bg-r-neutral-bg-1 transition-colors"
+                className="flex items-center gap-[5px] py-1 px-1.5 rounded-full border border-primary-foreground bg-white hover:bg-r-neutral-bg-1 transition-colors"
               >
                 {selectedNetworkLogo && (
                   <img
@@ -146,7 +158,7 @@ export const DashboardPanel: React.FC<{
                 <div className="absolute right-0 top-full mt-2 w-56 bg-white border-2 border-r-neutral-line rounded-lg shadow-lg z-[100] max-h-64 overflow-y-auto">
                   <button
                     onClick={() => handleNetworkSelect(undefined)}
-                    className="w-full text-left px-4 py-2 hover:bg-r-neutral-bg-1 transition-colors text-sm"
+                    className="w-full text-left px-4 py-2 hover:bg-r-neutral-bg-1 transition-colors text-xs"
                   >
                     All networks
                   </button>
@@ -161,7 +173,7 @@ export const DashboardPanel: React.FC<{
                             chain.logo_url
                           )
                         }
-                        className={`w-full text-left px-4 py-2 hover:bg-r-neutral-bg-1 transition-colors text-sm flex items-center gap-2 ${
+                        className={`w-full text-left px-4 py-2 hover:bg-r-neutral-bg-1 transition-colors text-xs flex items-center gap-2 ${
                           selectedNetworkId === chain.id
                             ? 'bg-r-neutral-bg-1'
                             : ''
@@ -193,7 +205,7 @@ export const DashboardPanel: React.FC<{
               )}
             </div>
 
-            <AddTokenEntry ref={addTokenEntryRef} />
+            <AddTokenEntry ref={addTokenEntryRef} onRefresh={handleRefresh} />
           </div>
         </div>
 
