@@ -339,7 +339,7 @@ export const BalanceView = ({
             )}
           >
             {shouldShowBalanceLoading ? (
-              <Skeleton className="w-[200px] h-[36px] rounded block" />
+              <Skeleton className="w-full h-[56px] py-3 rounded block" />
             ) : (
               <BalanceLabel
                 // isCache={balanceFromCache}

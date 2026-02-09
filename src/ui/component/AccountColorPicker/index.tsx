@@ -142,13 +142,6 @@ export const AccountColorPicker: React.FC<AccountColorPickerProps> = ({
           </div>
         ))}
       </ColorGrid>
-
-      {selectedColor && (
-        <SelectedLabel>
-          <ColorCirclePreview color={selectedColor} />
-          Color Option
-        </SelectedLabel>
-      )}
     </Container>
   );
 };

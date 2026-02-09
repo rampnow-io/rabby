@@ -149,8 +149,8 @@ const AddressCardModal = ({
       onClick={handleCardClick}
       className={`relative group flex items-center justify-between
         rounded-[16px] border-2 h-[60px] px-3
-        transition-colors hover:bg-[#F4F4F4] bg-[#FAFAFA]
-        ${isCurrentAccount ? 'border-[#DCFFB3]' : 'border-transparent'}
+        transition-colors hover:bg-[#FAFAFA] bg-[#FAFAFA]
+        ${isCurrentAccount ? 'border-[#8ACE00]' : 'border-transparent'}
         ${!canSwitchAccount() ? 'pointer-events-auto' : ''}`}
     >
       {/* LEFT */}
@@ -209,7 +209,7 @@ const AddressCardModal = ({
           align="end"
           side="bottom"
           sideOffset={6}
-          className="w-[180px] border-[#CACACD] bg-[rgba(250,250,250,0.75)] shadow-[0_23px_14px_4px_rgba(24,24,27,0.03)] backdrop-blur-[12px] p-0 rounded-lg overflow-hidden"
+          className="w-[220px] rounded-[32px] border border-[#CACACD] bg-[rgba(250,250,250,0.75)] shadow-[0_23px_14px_4px_rgba(24,24,27,0.03)] backdrop-blur-[12px]"
           onClick={(e) => {
             e.stopPropagation();
             isChildInteractingRef.current = true;
@@ -229,10 +229,10 @@ const AddressCardModal = ({
               }, 100);
             }}
             className="w-full px-4 py-2 text-sm
-              hover:bg-gray-100 flex items-center gap-2 cursor-pointer"
+              hover:bg-gray-100 flex items-center  hover:rounded-sm justify-between cursor-pointer rounded-sm"
           >
-            <Edit size={16} />
-            Rename wallet
+            <span>Rename wallet</span>
+            <Edit size={18} className="flex-shrink-0" />
           </div>
 
           {/* COPY */}
@@ -244,10 +244,10 @@ const AddressCardModal = ({
               setPopoverOpen(false);
             }}
             className="w-full px-4 py-2 text-sm
-              hover:bg-gray-100 flex items-center gap-2 border-t cursor-pointer"
+              hover:bg-gray-100 flex items-center  hover:rounded-sm justify-between cursor-pointer rounded-sm"
           >
-            <Copy size={16} />
-            Copy address
+            <span>Copy address</span>
+            <Copy size={18} className="flex-shrink-0" />
           </div>
 
           {/* DELETE */}
@@ -259,10 +259,10 @@ const AddressCardModal = ({
               setPopoverOpen(false);
             }}
             className="w-full px-4 py-2 text-sm text-red-600
-              hover:bg-red-50 flex items-center gap-2 border-t cursor-pointer"
+              hover:bg-red-50 flex items-center  hover:rounded-sm justify-between cursor-pointer rounded-sm"
           >
-            <Trash2 size={16} />
-            Remove wallet
+            <span>Remove wallet</span>
+            <Trash2 size={18} className="flex-shrink-0" />
           </div>
         </PopoverContent>
       </Popover>

@@ -316,7 +316,7 @@ export const HistoryItem = ({
                 </span>
               )}
             </div>
-            <div className="text-[13px] max-w-[200px] text-secondary-foreground truncate">
+            <div className="text-[13px] max-w-[170px] text-secondary-foreground truncate">
               {amountText && tokenSymbol
                 ? `${amountText} ${tokenSymbol} ${
                     isReceive ? 'from' : 'to'
