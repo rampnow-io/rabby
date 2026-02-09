@@ -174,7 +174,7 @@ const RecentConnections = ({
       ) : (
         <div className="flex items-center justify-center flex-1">
           <div className="text-center">
-            <p className="text-r-neutral-body text-sm">
+            <p className="text-primary-foreground text-sm">
               {t('page.dashboard.recentConnection.noConnectedDapps')}
             </p>
           </div>

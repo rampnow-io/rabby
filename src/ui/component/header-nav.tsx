@@ -34,22 +34,15 @@ function HeaderNavPage({
   };
 
   return (
-    <header className="flex items-end justify-between p-6 font-medium transition-all">
+    <header className="flex items-center justify-between p-6 font-medium transition-all">
       {!isCancelled && (
-        <button
+        <IconBackCC
           onClick={handleBackClick}
-          aria-label="Go back"
-          disabled={disableNav}
           className={cn(
             'transition-opacity',
             disableNav && 'opacity-40 cursor-not-allowed'
           )}
-        >
-          <IconBackCC
-
-          // onClick={handleClose}
-          />
-        </button>
+        />
       )}
 
       <div className="flex-1 text-center">{children}</div>

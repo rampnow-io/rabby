@@ -61,13 +61,13 @@ export const DisconnectModal: React.FC<DisconnectModalProps> = ({
     <BottomFloatingSheet
       open={isVisible}
       onClose={handleCancel}
-      contentClassName="!px-2 !pt-2 !pb-2"
+      contentClassName="!px-6 !pt-6 !pb-6"
       hideCloseButton
     >
       <div className="w-full flex flex-col">
         {/* Header with title and close button */}
-        <div className="flex justify-between items-center px-4 pt-4 pb-4 ">
-          <h1 className="text-lg font-medium text-primary-foreground">
+        <div className="flex justify-between items-center pt-4">
+          <h1 className="text-[20px] font-medium text-primary-foreground">
             {origin || 'Unknown'}
           </h1>
 
@@ -79,9 +79,9 @@ export const DisconnectModal: React.FC<DisconnectModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="px-4 pt-6 pb-6 flex flex-col">
+        <div className="pt-6 flex flex-col">
           {/* Icon and App Info */}
-          <div className="flex flex-col gap-3 mb-6">
+          <div className="flex flex-col gap-3">
             {icon && (
               <FallbackSiteLogo
                 url={icon}
@@ -93,13 +93,13 @@ export const DisconnectModal: React.FC<DisconnectModalProps> = ({
                 }}
               />
             )}
-            <p className="text-sm text-r-neutral-body">App Info</p>
+            <p className="text-sm text-secondary-foreground">App Info</p>
           </div>
 
           {/* Information Table */}
           <div className="space-y-4 mb-6">
             <div className="flex justify-between items-start">
-              <span className="text-sm text-r-neutral-body">URL</span>
+              <span className="text-sm text-primary-foreground">URL</span>
               <a
                 href={origin}
                 target="_blank"
