@@ -158,7 +158,7 @@ export const DashboardPanel: React.FC<{
                 <div className="absolute right-0 top-full mt-2 w-56 bg-white border-2 border-r-neutral-line rounded-lg shadow-lg z-[100] max-h-64 overflow-y-auto">
                   <button
                     onClick={() => handleNetworkSelect(undefined)}
-                    className="w-full text-left px-4 py-2 hover:bg-r-neutral-bg-1 transition-colors text-xs"
+                    className="w-full text-left px-4 py-2 hover:bg-r-neutral-bg-1 font-medium text-primary-foreground transition-colors text-xs"
                   >
                     All networks
                   </button>
@@ -173,7 +173,7 @@ export const DashboardPanel: React.FC<{
                             chain.logo_url
                           )
                         }
-                        className={`w-full text-left px-4 py-2 hover:bg-r-neutral-bg-1 transition-colors text-xs flex items-center gap-2 ${
+                        className={`w-full text-left px-4 py-2 hover:bg-r-neutral-bg-1 text-primary-foreground transition-colors font-medium text-xs flex items-center gap-2 ${
                           selectedNetworkId === chain.id
                             ? 'bg-r-neutral-bg-1'
                             : ''
@@ -195,7 +195,7 @@ export const DashboardPanel: React.FC<{
                       </button>
                     ))
                   ) : (
-                    <div className="px-4 py-2 text-sm text-r-neutral-foot">
+                    <div className="px-4 py-2 text-xs text-r-neutral-foot">
                       {!data?.matteredChainBalances && !apps
                         ? 'Loading chains...'
                         : 'No chains available'}

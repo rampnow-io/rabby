@@ -31,12 +31,24 @@ const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
     const { t } = useTranslation();
     const history = useHistory();
     const [isShowAddModal, setIsShowAddModal] = React.useState<boolean>(false);
+    const [isRefreshing, setIsRefreshing] = React.useState(false);
+    const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
 
     useImperativeHandle(ref, () => ({
       startAddToken: () => {
         setIsShowAddModal(true);
       },
     }));
+
+    const handleRefresh = async () => {
+      setIsRefreshing(true);
+      try {
+        await onRefresh?.();
+      } finally {
+        setIsRefreshing(false);
+        setIsPopoverOpen(false);
+      }
+    };
 
     // const [focusingToken, setFocusingToken] = React.useState<TokenItem | null>(
     //   null
@@ -53,7 +65,7 @@ const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
 
     return (
       <>
-        <Popover>
+        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
           <PopoverTrigger asChild>
             <EllipsisVertical size={16} />
           </PopoverTrigger>
@@ -66,6 +78,7 @@ const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
               <button
                 onClick={() => {
                   history.push('/add-token');
+                  setIsPopoverOpen(false);
                 }}
                 className="px-5 py-[10px] text-left bg-gray-50 transition-colors flex items-center gap-3  rounded-lg border-gray-200"
               >
@@ -75,15 +88,18 @@ const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
                 <Plus className="w-5 h-5 text-primary-foreground" />
               </button>
               <button
-                onClick={() => {
-                  onRefresh?.();
-                }}
-                className="px-5 py-[10px] text-left bg-gray-50 transition-colors flex items-center justify-between rounded-lg"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="px-5 py-[10px] text-left bg-gray-50 transition-colors flex items-center justify-between rounded-lg disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <span className="text-sm font-medium text-primary-foreground">
                   Refresh list
                 </span>
-                <RotateCw className="w-5 h-5 text-primary-foreground" />
+                <RotateCw
+                  className={`w-5 h-5 text-primary-foreground ${
+                    isRefreshing ? 'animate-spin' : ''
+                  }`}
+                />
               </button>
             </div>
           </PopoverContent>

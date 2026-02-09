@@ -369,6 +369,7 @@ const SendToken = () => {
   useEffect(() => {
     if (
       clickedMax ||
+      (formData.token && step === 'amount') ||
       (formData.amount && formData.token && step === 'amount')
     ) {
       loadGasList();
@@ -576,6 +577,7 @@ const SendToken = () => {
     console.log('  chain:', token.chain);
     console.log('  decimals:', token.decimals);
     setFormData((prev) => ({ ...prev, token }));
+    setSelectedGasLevel(null); // Reset gas level when token changes
     setStep('amount');
   };
 
@@ -1103,7 +1105,7 @@ const SendToken = () => {
               insufficientError={insufficientError}
               gasList={gasList}
               onGasChange={handleGasChange}
-              isLoading={gasLoading}
+              isLoading={loadingGasList}
               recipientAddress={formData.recipient}
             />
           )}
