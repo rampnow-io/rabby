@@ -59,8 +59,9 @@ const RecentConnections = ({
       dispatch.permission.pinWebsite(item.origin);
     }
   };
-  const handleRemove = async (origin: string) => {
+  const handleRemove = async (origin: string, site?: ConnectedSite) => {
     setSelectedOrigin(origin);
+    setSelectedSite(site || null);
     setDisconnectModalVisible(true);
   };
 
@@ -133,32 +134,34 @@ const RecentConnections = ({
   }, []);
   const [disconnectModalVisible, setDisconnectModalVisible] = useState(false);
   const [selectedOrigin, setSelectedOrigin] = useState<string | null>(null);
+  const [selectedSite, setSelectedSite] = useState<ConnectedSite | null>(null);
 
   return (
     <div className="w-full flex flex-col h-full">
       {list?.length ? (
         <>
-          <div className="flex-1 overflow-auto px-[16px] pt-[16px] space-y-[8px]">
+          <div className="flex-1 overflow-auto pt-[16px] space-y-[8px]">
             <ConnectionList
-              onRemove={handleRemove}
+              onRemove={(origin) => {
+                const site = list.find((s) => s.origin === origin);
+                handleRemove(origin, site);
+              }}
               onClick={handleClick}
               onPin={handlePinChange}
               data={pinnedList}
             ></ConnectionList>
             <ConnectionList
-              onRemove={handleRemove}
+              onRemove={(origin) => {
+                const site = list.find((s) => s.origin === origin);
+                handleRemove(origin, site);
+              }}
               onClick={handleClick}
               onPin={handlePinChange}
               data={recentList}
             ></ConnectionList>
           </div>
           {list?.length > 0 && (
-            <footer
-              className={clsx(
-                'border-t-[0.5px] border-t-solid border-t-rabby-neutral-line px-[16px]',
-                'py-[16px] bg-r-neutral-bg1'
-              )}
-            >
+            <footer className={clsx(' px-[16px]', 'py-[16px]')}>
               <Button
                 className="btn-disconnect-all w-full"
                 onClick={handleRemoveAll}
@@ -180,10 +183,12 @@ const RecentConnections = ({
       <DisconnectModal
         visible={disconnectModalVisible}
         origin={selectedOrigin || undefined}
+        icon={selectedSite?.icon}
         onConfirm={handleDisconnectConfirm}
         onCancel={() => {
           setDisconnectModalVisible(false);
           setSelectedOrigin(null);
+          setSelectedSite(null);
         }}
       />
     </div>

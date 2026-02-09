@@ -5,9 +5,6 @@ import { TooltipWithMagnetArrow } from '@/ui/component/Tooltip/TooltipWithMagnet
 import { findChainByEnum } from '@/utils/chain';
 import clsx from 'clsx';
 import React, { forwardRef, memo, useState } from 'react';
-import { ReactComponent as RcIconDisconnect } from 'ui/assets/icon-disconnect.svg';
-import { ReactComponent as RcIconPinned } from 'ui/assets/icon-pinned.svg';
-import { ReactComponent as RcIconPinnedFill } from 'ui/assets/icon-pinned-fill.svg';
 import { ReactComponent as RcIconArrowRight } from '@/ui/assets/dashboard/settings/icon-right-arrow.svg';
 
 interface ConnectionItemProps {
@@ -29,8 +26,8 @@ export const Item = memo(
       return (
         <div
           className={clsx(
-            'item px-[16px] py-[12px] flex items-center gap-[12px] rounded-[8px]',
-            'cursor-pointer transition-colors hover:bg-r-neutral-bg2',
+            'item p-3 flex items-center gap-[12px] rounded-[8px]',
+            'cursor-pointer transition-colors bg-r-neutral-bg2 hover:bg-[#F4F4F4]',
             className
           )}
           ref={ref}
@@ -48,62 +45,24 @@ export const Item = memo(
                 borderRadius: '50%',
               }}
             />
-            {chainItem && (
-              <TooltipWithMagnetArrow
-                title={chainItem?.name}
-                className="rectangle w-[max-content]"
-              >
-                <img
-                  className="connect-chain w-[16px] h-[16px]"
-                  src={chainItem?.logo}
-                  alt={chainItem?.name}
-                />
-              </TooltipWithMagnetArrow>
-            )}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="item-content truncate text-[14px] text-r-neutral-title-1">
+            <div className="item-content truncate text-[14px] text-primary-foreground font-medium">
               {item.origin}
             </div>
           </div>
-          {isHovered ? (
-            <div className="flex items-center gap-[8px]">
-              <div
-                className="cursor-pointer"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onPin?.(item);
-                }}
-              >
-                <ThemeIcon
-                  src={item.isTop ? RcIconPinnedFill : RcIconPinned}
-                  className={clsx('pin-website w-[20px] h-[20px]', item.isTop && 'is-active')}
-                />
-              </div>
-              <div
-                className="cursor-pointer"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (onRemove) {
-                    onRemove(item.origin);
-                  }
-                }}
-              >
-                <ThemeIcon
-                  className="icon-close w-[20px] h-[20px]"
-                  src={RcIconDisconnect}
-                  viewBox="0 0 16 16"
-                />
-              </div>
-            </div>
-          ) : (
-            <ThemeIcon
-              src={RcIconArrowRight}
-              className="icon-arrow w-[20px] h-[20px]"
-            />
-          )}
+
+          <ThemeIcon
+            src={RcIconArrowRight}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (onRemove) {
+                onRemove(item.origin);
+              }
+            }}
+            className="icon-arrow w-[20px] h-[20px]"
+          />
         </div>
       );
     }

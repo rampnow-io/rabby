@@ -1447,7 +1447,7 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
             <div />
           </div>
           {currentAccount && (
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center pb-4">
               <div className="flex items-center gap-2 p-2 rounded-full  max-w-[200px]">
                 {(() => {
                   const color = currentAccount.color
@@ -1511,38 +1511,46 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
           <RateModalTriggerOnSettings className="mb-[16px]" />
 
           {Object.values(renderData).map((group, idxl1) => (
-            <div key={`g-${idxl1}`} className="setting-block">
-              <div className="setting-title">{group.label}</div>
+            <div key={`g-${idxl1}`} className="setting-block py-2">
+              <div className="text-[#A1A1AA] text-sm font-medium">
+                {group.label}
+              </div>
 
-              <div className="setting-items">
+              <div className="setting-items ">
                 {group.items.map((data, idxl2) => (
-                  <Field
+                  <div
                     key={`g-${idxl1}-item-${idxl2}`}
-                    leftIcon={
-                      <ThemeIcon
-                        src={data.leftIcon}
-                        className={clsx('icon', data.leftIconClassName)}
-                        style={data.leftIconStyle}
-                      />
-                    }
-                    rightIcon={
-                      data.rightIcon || (
+                    className="px-2 py-3 rounded-[12px] hover:bg-[#F4F4F4] transition-colors cursor-pointer flex items-center justify-between gap-3"
+                    onClick={data.onClick}
+                  >
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="icon flex-shrink-0">
+                        <ThemeIcon
+                          src={data.leftIcon}
+                          className={clsx('icon', data.leftIconClassName)}
+                          style={data.leftIconStyle}
+                        />
+                      </div>
+                      <div className="flex flex-col flex-1">
+                        <span className="text-primary-foreground text-sm font-medium">
+                          {data.content}
+                        </span>
+                        {data.description && (
+                          <p className="text-primary-foreground text-sm font-medium mt-1">
+                            {data.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="icon flex-shrink-0">
+                      {data.rightIcon || (
                         <ThemeIcon
                           src={RcIconArrowRight}
                           className="icon icon-arrow-right"
                         />
-                      )
-                    }
-                    onClick={data.onClick}
-                    className={clsx({
-                      'has-desc': !!data.description,
-                    })}
-                  >
-                    {data.content}
-                    {data.description && (
-                      <p className="desc">{data.description}</p>
-                    )}
-                  </Field>
+                      )}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
