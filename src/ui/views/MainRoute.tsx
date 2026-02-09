@@ -104,6 +104,7 @@ import HardwareWalletList from './import-hardware-wallet/wallet-list';
 import AddToken from './add-token';
 import BuyPage from './buy/page';
 import SendToken from './send-token';
+import ConnectedDappsPage from './ConnectedDapps';
 
 declare global {
   interface Window {
@@ -398,6 +399,9 @@ const Main = () => {
         </PrivateRoute>
         <PrivateRoute exact path="/settings/sites">
           <ConnectedSites />
+        </PrivateRoute>
+        <PrivateRoute exact path="/settings/connected-dapps">
+          <ConnectedDappsPage />
         </PrivateRoute>
         <PrivateRoute exact path="/settings/chain-list">
           <ChainList />

@@ -35,18 +35,16 @@ const ConnectionList = memo(
     return (
       <div className={clsx('list', className)}>
         {visible && data && data.length > 0 ? (
-          <div className="list-content droppable">
-            <>
-              {data.map((item, index) => (
-                <Item
-                  onRemove={onRemove}
-                  item={item}
-                  key={item?.origin || index}
-                  onClick={() => onClick && onClick(item)}
-                  onPin={onPin}
-                />
-              ))}
-            </>
+          <div className="list-content">
+            {data.map((item, index) => (
+              <Item
+                onRemove={onRemove}
+                item={item}
+                key={item?.origin || index}
+                onClick={() => onClick && onClick(item)}
+                onPin={onPin}
+              />
+            ))}
           </div>
         ) : (
           empty

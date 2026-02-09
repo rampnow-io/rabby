@@ -1,4 +1,4 @@
-import { Empty, Modal, PageHeader, Popup } from '@/ui/component';
+import { Empty, Modal, Popup } from '@/ui/component';
 import { message } from 'antd';
 import { ConnectedSite } from 'background/service/permission';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -10,6 +10,7 @@ import { useRabbyDispatch, useRabbySelector } from 'ui/store';
 import clsx from 'clsx';
 import { SvgIconCross } from '@/ui/assets';
 import { Button } from '@repo/ui/primitives';
+import { DisconnectModal } from './DisconnectModal';
 
 interface RecentConnectionsProps {
   visible?: boolean;
@@ -59,11 +60,18 @@ const RecentConnections = ({
     }
   };
   const handleRemove = async (origin: string) => {
-    await dispatch.permission.removeWebsite(origin);
+    setSelectedOrigin(origin);
+    setDisconnectModalVisible(true);
+  };
+
+  const handleDisconnectConfirm = async () => {
+    if (!selectedOrigin) return;
+
+    await dispatch.permission.removeWebsite(selectedOrigin);
     matomoRequestEvent({
       category: 'Dapps',
       action: 'disconnectDapp',
-      label: origin,
+      label: selectedOrigin,
     });
     message.success({
       icon: <i />,
@@ -123,42 +131,14 @@ const RecentConnections = ({
   useEffect(() => {
     dispatch.permission.getWebsites();
   }, []);
-  const [isVisible, setIsVisible] = useState(false);
-
-  const handleCancel = () => {
-    setIsVisible(false);
-    setTimeout(() => {
-      onClose?.();
-    }, 500);
-  };
-
-  useEffect(() => {
-    setTimeout(() => {
-      setIsVisible(visible);
-    }, 100);
-  }, [visible]);
+  const [disconnectModalVisible, setDisconnectModalVisible] = useState(false);
+  const [selectedOrigin, setSelectedOrigin] = useState<string | null>(null);
 
   return (
-    <div
-      className={clsx('recent-connections-popup', {
-        show: isVisible,
-        hidden: !visible,
-      })}
-    >
-      <PageHeader
-        canBack={canBack}
-        forceShowBack={canBack}
-        onBack={handleCancel}
-        className={clsx(
-          'bg-r-neutral-bg1 sticky top-0 z-10 mb-0',
-          canBack ? 'mb-[16px]' : 'pb-[16px]'
-        )}
-      >
-        {t('page.dashboard.recentConnection.title')}
-      </PageHeader>
+    <div className="w-full flex flex-col h-full">
       {list?.length ? (
         <>
-          <div className="mx-[-20px] px-[20px] h-[calc(100%-97.5px)] overflow-auto">
+          <div className="flex-1 overflow-auto px-[16px] pt-[16px] space-y-[8px]">
             <ConnectionList
               onRemove={handleRemove}
               onClick={handleClick}
@@ -172,26 +152,40 @@ const RecentConnections = ({
               data={recentList}
             ></ConnectionList>
           </div>
-          <footer
-            className={clsx(
-              'absolute z-10 bottom-0 left-0 right-0 bg-r-neutral-bg1',
-              'border-t-[0.5px] border-t-solid border-t-rabby-neutral-line px-[20px]',
-              'py-[16px]'
-            )}
-          >
-            <Button className="btn-disconnect-all" onClick={handleRemoveAll}>
-              {t('page.dashboard.recentConnection.disconnectAll')}
-            </Button>
-          </footer>
+          {list?.length > 0 && (
+            <footer
+              className={clsx(
+                'border-t-[0.5px] border-t-solid border-t-rabby-neutral-line px-[16px]',
+                'py-[16px] bg-r-neutral-bg1'
+              )}
+            >
+              <Button
+                className="btn-disconnect-all w-full"
+                onClick={handleRemoveAll}
+              >
+                {t('page.dashboard.recentConnection.disconnectAll')}
+              </Button>
+            </footer>
+          )}
         </>
       ) : (
-        <div className="list-empty mb-[-24px] rounded-b-none">
-          <Empty
-            desc={t('page.dashboard.recentConnection.noConnectedDapps')}
-            className="pt-[68px] pb-[181px]"
-          ></Empty>
+        <div className="flex items-center justify-center flex-1">
+          <div className="text-center">
+            <p className="text-r-neutral-body text-sm">
+              {t('page.dashboard.recentConnection.noConnectedDapps')}
+            </p>
+          </div>
         </div>
       )}
+      <DisconnectModal
+        visible={disconnectModalVisible}
+        origin={selectedOrigin || undefined}
+        onConfirm={handleDisconnectConfirm}
+        onCancel={() => {
+          setDisconnectModalVisible(false);
+          setSelectedOrigin(null);
+        }}
+      />
     </div>
   );
 };
@@ -210,7 +204,7 @@ export const RecentConnectionsPopup: React.FC<RecentConnectionsProps> = ({
       className="settings-popup-wrapper"
       isSupportDarkMode
     >
-      <RecentConnections visible={true} onClose={onClose} canBack={false} />;
+      <RecentConnections visible={visible} onClose={onClose} canBack={false} />
     </Popup>
   );
 };

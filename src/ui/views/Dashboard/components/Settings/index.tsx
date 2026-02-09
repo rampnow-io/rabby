@@ -609,7 +609,6 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
   const [isShowLangModal, setIsShowLangModal] = useState(false);
   const [isShowThemeModeModal, setIsShowThemeModeModal] = useState(false);
   const [contactsVisible, setContactsVisible] = useState(false);
-  const [connectedDappsVisible, setConnectedDappsVisible] = useState(false);
   const [feedbackVisible, setFeedbackVisible] = useState(false);
   const [isShowDappAccountModal, setIsShowDappAccountModal] = useState(false);
   const currentAccount = useCurrentAccount();
@@ -770,7 +769,7 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
           leftIcon: RcIconSettingsFeatureConnectedDapps,
           content: t('page.dashboard.settings.features.connectedDapp'),
           onClick: () => {
-            setConnectedDappsVisible(true);
+            history.push('/settings/connected-dapps');
             matomoRequestEvent({
               category: 'Setting',
               action: 'clickToUse',
@@ -1635,12 +1634,6 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
         visible={isShowThemeModeModal}
         onFinish={() => setIsShowThemeModeModal(false)}
         onCancel={() => setIsShowThemeModeModal(false)}
-      />
-
-      <RecentConnections
-        canBack
-        visible={connectedDappsVisible}
-        onClose={() => setConnectedDappsVisible(false)}
       />
 
       <FeedbackPopup
