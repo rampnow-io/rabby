@@ -105,6 +105,7 @@ import AddToken from './add-token';
 import BuyPage from './buy/page';
 import SendToken from './send-token';
 import ConnectedDappsPage from './ConnectedDapps';
+import SwapAndBridge from './Swap-&-Bridge';
 
 declare global {
   interface Window {
@@ -454,6 +455,9 @@ const Main = () => {
         <PrivateRoute exact path="/switch-address">
           {/* <AddressManagement /> */}
           <SwitchAddress />
+        </PrivateRoute>
+        <PrivateRoute exact path="/swap-and-bridge">
+          <SwapAndBridge />
         </PrivateRoute>
 
         <PrivateRoute exact path="/add-wallet">

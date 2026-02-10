@@ -150,24 +150,24 @@ const SwitchAddress = () => {
           currentAccountIndex >= 0 &&
           allSortedAccountList[currentAccountIndex] && (
             <div className="mb-10 bg-white">
-              <div className="relative w-[335px] h-[280px] mx-auto bg-black rounded-[36px] flex flex-col items-center justify-center">
+              <div className="relative w-[305px] h-[250px] mx-auto bg-black rounded-[36px] flex flex-col items-center justify-center">
                 <div
                   className="absolute -top-2 left-1/2 -translate-x-1/2
-                     w-[314px] h-[80px] 
+                     w-[284px] h-[70px] 
                      rounded-t-[28px]
                        border border-[#BFBDFF] bg-[#D2D0FF]"
                 />
 
                 <div
                   className="absolute top-5 left-1/2 -translate-x-1/2
-                     w-[314px] h-[100px]
+                     w-[284px] h-[70px]
                      rounded-t-[28px]
                      border  border-[#94C3FF] bg-[#A8CEFE]"
                 />
 
                 <div
                   className="absolute top-12 left-1/2 -translate-x-1/2
-                     w-[314px] h-[120px]
+                     w-[284px] h-[90px]
                      rounded-[26px]
                      border  border-[#DCFFB3] bg-[#F1FFE1]
                      p-4"
@@ -188,7 +188,7 @@ const SwitchAddress = () => {
 
                       return (
                         <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-base font-medium ${avatarClass}`}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-base font-medium ${avatarClass}`}
                           style={
                             avatarStyle || {
                               backgroundColor: '#DCFFB3',
@@ -204,12 +204,12 @@ const SwitchAddress = () => {
                     })()}
 
                     <div>
-                      <div className="text-xs font-semibold text-primary-foreground">
+                      <div className="text-[8px] font-medium text-primary-foreground">
                         {allSortedAccountList[currentAccountIndex].alianName ||
                           `Account ${currentAccountIndex + 1}`}
                       </div>
 
-                      <div className="text-[10px] text-primary-foreground">
+                      <div className="text-[10px] font-medium text-primary-foreground">
                         {truncate(
                           allSortedAccountList[currentAccountIndex].address,
                           [6, 4]
@@ -221,7 +221,7 @@ const SwitchAddress = () => {
 
                 <div
                   className="absolute bottom-0 left-1/2 -translate-x-1/2
-             w-[335px] h-[170px]
+             w-[305px] h-[140px]
              rounded-t-[20px] rounded-b-[36px]
              bg-black
              flex flex-col items-center justify-center gap-2
@@ -249,11 +249,11 @@ const SwitchAddress = () => {
                   {/* CONTENT */}
                   <div className="relative z-10 flex flex-col items-center gap-2">
                     {hiddenBalance ? (
-                      <div className="text-xl tracking-widest text-[#8A8B89]">
+                      <div className="text-xl tracking-widest text-white">
                         *****
                       </div>
                     ) : (
-                      <div className="text-xl font-semibold text-[#8A8B89]">
+                      <div className="text-xl font-semibold text-white">
                         $
                         {Number(
                           allSortedAccountList[currentAccountIndex]?.balance ||

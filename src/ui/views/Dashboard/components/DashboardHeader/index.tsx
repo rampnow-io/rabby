@@ -123,7 +123,7 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
       icon: RcIconSwapCC,
       eventKey: 'Swap',
       content: t('page.dashboard.home.panel.swap'),
-      onClick: () => history.push('/dex-swap?rbisource=dashboard'),
+      onClick: () => history.push('/swap-and-bridge'),
     },
     buy: {
       icon: RcIconBuyCC,
