@@ -30,7 +30,7 @@ import { HistoryPage as PerpsHistoryPage } from './Perps/screen/HistoryPage';
 import ExploreMore from './Perps/screen/ExploreMore';
 import AdvancedSettings from './AdvanceSettings';
 import RequestPermission from './RequestPermission';
-// import SendToken from './SendToken';
+import SendToken from './SendToken';
 import SendNFT from './SendNFT';
 import Receive from './Receive/index';
 import WalletConnectTemplate from './WalletConnect';
@@ -103,7 +103,7 @@ import ImportPrivateKeyPage from './import-private-key';
 import HardwareWalletList from './import-hardware-wallet/wallet-list';
 import AddToken from './add-token';
 import BuyPage from './buy/page';
-import SendToken from './send-token';
+// import SendToken from './send-token';
 import ConnectedDappsPage from './ConnectedDapps';
 import SwapAndBridge from './Swap-&-Bridge';
 

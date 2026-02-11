@@ -61,10 +61,8 @@ export const ToConfirmBtn = (props: {
   return (
     <div
       className={clsx(
-        'h-[48px] p-0 w-full rounded-[8px]',
+        ' p-0 w-full',
         'flex items-center justify-center',
-        toConfirm ? 'bg-r-blue-default' : '',
-        'text-r-neutral-title-2 text-[15px] font-medium',
         props.loading || props.disabled
           ? 'cursor-not-allowed'
           : 'cursor-pointer',
@@ -74,21 +72,7 @@ export const ToConfirmBtn = (props: {
       onClick={handle}
     >
       {props.loading || !toConfirm || props.isHardWallet ? (
-        <Button
-          type={props.htmlType || 'button'}
-          disabled={props.disabled}
-          className={clsx(
-            'w-full h-[48px] rounded-[8px]',
-            props.buttonClassName
-          )}
-          style={
-            props.loading
-              ? {
-                  boxShadow: '0px 8px 16px rgba(134, 151, 255, 0.3)',
-                }
-              : {}
-          }
-        >
+        <Button type={props.htmlType || 'button'} disabled={props.disabled}>
           <div className="flex items-center justify-center gap-6">
             {props.loading ? (
               <RcIconCCLoading

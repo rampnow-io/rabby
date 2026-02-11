@@ -13,7 +13,8 @@ import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
 import { matomoRequestEvent } from '@/utils/matomo-request';
 import { useAsyncFn, usePrevious } from 'react-use';
-import { Form, message, Modal } from 'antd';
+import { message, Modal } from 'antd';
+import { useForm } from 'react-hook-form';
 import abiCoderInst, { AbiCoder } from 'web3-eth-abi';
 import { useMemoizedFn } from 'ahooks';
 import { isValidAddress, intToHex, zeroAddress } from '@ethereumjs/util';
@@ -93,6 +94,13 @@ import { appIsDebugPkg } from '@/utils/env';
 import { add, debounce } from 'lodash';
 import useDebounceValue from '@/ui/hooks/useDebounceValue';
 import { useToAddressPositiveTips } from '@/ui/component/SendLike/hooks/useRecentSend';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '@repo/ui/primitives';
 
 const isTab = getUiType().isTab;
 const isDesktop = getUiType().isDesktop;
@@ -196,7 +204,6 @@ const ChainSelectWrapper = styled.div`
 `;
 
 const SendToken = () => {
-  const { useForm } = Form;
   const { t } = useTranslation();
   const history = useHistory();
   const dispatch = useRabbyDispatch();
@@ -209,7 +216,6 @@ const SendToken = () => {
   const [refreshId, setRefreshId] = useState(0);
 
   // Core States
-  const [form] = useForm<FormSendToken>();
   const { toAddress, toAddressType, paramAmount } = useMemo(() => {
     const query = new URLSearchParams(search);
     return {
@@ -218,6 +224,13 @@ const SendToken = () => {
       paramAmount: query.get('amount') || '',
     };
   }, [search]);
+
+  const form = useForm<FormSendToken>({
+    defaultValues: {
+      to: toAddress,
+      amount: paramAmount || '',
+    },
+  });
 
   const currentAccount = useCurrentAccount();
   const [chain, setChain] = useState(CHAINS_ENUM.ETH);
@@ -257,7 +270,7 @@ const SendToken = () => {
         search: history.location.search,
         params: {},
         states: {
-          values: form.getFieldsValue(),
+          values: form.watch(),
           currentToken,
           safeInfo,
           ...nextStateCache,
@@ -307,8 +320,8 @@ const SendToken = () => {
   }, [currentAccount?.type]);
 
   useEffect(() => {
-    const values = form.getFieldsValue();
-    form.setFieldsValue({
+    const values = form.watch();
+    form.reset({
       ...values,
       to: toAddress,
     });
@@ -397,51 +410,51 @@ const SendToken = () => {
     [addressDesc, t]
   );
 
-  const disableChainCheck: TDisableCheckChainFn = useCallback(
-    (chain) => {
-      // do not check cex
-      if (!addressDesc || addressDesc.cex?.id) {
-        return {
-          disable: false,
-          reason: '',
-          shortReason: '',
-        };
-      }
+  // const disableChainCheck: TDisableCheckChainFn = useCallback(
+  //   (chain) => {
+  //     // do not check cex
+  //     if (!addressDesc || addressDesc.cex?.id) {
+  //       return {
+  //         disable: false,
+  //         reason: '',
+  //         shortReason: '',
+  //       };
+  //     }
 
-      const safeChains = Object.entries(addressDesc?.contract || {})
-        .filter(([, contract]) => {
-          return contract.multisig;
-        })
-        .map(([chain]) => chain?.toLowerCase());
-      if (safeChains.length > 0 && !safeChains.includes(chain?.toLowerCase())) {
-        return {
-          disable: true,
-          reason: t('page.sendToken.noSupprotTokenForSafe'),
-          shortReason: t('page.sendToken.noSupprotTokenForSafe_short'),
-        };
-      }
-      const contactChains = Object.entries(
-        addressDesc?.contract || {}
-      ).map(([chain]) => chain?.toLowerCase());
-      if (
-        contactChains.length > 0 &&
-        !contactChains.includes(chain?.toLowerCase())
-      ) {
-        return {
-          disable: true,
-          reason: t('page.sendToken.noSupportTokenForChain'),
-          shortReason: t('page.sendToken.noSupportTokenForChain_short'),
-        };
-      }
+  //     const safeChains = Object.entries(addressDesc?.contract || {})
+  //       .filter(([, contract]) => {
+  //         return contract.multisig;
+  //       })
+  //       .map(([chain]) => chain?.toLowerCase());
+  //     if (safeChains.length > 0 && !safeChains.includes(chain?.toLowerCase())) {
+  //       return {
+  //         disable: true,
+  //         reason: t('page.sendToken.noSupprotTokenForSafe'),
+  //         shortReason: t('page.sendToken.noSupprotTokenForSafe_short'),
+  //       };
+  //     }
+  //     const contactChains = Object.entries(
+  //       addressDesc?.contract || {}
+  //     ).map(([chain]) => chain?.toLowerCase());
+  //     if (
+  //       contactChains.length > 0 &&
+  //       !contactChains.includes(chain?.toLowerCase())
+  //     ) {
+  //       return {
+  //         disable: true,
+  //         reason: t('page.sendToken.noSupportTokenForChain'),
+  //         shortReason: t('page.sendToken.noSupportTokenForChain_short'),
+  //       };
+  //     }
 
-      return {
-        disable: false,
-        reason: '',
-        shortReason: '',
-      };
-    },
-    [addressDesc, t]
-  );
+  //     return {
+  //       disable: false,
+  //       reason: '',
+  //       shortReason: '',
+  //     };
+  //   },
+  //   [addressDesc, t]
+  // );
 
   const [agreeRequiredChecks, setAgreeRequiredChecks] = useState({
     forToAddress: false,
@@ -518,10 +531,10 @@ const SendToken = () => {
     (hasRiskForToken && agreeRequiredChecks.forToken);
 
   const canSubmitBasic =
-    isValidAddress(form.getFieldValue('to')) &&
+    isValidAddress(form.getValues('to')) &&
     !!currentToken &&
     !balanceError &&
-    new BigNumber(form.getFieldValue('amount')).gte(0) &&
+    new BigNumber(form.getValues('amount')).gte(0) &&
     !isLoading;
 
   const canSubmit =
@@ -588,7 +601,7 @@ const SendToken = () => {
   );
 
   const fetchGasList = useCallback(async () => {
-    const values = form.getFieldsValue();
+    const values = form.watch();
     const params = getParams(values) as Tx;
 
     const list: GasLevel[] = chainItem?.isTestnet
@@ -745,7 +758,7 @@ const SendToken = () => {
               amount: '',
             },
             {
-              ...form.getFieldsValue(),
+              ...form.watch(),
               amount: '',
             },
             {
@@ -871,7 +884,7 @@ const SendToken = () => {
 
         if (isTab || isDesktop) {
           await promise;
-          form.setFieldsValue({
+          form.reset({
             amount: '',
           });
         } else {
@@ -912,8 +925,10 @@ const SendToken = () => {
     to: toAddress,
     amount: paramAmount || '',
   };
-  const amount = useDebounceValue(form.getFieldValue('amount'), 300);
-  const address = form.getFieldValue('to');
+  const formAmount = form.watch('amount');
+  const formTo = form.watch('to');
+  const amount = useDebounceValue(formAmount, 300);
+  const address = formTo;
 
   useEffect(() => {
     let isCurrent = true;
@@ -932,7 +947,7 @@ const SendToken = () => {
         })!;
         const params = getParams({
           to: toAddress,
-          amount: form.getFieldValue('amount'),
+          amount: form.watch('amount'),
         });
 
         if (isNativeToken) {
@@ -1059,7 +1074,7 @@ const SendToken = () => {
           prefetch({
             txs: [],
           });
-          form.setFieldsValue({ amount: '' });
+          form.reset({ amount: '' });
           // persistPageStateCache();
           wallet.clearPageStateCache();
           setRefreshId((e) => e + 1);
@@ -1150,7 +1165,7 @@ const SendToken = () => {
         currentToken: targetToken,
       });
 
-      form.setFieldsValue(nextFormValues);
+      form.reset(nextFormValues);
       setCacheAmount(resultAmount);
 
       if (resultAmount) {
@@ -1190,11 +1205,11 @@ const SendToken = () => {
       previousAccountAddress &&
       !isSameAddress(previousAccountAddress, currentAccount?.address || '')
     ) {
-      form.setFieldsValue({ amount: '' });
+      form.setValue('amount', '');
       handleFormValuesChange(
         { amount: '' },
         {
-          ...form.getFieldsValue(),
+          ...form.watch(),
           amount: '',
         },
         {
@@ -1308,7 +1323,7 @@ const SendToken = () => {
         });
         setCurrentToken(result);
 
-        const currentValues = form.getFieldsValue();
+        const currentValues = form.watch();
         if (currentValues.amount && result) {
           const amount = currentValues.amount;
           if (
@@ -1348,12 +1363,12 @@ const SendToken = () => {
         setShowGasReserved(false);
       }
       const account = (await wallet.syncGetCurrentAccount())!;
-      const values = form.getFieldsValue();
+      const values = form.watch();
       if (
         token.id !== currentToken?.id ||
         token.chain !== currentToken?.chain
       ) {
-        form.setFieldsValue({
+        form.reset({
           ...values,
           amount: '',
         });
@@ -1406,7 +1421,7 @@ const SendToken = () => {
 
       const gasAmount = new BigNumber(gasLevel.price).times(gasLimit).div(1e18);
       if (updateTokenAmount && currentToken) {
-        const values = form.getFieldsValue();
+        const values = form.watch();
         const diffValue = new BigNumber(currentToken.raw_amount_hex_str || 0)
           .div(10 ** currentToken.decimals)
           .minus(gasAmount);
@@ -1417,7 +1432,7 @@ const SendToken = () => {
           ...values,
           amount: diffValue.gt(0) ? diffValue.toFixed() : '0',
         };
-        form.setFieldsValue(newValues);
+        form.reset(newValues);
       }
       return gasAmount;
     },
@@ -1492,12 +1507,12 @@ const SendToken = () => {
         }
       }
 
-      const values = form.getFieldsValue();
+      const values = form.watch();
       const newValues = {
         ...values,
         amount,
       };
-      form.setFieldsValue(newValues);
+      form.reset(newValues);
       handleFormValuesChange(null, newValues, { updateSliderValue });
 
       setTimeout(() => {
@@ -1759,16 +1774,12 @@ const SendToken = () => {
 
           if (cache?.path === history.location.pathname) {
             if (cache?.states.values) {
-              form.setFieldsValue(cache.states.values);
-              handleFormValuesChange(
-                cache.states.values,
-                form.getFieldsValue(),
-                {
-                  token: cache.states.currentToken,
-                  isInitFromCache: true,
-                  updateSliderValue: true,
-                }
-              );
+              form.reset(cache.states.values);
+              handleFormValuesChange(cache.states.values, form.watch(), {
+                token: cache.states.currentToken,
+                isInitFromCache: true,
+                updateSliderValue: true,
+              });
             }
             if (cache?.states.currentToken) {
               needLoadToken = cache.states.currentToken;
@@ -1890,150 +1901,21 @@ const SendToken = () => {
           : ''
       )}
     >
-      <PageHeader
-        onBack={handleClickBack}
-        forceShowBack={!(isTab || isDesktop)}
-        canBack={!(isTab || isDesktop)}
-        rightSlot={
-          isTab || isDesktop ? null : (
-            <div
-              className="text-r-neutral-title1 cursor-pointer absolute right-0"
-              onClick={() => {
-                // openInternalPageInTab(`send-token${history.location.search}`);
-                wallet.openInDesktop(
-                  `/desktop/profile?action=send&${history.location.search.slice(
-                    1
-                  )}`
-                );
-                window.close();
-              }}
-            >
-              <RcIconFullscreen />
-            </div>
-          )
-        }
-      >
-        {t('page.sendToken.header.title')}
-      </PageHeader>
-      <Form
-        form={form}
-        className="send-token-form pt-[16px]"
-        onFinish={handleSubmit}
-        onValuesChange={handleFormValuesChange}
-        initialValues={initialFormValues}
-      >
-        <div className="flex-1 overflow-auto pb-[100px]">
-          <AddressInfoTo
-            loadingToAddressDesc={loadingToAddressDesc}
-            toAccount={targetAccount}
-            toAddressPositiveTips={toAddressPositiveTips}
-            cexInfo={addressDesc?.cex}
-            onClick={() => {
-              if (isDesktop) {
-                history.push(
-                  `${history.location.pathname}?${obj2query({
-                    action: 'send',
-                    sendPageType: 'selectToAddress',
-                    type: 'send-token',
-                    rbisource:
-                      filterRbiSource('sendToken', rbisource) || rbisource,
-                    token: encodeTokenParam({
-                      chain: currentToken?.chain || '',
-                      id: currentToken?.id || '',
-                    }),
-                    amount: form.getFieldValue('amount') || '',
-                  })}`
-                );
-              } else {
-                history.push(
-                  `/select-to-address?${obj2query({
-                    type: 'send-token',
-                    rbisource:
-                      filterRbiSource('sendToken', rbisource) || rbisource,
-                    token: encodeTokenParam({
-                      chain: currentToken?.chain || '',
-                      id: currentToken?.id || '',
-                    }),
-                    amount: form.getFieldValue('amount') || '',
-                  })}`
-                );
-              }
-            }}
-          />
-          <div className="section">
-            <div className="section-title flex justify-between items-center">
-              <div className="token-balance whitespace-pre-wrap">
-                {t('page.sendToken.sectionBalance.title')}
+      <Form {...form}>
+        <form
+          className="send-token-form pt-[16px]"
+          onSubmit={form.handleSubmit(handleSubmit)}
+        >
+          <div className="flex-1 overflow-auto pb-[100px]">
+            <div className="section">
+              <div className="section-title flex justify-between items-center">
+                <div className="token-balance whitespace-pre-wrap">
+                  {t('page.sendToken.sectionBalance.title')}
+                </div>
               </div>
-
-              {/* <div className="token-balance-slider flex pl-[2px] w-[192px] pr-[8px] justify-between items-center">
-                  <SendSlider
-                    min={0}
-                    max={100}
-                    disabled={isLoading || isEstimatingGas}
-                    value={sliderPercentValue}
-                    onChange={(value) => {
-                      setSliderPercentValue(value);
-                      let newAmountBigNum = balanceBigNum?.multipliedBy(
-                        value / 100
-                      );
-
-                      if (value === 100) {
-                        if (
-                          chainTokenGasFees.gasLimit &&
-                          selectedGasLevel?.price
-                        ) {
-                          newAmountBigNum = newAmountBigNum.minus(
-                            new BigNumber(chainTokenGasFees.gasLimit)
-                              .times(selectedGasLevel?.price)
-                              .div(1e18)
-                          );
-                        }
-                        if (chainTokenGasFees.maybeL1Fee?.gt(0)) {
-                          newAmountBigNum = newAmountBigNum.minus(
-                            new BigNumber(chainTokenGasFees.maybeL1Fee).div(
-                              1e18
-                            )
-                          );
-                        }
-
-                        if (newAmountBigNum.lt(0)) {
-                          newAmountBigNum = new BigNumber(0);
-                        }
-                      }
-
-                      const newAmount =
-                        value === 100
-                          ? newAmountBigNum.toFixed()
-                          : !value
-                          ? ''
-                          : formatAmountString(newAmountBigNum);
-
-                      form.setFieldsValue({ amount: newAmount });
-                      handleFormValuesChange(
-                        { amount: newAmount },
-                        {
-                          ...form.getFieldsValue(),
-                          amount: newAmount,
-                        },
-                        {
-                          updateSliderValue: false,
-                          updateHistoryState: true,
-                        }
-                      );
-
-                      onSliderValueChangeTo100(value);
-                    }}
-                    className="w-[160px] max-w-[100%]"
-                  />
-                  <div className="ml-[8px] w-[42px] text-right text-[13px] text-r-blue-default">
-                    {sliderPercentValue}%
-                  </div>
-                </div> */}
-            </div>
-            {currentAccount && chainItem && (
-              <div className="bg-r-neutral-card1 rounded-[8px]">
-                {/* <ChainSelectWrapper>
+              {currentAccount && chainItem && (
+                <div className="bg-r-neutral-card1 rounded-[8px]">
+                  {/* <ChainSelectWrapper>
                     <ChainSelectorInForm
                       value={chain}
                       loading={initLoading}
@@ -2048,45 +1930,95 @@ const SendToken = () => {
                       getContainer={getContainer}
                     />
                   </ChainSelectWrapper> */}
-                <Form.Item name="amount">
-                  <TokenAmountInput
-                    type="send"
-                    className="bg-r-neutral-card1 rounded-[8px]"
-                    token={currentToken}
-                    onChange={handleAmountChange}
-                    onTokenChange={handleCurrentTokenChange}
-                    // chainId={chainItem.serverId}
-                    excludeTokens={[]}
-                    initLoading={initLoading}
-                    disableItemCheck={disableItemCheck}
-                    balanceNumText={balanceNumText}
-                    insufficientError={!!balanceError}
-                    handleClickMaxButton={handleClickMaxButton}
-                    isLoading={isLoading}
-                    getContainer={getContainer}
+                  <FormField
+                    control={form.control}
+                    name="amount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <TokenAmountInput
+                            {...field}
+                            type="send"
+                            className="bg-r-neutral-card1 rounded-[8px]"
+                            token={currentToken}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              handleAmountChange();
+                            }}
+                            onTokenChange={handleCurrentTokenChange}
+                            // chainId={chainItem.serverId}
+                            excludeTokens={[]}
+                            initLoading={initLoading}
+                            disableItemCheck={disableItemCheck}
+                            balanceNumText={balanceNumText}
+                            insufficientError={!!balanceError}
+                            handleClickMaxButton={handleClickMaxButton}
+                            isLoading={isLoading}
+                            getContainer={getContainer}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
                   />
-                </Form.Item>
+                </div>
+              )}
+            </div>
+            <AddressInfoTo
+              loadingToAddressDesc={loadingToAddressDesc}
+              toAccount={targetAccount}
+              toAddressPositiveTips={toAddressPositiveTips}
+              cexInfo={addressDesc?.cex}
+              onClick={() => {
+                if (isDesktop) {
+                  history.push(
+                    `${history.location.pathname}?${obj2query({
+                      action: 'send',
+                      sendPageType: 'selectToAddress',
+                      type: 'send-token',
+                      rbisource:
+                        filterRbiSource('sendToken', rbisource) || rbisource,
+                      token: encodeTokenParam({
+                        chain: currentToken?.chain || '',
+                        id: currentToken?.id || '',
+                      }),
+                      amount: formAmount || '',
+                    })}`
+                  );
+                } else {
+                  history.push(
+                    `/select-to-address?${obj2query({
+                      type: 'send-token',
+                      rbisource:
+                        filterRbiSource('sendToken', rbisource) || rbisource,
+                      token: encodeTokenParam({
+                        chain: currentToken?.chain || '',
+                        id: currentToken?.id || '',
+                      }),
+                      amount: formAmount || '',
+                    })}`
+                  );
+                }
+              }}
+            />
+
+            {chainItem?.serverId && canUseDirectSubmitTx ? (
+              <ShowMoreOnSend
+                chainServeId={chainItem?.serverId}
+                open
+                // setOpen={setGasFeeOpen}
+              />
+            ) : null}
+            {!canSubmitBasic && (
+              <div className="mt-20">
+                <PendingTxItem
+                  onFulfilled={handleFulfilled}
+                  type="send"
+                  ref={pendingTxRef}
+                />
               </div>
             )}
           </div>
-
-          {chainItem?.serverId && canUseDirectSubmitTx ? (
-            <ShowMoreOnSend
-              chainServeId={chainItem?.serverId}
-              open
-              // setOpen={setGasFeeOpen}
-            />
-          ) : null}
-          {!canSubmitBasic && (
-            <div className="mt-20">
-              <PendingTxItem
-                onFulfilled={handleFulfilled}
-                type="send"
-                ref={pendingTxRef}
-              />
-            </div>
-          )}
-        </div>
+        </form>
       </Form>
 
       {/* Floating Bottom Area */}
@@ -2107,8 +2039,8 @@ const SendToken = () => {
         canUseDirectSubmitTx={canUseDirectSubmitTx}
         onConfirm={async () => {
           await handleSubmit({
-            to: form.getFieldValue('to'),
-            amount: form.getFieldValue('amount'),
+            to: form.getValues('to'),
+            amount: form.getValues('amount'),
           });
           setAgreeRequiredChecks((prev) => ({
             ...prev,

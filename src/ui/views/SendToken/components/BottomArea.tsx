@@ -51,13 +51,8 @@ export default function BottomArea({
               setShowSheet(true);
             }
           }}
+          className="w-full"
           disabled={!canSubmit}
-          className={clsx(
-            'w-full h-[48px] rounded-[12px] font-semibold text-[16px] transition-all',
-            canSubmit
-              ? 'hover:opacity-90 active:scale-95'
-              : 'cursor-not-allowed'
-          )}
         >
           {t('page.sendToken.sendButton')}
         </Button>
@@ -120,8 +115,8 @@ export default function BottomArea({
             ) : (
               <Button
                 disabled={!canSubmit}
+                className="w-full "
                 type="submit"
-                className={clsx('w-full h-[48px] text-[16px]')}
                 onClick={() => {
                   onConfirm?.();
                   setShowSheet(false);
