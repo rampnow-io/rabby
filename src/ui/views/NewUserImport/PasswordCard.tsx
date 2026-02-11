@@ -141,21 +141,6 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack }) => {
                               )}
                             </button>
                           </div>
-
-                          {form.watch('password') && (
-                            <div
-                              className={`text-sm font-medium capitalize flex items-center gap-1 ${
-                                getPasswordStrength(form.watch('password'))
-                                  ?.color
-                              }`}
-                            >
-                              <span className="text-lg">✓</span>
-                              {
-                                getPasswordStrength(form.watch('password'))
-                                  ?.level
-                              }
-                            </div>
-                          )}
                         </div>
                       </FormControl>
 
@@ -204,6 +189,15 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack }) => {
                     </FormItem>
                   )}
                 />
+                {form.watch('password') && (
+                  <div
+                    className={`text-sm font-medium capitalize flex items-center justify-center gap-1 ${
+                      getPasswordStrength(form.watch('password'))?.color
+                    }`}
+                  >
+                    {getPasswordStrength(form.watch('password'))?.level}
+                  </div>
+                )}
               </div>
             </div>
           </Form>
@@ -217,7 +211,7 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack }) => {
             onClick={form.handleSubmit(formSubmit)}
             className="w-full"
           >
-            {t('global.Confirm')}
+            Proceed
           </Button>
         </Action>
       </Container>

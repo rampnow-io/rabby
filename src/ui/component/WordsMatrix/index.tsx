@@ -62,7 +62,7 @@ function WordsMatrix({
               {number}
             </div>
 
-            <div className="flex px-1 flex-1 items-center text-[16px] font-medium text-primary-foreground ">
+            <div className="flex px-2 flex-1 items-center text-[16px] font-medium text-primary-foreground ">
               {word}
             </div>
 

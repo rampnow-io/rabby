@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { ACCOUNT_COLORS_PALETTE } from '../address-management/utils';
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  padding: 20px;
-`;
+// const Container = styled.div`
+//   display: flex;
+//   flex-direction: column;
+//   gap: 24px;
+//   padding: 20px;
+// `;
 
 const Title = styled.div`
   font-size: 20px;
@@ -19,14 +19,16 @@ const Title = styled.div`
 const ColorGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin: 20px 0;
+  gap: 15px;
+  justify-items: center;
+  align-items: center;
 `;
 
 const ColorButton = styled.button<{ color: string; selected: boolean }>`
-  width: 100%;
+  width: 64px;
   aspect-ratio: 1;
   border-radius: 50%;
+  height: 64px;
   background-color: ${(props) => props.color};
   border: ${(props) =>
     props.selected ? '3px solid rgba(0, 0, 0, 0.3)' : '2px solid transparent'};
@@ -47,34 +49,6 @@ const ColorButton = styled.button<{ color: string; selected: boolean }>`
   &:active {
     transform: scale(0.95);
   }
-`;
-
-const SelectedLabel = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background-color: #e8f0ff;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #5b6fff;
-  width: fit-content;
-`;
-
-const ColorName = styled.div`
-  font-size: 12px;
-  color: #666;
-  text-align: center;
-  margin-top: 8px;
-`;
-
-const ColorCirclePreview = styled.div<{ color: string }>`
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background-color: ${(props) => props.color};
-  border: 1px solid rgba(0, 0, 0, 0.1);
 `;
 
 interface AccountColorPickerProps {
@@ -126,7 +100,7 @@ export const AccountColorPicker: React.FC<AccountColorPickerProps> = ({
   };
 
   return (
-    <Container>
+    <>
       <Title>Choose a color</Title>
 
       <ColorGrid>
@@ -138,11 +112,10 @@ export const AccountColorPicker: React.FC<AccountColorPickerProps> = ({
               onClick={() => handleColorSelect(color)}
               aria-label={`Select ${getColorName(color)} color`}
             />
-            <ColorName>{getColorName(color)}</ColorName>
           </div>
         ))}
       </ColorGrid>
-    </Container>
+    </>
   );
 };
 

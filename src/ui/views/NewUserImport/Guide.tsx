@@ -12,7 +12,7 @@ export const Guide = () => {
   const history = useHistory();
 
   const gotoCreate = React.useCallback(() => {
-    history.push('/new-user/backup-seed-phrase');
+    history.push('/new-user/import/seed-phrase/set-password?isCreated=true');
   }, []);
 
   const gotoImport = React.useCallback(() => {

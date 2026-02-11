@@ -114,10 +114,14 @@ export const NewUserSetPassword = () => {
         ]);
         await dispatch.importMnemonics.confirmAllImportingAccountsAsync();
 
-        history.push({
-          pathname: '/new-user/success',
-          search: `?hd=${KEYRING_CLASS.MNEMONIC}&keyringId=${stashKeyringId}&isCreated=${isCreated}`,
-        });
+        if (isCreated) {
+          history.push('/new-user/backup-seed-phrase');
+        } else {
+          history.push({
+            pathname: '/new-user/success',
+            search: `?hd=${KEYRING_CLASS.MNEMONIC}&keyringId=${stashKeyringId}&isCreated=${isCreated}`,
+          });
+        }
       }
     } catch (e) {
       console.error(e);
@@ -219,7 +223,16 @@ export const NewUserSetPassword = () => {
       return;
     }
     if (type === 'seed-phrase' && !store.seedPhrase) {
-      history.replace('/new-user/guide');
+      if (isCreated) {
+        // Generate seed phrase for new wallet creation
+        const mnemonic = await wallet.generateMnemonic();
+        setStore({
+          seedPhrase: mnemonic,
+          passphrase: '',
+        });
+      } else {
+        history.replace('/new-user/guide');
+      }
       return;
     }
 

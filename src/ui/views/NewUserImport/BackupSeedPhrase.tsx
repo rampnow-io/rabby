@@ -16,6 +16,7 @@ import {
   Action,
   Container,
   Content,
+  CopyField,
   showSnackbar,
   SnackbarType,
 } from '@repo/ui';
@@ -55,7 +56,7 @@ export const BackupSeedPhrase = () => {
   }, [mnemonics, t]);
 
   const handleNext = () => {
-    history.push('/new-user/import/seed-phrase/set-password?isCreated=true');
+    history.push('/new-user/select-color');
   };
 
   return (
@@ -96,10 +97,16 @@ export const BackupSeedPhrase = () => {
                 'cursor-pointer',
                 'flex justify-center items-center gap-4'
               )}
-              onClick={onCopyMnemonics}
             >
-              <span>{t('page.newAddress.seedPhrase.copy')}</span>
-              <CopyIcon className="h-3 w-3" />
+              {mnemonics && (
+                <Copy
+                  key="emailId"
+                  value={`${mnemonics}`}
+                  className="text-sm text-gray-900"
+                >
+                  {t('page.newAddress.seedPhrase.copy')}
+                </Copy>
+              )}
             </div>
           </div>
         </Content>
