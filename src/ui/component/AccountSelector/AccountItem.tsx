@@ -263,32 +263,18 @@ export const AccountItem = memo(
         style={style}
         onClick={handleClick}
       >
-        <Tooltip
-          overlayClassName="rectangle addressType__tooltip"
-          placement="topRight"
-          title={
-            !showWhitelistIcon
-              ? formatAddressTooltip(
-                  type,
-                  BRAND_ALIAN_TYPE_TEXT[brandName] || brandName
-                )
-              : ''
-          }
-        >
+        <div>
           <div className="relative flex-none">
             <img
               src={cexLogo || addressTypeIcon}
               className={'w-[28px] h-[28px] rounded-full'}
             />
             {showWhitelistIcon ? (
-              <Tooltip
-                overlayClassName="rectangle addressType__tooltip"
-                title="Whitelist Address"
-              >
+              <div>
                 <div className="absolute w-[18px] h-[18px] whitelist-guard-bordered-view text-r-blue-default">
                   <RcWhitelistGuardBordered className="w-[18px] h-[18px]" />
                 </div>
-              </Tooltip>
+              </div>
             ) : (
               <CommonSignal
                 type={type}
@@ -298,7 +284,7 @@ export const AccountItem = memo(
               />
             )}
           </div>
-        </Tooltip>
+        </div>
 
         <div className={clsx('min-w-0')}>
           {

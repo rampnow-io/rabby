@@ -4,6 +4,7 @@ import { useTokens } from '@/ui/utils/portfolio/token';
 import { findChain } from '@/utils/chain';
 import { DrawerProps, Modal, Skeleton } from 'antd';
 import { TokenItem } from 'background/service/openapi';
+import { ChevronDown } from 'lucide-react';
 import clsx from 'clsx';
 import uniqBy from 'lodash/uniqBy';
 import React, {
@@ -38,7 +39,7 @@ import { useOpenClose } from '@repo/ui';
 const Card = styled.div`
   background: #18181b0a;
   border-radius: 20px;
-  padding: 16px;
+  padding: 4px;
 `;
 
 const SwapIcon = styled.div`
@@ -196,7 +197,7 @@ const TokenAmountInput = ({
     <>
       <Card className={className}>
         <div
-          className="flex items-center justify-between bg-[#F7F7F8] rounded-xl px-4 py-2 cursor-pointer"
+          className="flex items-center justify-between bg-[#F7F7F8] rounded-xl px-3 py-3 cursor-pointer"
           onClick={handleSelectToken}
         >
           {initLoading ? (
@@ -218,27 +219,29 @@ const TokenAmountInput = ({
               </div>
             </div>
           )}
-          <RcArrowDown width={18} height={18} />
+          <ChevronDown />
         </div>
         <div className="bg-white rounded-[20px]">
-          <div className="flex flex-col items-center mt-6">
-            <Input
-              value={localAmount}
-              autoFocus
-              onChange={(e) => {
-                const next = e.target.value;
-                if (!INPUT_NUMBER_RE.test(next)) return;
-                const filtered = filterNumber(next);
-                setLocalAmount(filtered);
-                onChange?.(filtered);
-              }}
-              className={'border-none p-0 outline-none'}
-              subClassName="text-[35px] text-center text-primary-foreground font-semibold bg-inherit"
-            />
+          <div className="flex flex-col items-center p-4">
+            <div className="flex justify-center items-center  gap-1 ">
+              <Input
+                value={localAmount}
+                autoFocus
+                onChange={(e) => {
+                  const next = e.target.value;
+                  if (!INPUT_NUMBER_RE.test(next)) return;
+                  const filtered = filterNumber(next);
+                  setLocalAmount(filtered);
+                  onChange?.(filtered);
+                }}
+                className={'border-none p-0 outline-none w-[120px]'}
+                subClassName="text-[35px] text-center text-primary-foreground font-semibold bg-inherit"
+              />
 
-            <span className="text-sm text-r-neutral-foot">
-              {token ? getTokenSymbol(token) : ''}
-            </span>
+              <span className="text-[10px] !mt-3 text-secondary-foreground font-medium">
+                {token ? getTokenSymbol(token) : ''}
+              </span>
+            </div>
 
             <SwapIcon>
               <RcIconDownCC width={16} height={16} />
@@ -254,12 +257,8 @@ const TokenAmountInput = ({
           </div>
         </div>
       </Card>
-      <div className="flex items-center justify-between mt-4">
-        <span className="text-xs text-r-neutral-foot">{useValue}</span>
-
+      <div className="flex items-center justify-end mt-4">
         <div className="flex items-center gap-2">
-          <RcIconWalletCC className="w-4 h-4" />
-          <span className="text-xs text-r-neutral-foot">{balanceNumText}</span>
           {token && token.amount > 0 && (
             <MaxButton onClick={handleClickMaxButton}>
               {t('page.sendToken.max')}

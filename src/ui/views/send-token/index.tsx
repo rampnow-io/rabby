@@ -175,11 +175,6 @@ const SendToken = () => {
         console.warn('[DEBUG] getParams called without token or recipient');
         return {};
       }
-      console.log('[DEBUG] getParams called with amount:', amount);
-      console.log('[DEBUG] Token in getParams:');
-      console.log('  id:', formData.token.id);
-      console.log('  symbol:', formData.token.symbol);
-      console.log('  name:', formData.token.name);
 
       const chain = findChain({
         serverId: formData.token.chain,
@@ -188,16 +183,6 @@ const SendToken = () => {
       const sendValue = new BigNumber(amount || 0)
         .multipliedBy(10 ** formData.token.decimals)
         .decimalPlaces(0, BigNumber.ROUND_DOWN);
-
-      console.log(
-        '[DEBUG] sendValue:',
-        sendValue.toFixed(0),
-        '(amount:',
-        amount,
-        'decimals:',
-        formData.token.decimals,
-        ')'
-      );
 
       // Use token.id if it's a valid address, otherwise skip building params
       const tokenId = formData.token.id;
@@ -247,7 +232,6 @@ const SendToken = () => {
         isSend: true,
       };
       if (isNativeToken) {
-        console.log('[DEBUG] Native token detected, adjusting params');
         params.to = formData.recipient;
         delete params.data;
         params.value = `0x${sendValue.toString(16)}`;
@@ -261,15 +245,8 @@ const SendToken = () => {
   // Fetch gas list
   const fetchGasList = useCallback(async () => {
     if (!formData.amount || !formData.token || !currentAccount?.address) {
-      console.log('[DEBUG] fetchGasList - missing data:', {
-        amount: !!formData.amount,
-        token: !!formData.token,
-        account: !!currentAccount?.address,
-      });
       return [];
     }
-
-    console.log('[DEBUG] fetchGasList called');
 
     // Build params locally to avoid dependency loop
     const chain = findChain({ serverId: formData.token.chain })!;
@@ -325,15 +302,6 @@ const SendToken = () => {
       params.data = abiCoder.encodeFunctionCall(dataInput[0], dataInput[1]);
     }
 
-    console.log('[DEBUG] fetchGasList params:');
-    console.log('  from:', params.from);
-    console.log('  to:', params.to);
-    console.log('  chainId:', params.chainId);
-    console.log('  value:', params.value);
-    console.log('  isNative:', isNative);
-    console.log('  hasRecipient:', !!formData.recipient);
-    console.log('  isValidTokenAddress:', isValidTokenAddress);
-
     const list: GasLevel[] = chainItem?.isTestnet
       ? await wallet.getCustomTestnetGasMarket({ chainId: chainItem.id })
       : params?.from
@@ -343,13 +311,6 @@ const SendToken = () => {
         })
       : [];
 
-    console.log('[DEBUG] fetchGasList got list:', list?.length || 0, 'items');
-    if (list && list.length > 0) {
-      console.log(
-        '[DEBUG] Gas levels:',
-        list.map((g) => `${g.level}: ${g.price}`)
-      );
-    }
     return list;
   }, [
     chainItem,
@@ -378,19 +339,9 @@ const SendToken = () => {
 
   // Auto-select normal gas level when list loads
   useEffect(() => {
-    console.log('[DEBUG] Auto-select effect running:', {
-      gasList: gasList?.length || 0,
-      selectedGasLevel: !!selectedGasLevel,
-    });
     if (gasList && gasList.length > 0 && !selectedGasLevel) {
-      console.log('[DEBUG] Setting default gas level');
       const normalGas = gasList.find((g) => g.level === 'normal') || gasList[0];
-      console.log(
-        '[DEBUG] Selected gas:',
-        normalGas?.level,
-        'price:',
-        normalGas?.price
-      );
+
       setSelectedGasLevel(normalGas);
     }
   }, [gasList, selectedGasLevel]);
@@ -570,12 +521,6 @@ const SendToken = () => {
   };
 
   const handleTokenSelect = (token: TokenItem) => {
-    console.log('[DEBUG] Token selected:');
-    console.log('  id:', token.id);
-    console.log('  symbol:', token.symbol);
-    console.log('  name:', token.name);
-    console.log('  chain:', token.chain);
-    console.log('  decimals:', token.decimals);
     setFormData((prev) => ({ ...prev, token }));
     setSelectedGasLevel(null); // Reset gas level when token changes
     setStep('amount');
@@ -589,12 +534,6 @@ const SendToken = () => {
   };
 
   const handleGasChange = useCallback((gasLevel: GasLevel) => {
-    console.log(
-      '[DEBUG] Gas level changed:',
-      gasLevel?.level,
-      'price:',
-      gasLevel?.price
-    );
     setSelectedGasLevel(gasLevel);
     if (gasLevel.level && typeof gasLevel.level === 'string') {
       setSelectedGasLevelType(gasLevel.level as GasLevelType);
@@ -798,16 +737,8 @@ const SendToken = () => {
   ]);
 
   const handleAmountNext = () => {
-    console.log('[DEBUG] handleAmountNext called, canSubmit:', canSubmit);
     if (canSubmit) {
-      console.log('[DEBUG] Calling handleSubmit');
       handleSubmit({ amount: formData.amount });
-    } else {
-      console.warn('[DEBUG] Cannot submit:', {
-        hasToken: !!formData.token,
-        hasRecipient: !!formData.recipient,
-        hasAmount: !!formData.amount,
-      });
     }
   };
 
@@ -848,21 +779,7 @@ const SendToken = () => {
         return;
       }
 
-      console.log('[DEBUG] Starting transaction submission:', {
-        token: formData.token?.symbol,
-        amount: formData.amount,
-        recipient: formData.recipient,
-        gasLevel: selectedGasLevel?.level,
-      });
-
       const params = getParams({ amount });
-      console.log('[DEBUG] Transaction params:', {
-        from: params.from,
-        to: params.to,
-        value: params.value,
-        data: params.data ? params.data.substring(0, 50) + '...' : undefined,
-        gas: params.gas,
-      });
 
       let shouldForceSignPage = !!forceSignPage;
 
@@ -959,10 +876,6 @@ const SendToken = () => {
       // Add gas price from selected gas level
       if (selectedGasLevel?.price) {
         params.gasPrice = intToHex(selectedGasLevel.price);
-        console.log('[DEBUG] Added gasPrice:', {
-          original: selectedGasLevel.price,
-          hex: params.gasPrice,
-        });
       }
 
       try {
@@ -998,7 +911,6 @@ const SendToken = () => {
           console.error('[FullSign] setLastTimeSendToken error', error);
         });
 
-        console.log('[DEBUG] Calling wallet.sendRequest with params:', params);
         const promise = wallet.sendRequest({
           method: 'eth_sendTransaction',
           params: [params],
@@ -1011,35 +923,22 @@ const SendToken = () => {
           },
         });
 
-        console.log(
-          '[DEBUG] wallet.sendRequest called, isTab:',
-          isTab,
-          'isDesktop:',
-          isDesktop
-        );
-
         if (isTab || isDesktop) {
-          console.log('[DEBUG] Awaiting promise (tab/desktop mode)');
           await promise;
-          console.log('[DEBUG] Promise resolved');
           setFormData((prev) => ({ ...prev, amount: '' }));
-          message.success('Transaction sent successfully!');
           setTimeout(() => {
             setStep('recipient');
             setFormData({ token: null, recipient: '', amount: '' });
           }, 1000);
         } else {
-          console.log('[DEBUG] Not in tab/desktop mode, closing window');
           message.success('Transaction submitted!');
           setFormData((prev) => ({ ...prev, amount: '' }));
           // Close after a short delay to show success message
           setTimeout(() => {
-            console.log('[DEBUG] Closing window');
             window.close();
           }, 1500);
         }
       } catch (e: any) {
-        console.error('[DEBUG] Transaction failed with error:', e);
         message.error(e?.message || 'Transaction failed');
         console.error(e);
       }
@@ -1134,18 +1033,6 @@ const SendToken = () => {
                   if (token) handleTokenSelect(token);
                 }
               : () => {
-                  console.log('[DEBUG] Send button clicked, state:', {
-                    step,
-                    hasAmount: !!formData.amount,
-                    amount: formData.amount,
-                    insufficientError,
-                    hasGasLevel: !!selectedGasLevel,
-                    gasLevel: selectedGasLevel?.level,
-                    isSubmitting: isSubmitLoading,
-                    loadingGas: loadingGasList,
-                    miniSigning: miniSignLoading,
-                    tokenSymbol: formData.token?.symbol,
-                  });
                   handleAmountNext();
                 }
           }

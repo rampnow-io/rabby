@@ -18,7 +18,7 @@ import { useForm } from 'react-hook-form';
 import abiCoderInst, { AbiCoder } from 'web3-eth-abi';
 import { useMemoizedFn } from 'ahooks';
 import { isValidAddress, intToHex, zeroAddress } from '@ethereumjs/util';
-
+import { Action, Container, Content } from '@repo/ui';
 import {
   CHAINS_ENUM,
   KEYRING_CLASS,
@@ -44,7 +44,7 @@ import {
   TokenItemWithEntity,
   Tx,
 } from 'background/service/openapi';
-import { PageHeader } from 'ui/component';
+import { HeaderNavPage } from '@/ui/component';
 // import { ReactComponent as RcIconSwitchCC } from '@/ui/assets/send-token/switch-cc.svg';
 
 import { getKRCategoryByType } from '@/utils/transaction';
@@ -82,7 +82,7 @@ import ChainSelectorInForm from '@/ui/component/ChainSelector/InForm';
 import styled from 'styled-components';
 import { TDisableCheckChainFn } from '@/ui/component/ChainSelector/components/SelectChainItem';
 import { AddressInfoFrom } from '@/ui/component/SendLike/AddressInfoFrom';
-import { AddressInfoTo } from '@/ui/component/SendLike/AddressInfoTo';
+
 import BottomArea from './components/BottomArea';
 import {
   RiskType,
@@ -101,6 +101,10 @@ import {
   FormItem,
   FormMessage,
 } from '@repo/ui/primitives';
+import { UIContainer } from '@/ui/provider';
+
+import { AddressInfoTo } from './components/AddressInfoTo';
+import SelectToAddress from './components/SelectToAddress';
 
 const isTab = getUiType().isTab;
 const isDesktop = getUiType().isDesktop;
@@ -212,6 +216,7 @@ const SendToken = () => {
   const wallet = useWallet();
 
   // UI States
+  const [isSelectToAddressOpen, setIsSelectToAddressOpen] = useState(false);
   const [reserveGasOpen, setReserveGasOpen] = useState(false);
   const [refreshId, setRefreshId] = useState(0);
 
@@ -1892,178 +1897,135 @@ const SendToken = () => {
     }
   });
 
+  console.log('render send token', targetAccount);
+
   return (
-    <div
-      className={clsx(
-        'p-4',
-        isTab || isDesktop
-          ? 'w-full h-full overflow-auto min-h-0 rounded-[16px] shadow-[0px_40px_80px_0px_rgba(43,57,143,0.40)'
-          : ''
-      )}
-    >
-      <Form {...form}>
-        <form
-          className="send-token-form pt-[16px]"
-          onSubmit={form.handleSubmit(handleSubmit)}
-        >
-          <div className="flex-1 overflow-auto pb-[100px]">
-            <div className="section">
-              <div className="section-title flex justify-between items-center">
-                <div className="token-balance whitespace-pre-wrap">
-                  {t('page.sendToken.sectionBalance.title')}
-                </div>
-              </div>
-              {currentAccount && chainItem && (
-                <div className="bg-r-neutral-card1 rounded-[8px]">
-                  {/* <ChainSelectWrapper>
-                    <ChainSelectorInForm
-                      value={chain}
-                      loading={initLoading}
-                      onChange={handleChainChanged}
-                      disableChainCheck={disableChainCheck}
-                      chainRenderClassName={clsx(
-                        'text-[13px] font-medium border-0 bg-transparent',
-                        'before:border-transparent hover:before:border-rabby-blue-default pl-[8px]'
-                      )}
-                      drawerHeight={540}
-                      showClosableIcon
-                      getContainer={getContainer}
-                    />
-                  </ChainSelectWrapper> */}
-                  <FormField
-                    control={form.control}
-                    name="amount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <TokenAmountInput
-                            {...field}
-                            type="send"
-                            className="bg-r-neutral-card1 rounded-[8px]"
-                            token={currentToken}
-                            onChange={(e) => {
-                              field.onChange(e);
-                              handleAmountChange();
-                            }}
-                            onTokenChange={handleCurrentTokenChange}
-                            // chainId={chainItem.serverId}
-                            excludeTokens={[]}
-                            initLoading={initLoading}
-                            disableItemCheck={disableItemCheck}
-                            balanceNumText={balanceNumText}
-                            insufficientError={!!balanceError}
-                            handleClickMaxButton={handleClickMaxButton}
-                            isLoading={isLoading}
-                            getContainer={getContainer}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              )}
-            </div>
-            <AddressInfoTo
-              loadingToAddressDesc={loadingToAddressDesc}
-              toAccount={targetAccount}
-              toAddressPositiveTips={toAddressPositiveTips}
-              cexInfo={addressDesc?.cex}
-              onClick={() => {
-                if (isDesktop) {
-                  history.push(
-                    `${history.location.pathname}?${obj2query({
-                      action: 'send',
-                      sendPageType: 'selectToAddress',
-                      type: 'send-token',
-                      rbisource:
-                        filterRbiSource('sendToken', rbisource) || rbisource,
-                      token: encodeTokenParam({
-                        chain: currentToken?.chain || '',
-                        id: currentToken?.id || '',
-                      }),
-                      amount: formAmount || '',
-                    })}`
-                  );
-                } else {
-                  history.push(
-                    `/select-to-address?${obj2query({
-                      type: 'send-token',
-                      rbisource:
-                        filterRbiSource('sendToken', rbisource) || rbisource,
-                      token: encodeTokenParam({
-                        chain: currentToken?.chain || '',
-                        id: currentToken?.id || '',
-                      }),
-                      amount: formAmount || '',
-                    })}`
-                  );
-                }
-              }}
-            />
-
-            {chainItem?.serverId && canUseDirectSubmitTx ? (
-              <ShowMoreOnSend
-                chainServeId={chainItem?.serverId}
-                open
-                // setOpen={setGasFeeOpen}
-              />
-            ) : null}
-            {!canSubmitBasic && (
-              <div className="mt-20">
-                <PendingTxItem
-                  onFulfilled={handleFulfilled}
-                  type="send"
-                  ref={pendingTxRef}
-                />
-              </div>
-            )}
+    <UIContainer>
+      <Container>
+        <HeaderNavPage handleBack={handleClickBack}>
+          <div className="text-primary-foreground text-xl font-normal">
+            Send
           </div>
-        </form>
-      </Form>
+        </HeaderNavPage>
+        <Content className="!px-4">
+          <Form {...form}>
+            <form
+              className="send-token-form pt-[16px]"
+              onSubmit={form.handleSubmit(handleSubmit)}
+            >
+              <div className="flex-1 overflow-auto pb-[100px]">
+                <div className="section">
+                  {currentAccount && chainItem && (
+                    <div className="bg-r-neutral-card1 rounded-[8px]">
+                      <FormField
+                        control={form.control}
+                        name="amount"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <TokenAmountInput
+                                {...field}
+                                type="send"
+                                className="bg-r-neutral-card1 rounded-[8px]"
+                                token={currentToken}
+                                onChange={(e) => {
+                                  field.onChange(e);
+                                  handleAmountChange();
+                                }}
+                                onTokenChange={handleCurrentTokenChange}
+                                // chainId={chainItem.serverId}
+                                excludeTokens={[]}
+                                initLoading={initLoading}
+                                disableItemCheck={disableItemCheck}
+                                balanceNumText={balanceNumText}
+                                insufficientError={!!balanceError}
+                                handleClickMaxButton={handleClickMaxButton}
+                                isLoading={isLoading}
+                                getContainer={getContainer}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )}
+                </div>
+                <AddressInfoTo
+                  loadingToAddressDesc={loadingToAddressDesc}
+                  toAccount={targetAccount}
+                  toAddressPositiveTips={toAddressPositiveTips}
+                  cexInfo={addressDesc?.cex}
+                  onOpenSelectAddress={() => setIsSelectToAddressOpen(true)}
+                  onCloseSelectAddress={() => setIsSelectToAddressOpen(false)}
+                />
+                {isSelectToAddressOpen && <SelectToAddress />}
 
-      {/* Floating Bottom Area */}
-      <BottomArea
-        mostImportantRisks={mostImportantRisks}
-        agreeRequiredChecked={agreeRequiredChecked}
-        onCheck={(newVal) => {
-          setAgreeRequiredChecks((prev) => ({
-            ...prev,
-            ...(hasRiskForToAddress && { forToAddress: newVal }),
-            ...(hasRiskForToken && { forToken: newVal }),
-          }));
-        }}
-        currentAccount={currentAccount}
-        isSubmitLoading={isSubmitLoading}
-        canSubmit={canSubmit}
-        miniSignLoading={miniSignLoading}
-        canUseDirectSubmitTx={canUseDirectSubmitTx}
-        onConfirm={async () => {
-          await handleSubmit({
-            to: form.getValues('to'),
-            amount: form.getValues('amount'),
-          });
-          setAgreeRequiredChecks((prev) => ({
-            ...prev,
-            forToAddress: false,
-            forToken: false,
-          }));
-        }}
-      />
+                {chainItem?.serverId && canUseDirectSubmitTx ? (
+                  <ShowMoreOnSend
+                    chainServeId={chainItem?.serverId}
+                    open
+                    // setOpen={setGasFeeOpen}
+                  />
+                ) : null}
+                {!canSubmitBasic && (
+                  <div className="mt-20">
+                    <PendingTxItem
+                      onFulfilled={handleFulfilled}
+                      type="send"
+                      ref={pendingTxRef}
+                    />
+                  </div>
+                )}
+              </div>
+            </form>
+          </Form>
+        </Content>
+        {/* Floating Bottom Area */}
+        <Action>
+          <BottomArea
+            mostImportantRisks={mostImportantRisks}
+            agreeRequiredChecked={agreeRequiredChecked}
+            onCheck={(newVal) => {
+              setAgreeRequiredChecks((prev) => ({
+                ...prev,
+                ...(hasRiskForToAddress && { forToAddress: newVal }),
+                ...(hasRiskForToken && { forToken: newVal }),
+              }));
+            }}
+            currentAccount={currentAccount}
+            isSubmitLoading={isSubmitLoading}
+            canSubmit={canSubmit}
+            miniSignLoading={miniSignLoading}
+            canUseDirectSubmitTx={canUseDirectSubmitTx}
+            onConfirm={async () => {
+              await handleSubmit({
+                to: form.getValues('to'),
+                amount: form.getValues('amount'),
+              });
+              setAgreeRequiredChecks((prev) => ({
+                ...prev,
+                forToAddress: false,
+                forToken: false,
+              }));
+            }}
+          />
+        </Action>
 
-      <SendReserveGasPopup
-        selectedItem={selectedGasLevel?.level as GasLevelType}
-        chain={chain}
-        limit={Math.max(chainTokenGasFees.gasLimit, MINIMUM_GAS_LIMIT)}
-        onGasChange={(gasLevel) => {
-          handleGasLevelChanged(gasLevel);
-        }}
-        gasList={gasList}
-        open={reserveGasOpen}
-        isLoading={loadingGasList}
-        rawHexBalance={currentToken?.raw_amount_hex_str || '0'}
-        onClose={() => handleReserveGasClose()}
-      />
-    </div>
+        <SendReserveGasPopup
+          selectedItem={selectedGasLevel?.level as GasLevelType}
+          chain={chain}
+          limit={Math.max(chainTokenGasFees.gasLimit, MINIMUM_GAS_LIMIT)}
+          onGasChange={(gasLevel) => {
+            handleGasLevelChanged(gasLevel);
+          }}
+          gasList={gasList}
+          open={reserveGasOpen}
+          isLoading={loadingGasList}
+          rawHexBalance={currentToken?.raw_amount_hex_str || '0'}
+          onClose={() => handleReserveGasClose()}
+        />
+      </Container>
+    </UIContainer>
   );
 };
 

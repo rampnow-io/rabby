@@ -195,7 +195,6 @@ export const Perps: React.FC = () => {
     [currentPerpsAccount?.type]
   );
   const miniTxs = useMemo(() => {
-    console.log('miniSignTx', miniSignTx);
     return miniSignTx || [];
   }, [miniSignTx]);
 

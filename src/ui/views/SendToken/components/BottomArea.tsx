@@ -43,20 +43,17 @@ export default function BottomArea({
 
   return (
     <>
-      {/* Floating Button */}
-      <div className="fixed bottom-4 left-4 right-4 z-40">
-        <Button
-          onClick={() => {
-            if (canSubmit) {
-              setShowSheet(true);
-            }
-          }}
-          className="w-full"
-          disabled={!canSubmit}
-        >
-          {t('page.sendToken.sendButton')}
-        </Button>
-      </div>
+      <Button
+        onClick={() => {
+          if (canSubmit) {
+            setShowSheet(true);
+          }
+        }}
+        className="w-full"
+        disabled={!canSubmit}
+      >
+        {t('page.sendToken.sendButton')}
+      </Button>
 
       {/* Bottom Sheet */}
       <BottomFloatingSheet open={showSheet} onClose={() => setShowSheet(false)}>
@@ -98,8 +95,7 @@ export default function BottomArea({
             </div>
           )}
 
-          {/* Submit Button in Sheet */}
-          <div className="btn-wrapper w-full">
+          <div>
             {canUseDirectSubmitTx && currentAccount?.type ? (
               <DirectSignToConfirmBtn
                 buttonClassName="text-[16px]"
