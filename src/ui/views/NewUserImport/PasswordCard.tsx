@@ -49,9 +49,11 @@ const getPasswordStrength = (password: string) => {
     (hasSpecialChar ? 1 : 0) +
     (length >= 12 ? 1 : 0);
 
-  if (scoreTotal <= 2) return { level: 'weak', color: 'text-red-500' };
-  if (scoreTotal <= 3) return { level: 'medium', color: 'text-yellow-500' };
-  return { level: 'good', color: 'text-green-500' };
+  if (scoreTotal <= 2)
+    return { level: 'This password is weak', color: 'text-red-500' };
+  if (scoreTotal <= 3)
+    return { level: 'This password is medium', color: 'text-yellow-500' };
+  return { level: 'This password is good', color: 'text-green-500' };
 };
 
 const passwordSchema = z

@@ -113,20 +113,14 @@ export const HistoryList = ({
 
       {/* Empty */}
       {isEmpty && (
-        <Empty
-          title={t('page.transactions.empty.title')}
-          desc={
-            <span>
-              <Trans i18nKey="page.transactions.empty.desc" t={t}>
-                No transactions found on{' '}
-                <Link to="/settings/chain-list" className="underline">
-                  supported chains
-                </Link>
-              </Trans>
-            </span>
-          }
-          className="pt-[108px]"
-        />
+        <span>
+          <Trans i18nKey="page.transactions.empty.desc" t={t}>
+            No transactions found on{' '}
+            <Link to="/settings/chain-list" className="underline">
+              supported chains
+            </Link>
+          </Trans>
+        </span>
       )}
 
       {!loading && !isEmpty && (

@@ -39,3 +39,4 @@ export * from './snackbar';
 export * from './thirdweb';
 export * from './timeline/timeline';
 export * from './transaction-hash';
+export * from './confetti';

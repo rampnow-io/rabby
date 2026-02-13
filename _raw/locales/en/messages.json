@@ -3001,7 +3001,7 @@
           }
         },
         "agree": "I agree to the<1/> <2>Terms of Use</2> and <4>Privacy Policy</4>",
-        "desc": "Set a password to manage your wallet. Note that we don’t restore your password"
+        "desc": "Create a password to secure your wallet. Please remember, we cannot recover your password."
       },
       "successful": {
         "create": "Created Successfully",

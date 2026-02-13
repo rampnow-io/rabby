@@ -8,7 +8,7 @@ const Description = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      'text-[14px] leading-[17px] text-secondary-foreground',
+      'text-sm leading-[17px] text-secondary-foreground',
       className
     )}
     {...props}

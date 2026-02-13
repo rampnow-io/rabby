@@ -95,7 +95,7 @@ export const BackupSeedPhrase = () => {
             <div
               className={clsx(
                 'cursor-pointer',
-                'flex justify-center items-center gap-4'
+                'flex justify-center items-center gap-4 mt-2'
               )}
             >
               {mnemonics && (
@@ -110,7 +110,7 @@ export const BackupSeedPhrase = () => {
             </div>
           </div>
         </Content>
-        <Action className="flex flex-col gap-4">
+        <Action className="flex flex-col gap-[9px]">
           <div className="text-[10px] font-medium text-r-neutral-title1 text-center">
             {t('page.newAddress.seedPhrase.backupTips2')}
           </div>
