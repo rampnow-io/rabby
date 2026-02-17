@@ -8,7 +8,8 @@ interface Props {
 }
 
 const onboardingClass = 'lg:!h-[583px] lg:!w-[458px]';
-const normalClass = 'lg:!h-full lg:!w-full lg:!absolute';
+const normalClass =
+  'lg:!h-full lg:!w-full lg:!absolute lg:!min-w-[375px] lg:!overflow-x-auto';
 
 export function UIContainer({ children, isOnboarding = false }: Props) {
   return (

@@ -35,7 +35,6 @@ export interface AddressItemProps {
   isUpdatingBalance?: boolean;
   children?: React.ReactNode;
   onDelete?: () => void;
-  /** Avatar color (hex code) */
   color?: string;
 }
 
@@ -58,11 +57,9 @@ const AddressCardModal = ({
   const [newName, setNewName] = useState(alias);
   const [isRenaming, setIsRenaming] = useState(false);
 
-  // 🔥 PRODUCTION FIX: Track if a child interaction is happening
   const isChildInteractingRef = useRef(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // Use stored color if available, fallback to computed color based on address
   const colorOrClass = color
     ? getAvatarColor(color)
     : getAvatarColor(address + brandName);
@@ -70,26 +67,21 @@ const AddressCardModal = ({
   const avatarColor = colorOrClass?.startsWith('#') ? '' : colorOrClass;
   const avatarStyle = getAvatarColorStyle(colorOrClass);
 
-  // 🔥 Prevent click if any modal is open
   const canSwitchAccount = useCallback(() => {
     return !popoverOpen && !showRenameModal;
   }, [popoverOpen, showRenameModal]);
 
-  // 🔥 Robust click handler using event target verification
   const handleCardClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      // Prevent if child interaction flag is set
       if (isChildInteractingRef.current) {
         isChildInteractingRef.current = false;
         return;
       }
 
-      // Prevent if any modal/popover is open
       if (!canSwitchAccount()) {
         return;
       }
 
-      // Verify click target is the card itself, not a descendant control
       if (
         e.target !== cardRef.current &&
         !cardRef.current?.contains(e.target as Node)
@@ -97,7 +89,6 @@ const AddressCardModal = ({
         return;
       }
 
-      // Final check: ensure click wasn't from interactive elements
       const target = e.target as HTMLElement;
       if (
         target.closest('[role="button"]') ||
@@ -122,7 +113,6 @@ const AddressCardModal = ({
     try {
       setIsRenaming(true);
       await updateAlias(newName.trim());
-      // Wait a bit for the backend to update
       setTimeout(() => {
         setShowRenameModal(false);
         setIsRenaming(false);
@@ -147,13 +137,12 @@ const AddressCardModal = ({
     <div
       ref={cardRef}
       onClick={handleCardClick}
-      className={`relative group flex items-center justify-between
-        rounded-[16px] border-2 h-[60px] px-3
+      className={`relative group flex items-center cursor-pointer justify-between
+        rounded-[16px] border h-[60px] px-3
         transition-colors hover:bg-[#FAFAFA] bg-[#FAFAFA]
         ${isCurrentAccount ? 'border-[#8ACE00]' : 'border-transparent'}
         ${!canSwitchAccount() ? 'pointer-events-auto' : ''}`}
     >
-      {/* LEFT */}
       <div className="flex items-center gap-3 flex-1 min-w-0">
         <div
           className={`h-9 w-9 rounded-full flex items-center justify-center
@@ -174,9 +163,8 @@ const AddressCardModal = ({
         </div>
       </div>
 
-      {/* BALANCE */}
-      {isCurrentAccount && (
-        <div className="ml-auto text-right min-w-[90px] flex-shrink-0">
+      <div className="ml-auto text-right min-w-[90px] flex-shrink-0 relative flex items-center justify-end">
+        <div className="opacity-100 group-hover:opacity-0 transition-opacity w-full">
           {isUpdatingBalance ? (
             <SkeletonInput active style={{ width: 96, height: 24 }} />
           ) : (
@@ -185,89 +173,85 @@ const AddressCardModal = ({
             </span>
           )}
         </div>
-      )}
-
-      {/* POPOVER */}
-      <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-        <PopoverTrigger
-          asChild
-          onClick={(e) => {
-            e.stopPropagation();
-            setPopoverOpen(true);
-          }}
-        >
-          <div
-            data-no-switch
-            className="ml-2 p-1 rounded hover:bg-gray-300
-              opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+          <PopoverTrigger
+            asChild
+            onClick={(e) => {
+              e.stopPropagation();
+              setPopoverOpen(true);
+            }}
           >
-            <MoreVertical size={18} className="text-gray-600" />
-          </div>
-        </PopoverTrigger>
+            <div
+              data-no-switch
+              className="absolute right-0 p-1 rounded hover:bg-gray-300 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+            >
+              <MoreVertical size={18} className="text-gray-600" />
+            </div>
+          </PopoverTrigger>
 
-        <PopoverContent
-          align="end"
-          side="bottom"
-          sideOffset={6}
-          className="w-[220px] rounded-[32px] border border-[#CACACD] bg-[rgba(250,250,250,0.75)] shadow-[0_23px_14px_4px_rgba(24,24,27,0.03)] backdrop-blur-[12px]"
-          onClick={(e) => {
-            e.stopPropagation();
-            isChildInteractingRef.current = true;
-          }}
-        >
-          {/* RENAME */}
-          <div
-            role="menuitem"
+          <PopoverContent
+            align="end"
+            side="bottom"
+            sideOffset={6}
+            className="w-[220px] rounded-[32px] border border-[#CACACD] bg-[rgba(250,250,250,0.75)] shadow-[0_23px_14px_4px_rgba(24,24,27,0.03)] backdrop-blur-[12px]"
             onClick={(e) => {
               e.stopPropagation();
               isChildInteractingRef.current = true;
-              setPopoverOpen(false); // Close popover first
-              // Use setTimeout to ensure popover closes before modal opens
-              setTimeout(() => {
-                setNewName(alias); // Reset to current alias when opening
-                setShowRenameModal(true);
-              }, 100);
             }}
-            className="w-full px-4 py-2 text-sm
-              hover:bg-gray-100 flex items-center  hover:rounded-sm justify-between cursor-pointer rounded-sm"
           >
-            <span>Rename wallet</span>
-            <Edit size={18} className="flex-shrink-0" />
-          </div>
-
-          {/* COPY */}
-          <div
-            role="menuitem"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleCopyAddress();
-              setPopoverOpen(false);
-            }}
-            className="w-full px-4 py-2 text-sm
+            {/* RENAME */}
+            <div
+              role="menuitem"
+              onClick={(e) => {
+                e.stopPropagation();
+                isChildInteractingRef.current = true;
+                setPopoverOpen(false); // Close popover first
+                // Use setTimeout to ensure popover closes before modal opens
+                setTimeout(() => {
+                  setNewName(alias); // Reset to current alias when opening
+                  setShowRenameModal(true);
+                }, 100);
+              }}
+              className="w-full px-4 py-2 text-sm
               hover:bg-gray-100 flex items-center  hover:rounded-sm justify-between cursor-pointer rounded-sm"
-          >
-            <span>Copy address</span>
-            <Copy size={18} className="flex-shrink-0" />
-          </div>
+            >
+              <span>Rename wallet</span>
+              <Edit size={18} className="flex-shrink-0" />
+            </div>
 
-          {/* DELETE */}
-          <div
-            role="menuitem"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete();
-              setPopoverOpen(false);
-            }}
-            className="w-full px-4 py-2 text-sm text-red-600
+            {/* COPY */}
+            <div
+              role="menuitem"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCopyAddress();
+                setPopoverOpen(false);
+              }}
+              className="w-full px-4 py-2 text-sm
+              hover:bg-gray-100 flex items-center  hover:rounded-sm justify-between cursor-pointer rounded-sm"
+            >
+              <span>Copy address</span>
+              <Copy size={18} className="flex-shrink-0" />
+            </div>
+
+            {/* DELETE */}
+            <div
+              role="menuitem"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete();
+                setPopoverOpen(false);
+              }}
+              className="w-full px-4 py-2 text-sm text-red-600
               hover:bg-red-50 flex items-center  hover:rounded-sm justify-between cursor-pointer rounded-sm"
-          >
-            <span>Remove wallet</span>
-            <Trash2 size={18} className="flex-shrink-0" />
-          </div>
-        </PopoverContent>
-      </Popover>
+            >
+              <span>Remove wallet</span>
+              <Trash2 size={18} className="flex-shrink-0" />
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
 
-      {/* RENAME MODAL */}
       <BottomFloatingSheet
         open={showRenameModal}
         contentClassName="!px-6 !pb-2"

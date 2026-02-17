@@ -31,7 +31,7 @@ const SwitchAddress = () => {
   const dispatch = useRabbyDispatch();
 
   const [addWalletVisible, setAddWalletVisible] = useState(false);
-  const [hiddenBalance, setHiddenBalance] = useState(false);
+  const [hiddenBalance, setHiddenBalance] = useState(true);
 
   const enableSwitch = true;
 
@@ -136,13 +136,13 @@ const SwitchAddress = () => {
       <Container>
         <div className="p-6 flex justify-between items-center">
           <X
-            size={24}
+            size={18}
             onClick={() => {
               history.goBack();
             }}
             className="cursor-pointer text-gray-600 hover:text-gray-800"
           />
-          <div className="text-2xl font-medium">Wallets</div>
+          <div className="text-xl font-medium">Wallets</div>
           <div className="w-6" />
         </div>
 
@@ -246,14 +246,13 @@ const SwitchAddress = () => {
                     />
                   </svg>
 
-                  {/* CONTENT */}
-                  <div className="relative z-10 flex flex-col items-center gap-2">
+                  <div className="relative z-10 flex flex-col items-center">
                     {hiddenBalance ? (
-                      <div className="text-xl tracking-widest text-white">
+                      <div className="text-base font-semibold tracking-widest text-[#8A8B89]">
                         *****
                       </div>
                     ) : (
-                      <div className="text-xl font-semibold text-white">
+                      <div className="text-sm font-semibold text-white">
                         $
                         {Number(
                           allSortedAccountList[currentAccountIndex]?.balance ||
@@ -265,11 +264,11 @@ const SwitchAddress = () => {
                       </div>
                     )}
 
-                    <div className="text-[11px] text-gray-500">
+                    <div className="text-[11px] text-[#8A8B89]">
                       Total Balance
                     </div>
 
-                    <div className="mt-1 text-gray-500">
+                    <div className="mt-4 text-[#8A8B89]">
                       {hiddenBalance ? <EyeOff size={16} /> : <Eye size={16} />}
                     </div>
                   </div>
@@ -278,45 +277,53 @@ const SwitchAddress = () => {
             </div>
           )}
 
-        {/* ACCOUNT LIST */}
-        <Content>
-          {flatAccounts.map((acc) => (
-            <div key={acc.address} className="mb-3">
-              <AddressCard
-                balance={acc.balance}
-                address={acc.address}
-                type={acc.type}
-                brandName={acc.brandName}
-                alias={acc.alianName}
-                color={acc.color}
-                isUpdatingBalance={isUpdatingBalance}
-                enableSwitch={enableSwitch}
-                isCurrentAccount={
-                  currentAccount?.address?.toLowerCase() ===
-                  acc.address.toLowerCase()
-                }
-                onSwitchCurrentAccount={() => switchAccount(acc)}
-                onClick={() =>
-                  history.push(
-                    `/settings/address-detail?${obj2query({
-                      address: acc.address,
-                      type: acc.type,
-                      brandName: acc.brandName,
-                      byImport: String(acc.byImport ?? ''),
-                    })}`
-                  )
-                }
-              />
-            </div>
-          ))}
+        <Content className="px-4">
+          {flatAccounts
+            .sort((a, b) => {
+              const aIsCurrent =
+                currentAccount?.address?.toLowerCase() ===
+                a.address.toLowerCase();
+              const bIsCurrent =
+                currentAccount?.address?.toLowerCase() ===
+                b.address.toLowerCase();
+              return aIsCurrent ? -1 : bIsCurrent ? 1 : 0;
+            })
+            .map((acc) => (
+              <div key={acc.address} className="py-1">
+                <AddressCard
+                  balance={acc.balance}
+                  address={acc.address}
+                  type={acc.type}
+                  brandName={acc.brandName}
+                  alias={acc.alianName}
+                  color={acc.color}
+                  isUpdatingBalance={isUpdatingBalance}
+                  enableSwitch={enableSwitch}
+                  isCurrentAccount={
+                    currentAccount?.address?.toLowerCase() ===
+                    acc.address.toLowerCase()
+                  }
+                  onSwitchCurrentAccount={() => switchAccount(acc)}
+                  onClick={() =>
+                    history.push(
+                      `/settings/address-detail?${obj2query({
+                        address: acc.address,
+                        type: acc.type,
+                        brandName: acc.brandName,
+                        byImport: String(acc.byImport ?? ''),
+                      })}`
+                    )
+                  }
+                />
+              </div>
+            ))}
         </Content>
 
-        {/* ADD WALLET */}
         <Action>
           <Button
             buttonType={ButtonType.SECONDARY}
             onClick={handleAddNewAddress}
-            className="w-full py-3 rounded-full"
+            className="w-full rounded-full"
           >
             Add new wallet
           </Button>
