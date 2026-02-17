@@ -154,7 +154,7 @@ const Receive = () => {
           </div>
         </HeaderNavPage>
         <Content>
-          <div className="mt-20">
+          <div className="mt-14">
             {account?.address && (
               <div className="flex flex-col items-center gap-8">
                 <CopyField
@@ -176,8 +176,9 @@ const Receive = () => {
             <div className="flex justify-center py-3">
               <RcChainGroup className="w-[140px]" />
             </div>
-            <p className="text-[16px] text-center text-primary-foreground">
-              You can send and receive tokens on all supported networks
+            <p className="text-base text-center text-[#454745] tracking-[-0.25px]">
+              You can send and receive tokens on all <br />
+              supported ERC 20 networks
             </p>
           </div>
         </Content>
