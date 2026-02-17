@@ -1,55 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
 import { ACCOUNT_COLORS_PALETTE } from '../address-management/utils';
-
-// const Container = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   gap: 24px;
-//   padding: 20px;
-// `;
-
-const Title = styled.div`
-  font-size: 20px;
-  font-weight: 600;
-  color: #1a1a1a;
-  text-align: center;
-`;
-
-const ColorGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  justify-items: center;
-  align-items: center;
-`;
-
-const ColorButton = styled.button<{ color: string; selected: boolean }>`
-  width: 64px;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  height: 64px;
-  background-color: ${(props) => props.color};
-  border: ${(props) =>
-    props.selected ? '3px solid rgba(0, 0, 0, 0.3)' : '2px solid transparent'};
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-  padding: 0;
-  box-shadow: ${(props) =>
-    props.selected
-      ? '0 4px 12px rgba(0, 0, 0, 0.15)'
-      : '0 2px 6px rgba(0, 0, 0, 0.1)'};
-
-  &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-`;
 
 interface AccountColorPickerProps {
   value?: string;
@@ -79,6 +29,10 @@ export const AccountColorPicker: React.FC<AccountColorPickerProps> = ({
   value = ACCOUNT_COLORS_PALETTE[0],
   onChange,
 }) => {
+  const baseButtonClasses =
+    'w-16 h-16 aspect-square rounded-full cursor-pointer transition-all duration-200 ease relative p-0 hover:scale-105 hover:shadow-lg active:scale-95';
+  const selectedButtonClasses = 'border-[3px] border-black/30 shadow-md';
+  const unselectedButtonClasses = 'border-2 border-transparent shadow';
   // Get initial color from prop or default
   const getInitialColor = () => {
     if (value) return value.toUpperCase();
@@ -101,20 +55,23 @@ export const AccountColorPicker: React.FC<AccountColorPickerProps> = ({
 
   return (
     <>
-      <Title>Choose a color</Title>
-
-      <ColorGrid>
+      <div className="grid grid-cols-3 place-items-center gap-x-4 gap-y-4 lg:gap-y-[36px]  lg:gap-x-[68px]">
         {ACCOUNT_COLORS_PALETTE.map((color) => (
           <div key={color}>
-            <ColorButton
-              color={color}
-              selected={selectedColor === color}
+            <button
+              type="button"
+              className={`${baseButtonClasses} ${
+                selectedColor === color
+                  ? selectedButtonClasses
+                  : unselectedButtonClasses
+              }`}
+              style={{ backgroundColor: color }}
               onClick={() => handleColorSelect(color)}
               aria-label={`Select ${getColorName(color)} color`}
             />
           </div>
         ))}
-      </ColorGrid>
+      </div>
     </>
   );
 };

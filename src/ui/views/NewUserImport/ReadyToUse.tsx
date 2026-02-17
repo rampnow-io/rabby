@@ -115,7 +115,9 @@ export const ReadyToUse = () => {
               />
               <div className="flex flex-col items-center text-[24px] font-medium text-primary-foreground">
                 <div>Your Rampnow wallet is</div>
-                <div className=" text-primary">ready 🎉</div>
+                <div className="inline-block bg-[linear-gradient(180deg,#B0D966_0%,#50BE3A_100%)] bg-clip-text text-transparent">
+                  ready
+                </div>
               </div>
 
               <div className="mt-8 flex items-center gap-3">

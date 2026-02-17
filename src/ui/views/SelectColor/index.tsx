@@ -7,20 +7,13 @@ import { UiProvider } from '@/ui/component/NewUserImport';
 import { Action, Container, Content } from '@repo/ui';
 import AccountColorPicker from '@/ui/component/AccountColorPicker';
 import { useRabbyDispatch, useRabbySelector } from '@/ui/store';
+import SectionHeader from '@/ui/component/section-header/section-header';
 
 const SELECTED_COLOR_KEY = 'rabby_selected_account_color';
-
-const PageWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-`;
 
 const ColorPickerWrapper = styled.div`
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 20px;
 `;
 
 interface SelectColorProps {
@@ -61,13 +54,16 @@ const SelectColor: React.FC<SelectColorProps> = ({
     <UiProvider>
       <Container>
         <HeaderNavPage />
-        <Content>
-          <ColorPickerWrapper>
-            <AccountColorPicker
-              value={selectedColor}
-              onChange={handleColorChange}
-            />
-          </ColorPickerWrapper>
+        <SectionHeader
+          className="text-center"
+          title="Choose your account color"
+          description="Pick a color to personalize your wallet account."
+        />
+        <Content className="px-[55px]">
+          <AccountColorPicker
+            value={selectedColor}
+            onChange={handleColorChange}
+          />
         </Content>
         <Action>
           <Button onClick={handleContinue}>Create wallet</Button>
