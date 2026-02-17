@@ -78,27 +78,6 @@ const TokenItemUSDValue: React.FC<Props> = ({ item }) => {
   // null/undefined means no data is available
   const hasPriceChange = typeof item.price_24h_change === 'number';
 
-  // Debug logging for tokens with price data
-  React.useEffect(() => {
-    if (
-      item.symbol === 'ETH' ||
-      item.symbol === 'USDC' ||
-      item.chain === 'pls'
-    ) {
-      console.log(`[TokenItem Debug] ${item.symbol} on ${item.chain}:`, {
-        price_24h_change: item.price_24h_change,
-        type: typeof item.price_24h_change,
-        isNull: item.price_24h_change === null,
-        isUndefined: item.price_24h_change === undefined,
-        hasPriceChange,
-        _usdValue: item._usdValue,
-        _usdValueStr: item._usdValueStr,
-        price: item.price,
-        amount: item.amount,
-      });
-    }
-  }, [item]);
-
   return (
     <TCell className={clsx('flex flex-col items-end gap-2 py-8')}>
       <div className="text-base text-primary-foreground">

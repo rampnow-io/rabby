@@ -69,8 +69,11 @@ export const CustomTestnetAssetListContainer: React.FC<Props> = ({
 
   const { data: _list, loading, mutate, refreshAsync } = useRequest(
     async () => {
+      if (!currentAccount?.address) {
+        return [];
+      }
       return wallet.getCustomTestnetTokenList({
-        address: currentAccount!.address,
+        address: currentAccount.address,
         q: search,
         isRemote: true,
       });

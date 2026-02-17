@@ -8,6 +8,7 @@ import {
   isTestnet as checkIsTestnet,
   findChain,
 } from '@/utils/chain';
+import { CHAINS } from 'consts';
 import { useWallet } from '../WalletContext';
 import { useSafeState } from '../safeState';
 import { log } from './usePortfolio';
@@ -228,7 +229,8 @@ export const useTokens = (
       userAddr,
       wallet,
       chainServerId,
-      isTestnet
+      isTestnet,
+      showAll
     );
 
     if (!tokenRes) {
@@ -477,7 +479,9 @@ export const useTokens = (
 
   const tokens = useMemo(() => {
     const list = isTestnet ? testnetTokens.list : mainnetTokens.list;
-    const coreList = showAll ? list : list.filter((token) => token.is_core);
+    // Show ALL tokens by default (not just core tokens)
+    // This ensures users see their complete token list
+    const coreList = list;
 
     // Debug: Log Pulse tokens at each stage
     const totalPulseTokens = list.filter((t) => t.chain === 'pls').length;
@@ -486,15 +490,10 @@ export const useTokens = (
     // Show native tokens instantly for first-time users when wallet is empty.
     // These placeholders get replaced automatically once real data arrives.
     if (!coreList.length && !isTestnet) {
-      const placeholderChains = [
-        'eth',
-        'bsc',
-        'matic',
-        'avax',
-        'ron',
-        'pls',
-        'celo',
-      ];
+      // Dynamically get all supported mainnet chains
+      const placeholderChains = Object.values(CHAINS)
+        .filter((chain) => !chain.isTestnet)
+        .map((chain) => chain.serverId);
 
       const placeholders = placeholderChains
         .map((serverId) => {
@@ -516,6 +515,14 @@ export const useTokens = (
             chain = findChainByEnum('RONIN');
           } else if (!chain && serverId === 'celo') {
             chain = findChainByEnum('CELO');
+          } else if (!chain && serverId === 'op') {
+            chain = findChainByEnum('OP');
+          } else if (!chain && serverId === 'arb') {
+            chain = findChainByEnum('ARB');
+          } else if (!chain && serverId === 'ftm') {
+            chain = findChainByEnum('FTM');
+          } else if (!chain && serverId === 'gno') {
+            chain = findChainByEnum('GNOSIS');
           }
 
           if (!chain) {

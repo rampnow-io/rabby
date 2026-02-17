@@ -57,9 +57,8 @@ export const AssetList = ({
   }, [visible]);
 
   React.useEffect(() => {
-    if (selectedNetwork !== undefined && selectedNetwork !== selectChainId) {
-      setSelectChainId(selectedNetwork);
-    }
+    // Sync selectChainId when selectedNetwork changes (from network dropdown selection)
+    setSelectChainId(selectedNetwork ?? null);
   }, [selectedNetwork]);
 
   const { sortedCustomize: tokens } = useFilteredTokens(selectChainId, false);

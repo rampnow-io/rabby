@@ -1,6 +1,6 @@
 import RateModal from '@/ui/component/RateModal/RateModal';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 
 import { AssetList } from '@/ui/views/CommonPopup/AssetList/AssetList';
 import { ApprovalsTabPane } from '@/ui/views/DesktopProfile/components/ApprovalsTabPane';
@@ -16,6 +16,7 @@ import { DisplayChainWithWhiteLogo } from '@/ui/hooks/useCurrentBalance';
 import useCurrentBalance from '@/ui/hooks/useCurrentBalance';
 import { formatAppChain } from '@/ui/hooks/useAppChain';
 import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
+import { CHAINS } from 'consts';
 
 const className =
   '!bg-white text-base data-[state=active]:!bg-white shadow-none data-[state=active]:!hover:bg-white data-[state=active]:shadow-none w-16';
@@ -59,7 +60,28 @@ export const DashboardPanel: React.FC<{
     displayChainBalances ??
     [];
   const appChains = apps?.map(formatAppChain) ?? [];
-  const chainList = [...chainListBase, ...appChains];
+
+  // Memoize fallback chains to prevent infinite loops
+  const fallbackChains = useMemo(
+    () =>
+      Object.values(CHAINS)
+        .filter((chain) => !chain.isTestnet)
+        .map(
+          (chain) =>
+            ({
+              id: chain.serverId,
+              name: chain.name,
+              logo_url: chain.logo,
+              usd_value: 0,
+            } as DisplayChainWithWhiteLogo)
+        ),
+    []
+  );
+
+  const chainList =
+    chainListBase.length > 0
+      ? [...chainListBase, ...appChains]
+      : [...fallbackChains, ...appChains];
 
   const handleNetworkSelect = (
     chainId: string | null | undefined,
@@ -108,15 +130,19 @@ export const DashboardPanel: React.FC<{
 
   // Update context data when chain balances change
   useEffect(() => {
-    if (displayChainBalances && displayChainBalances.length > 0) {
-      setData({
-        matteredChainBalances: displayChainBalances,
-        balance: data?.balance || 0,
-        balanceLoading: false,
-        isEmptyAssets: displayChainBalances.length === 0,
-      });
-    }
-  }, [displayChainBalances, setData, data?.balance]);
+    // Always update context with chains for dropdown, even if balance is empty
+    const chainsToSet =
+      displayChainBalances && displayChainBalances.length > 0
+        ? displayChainBalances
+        : fallbackChains;
+
+    setData({
+      matteredChainBalances: chainsToSet,
+      balance: data?.balance || 0,
+      balanceLoading: false,
+      isEmptyAssets: displayChainBalances?.length === 0,
+    });
+  }, [displayChainBalances, fallbackChains, setData]);
   return (
     <div className="bg-white rounded-t-[24px] px-[16px] pt-[14px] pb-[12px] flex flex-col h-full">
       <Tabs defaultValue="assets" className="flex flex-col h-full">

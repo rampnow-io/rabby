@@ -32,18 +32,39 @@ export const HomeTokenList = ({
   isTestnet,
   selectChainId,
 }) => {
+  // First, sort all tokens: liquidity tokens first (with balance), then by USD value
+  const sortedList = React.useMemo(() => {
+    if (!list) return list;
+
+    const getUsdValue = (item: any) => item?._usdValue ?? item?.usd_value ?? 0;
+    const getAmount = (item: any) => item?.amount ?? 0;
+    const hasLiquidity = (item: any) => getAmount(item) > 0;
+
+    return [...list].sort((a, b) => {
+      const aHasLiquidity = hasLiquidity(a);
+      const bHasLiquidity = hasLiquidity(b);
+
+      // Tokens with liquidity first
+      if (aHasLiquidity && !bHasLiquidity) return -1;
+      if (!aHasLiquidity && bHasLiquidity) return 1;
+
+      // Both have or both don't have liquidity: sort by USD value
+      return getUsdValue(b) - getUsdValue(a);
+    });
+  }, [list]);
+
   const totalValue = React.useMemo(() => {
-    return list
+    return sortedList
       ?.reduce((acc, item) => acc.plus(item._usdValue || 0), new BigNumber(0))
       .toNumber();
-  }, [list]);
-  const { result: currentList } = useExpandList(list, totalValue);
+  }, [sortedList]);
+  const { result: currentList } = useExpandList(sortedList, totalValue);
   const lowValueList = React.useMemo(() => {
     // 排除customized tokens
     const customizedTokenIds = new Set(
       customizeTokens?.map((token) => token.id) || []
     );
-    return list?.filter(
+    return sortedList?.filter(
       (item) =>
         currentList?.indexOf(item) === -1 &&
         !customizedTokenIds.has(item.id) &&
@@ -51,7 +72,7 @@ export const HomeTokenList = ({
           (blocked) => blocked.id === item.id && blocked.chain === item.chain
         )
     );
-  }, [currentList, list, isSearch, customizeTokens]);
+  }, [currentList, sortedList, isSearch, customizeTokens]);
   const { t } = useTranslation();
 
   const hasList = !!(

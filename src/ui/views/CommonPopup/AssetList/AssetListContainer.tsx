@@ -98,15 +98,36 @@ export const AssetListContainer: React.FC<Props> = ({
     return customizeTokens;
   }, [customizeTokens, selectChainId]);
 
-  // Sort all tokens by USD value (showing all tokens, not just top 10)
+  // Sort all tokens: liquidity tokens first (with balance), then by USD value
   const sortedTokens = useMemo(() => {
     const getUsdValue = (item: any) => item?._usdValue ?? item?.usd_value ?? 0;
+    const getAmount = (item: any) => item?.amount ?? 0;
+    const hasLiquidity = (item: any) => getAmount(item) > 0;
 
-    const sorted = [...displayTokenList].sort(
-      (a, b) => getUsdValue(b) - getUsdValue(a)
-    );
+    const sorted = [...displayTokenList].sort((a, b) => {
+      const aHasLiquidity = hasLiquidity(a);
+      const bHasLiquidity = hasLiquidity(b);
+
+      // Tokens with liquidity first
+      if (aHasLiquidity && !bHasLiquidity) return -1;
+      if (!aHasLiquidity && bHasLiquidity) return 1;
+
+      // Both have or both don't have liquidity: sort by USD value
+      return getUsdValue(b) - getUsdValue(a);
+    });
+
+    // Debug: Log filter info
+    if (selectChainId) {
+      const filteredByChain = tokenList.filter(
+        (t) => t.chain === selectChainId
+      );
+      console.log(
+        `🔍 Filter by chain: ${selectChainId} - Total: ${tokenList.length}, Filtered: ${filteredByChain.length}, Sorted: ${sorted.length}`
+      );
+    }
+
     return sorted;
-  }, [displayTokenList]);
+  }, [displayTokenList, selectChainId, tokenList]);
 
   const sortTokens = sortedTokens;
   const filteredPortfolios = useFilterProtocolList({
@@ -128,6 +149,17 @@ export const AssetListContainer: React.FC<Props> = ({
       inputRef.current?.blur();
     }
   }, [visible]);
+
+  // Reset search when chain filter changes to show all tokens for that chain
+  React.useEffect(() => {
+    if (selectChainId) {
+      setSearch('');
+      if (inputRef.current?.input) {
+        inputRef.current.input.value = '';
+      }
+      console.log(`📍 Chain filter changed to: ${selectChainId}`);
+    }
+  }, [selectChainId]);
 
   // Log token data for debugging live values
   useEffect(() => {

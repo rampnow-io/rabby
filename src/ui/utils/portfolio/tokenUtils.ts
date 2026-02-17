@@ -38,31 +38,29 @@ export const batchQueryTokens = async (
 
     console.log('📊 usedChainList returned:', chainIdList.length, 'chains');
 
-    // IMPORTANT FIX: Always include major chains even if not in usedChainList
-    // This ensures we get tokens even if user hasn't used the chain yet
-    const majorChains = [
-      'eth',
-      'bsc',
-      'matic',
-      'avax',
-      'op',
-      'arb',
-      'pls',
-      'celo',
-    ];
-    const missingMajorChains = majorChains.filter(
+    // Dynamically get all supported chains from CHAINS constant
+    // Filter out testnet chains to get all mainnet chains
+    const allSupportedChains = Object.values(CHAINS)
+      .filter((chain) => !chain.isTestnet)
+      .map((chain) => chain.serverId);
+
+    console.log(
+      '🔗 All supported mainnet chains from CHAINS constant:',
+      allSupportedChains
+    );
+    console.log('🔗 usedChainList vs allSupportedChains:', {
+      usedChainList: chainIdList,
+      allSupportedChains,
+    });
+
+    // Add any missing supported chains to ensure we query all available tokens
+    const missingChains = allSupportedChains.filter(
       (chain) => !chainIdList.includes(chain)
     );
 
-    if (missingMajorChains.length > 0) {
-      console.warn(
-        `⚠️ Adding ${missingMajorChains.length} major chains not in usedChainList:`,
-        missingMajorChains
-      );
-      chainIdList = [...chainIdList, ...missingMajorChains];
+    if (missingChains.length > 0) {
+      chainIdList = [...chainIdList, ...missingChains];
     }
-
-    console.log('🔍 Querying tokens for chains:', chainIdList);
 
     const res = await Promise.all(
       chainIdList.map((serverId) =>
@@ -82,19 +80,6 @@ export const batchQueryTokens = async (
 
     // Debug: Log API response for Pulse tokens
     const pulseTokensFromAPI = flatRes.filter((t) => t.chain === 'pls');
-    console.log(
-      `📡 API Response: Total tokens=${flatRes.length}, Pulse tokens=${pulseTokensFromAPI.length}`
-    );
-    if (pulseTokensFromAPI.length > 0) {
-      console.log(
-        '✅ Pulse tokens from API:',
-        pulseTokensFromAPI
-          .slice(0, 3)
-          .map((t) => ({ symbol: t.symbol, chain: t.chain }))
-      );
-    } else {
-      console.warn('⚠️ No Pulse tokens returned from API');
-    }
 
     return flatRes;
   }
@@ -149,8 +134,52 @@ export const setWalletTokens = (
   });
 };
 
+// Major chains to prioritize (show first)
+const MAJOR_CHAINS_ORDER = [
+  'eth',
+  'bsc',
+  'matic',
+  'avax',
+  'op',
+  'arb',
+  'pls',
+  'celo',
+];
+
+/**
+ * Sort tokens by:
+ * 1. Liquidity first (tokens with amount > 0 at top)
+ * 2. Chain priority (major chains first)
+ * 3. USD value within each chain (descending)
+ * Shows ALL tokens
+ */
 export const sortWalletTokens = (wallet: DisplayedProject) => {
-  return wallet._portfolios
-    .flatMap((x) => x._tokenList)
-    .sort((m, n) => (n._usdValue || 0) - (m._usdValue || 0));
+  const allTokens = wallet._portfolios.flatMap((x) => x._tokenList);
+
+  return allTokens.sort((a, b) => {
+    const getAmount = (item: any) => item?.amount ?? 0;
+    const aHasLiquidity = getAmount(a) > 0;
+    const bHasLiquidity = getAmount(b) > 0;
+
+    // First priority: tokens with liquidity come first
+    if (aHasLiquidity && !bHasLiquidity) return -1;
+    if (!aHasLiquidity && bHasLiquidity) return 1;
+
+    // Within same liquidity group, sort by chain priority
+    const chainA = a.chain || '';
+    const chainB = b.chain || '';
+
+    const chainAIndex = MAJOR_CHAINS_ORDER.indexOf(chainA);
+    const chainBIndex = MAJOR_CHAINS_ORDER.indexOf(chainB);
+
+    const priorityA = chainAIndex === -1 ? 999 : chainAIndex;
+    const priorityB = chainBIndex === -1 ? 999 : chainBIndex;
+
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+
+    // Within same chain, sort by USD value (highest first)
+    return (b._usdValue || 0) - (a._usdValue || 0);
+  });
 };
