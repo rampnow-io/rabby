@@ -196,14 +196,14 @@ const TokenAmountInput = ({
   return (
     <>
       <Card className={className}>
-        <div
-          className="flex items-center justify-between bg-[#F7F7F8] rounded-xl px-3 py-3 cursor-pointer"
-          onClick={handleSelectToken}
-        >
+        <div className="flex items-center justify-between bg-[#F7F7F8] rounded-xl px-3 py-3 cursor-pointer">
           {initLoading ? (
             <Skeleton.Input active />
           ) : (
-            <div className="flex items-center gap-2">
+            <div
+              className="flex items-center gap-2"
+              onClick={handleSelectToken}
+            >
               {!!token && (
                 <TokenWithChain width="35px" height="35px" token={token} />
               )}
@@ -219,7 +219,19 @@ const TokenAmountInput = ({
               </div>
             </div>
           )}
-          <ChevronDown />
+          <div className="flex gap-2">
+            {token && token.amount > 0 && (
+              <div
+                className="px-3 py-1 bg-white border border-r-neutral-line rounded-full text-[8px] font-normal text-primary-foreground cursor-pointer hover:bg-r-neutral-bg-1 transition-colors duration-200 flex items-center gap-1"
+                onClick={(e) => {
+                  handleClickMaxButton?.();
+                }}
+              >
+                {t('page.sendToken.max')}
+              </div>
+            )}
+            <ChevronDown onClick={handleSelectToken} />
+          </div>
         </div>
         <div className="bg-white rounded-[20px]">
           <div className="flex flex-col items-center p-4">
@@ -257,15 +269,7 @@ const TokenAmountInput = ({
           </div>
         </div>
       </Card>
-      <div className="flex items-center justify-end mt-4">
-        <div className="flex items-center gap-2">
-          {token && token.amount > 0 && (
-            <MaxButton onClick={handleClickMaxButton}>
-              {t('page.sendToken.max')}
-            </MaxButton>
-          )}
-        </div>
-      </div>
+
       <TokenSelector
         list={displayTokenList}
         visible={isVisible}
