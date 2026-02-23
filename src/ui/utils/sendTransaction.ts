@@ -852,6 +852,16 @@ export const sendTransactionByMiniSignV2 = async ({
       result: undefined,
       account: account,
     });
+    console.log(
+      '[sendTransactionByMiniSignV2] Transaction hash returned:',
+      hash
+    );
+    console.log(
+      '[sendTransactionByMiniSignV2] Chain:',
+      chain.serverId,
+      'ChainId:',
+      tx.chainId
+    );
     await handleSendAfter();
   } catch (e) {
     await handleSendAfter();

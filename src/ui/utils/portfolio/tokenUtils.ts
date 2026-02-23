@@ -44,15 +44,6 @@ export const batchQueryTokens = async (
       .filter((chain) => !chain.isTestnet)
       .map((chain) => chain.serverId);
 
-    console.log(
-      '🔗 All supported mainnet chains from CHAINS constant:',
-      allSupportedChains
-    );
-    console.log('🔗 usedChainList vs allSupportedChains:', {
-      usedChainList: chainIdList,
-      allSupportedChains,
-    });
-
     // Add any missing supported chains to ensure we query all available tokens
     const missingChains = allSupportedChains.filter(
       (chain) => !chainIdList.includes(chain)

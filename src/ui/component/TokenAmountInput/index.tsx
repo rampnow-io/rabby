@@ -23,7 +23,6 @@ import { AbstractPortfolioToken } from '@/ui/utils/portfolio/types';
 import TokenSelector, { TokenSelectorProps } from '../TokenSelector';
 import TokenWithChain from '../TokenWithChain';
 import { INPUT_NUMBER_RE, filterNumber } from '@/constant/regexp';
-import { MaxButton } from '@/ui/views/SendToken/components/MaxButton';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as RcIconWalletCC } from '@/ui/assets/swap/wallet-cc.svg';
 import { ReactComponent as RcIconDownCC } from '@/ui/assets/dashboard/arrow-down-cc.svg';

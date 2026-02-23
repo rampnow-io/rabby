@@ -15,7 +15,7 @@ import {
   useWallet,
 } from '@/ui/utils';
 import BigNumber from 'bignumber.js';
-import { MaxButton } from '../../SendToken/components/MaxButton';
+
 import { tokenAmountBn } from '@/ui/utils/token';
 import SkeletonInput from 'antd/lib/skeleton/Input';
 import styled from 'styled-components';
@@ -368,20 +368,20 @@ export const BridgeToken = ({
                   : 0}
               </span>
             </div>
-            {isFromToken && (
+            {/* {isFromToken && (
               // <TooltipWithMagnetArrow
               //   visible={fromTokenIsNativeToken ? undefined : false}
               //   className="rectangle w-[max-content]"
               //   title={t('page.bridge.max-tips')}
               // >
-              <MaxButton
-                className={clsx('ml-0', disabled && 'pointer-events-none')}
-                onClick={handleMax}
-              >
-                {t('page.swap.max')}
-              </MaxButton>
+              // <MaxButton
+              //   className={clsx('ml-0', disabled && 'pointer-events-none')}
+              //   onClick={handleMax}
+              // >
+              //   {t('page.swap.max')}
+              // </MaxButton>
               // </TooltipWithMagnetArrow>
-            )}
+            )} */}
           </div>
         </div>
       </div>

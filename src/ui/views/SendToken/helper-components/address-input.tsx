@@ -9,8 +9,8 @@ import { filterMyAccounts, findAccountByPriority } from '@/utils/account';
 import type { Account } from '@/background/service/preference';
 
 interface Pros {
-  address: string;
-  setAddress: (address: string) => void;
+  value: string;
+  onChange: (value: string) => void;
 }
 
 type RenderAccount = Account & {
@@ -33,8 +33,9 @@ const COLORS = [
 
 const CARD_STYLES = {
   selected:
-    'cursor-pointer rounded-[12px] px-2 py-3 border border-[rgba(24,24,27,0.06)] bg-[rgba(24,24,27,0.02)]',
-  avatar: 'w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0',
+    'cursor-pointer rounded-[12px] px-2 py-3 h-[44px] flex py-3 px-2 items-center gap-3 border border-[rgba(24,24,27,0.06)] bg-[rgba(24,24,27,0.02)]',
+  avatar:
+    'w-[32px] h-[32px] rounded-full flex items-center justify-center flex-shrink-0',
 };
 
 // Utility Functions
@@ -53,7 +54,7 @@ interface AccountItemProps {
 
 const AccountItem = React.memo(({ item, onSelect }: AccountItemProps) => (
   <Card
-    className={`${CARD_STYLES.selected} flex items-center gap-2`}
+    className={`bg-white  cursor-pointer rounded-[12px] px-2 py-3 h-[44px] hover:bg-gray-100 border-none flex items-center gap-2 shadow-none `}
     onClick={() => onSelect(item.address, item.alias || item.address)}
   >
     <div
@@ -61,49 +62,61 @@ const AccountItem = React.memo(({ item, onSelect }: AccountItemProps) => (
     >
       👤
     </div>
-    <p>{item.alias || truncate(item.address, [8, 8])}</p>
+    <p className="text-sm h-full flex items-center font-normal text-secondary-foreground">
+      {item.alias || truncate(item.address, [13, 13])}
+    </p>
   </Card>
 ));
 
 AccountItem.displayName = 'AccountItem';
 
 // Main Component
-const DNSAddressInput = ({ address, setAddress }: Pros) => {
-  const [value, setValue] = useState('');
+const ToAddress = ({ value, onChange }: Pros) => {
+  const [inputValue, setInputValue] = useState('');
   const [isShowInput, setIsShowInput] = useState(true);
   const wallet = useWallet();
 
-  const isValidAddr = useMemo(() => isValidAddress(address), [address]);
-  console.log(isValidAddr, 'isValidAddr');
-  // Auto-hide input when a valid address is selected, show it when address becomes invalid
+  const isValidAddr = useMemo(() => isValidAddress(inputValue), [inputValue]);
+
+  // Consolidated effect: handle syncing from prop value and controlling input visibility
   useEffect(() => {
-    if (isValidAddr) {
-      setIsShowInput(false);
+    // Only update inputValue if it actually changed to avoid unnecessary re-renders
+    if (value !== inputValue) {
+      setInputValue(value);
     }
-  }, [isValidAddr]);
+
+    // Control input visibility based on the prop value, not local state
+    // Show input if: no value OR invalid address
+    // Hide input if: valid address
+    if (value && isValidAddress(value)) {
+      setIsShowInput(false);
+    } else if (!value || !isValidAddress(value)) {
+      setIsShowInput(true);
+    }
+  }, [value]);
 
   const handleAddressResolution = useCallback(
-    async (inputValue: string) => {
-      if (isValidAddress(inputValue)) {
-        setAddress(inputValue);
-      } else if (inputValue) {
+    async (addressInput: string) => {
+      if (isValidAddress(addressInput)) {
+        onChange(addressInput);
+      } else if (addressInput) {
         try {
-          const result = await wallet.openapi.getEnsAddressByName(inputValue);
-          setAddress(result?.addr ? result.addr : '');
+          const result = await wallet.openapi.getEnsAddressByName(addressInput);
+          onChange(result?.addr ? result.addr : '');
         } catch {
-          setAddress('');
+          onChange('');
         }
       } else {
-        setAddress('');
+        onChange('');
       }
     },
-    [wallet, setAddress]
+    [wallet, onChange]
   );
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value.trim();
-      setValue(newValue);
+      setInputValue(newValue);
       handleAddressResolution(newValue);
     },
     [handleAddressResolution]
@@ -111,11 +124,11 @@ const DNSAddressInput = ({ address, setAddress }: Pros) => {
 
   const handleSelectAccount = useCallback(
     (accountAddress: string, displayValue: string) => {
-      setAddress(accountAddress);
-      setValue(displayValue);
+      onChange(accountAddress);
+      setInputValue(displayValue);
       setIsShowInput(false);
     },
-    [setAddress]
+    [onChange]
   );
 
   const { whitelist } = useRabbySelector((s) => ({
@@ -159,7 +172,6 @@ const DNSAddressInput = ({ address, setAddress }: Pros) => {
 
     return myImportedAccounts.concat(otherAccounts);
   }, [accountsList, whitelist]);
-  console.log(isShowInput, 'isShowInput');
   return (
     <div className="flex flex-col gap-3">
       {isShowInput && (
@@ -167,10 +179,10 @@ const DNSAddressInput = ({ address, setAddress }: Pros) => {
           <label className="text-14 flex items-center text-secondary-foreground justify-center font-medium min-w-8">
             To
           </label>
-          <Separator orientation="vertical" />
+          <div className="w-px !h-10 bg-r-neutral-line" />
           <Input
-            placeholder="Wallet Address / ENS"
-            value={value}
+            placeholder="Wallet Address"
+            value={inputValue}
             sizeVariant={InputSize.SM}
             onChange={handleInputChange}
             className="flex-1 text-14 border-0 outline-0 bg-transparent p-0"
@@ -181,18 +193,18 @@ const DNSAddressInput = ({ address, setAddress }: Pros) => {
       {isValidAddr && (
         <Card
           onClick={() => setIsShowInput(!isShowInput)}
-          className={`${CARD_STYLES.selected}`}
+          className={`${CARD_STYLES.selected} `}
         >
-          <div className="flex gap-2">
-            <div className={`${CARD_STYLES.avatar} bg-green-500`}>🕶️</div>
-            <p>{truncate(address, [8, 8])}</p>
-          </div>
+          <div className={`${CARD_STYLES.avatar} bg-green-500`}>🕶️</div>
+          <p className="text-sm h-full flex items-center font-normal text-secondary-foreground">
+            {truncate(inputValue, [13, 13])}
+          </p>
         </Card>
       )}
 
       {isShowInput && !isValidAddr && sortedAccounts.length > 0 && (
         <div className="flex flex-col gap-4 px-2">
-          <div className="text-sm font-normal text-secondary-foreground mb-4">
+          <div className="text-sm font-normal text-secondary-foreground mb-2">
             Your wallets
           </div>
           {sortedAccounts.map((item) => (
@@ -208,4 +220,4 @@ const DNSAddressInput = ({ address, setAddress }: Pros) => {
   );
 };
 
-export default DNSAddressInput;
+export default ToAddress;

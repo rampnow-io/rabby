@@ -177,8 +177,6 @@ export const AssetListContainer: React.FC<Props> = ({
         amount: t.amount,
       }));
 
-      console.log('Token data check (first 5):', debugInfo);
-
       // Check for tokens with missing price change data
       const tokensWithMissingPriceChange = sortTokens.filter(
         (t) => t.price_24h_change === null || t.price_24h_change === undefined
@@ -195,15 +193,6 @@ export const AssetListContainer: React.FC<Props> = ({
 
       // Debug: Check for Pulse Chain tokens
       const pulseTokens = sortTokens.filter((t) => t.chain === 'pls');
-      if (pulseTokens.length > 0) {
-        console.log(
-          '✅ Found Pulse Chain tokens:',
-          pulseTokens.length,
-          pulseTokens.slice(0, 3)
-        );
-      } else {
-        console.warn('⚠️ No Pulse Chain tokens found in displayTokenList');
-      }
     }
   }, [sortTokens, visible]);
 

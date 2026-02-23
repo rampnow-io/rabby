@@ -787,10 +787,17 @@ class ProviderController extends BaseController {
 
       try {
         validateGasPriceRange(approvalRes);
+        console.log('[ethSendTransaction] Starting transaction broadcast', {
+          chain,
+          chainServerId: findChain({ enum: chain })?.serverId,
+          isTestnet: findChain({ enum: chain })?.isTestnet,
+          hasCustomRPC: RPCService.hasCustomRPC(chain),
+        });
         let hash: string | undefined = undefined;
         let reqId: string | undefined = undefined;
         if (!findChain({ enum: chain })?.isTestnet) {
           if (RPCService.hasCustomRPC(chain)) {
+            console.log('[ethSendTransaction] Using CUSTOM RPC broadcast');
             const tx = TransactionFactory.fromTxData(txDataWithRSV, { common });
             const rawTx = bytesToHex(tx.serialize());
             try {
@@ -799,7 +806,9 @@ class ProviderController extends BaseController {
                 'eth_sendRawTransaction',
                 [rawTx]
               );
+              console.log('[ethSendTransaction] CUSTOM RPC broadcast SUCCESS, hash:', hash);
             } catch (e) {
+              console.error('[ethSendTransaction] CUSTOM RPC broadcast FAILED:', e);
               let errMsg = typeof e === 'object' ? e.message : e;
               if (RPCService.hasCustomRPC(chain)) {
                 const rpc = RPCService.getRPCByChain(chain);
@@ -814,6 +823,7 @@ class ProviderController extends BaseController {
             onTransactionCreated({ hash, reqId, pushType });
             notificationService.setStatsData(statsData);
           } else {
+            console.log('[ethSendTransaction] Using DEFAULT RPC or BACKEND broadcast');
             const chainServerId = findChain({ enum: chain })!.serverId;
             const params: Parameters<typeof openapiService.submitTxV2>[0] = {
               context: {
@@ -858,7 +868,14 @@ class ProviderController extends BaseController {
             };
 
             const defaultRPC = RPCService.getDefaultRPC(chainServerId);
+            console.log('[ethSendTransaction] Default RPC config:', {
+              chainServerId,
+              txPushToRPC: defaultRPC?.txPushToRPC,
+              isGasLess,
+              isGasAccount,
+            });
             if (defaultRPC?.txPushToRPC && !isGasLess && !isGasAccount) {
+              console.log('[ethSendTransaction] Using DEFAULT RPC with frontend push');
               let fePushedFailed = false;
 
               const tx = TransactionFactory.fromTxData(txDataWithRSV, {
@@ -877,6 +894,7 @@ class ProviderController extends BaseController {
                 );
 
                 hash = fePushedHash;
+                console.log('[ethSendTransaction] DEFAULT RPC frontend push SUCCESS, hash:', hash, 'url:', url);
 
                 params.frontend_push_result = {
                   success: true,
@@ -890,6 +908,7 @@ class ProviderController extends BaseController {
                   console.log('ignore BE error', error);
                 });
               } catch (fePushError) {
+                console.error('[ethSendTransaction] DEFAULT RPC frontend push FAILED:', fePushError);
                 fePushedFailed = true;
 
                 const urls = RPCService.getDefaultRPCByChainServerId(
@@ -907,11 +926,14 @@ class ProviderController extends BaseController {
               }
 
               if (fePushedFailed) {
+                console.log('[ethSendTransaction] Falling back to BACKEND push after frontend failure');
                 adoptBE7702Params();
                 const res = await openapiService.submitTxV2(params);
                 hash = res.tx_id;
+                console.log('[ethSendTransaction] BACKEND push SUCCESS (fallback), hash:', hash);
               }
             } else {
+              console.log('[ethSendTransaction] Using BACKEND push (no frontend push)');
               adoptBE7702Params();
               const res = await openapiService.submitTxV2(params);
               if (res.access_token) {
@@ -924,14 +946,23 @@ class ProviderController extends BaseController {
                 });
               }
               hash = res.tx_id;
+              console.log('[ethSendTransaction] BACKEND push SUCCESS, hash:', hash);
             }
 
             //No more low gas push, reqId is no longer required.
             reqId = undefined;
 
+            console.log('[ethSendTransaction] Transaction submission completed', {
+              hash,
+              reqId,
+              pushType,
+            });
+
             if (!hash) {
+              console.error('[ethSendTransaction] No hash returned from submission!');
               onTransactionSubmitFailed(new Error('Submit tx failed'));
             } else {
+              console.log('[ethSendTransaction] Calling onTransactionCreated with hash:', hash);
               onTransactionCreated({ hash, reqId, pushType });
               if (notificationService.statsData?.signMethod) {
                 statsData.signMethod =

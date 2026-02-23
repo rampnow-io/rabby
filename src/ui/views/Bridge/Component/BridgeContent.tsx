@@ -809,10 +809,11 @@ export const BridgeContent = () => {
                   accountType={currentAccount?.type}
                   riskReset={btnDisabled}
                   loading={miniSignLoading}
+                  buttonClassName="h-[56px] rounded-full bg-[#B6E632] text-black text-lg font-semibold hover:bg-[#A5D32E] transition-colors"
                 />
               ) : (
                 <Button
-                  className="h-[48px] text-white text-[16px] font-medium"
+                  className="h-[56px] rounded-full bg-[#B6E632] text-black text-lg font-semibold hover:bg-[#A5D32E] transition-colors"
                   onClick={() => {
                     if (showExternalDappTips && externalDapps.length > 0) {
                       setExternalDappOpen(true);

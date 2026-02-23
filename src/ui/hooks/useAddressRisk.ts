@@ -153,20 +153,35 @@ export const useAddressRisks = (
 
   useLayoutEffect(() => {
     if (address) {
+      console.log('[useAddressRisks] Reset states for new address:', address);
       riskGetRef.current = false;
       setAddressDesc(undefined);
       setLoadingAddrDesc(true);
       setHasNoSent(false);
       setHasError(false);
       setLoadingHasTransfer(true);
+    } else {
+      // If address is empty, set loading to false immediately
+      console.log('[useAddressRisks] Empty address, setting loading to false');
+      riskGetRef.current = false;
+      setAddressDesc(undefined);
+      setLoadingAddrDesc(false);
+      setHasNoSent(false);
+      setHasError(false);
+      setLoadingHasTransfer(false);
     }
   }, [address]);
 
   useEffect(() => {
     (async () => {
       if (!isValidAddress(address)) {
+        console.log(
+          '[useAddressRisks] Invalid address, skipping addrDesc fetch'
+        );
+        setLoadingAddrDesc(false);
         return;
       }
+      console.log('[useAddressRisks] Fetching addrDesc for:', address);
       setLoadingAddrDesc(true);
       try {
         const addrDescRes = await wallet.openapi.addrDesc(address);
@@ -195,9 +210,12 @@ export const useAddressRisks = (
           }
           setAddressDesc(addrDescRes.desc);
         }
+        console.log('[useAddressRisks] addrDesc fetched successfully');
       } catch (error) {
+        console.error('[useAddressRisks] addrDesc fetch error:', error);
         /* empty */
       } finally {
+        console.log('[useAddressRisks] Setting loadingAddrDesc to false');
         setLoadingAddrDesc(false);
       }
     })();
@@ -209,9 +227,16 @@ export const useAddressRisks = (
       !myTop10AccountList.length ||
       !isValidAddress(address)
     ) {
+      console.log('[useAddressRisks] Skipping transfer check:', {
+        riskGetRefCurrent: riskGetRef.current,
+        myTop10AccountListLength: myTop10AccountList.length,
+        isValidAddress: isValidAddress(address),
+      });
+      setLoadingHasTransfer(false);
       return;
     }
     riskGetRef.current = true;
+    console.log('[useAddressRisks] Starting transfer check for:', address);
     (async () => {
       setLoadingHasTransfer(true);
       setHasError(false);
@@ -254,12 +279,22 @@ export const useAddressRisks = (
         await Promise.race([checkTransferPromise, timeoutPromise]);
         setHasNoSent(!hasSent);
         setHasError(hasError);
+        console.log('[useAddressRisks] Transfer check completed:', {
+          hasSent,
+          hasError,
+        });
       } catch (error) {
-        console.error('check transfer timeout or error', error);
+        console.error(
+          '[useAddressRisks] check transfer timeout or error',
+          error
+        );
         setHasError(true);
         setHasNoSent(true);
         queue.clear();
       } finally {
+        console.log(
+          '[useAddressRisks] Calling onLoadFinished and setting loadingHasTransfer to false'
+        );
         onLoadFinished?.();
         setLoadingHasTransfer(false);
       }

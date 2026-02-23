@@ -72,7 +72,11 @@ export const ToConfirmBtn = (props: {
       onClick={handle}
     >
       {props.loading || !toConfirm || props.isHardWallet ? (
-        <Button type={props.htmlType || 'button'} disabled={props.disabled}>
+        <Button
+          type={props.htmlType || 'button'}
+          disabled={props.disabled}
+          className={props.buttonClassName}
+        >
           <div className="flex items-center justify-center gap-6">
             {props.loading ? (
               <RcIconCCLoading

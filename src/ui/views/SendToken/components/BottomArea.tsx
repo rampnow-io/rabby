@@ -41,6 +41,13 @@ export default function BottomArea({
   const canSubmit =
     _canSubmit && (!mostImportantRisks.length || agreeRequiredChecked);
 
+  console.log('[BottomArea] canSubmit check:', {
+    _canSubmit,
+    mostImportantRisksLength: mostImportantRisks.length,
+    agreeRequiredChecked,
+    canSubmit,
+  });
+
   return (
     <>
       <Button

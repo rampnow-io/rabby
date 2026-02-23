@@ -23,6 +23,7 @@ import { findChainByServerID } from '@/utils/chain';
 import BigNumber from 'bignumber.js';
 import { CHAINS_ENUM } from '@debank/common';
 import { formatGasHeaderUsdValue } from '@/ui/utils';
+import { calcGasEstimated } from '@/utils/time';
 import ShowMoreGasSelectModal, {
   useGetGasInfoByUI,
   useShowMoreGasSelectModalVisible,
@@ -639,70 +640,97 @@ export const DirectSignGasInfo = ({
     </GasTipsWrapper>
   );
 
+  const estimatedTime = ctx?.selectedGas?.estimated_seconds
+    ? calcGasEstimated(ctx.selectedGas.estimated_seconds)
+    : '~15 sec';
+
   return (
     <>
-      <ListItem name={<>{'Gas fee'}</>} className="mt-12">
+      <div className="mt-12">
         {showGasContent ? (
           <>
-            <ShowMoreGasSelectModal>
-              <div
-                className={clsx(
-                  'cursor-pointer',
-                  'cursor text-12 font-medium flex items-center gap-4',
-                  disabledProcess ? 'text-r-red-default' : 'text-r-blue-default'
-                )}
-                onClick={() => {
-                  setGasModalVisible(true);
-                }}
-              >
-                <div>
-                  {ctx?.selectedGas?.level
-                    ? t(getGasLevelI18nKey(ctx.selectedGas.level))
-                    : t(getGasLevelI18nKey('normal'))}
-
-                  {' · '}
-
-                  {gasCostUsd}
-                </div>
-                {ctx.gasMethod === 'gasAccount' ? (
-                  <Tooltip
-                    align={{
-                      offset: [10, 0],
-                    }}
-                    placement={'topRight'}
-                    overlayClassName="rectangle w-[max-content]"
-                    title={
-                      <div onClick={(e) => e.stopPropagation()}>
-                        <div>{t('page.signTx.gasAccount.description')}</div>
-                        <div>
-                          {t('page.signTx.gasAccount.estimatedGas')}{' '}
-                          {calcGasAccountUsd(
-                            gasAccountCost?.estimate_tx_cost || 0
-                          )}
-                        </div>
-                        <div>
-                          {t('page.signTx.gasAccount.maxGas')}{' '}
-                          {calcGasAccountUsd(gasAccountCost?.total_cost || '0')}
-                        </div>
-                        <div>
-                          {t('page.signTx.gasAccount.sendGas')}{' '}
-                          {calcGasAccountUsd(gasAccountCost?.total_cost || '0')}
-                        </div>
-                        <div>
-                          {t('page.signTx.gasAccount.gasCost')}{' '}
-                          {calcGasAccountUsd(gasAccountCost?.gas_cost || '0')}
-                        </div>
-                      </div>
-                    }
-                  >
-                    <IconInfoSVG
-                      className="text-r-neutral-foot -top-1"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </Tooltip>
-                ) : null}
+            <div className="flex items-center justify-between mb-1">
+              {/* Left: Cost + Time */}
+              <div className="flex items-center gap-1 text-r-neutral-title-1">
+                <span className="text-base font-semibold">{gasCostUsd}</span>
+                <span className="text-r-neutral-foot">~</span>
+                <span className="text-sm text-r-neutral-foot">
+                  {estimatedTime}
+                </span>
               </div>
-            </ShowMoreGasSelectModal>
+
+              {/* Right: Gas Level Dropdown Pill */}
+              <ShowMoreGasSelectModal>
+                <button
+                  className={clsx(
+                    'rounded-full border px-3 py-1 text-sm font-medium',
+                    'flex items-center gap-1.5 cursor-pointer',
+                    'border-r-neutral-line bg-r-neutral-card-1',
+                    disabledProcess
+                      ? 'text-r-red-default'
+                      : 'text-r-neutral-title-1'
+                  )}
+                  onClick={() => {
+                    setGasModalVisible(true);
+                  }}
+                >
+                  <span>
+                    {ctx?.selectedGas?.level
+                      ? t(getGasLevelI18nKey(ctx.selectedGas.level))
+                      : t(getGasLevelI18nKey('normal'))}
+                  </span>
+                  <IconArrowDownCC
+                    viewBox="0 0 14 14"
+                    width={12}
+                    height={12}
+                    className="opacity-60"
+                  />
+                  {ctx.gasMethod === 'gasAccount' ? (
+                    <Tooltip
+                      align={{
+                        offset: [10, 0],
+                      }}
+                      placement={'topRight'}
+                      overlayClassName="rectangle w-[max-content]"
+                      title={
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <div>{t('page.signTx.gasAccount.description')}</div>
+                          <div>
+                            {t('page.signTx.gasAccount.estimatedGas')}{' '}
+                            {calcGasAccountUsd(
+                              gasAccountCost?.estimate_tx_cost || 0
+                            )}
+                          </div>
+                          <div>
+                            {t('page.signTx.gasAccount.maxGas')}{' '}
+                            {calcGasAccountUsd(
+                              gasAccountCost?.total_cost || '0'
+                            )}
+                          </div>
+                          <div>
+                            {t('page.signTx.gasAccount.sendGas')}{' '}
+                            {calcGasAccountUsd(
+                              gasAccountCost?.total_cost || '0'
+                            )}
+                          </div>
+                          <div>
+                            {t('page.signTx.gasAccount.gasCost')}{' '}
+                            {calcGasAccountUsd(gasAccountCost?.gas_cost || '0')}
+                          </div>
+                        </div>
+                      }
+                    >
+                      <IconInfoSVG
+                        className="text-r-neutral-foot -top-1"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </Tooltip>
+                  ) : null}
+                </button>
+              </ShowMoreGasSelectModal>
+            </div>
+            {/* Second row: Estimated fee label */}
+            <div className="text-xs text-r-neutral-foot">Estimated fee</div>
           </>
         ) : !loading && noQuote ? (
           <div>-</div>
@@ -716,7 +744,7 @@ export const DirectSignGasInfo = ({
             }}
           />
         )}
-      </ListItem>
+      </div>
       {showGasContent && <>{gasTipsComponent()}</>}
     </>
   );

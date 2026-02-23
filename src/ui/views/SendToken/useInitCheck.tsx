@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useCallback, Fragment } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  Fragment,
+  useRef,
+} from 'react';
 import { Modal } from 'antd';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -13,10 +19,10 @@ export const useInitCheck = (addressDesc?: AddrDescResponse['desc']) => {
   const { t } = useTranslation();
 
   const [checked, setChecked] = useState(false);
+  const checkedRef = useRef(false);
 
   const checkFn = useCallback(
     async (id: string, chain: string, toDesc: AddrDescResponse['desc']) => {
-      setChecked(true);
       const toCexId = toDesc?.cex?.id;
       if (toCexId) {
         const isCexSupport = await wallet.openapi.depositCexSupport(
@@ -71,13 +77,18 @@ export const useInitCheck = (addressDesc?: AddrDescResponse['desc']) => {
     const qs = query2obj(history.location.search);
     const toAddress = qs.to;
     if (!qs.token || !toAddress) {
-      setChecked(true);
+      if (!checkedRef.current) {
+        checkedRef.current = true;
+        setChecked(true);
+      }
       return;
     }
     const [tokenChain, id] = qs.token.split(':');
-    if (!tokenChain || !id || !addressDesc || checked) {
+    if (!tokenChain || !id || !addressDesc || checkedRef.current) {
       return;
     }
+    checkedRef.current = true;
+    setChecked(true);
     checkFn(id, tokenChain, addressDesc).then((res) => {
       if (res.disable) {
         Modal.confirm({
@@ -111,7 +122,6 @@ export const useInitCheck = (addressDesc?: AddrDescResponse['desc']) => {
       }
     });
   }, [
-    checked,
     history.location.search,
     addressDesc,
     checkFn,
