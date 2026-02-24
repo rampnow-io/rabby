@@ -313,7 +313,11 @@ export const StatusTxItem = forwardRef<
 
   return (
     <>
-      <BottomFloatingSheet open={sheetOpen} onClose={handleSheetClose}>
+      <BottomFloatingSheet
+        hideCloseButton
+        open={sheetOpen}
+        onClose={handleSheetClose}
+      >
         <div className="flex flex-col gap-6">
           {/* Header */}
           <div className=" pb-4">
