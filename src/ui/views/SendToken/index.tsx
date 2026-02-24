@@ -75,7 +75,7 @@ import {
 } from '@/ui/hooks/useMiniApprovalDirectSign';
 import { DirectSignToConfirmBtn } from '@/ui/component/ToConfirmButton';
 import { ShowMoreOnSend } from './components/SendShowMore';
-import { PendingTxItem } from '../Swap/Component/PendingTxItem';
+
 import { SendTxHistoryItem } from '@/background/service/transactionHistory';
 import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 import ChainSelectorInForm from '@/ui/component/ChainSelector/InForm';
@@ -84,6 +84,7 @@ import { TDisableCheckChainFn } from '@/ui/component/ChainSelector/components/Se
 import { AddressInfoFrom } from '@/ui/component/SendLike/AddressInfoFrom';
 import { AddressInfoTo } from '@/ui/component/SendLike/AddressInfoTo';
 import BottomArea from './components/BottomArea';
+import BottomFloatingSheet from '@/ui/component/BottomFloatingPopup';
 import {
   RiskType,
   sortRisksDesc,
@@ -99,6 +100,7 @@ import { UIContainer } from '@/ui/provider';
 import { Action, Container, Content, useEventRef } from '@repo/ui';
 import ToAddress from './helper-components/address-input';
 import TokenSelectorAction from './components/token-selector';
+import { StatusTxItem } from './components/status-modal';
 
 const isTab = getUiType().isTab;
 const isDesktop = getUiType().isDesktop;
@@ -1961,8 +1963,11 @@ const SendToken = () => {
   }, [currentToken, gasList]);
 
   // const [gasFeeOpen, setGasFeeOpen] = useState(false);
-  const pendingTxRef = useRef<{ fetchHistory: () => void }>(null);
+  const statusTxRef = useRef<{ fetchHistory: () => void }>(null);
+  const [showSuccessSheet, setShowSuccessSheet] = useState(false);
+
   const handleFulfilled = useMemoizedFn(() => {
+    setShowSuccessSheet(true);
     if (currentToken) {
       handleCurrentTokenChange(currentToken, true);
     }
@@ -2105,10 +2110,10 @@ const SendToken = () => {
 
             {!canSubmitBasic && (
               <div className="mt-20">
-                <PendingTxItem
+                <StatusTxItem
                   onFulfilled={handleFulfilled}
                   type="send"
-                  ref={pendingTxRef}
+                  ref={statusTxRef}
                 />
               </div>
             )}
@@ -2134,6 +2139,23 @@ const SendToken = () => {
             canSubmit={canSubmit}
             miniSignLoading={miniSignLoading}
             canUseDirectSubmitTx={canUseDirectSubmitTx}
+            currentToken={currentToken}
+            chainItem={chainItem}
+            amount={form.getFieldValue('amount')}
+            toAddress={form.getFieldValue('to')}
+            estimatedFee={
+              selectedGasLevel && chainTokenGasFees.gasLimit
+                ? new BigNumber(chainTokenGasFees.gasLimit)
+                    .times(selectedGasLevel.price)
+                    .div(1e18)
+                    .toFixed(2)
+                : '0'
+            }
+            estimatedTime={
+              selectedGasLevel?.estimated_seconds
+                ? `${selectedGasLevel.estimated_seconds}s`
+                : undefined
+            }
             onConfirm={async () => {
               await handleSubmit({
                 to: form.getFieldValue('to'),

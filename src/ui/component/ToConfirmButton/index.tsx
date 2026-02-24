@@ -9,6 +9,8 @@ import Checkbox from '../Checkbox';
 import { ReactComponent as RcIconCCLoading } from 'ui/assets/loading-cc.svg';
 import { useSignatureStore } from '@/ui/component/MiniSignV2/state';
 import { Button } from '@repo/ui/primitives';
+import { useHistory } from 'react-router-dom';
+
 export const ToConfirmBtn = (props: {
   title: React.ReactNode;
   onConfirm: () => void;
@@ -73,9 +75,9 @@ export const ToConfirmBtn = (props: {
     >
       {props.loading || !toConfirm || props.isHardWallet ? (
         <Button
+          className="w-full"
           type={props.htmlType || 'button'}
           disabled={props.disabled}
-          className={props.buttonClassName}
         >
           <div className="flex items-center justify-center gap-6">
             {props.loading ? (
@@ -89,13 +91,7 @@ export const ToConfirmBtn = (props: {
         </Button>
       ) : (
         <div className={clsx('w-full h-full flex items-center', 'group')}>
-          <Button
-            className={clsx(
-              'relative flex-1 h-full flex items-center justify-center rounded-l-[8px] rounded-r-none',
-              'bg-transparent',
-              'hover:bg-[rgba(0,0,0,0.2)]'
-            )}
-          >
+          <Button className={clsx('w-full')}>
             {t('global.confirm')}
 
             <div
@@ -105,18 +101,6 @@ export const ToConfirmBtn = (props: {
                 'absolute top-1/2 right-0 -translate-y-1/2',
                 'group-hover:hidden'
               )}
-            />
-          </Button>
-
-          <Button
-            className={clsx(
-              'w-[56px] h-full flex items-center justify-center bg-transparent rounded-l-none rounded-r-[8px]'
-            )}
-            onClick={cancel}
-          >
-            <RcIconCloseCC
-              viewBox="0 0 20 20"
-              className="w-16 h-16 text-r-neutral-title2"
             />
           </Button>
         </div>

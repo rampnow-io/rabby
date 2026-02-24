@@ -6,11 +6,14 @@ import { getUiType } from 'ui/utils';
 import { DirectSignToConfirmBtn } from '@/ui/component/ToConfirmButton';
 import type { Account } from '@/background/service/preference';
 import BottomFloatingSheet from '@/ui/component/BottomFloatingPopup';
+import type { TokenItem } from '@/background/service/openapi';
+import type { Chain } from '@debank/common';
+import { ChevronDown } from 'lucide-react';
 
 import { ReactComponent as RcIconRiskAlert } from '@/ui/assets/send-token/risk-alert.svg';
 import { ReactComponent as RcIconCheckboxChecked } from '@/ui/assets/send-token/icon-checkbox-checked.svg';
 import { ReactComponent as RcIconCheckboxUncheck } from '@/ui/assets/send-token/icon-checkbox-uncheck.svg';
-import { Button } from '@repo/ui/primitives';
+import { Button, TooltipView } from '@repo/ui/primitives';
 
 const isTab = getUiType().isTab;
 
@@ -24,6 +27,12 @@ export default function BottomArea({
   miniSignLoading = false,
   canUseDirectSubmitTx,
   onConfirm,
+  currentToken,
+  chainItem,
+  amount,
+  toAddress,
+  estimatedFee,
+  estimatedTime,
 }: {
   mostImportantRisks: { value: string }[];
   agreeRequiredChecked: boolean;
@@ -34,6 +43,12 @@ export default function BottomArea({
   miniSignLoading: boolean;
   canUseDirectSubmitTx: boolean;
   onConfirm?: () => void;
+  currentToken?: TokenItem | null;
+  chainItem?: Chain | null;
+  amount?: string;
+  toAddress?: string;
+  estimatedFee?: string | number;
+  estimatedTime?: string;
 }) {
   const { t } = useTranslation();
   const [showSheet, setShowSheet] = useState(false);
@@ -64,7 +79,111 @@ export default function BottomArea({
 
       {/* Bottom Sheet */}
       <BottomFloatingSheet open={showSheet} onClose={() => setShowSheet(false)}>
-        <div className="space-y-4">
+        <div className="space-y-5">
+          {/* Header - You're sending */}
+          <div>
+            <h2 className="text-[14px] font-normal text-secondary-foreground">
+              {"You're sending"}
+            </h2>
+          </div>
+
+          {/* Amount and Token Display */}
+          {currentToken && amount && (
+            <div className="flex items-start justify-between">
+              <div>
+                {/* Large Amount */}
+                <p className="text-base font-medium text-primary-foreground leading-tight">
+                  {amount} {currentToken.symbol}
+                </p>
+                {/* USD Value */}
+                {currentToken.price && (
+                  <p className="text-[12px] font-normal text-secondary-foreground mt-1">
+                    ${(parseFloat(amount) * currentToken.price).toFixed(2)}
+                  </p>
+                )}
+              </div>
+              {/* Avatar/Icon placeholder */}
+              <TooltipView content={toAddress || ''} side="top" variant="dark">
+                <div className="w-12 h-12 rounded-full bg-r-neutral-line flex items-center justify-center">
+                  <span className="text-[20px]">🐷</span>
+                </div>
+              </TooltipView>
+            </div>
+          )}
+
+          {/* Network Section */}
+          {chainItem && (
+            <div className="border-t border-r-neutral-line pt-4">
+              <div className="flex items-center justify-between p-3 bg-r-neutral-bg1 rounded-lg cursor-pointer hover:bg-r-neutral-bg2">
+                <div className="flex items-center gap-3">
+                  <span className="text-primary-foreground font-medium">
+                    Network
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {chainItem.logo && (
+                    <img
+                      src={chainItem.logo}
+                      alt={chainItem.name}
+                      className="w-5 h-5 rounded-full"
+                    />
+                  )}
+                  <span className="text-primary-foreground font-medium">
+                    {chainItem.name}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-r-neutral-bg1 rounded-lg cursor-pointer hover:bg-r-neutral-bg2">
+                <div className="flex items-center gap-3">
+                  <span className="text-primary-foreground font-medium">
+                    Token
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {currentToken?.logo_url && (
+                    <img
+                      src={currentToken.logo_url}
+                      alt={currentToken.symbol}
+                      className="w-5 h-5 rounded-full"
+                    />
+                  )}
+                  <span className="text-primary-foreground font-medium">
+                    {currentToken?.symbol}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Estimated Fee Section */}
+          {estimatedFee && (
+            <div className="flex items-center justify-between p-3 bg-r-neutral-bg1 rounded-lg">
+              <div className="flex items-center gap-2">
+                <span className="text-primary-foreground font-medium">
+                  Estimated fee
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {chainItem && (
+                  <img
+                    src={chainItem.logo}
+                    alt={chainItem.name}
+                    className="w-5 h-5 rounded-full"
+                  />
+                )}
+                <span className="text-primary-foreground font-semibold">
+                  ${estimatedFee}
+                </span>
+                {estimatedTime && (
+                  <span className="text-secondary-foreground text-sm">
+                    ~ {estimatedTime}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Risks Section */}
           {!!mostImportantRisks.length && (
             <div className="risks-wrapper">
               <div className="risks-alert bg-r-red-light p-[12px] rounded-[8px]">
@@ -103,31 +222,17 @@ export default function BottomArea({
           )}
 
           <div>
-            {canUseDirectSubmitTx && currentAccount?.type ? (
-              <DirectSignToConfirmBtn
-                buttonClassName="text-[16px]"
-                title={t('page.sendToken.sendButton')}
-                onConfirm={() => {
-                  onConfirm?.();
-                  setShowSheet(false);
-                }}
-                disabled={!canSubmit}
-                accountType={currentAccount?.type}
-                loading={miniSignLoading}
-              />
-            ) : (
-              <Button
-                disabled={!canSubmit}
-                className="w-full "
-                type="submit"
-                onClick={() => {
-                  onConfirm?.();
-                  setShowSheet(false);
-                }}
-              >
-                {t('page.sendToken.sendButton')}
-              </Button>
-            )}
+            <DirectSignToConfirmBtn
+              buttonClassName="text-[16px]"
+              title="Authorize"
+              onConfirm={() => {
+                onConfirm?.();
+                setShowSheet(false);
+              }}
+              disabled={!canSubmit}
+              accountType={currentAccount?.type}
+              loading={miniSignLoading}
+            />
           </div>
         </div>
       </BottomFloatingSheet>

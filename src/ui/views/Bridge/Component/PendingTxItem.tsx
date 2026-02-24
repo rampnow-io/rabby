@@ -275,7 +275,7 @@ const PendingStatusDetail = ({
               </div>
               <div
                 style={{ height: 26 }}
-                className="px-10 flex items-center justify-center rounded-[4px] text-12 font-medium bg-r-blue-light-1 text-13 font-medium text-r-blue-default cursor-pointer"
+                className="px-10 flex items-center justify-center rounded-[4px] text-12 font-medium bg-r-blue-light-1 text-13  text-r-blue-default cursor-pointer"
                 onClick={() => {
                   if (isDesktop) {
                     history.push(
