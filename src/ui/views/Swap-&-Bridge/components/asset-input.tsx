@@ -26,6 +26,11 @@ interface AssetInputProps {
   variant?: 'source' | 'destination';
   onChainChange?: (chain: CHAINS_ENUM) => void;
   onTokenChange?: (token: any) => void;
+  selectionType?: 'from' | 'to';
+  fromChain?: CHAINS_ENUM;
+  fromToken?: TokenItem;
+  showMax?: boolean;
+  onMax?: () => void;
 }
 
 const variantStyle = {
@@ -44,6 +49,11 @@ const AssetInput: React.FC<AssetInputProps> = ({
   variant,
   onChainChange,
   onTokenChange,
+  selectionType = 'from',
+  fromChain,
+  fromToken,
+  showMax = false,
+  onMax,
 }) => {
   const [localAmount, setLocalAmount] = useState(() => value.amount);
 
@@ -82,6 +92,15 @@ const AssetInput: React.FC<AssetInputProps> = ({
                   className={'border-none p-0 outline-none'}
                   subClassName="text-[35px] text-primary-foreground font-semibold bg-inherit"
                 />
+                {showMax && onMax ? (
+                  <button
+                    type="button"
+                    onClick={onMax}
+                    className="mt-2 h-7 rounded-full bg-[#EEF2FF] px-3 text-xs font-semibold text-[#3B82F6]"
+                  >
+                    Max
+                  </button>
+                ) : null}
               </div>
 
               {error ? (
@@ -98,6 +117,9 @@ const AssetInput: React.FC<AssetInputProps> = ({
           onSelect={(asset) => onChange?.(asset as any)}
           onChainChange={onChainChange}
           onTokenChange={onTokenChange}
+          selectionType={selectionType}
+          fromChain={fromChain}
+          fromToken={fromToken}
         />
       </div>
       <div className="flex gap-1.5">

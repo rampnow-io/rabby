@@ -23,6 +23,7 @@ import { useRabbyDispatch, useRabbyGetter, useRabbySelector } from '@/ui/store';
 import { TokenItem } from "@rabby-wallet/rabby-api/dist/types"
 import { useWallet } from "@/ui/utils"
 import { useAsync } from "react-use"
+import BigNumber from "bignumber.js"
 
 import { SelectChainListProps } from "@/ui/component/ChainSelector/components/SelectChainList"
 import { useCurrentAccount } from "@/ui/hooks/backgroundState/useAccount"
@@ -34,6 +35,9 @@ interface SelectAssetModalProps {
   onChainChange?: (chain: CHAINS_ENUM) => void
   onTokenChange?: (token: TokenItem) => void
   close: () => void
+  selectionType?: 'from' | 'to'
+  fromChain?: CHAINS_ENUM
+  fromToken?: TokenItem
 }
 
 interface ChainListProps {
@@ -56,6 +60,9 @@ export default function SelectAssetModal({
   onChainChange,
   onTokenChange,
   close,
+  selectionType = 'from',
+  fromChain,
+  fromToken,
 }: SelectAssetModalProps) {
   const [assetSearch, setAssetSearch] = useState<string>()
   const [chainSearch, setChainSearch] = useState<string>()
@@ -63,12 +70,24 @@ export default function SelectAssetModal({
 
   const wallet = useWallet()
   const currentAccount = useCurrentAccount()
-  const supportedChains = useRabbySelector((s) => s.bridge.supportedChains)
+  const allSupportedChains = useRabbySelector((s) => s.bridge.supportedChains)
 
   const skipChainSelector = false
 
+  // Keep chain selection aligned with Bridge behavior: no pre-filtering by assets.
+  const supportedChains = useMemo(() => {
+    return allSupportedChains
+  }, [allSupportedChains])
+
+  // Auto-select first available destination chain when "to" modal opens
+  useEffect(() => {
+    if (selectionType === 'to' && supportedChains.length > 0 && !selectedChain) {
+      setSelectedChain(supportedChains[0])
+    }
+  }, [selectionType, supportedChains, selectedChain])
+
   // Fetch tokens for the selected chain
-  const { value: tokens = [] as TokenItem[] } = useAsync(async () => {
+  const { value: tokens = [] as TokenItem[], loading: tokensLoading } = useAsync(async () => {
     if (!selectedChain || !currentAccount?.address) {
       return []
     }
@@ -76,27 +95,68 @@ export default function SelectAssetModal({
     if (!chainObj?.serverId) return []
     
     try {
-      const tokenList = await wallet.openapi.listToken(
-        currentAccount.address,
-        chainObj.serverId
-      )
-      return tokenList || []
+      // For "to" selection: use getBridgeToTokenList to get only route-available tokens
+      if (selectionType === 'to' && fromChain && fromToken) {
+        const fromChainObj = findChainByEnum(fromChain)
+        if (!fromChainObj?.serverId) return []
+        
+        const list = await wallet.openapi.getBridgeToTokenList({
+          from_chain_id: fromChainObj.serverId,
+          from_token_id: fromToken.id,
+          to_chain_id: chainObj.serverId,
+          q: assetSearch || '',
+        })
+        return list?.token_list || []
+      } else {
+        // For "from" selection: use listToken to show all user tokens
+        const tokenList = await wallet.openapi.listToken(
+          currentAccount.address,
+          chainObj.serverId
+        )
+        return tokenList || []
+      }
     } catch (e) {
       console.error('Failed to fetch tokens:', e)
       return []
     }
-  }, [selectedChain, currentAccount?.address, wallet])
+  }, [selectedChain, currentAccount?.address, wallet, selectionType, fromChain, fromToken, assetSearch])
 
-  // Filter tokens by search
+  // Filter and sort tokens by search and liquidity (balance > 0 for 'from' only)
   const filteredTokens = useMemo(() => {
-    if (!assetSearch) return tokens
-    const search = assetSearch.toLowerCase().trim()
-    return tokens.filter((t) => 
-      t.symbol?.toLowerCase().includes(search) ||
-      t.name?.toLowerCase().includes(search) ||
-      t.id?.toLowerCase().includes(search)
-    )
-  }, [tokens, assetSearch])
+    // First filter by balance requirement
+    let baseTokens = selectionType === 'from' 
+      ? tokens.filter((t) => new BigNumber(t.raw_amount_hex_str || 0, 16).gt(0))
+      : tokens
+
+    // Then apply search filter if keyword exists
+    if (assetSearch && assetSearch.trim()) {
+      const search = assetSearch.toLowerCase().trim()
+      baseTokens = baseTokens.filter((t) => 
+        t.symbol?.toLowerCase().includes(search) ||
+        t.name?.toLowerCase().includes(search) ||
+        t.id?.toLowerCase().includes(search)
+      )
+    }
+
+    // Sort tokens
+    if (selectionType === 'from') {
+      // For 'from': sort by balance (highest first)
+      baseTokens.sort((a, b) => {
+        const balanceA = new BigNumber(a.raw_amount_hex_str || 0, 16)
+        const balanceB = new BigNumber(b.raw_amount_hex_str || 0, 16)
+        return balanceB.minus(balanceA).toNumber()
+      })
+    } else {
+      // For 'to': sort by popularity/common tokens first (those with price data)
+      baseTokens.sort((a, b) => {
+        const priceA = a.price ? 1 : 0
+        const priceB = b.price ? 1 : 0
+        return priceB - priceA
+      })
+    }
+
+    return baseTokens
+  }, [tokens, assetSearch, selectionType])
 
   const onSelectHandler = (token: TokenItem) => {
     if (onChainChange && selectedChain) {
@@ -117,12 +177,12 @@ export default function SelectAssetModal({
         </div>
         <div
           className={cn(
-            "grid gap-3 overflow-auto",
+            "grid gap-3 flex-1 min-h-0",
             !skipChainSelector ? "grid-cols-[1.1fr_1.5fr]" : "grid-cols-1",
           )}
         >
           {!skipChainSelector && (
-            <div className='flex flex-col gap-4 overflow-hidden'>
+            <div className='flex flex-col gap-4 overflow-hidden h-full min-h-0'>
               <Input
                 iconLeft={<Search className='h-5 w-5' />}
                 type='text'
@@ -131,21 +191,23 @@ export default function SelectAssetModal({
                 value={chainSearch}
                 onChange={(e) => setChainSearch(e.target.value)}
               />
-              <ChainListSelector
-                chains={supportedChains}
-                selectedChain={selectedChain}
-                searchKeyword={chainSearch}
-                onSelect={(chain) => {
-                  setSelectedChain(chain)
-                  if (onChainChange && chain) {
-                    onChainChange(chain)
-                  }
-                }}
-              />
+              <div className='flex-1 overflow-y-auto min-h-0'>
+                <ChainListSelector
+                  chains={supportedChains}
+                  selectedChain={selectedChain}
+                  searchKeyword={chainSearch}
+                  onSelect={(chain) => {
+                    setSelectedChain(chain)
+                    if (onChainChange && chain) {
+                      onChainChange(chain)
+                    }
+                  }}
+                />
+              </div>
             </div>
           )}
 
-          <div className='flex flex-col gap-4 overflow-hidden'>
+          <div className='flex flex-col gap-4 overflow-hidden h-full min-h-0'>
             <Input
               iconLeft={<Search className='h-5 w-5' />}
               type='text'
@@ -153,7 +215,20 @@ export default function SelectAssetModal({
               value={assetSearch}
               onChange={(e) => setAssetSearch(e.target.value)}
             />
-            <AssetList assets={filteredTokens} onChainChange={onChainChange} onTokenChange={onTokenChange} close={close} />
+            <div className='flex-1 overflow-y-auto min-h-0 pr-2'>
+              {tokensLoading ? (
+                <div className='flex items-center justify-center py-8'>
+                  <div className='text-sm text-gray-500'>Loading tokens...</div>
+                </div>
+              ) : (
+                <AssetList 
+                  assets={filteredTokens} 
+                  onChainChange={onChainChange} 
+                  onTokenChange={onTokenChange} 
+                  close={close} 
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -251,34 +326,120 @@ const AssetList = ({ assets, onChainChange, onTokenChange, close }: AssetListPro
       close()
     }
   }
+
+  // Helper to format balance
+  const formatBalance = (token: TokenItem): string => {
+    if (!token.raw_amount_hex_str) return '0'
+    try {
+      const balanceBN = new BigNumber(token.raw_amount_hex_str, 16)
+      const decimals = token.decimals || 0
+      const formatted = balanceBN.div(10 ** decimals).toFixed(4)
+      return formatted
+    } catch (e) {
+      return '0'
+    }
+  }
+
+  // Helper to format price
+  const formatPrice = (price: number | undefined): string => {
+    if (!price) return '$0.00'
+    if (price >= 1) return `$${price.toFixed(2)}`
+    return `$${price.toFixed(4)}`
+  }
+
+  // Helper to determine liquidity badge based on token properties
+  const getLiquidityBadge = (token: TokenItem): { label: string; color: string } => {
+    // In a real implementation, you would check token.is_verified, token.is_suspicious, or real liquidity data
+    // For now, assume tokens with a price have higher liquidity
+    if (token.price && token.price > 0) {
+      return { label: 'High liquidity', color: 'bg-green-100 text-green-700' }
+    }
+    return { label: '', color: '' }
+  }
+
+  // Helper to get price change percentage
+  const getPriceChange = (token: TokenItem): { value: number; color: string } | null => {
+    // Note: TokenItem may not have price_24h_change property
+    // This is for reference if you need to display it from a different data source
+    return null
+  }
+
+  // Helper to get price in USD
+  const getPriceUsd = (token: TokenItem, balance: string): string => {
+    if (!token.price) return '$0.00'
+    const balanceNum = parseFloat(balance) || 0
+    const usdValue = balanceNum * token.price
+    return `$${usdValue.toFixed(2)}`
+  }
   
   return (
     <div className='overflow-auto'>
-      {assets.map((token) => {
-        return (
-          <ListItem
-            key={token.id}
-            onClick={() => handleAssetSelect(token)}
-            tooltipContent={token.name}
-          >
-            <img
-              src={token.logo_url}
-              alt={token.symbol}
-              height={32}
-              width={32}
-              className='w-8 h-8 rounded-full'
-            />
-            <div className='flex flex-col text-justify items-start gap-y-1'>
-              <span className='font-medium block truncate text-base/[100%]'>
-                {token.symbol}
-              </span>
-              <div className='flex items-center truncate gap-1 text-xs text-gray-500'>
-                <span>{token.name}</span>
+      {assets && assets.length > 0 ? (
+        assets.map((token) => {
+          const balance = formatBalance(token)
+          const liquidityBadge = getLiquidityBadge(token)
+          const priceUsd = getPriceUsd(token, balance)
+
+          return (
+            <div
+              key={token.id}
+              onClick={() => handleAssetSelect(token)}
+              className='px-3 py-4 mb-2 rounded-lg bg-white border border-gray-100 cursor-pointer hover:border-blue-300 hover:bg-blue-50 transition-colors'
+            >
+              <div className='flex items-start gap-3'>
+                {/* Token Logo */}
+                <div className='relative flex-shrink-0'>
+                  <img
+                    src={token.logo_url}
+                    alt={token.symbol}
+                    className='w-10 h-10 rounded-full'
+                  />
+                </div>
+
+                {/* Token Info - Left Side */}
+                <div className='flex-1 min-w-0'>
+                  <div className='flex items-center gap-2 mb-1'>
+                    <span className='font-semibold text-sm text-gray-900'>
+                      {token.symbol}
+                    </span>
+                    {/* Exchange Indicators */}
+                    <div className='flex items-center gap-1'>
+                      {/* Placeholder for exchange icons */}
+                      <span className='text-xs text-gray-400'>+25</span>
+                    </div>
+                  </div>
+
+                  {/* Liquidity Badge */}
+                  {liquidityBadge.label && (
+                    <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${liquidityBadge.color}`}>
+                      {liquidityBadge.label}
+                    </span>
+                  )}
+
+                  {/* Price Info */}
+                  <div className='mt-1 text-xs text-gray-600'>
+                    <span>@{formatPrice(token.price)}</span>
+                  </div>
+                </div>
+
+                {/* Balance & USD Value - Right Side */}
+                <div className='text-right flex-shrink-0'>
+                  <div className='font-semibold text-sm text-gray-900 mb-1'>
+                    {balance}
+                  </div>
+                  <div className='text-xs text-gray-600'>
+                    {priceUsd}
+                  </div>
+                </div>
               </div>
             </div>
-          </ListItem>
-        )
-      })}
+          )
+        })
+      ) : (
+        <div className='p-4 text-center text-gray-500 text-sm'>
+          No tokens available
+        </div>
+      )}
     </div>
   )
 }

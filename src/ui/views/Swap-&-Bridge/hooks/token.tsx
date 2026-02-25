@@ -639,7 +639,7 @@ export const useBridge = () => {
 
   const openQuotesList = useCallback(() => {
     openQuote(true);
-  }, []);
+  }, [openQuote]);
 
   useEffect(() => {
     if (!quoteLoading && toToken && quoteList.every((e) => !e.loading)) {

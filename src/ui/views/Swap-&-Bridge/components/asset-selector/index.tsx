@@ -26,6 +26,9 @@ interface AssetSelectorProps {
   onSelect?: (assetConfig: AssetConfig) => void
   onChainChange?: (chain: CHAINS_ENUM) => void
   onTokenChange?: (token: TokenItem) => void
+  selectionType?: 'from' | 'to'
+  fromChain?: CHAINS_ENUM
+  fromToken?: TokenItem
 }
 
 function AssetSelector({
@@ -37,6 +40,9 @@ function AssetSelector({
   onSelect,
   onChainChange,
   onTokenChange,
+  selectionType = 'from',
+  fromChain,
+  fromToken,
 }: AssetSelectorProps) {
   const [selectAsset, selectAssetRef] = useEventRef()
   const chainObj = selectedChain ? findChainByEnum(selectedChain) : undefined
@@ -62,8 +68,8 @@ function AssetSelector({
                 draggable={false}
                 className='rounded-full'
               />
-              <div className='text-[16px] max-w-[100px] truncate'>
-                {selectedToken.symbol} ({chainObj?.name})
+              <div className='text-[14px] max-w-[100px] truncate'>
+                {selectedToken.symbol} 
               </div>
             </TooltipView>
             <ChevronDown size={18} />
@@ -71,12 +77,12 @@ function AssetSelector({
         ) : (
           <div className='flex w-full items-center gap-2 bg-inherit text-base font-semibold text-[#A1A1AA]'>
             <div className='w-8 h-8 rounded-full bg-gray-200' />
-            <div className='text-[16px]'>Select</div>
+            <div className='text-[14px]'>Select</div>
             <ChevronDown size={18} />
           </div>
         )}
         {selectedToken && chainObj ? (
-          <div className='text-sm pt-2 font-normal leading-[12px] text-[#6E7685]'>
+          <div className='text-[12px] pt-2 font-normal leading-[12px] text-[#6E7685]'>
             {chainObj.name}
           </div>
         ) : null}
@@ -87,6 +93,9 @@ function AssetSelector({
         actionRef={selectAssetRef}
         onChainChange={onChainChange}
         onTokenChange={onTokenChange}
+        selectionType={selectionType}
+        fromChain={fromChain}
+        fromToken={fromToken}
       />
     </>
   )

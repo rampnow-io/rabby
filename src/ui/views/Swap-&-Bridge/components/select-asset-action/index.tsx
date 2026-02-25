@@ -14,15 +14,20 @@ interface SelectCurrencyActionProps {
   actionRef?: MutableRefObject<(() => void) | undefined>
   onChainChange?: (chain: CHAINS_ENUM) => void
   onTokenChange?: (token: TokenItem) => void
+  selectionType?: 'from' | 'to'
+  fromChain?: CHAINS_ENUM
+  fromToken?: TokenItem
 }
 
 function SelectAssetAction({
   rootSelector,
   title,
-
   actionRef,
   onChainChange,
   onTokenChange,
+  selectionType = 'from',
+  fromChain,
+  fromToken,
 }: SelectCurrencyActionProps) {
   const [show, open, close] = useOpenClose(false)
 
@@ -39,6 +44,9 @@ function SelectAssetAction({
       close={close}
       onChainChange={onChainChange}
       onTokenChange={onTokenChange}
+      selectionType={selectionType}
+      fromChain={fromChain}
+      fromToken={fromToken}
     />
   )
 }

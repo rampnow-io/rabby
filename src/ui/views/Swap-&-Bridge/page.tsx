@@ -6,26 +6,30 @@ import React, {
   useState,
 } from 'react';
 import { UIContainer } from '@/ui/provider';
-import { Action, Container, Content } from '@repo/ui';
+import { Action, Container, Content, useEventRef } from '@repo/ui';
 import { HeaderNavPage } from '@/ui/component';
 import { getUiType } from 'ui/utils';
 import { Button } from '@repo/ui/primitives';
-import AssetInput from './components/asset-input';
+import TokenSelect from '@/ui/component/TokenSelect';
+import { ReactComponent as RcIconWarningCC } from '@/ui/assets/warning-cc.svg';
 import {
   tokenPriceImpact,
   useBridge,
-  useQuoteVisible,
   useSetQuoteVisible,
   useSetRefreshId,
   useSetSettingVisible,
+  useSettingVisible,
 } from './hooks';
-import { useCss } from 'react-use';
+
+import { RabbyFeePopup } from '../Swap/Component/RabbyFeePopup';
+import BottomFloatingSheet from '@/ui/component/BottomFloatingPopup';
+import { useCss, useAsync } from 'react-use';
 import { useHistory } from 'react-router-dom';
 import { useRabbySelector } from '@/ui/store';
 import { CHAINS_ENUM } from '@/types/chain';
 import { useExternalSwapBridgeDapps } from '@/ui/component/ExternalSwapBridgeDappPopup/hooks';
 import { useTranslation } from 'react-i18next';
-import { useWallet } from '@/ui/utils';
+import { isSameAddress, useWallet } from '@/ui/utils';
 import { useRbiSource } from '@/ui/utils/ga-event';
 import pRetry, { AbortError } from 'p-retry';
 import stats from '@/stats';
@@ -35,7 +39,22 @@ import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 import { supportedDirectSign } from '@/ui/hooks/useMiniApprovalDirectSign';
 import { useMiniSigner } from '@/ui/hooks/useSigner';
 import { MINI_SIGN_ERROR } from '@/ui/component/MiniSignV2/state/SignatureManager';
-import { Bridge } from '../Bridge';
+import BigNumber from 'bignumber.js';
+import AssetInput from './components/asset-input';
+import { tokenAmountBn } from '@/ui/utils/token';
+import { DirectSignToConfirmBtn } from '@/ui/component/ToConfirmButton';
+import { DbkButton } from '../Ecology/dbk-chain/components/DbkButton';
+import clsx from 'clsx';
+import { TooltipWithMagnetArrow } from '@/ui/component/Tooltip/TooltipWithMagnetArrow';
+import { DBK_CHAIN_ID } from '@/constant';
+
+import { Alert } from 'antd';
+import {
+  BridgeShowMore,
+  RecommendFromToken,
+} from './components/bridge/BridgeShowMore';
+import { BridgePendingTxItem } from './components/bridge/PendingTxItem';
+import { QuoteList } from './components/bridge/BridgeQuotes';
 
 const isTab = getUiType().isTab;
 const isDesktop = getUiType().isDesktop;
@@ -47,6 +66,7 @@ const getContainer = isTab
   : undefined;
 
 const SwapAndBridgeContainer = () => {
+  const wallet = useWallet();
   const { userAddress } = useRabbySelector((state) => ({
     userAddress: state.account.currentAccount?.address || '',
   }));
@@ -69,7 +89,6 @@ const SwapAndBridgeContainer = () => {
 
     inSufficient,
 
-    openQuotesList,
     quoteLoading,
     quoteList,
     setQuotesList,
@@ -98,6 +117,56 @@ const SwapAndBridgeContainer = () => {
   } = useBridge();
 
   const [historyVisible, setHistoryVisible] = useState(false);
+  const [showMoreOpen, setShowMoreOpen] = useState(false);
+  const [showTwoStepApproveModal, setShowTwoStepApproveModal] = useState(false);
+  const isSettingMaxRef = useRef(false);
+
+  const currentAccount = useCurrentAccount();
+  const allSupportedChains = useRabbySelector((s) => s.bridge.supportedChains);
+
+  // Fetch user's assets across all chains to determine which chains have liquidity for "from" selection
+  const {
+    value: chainsWithLiquidity = new Set<string>(),
+  } = useAsync(async () => {
+    if (!currentAccount?.address) {
+      return new Set();
+    }
+
+    const chainsWithAssets = new Set<string>();
+
+    try {
+      for (const chainEnum of allSupportedChains) {
+        const chainObj = findChainByEnum(chainEnum);
+        if (!chainObj?.serverId) continue;
+
+        try {
+          const tokenList = await wallet.openapi.listToken(
+            currentAccount.address,
+            chainObj.serverId
+          );
+          const hasLiquidity =
+            tokenList &&
+            tokenList.some((t) =>
+              new BigNumber(t.raw_amount_hex_str || 0, 16).gt(0)
+            );
+          if (hasLiquidity) {
+            chainsWithAssets.add(chainEnum);
+          }
+        } catch (e) {
+          console.error(`Failed to fetch tokens for chain ${chainEnum}:`, e);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to fetch chains with liquidity:', e);
+    }
+
+    return chainsWithAssets;
+  }, [currentAccount?.address, allSupportedChains, wallet]);
+
+  // Filter supported chains to only show chains with liquidity for "from" chain selection
+  const supportedFromChains = useMemo(() => {
+    return allSupportedChains.filter((chain) => chainsWithLiquidity.has(chain));
+  }, [allSupportedChains, chainsWithLiquidity]);
 
   const chains = useMemo(
     () => [toChain, fromChain].filter((e) => !!e) as CHAINS_ENUM[],
@@ -118,7 +187,7 @@ const SwapAndBridgeContainer = () => {
 
   const amountAvailable = useMemo(() => Number(amount) > 0, [amount]);
 
-  const visible = useQuoteVisible();
+  const [openQuote, openQuoteRef] = useEventRef();
 
   const setVisible = useSetQuoteVisible();
 
@@ -140,7 +209,6 @@ const SwapAndBridgeContainer = () => {
     externalDapps,
   ]);
 
-  const wallet = useWallet();
   const rbiSource = useRbiSource();
 
   // const {
@@ -416,8 +484,6 @@ const SwapAndBridgeContainer = () => {
     manual: true,
   });
 
-  const currentAccount = useCurrentAccount();
-
   const showLoss = useMemo(() => {
     const impact = tokenPriceImpact(
       fromToken,
@@ -523,28 +589,6 @@ const SwapAndBridgeContainer = () => {
 
   const history = useHistory();
 
-  const twoStepApproveCn = useCss({
-    '& .ant-modal-content': {
-      background: '#fff',
-    },
-    '& .ant-modal-body': {
-      padding: '12px 8px 32px 16px',
-    },
-    '& .ant-modal-confirm-content': {
-      padding: '4px 0 0 0',
-    },
-    '& .ant-modal-confirm-btns': {
-      justifyContent: 'center',
-      '.ant-btn-primary': {
-        width: '260px',
-        height: '40px',
-      },
-      'button:first-child': {
-        display: 'none',
-      },
-    },
-  });
-
   useEffect(() => {
     if (!btnDisabled && selectedBridgeQuote) {
       mutateTxs([]);
@@ -566,13 +610,83 @@ const SwapAndBridgeContainer = () => {
     });
   }, [closeSign, prefetch, txs, canUseDirectSubmitTx, rbiSource]);
 
-  const [showMoreOpen, setShowMoreOpen] = useState(false);
-
+  const feePopupVisible = useSettingVisible();
   const switchFeePopup = useSetSettingVisible();
 
   const openFeePopup = useCallback(() => {
     switchFeePopup(true);
   }, [switchFeePopup]);
+
+  const closeFeePopup = useCallback(() => {
+    switchFeePopup(false);
+  }, [switchFeePopup]);
+
+  const isFromNativeToken = useMemo(() => {
+    if (!fromToken || !fromChain) return false;
+    const chainInfo = findChainByEnum(fromChain);
+    if (!chainInfo?.nativeTokenAddress) return false;
+    return isSameAddress(fromToken.id, chainInfo.nativeTokenAddress);
+  }, [fromToken, fromChain]);
+
+  const handleMaxFromToken = useCallback(async () => {
+    if (!fromToken || !fromChain) return;
+
+    const chainInfo = findChainByEnum(fromChain);
+    if (!chainInfo?.serverId) return;
+
+    if (!isFromNativeToken) {
+      isSettingMaxRef.current = true;
+      setMaxNativeTokenGasPrice(undefined);
+      handleAmountChange(tokenAmountBn(fromToken).toString(10));
+      return;
+    }
+
+    try {
+      const gasList = await wallet.gasMarketV2({
+        chainId: chainInfo.serverId,
+      });
+      const normalPrice = gasList?.find((e) => e.level === 'normal')?.price;
+      const gasLimit = fromChain === CHAINS_ENUM.ETH ? 1000000 : 2000000;
+
+      if (
+        normalPrice &&
+        new BigNumber(fromToken.raw_amount_hex_str || 0, 16).gte(
+          new BigNumber(gasLimit).times(normalPrice)
+        )
+      ) {
+        const val = tokenAmountBn(fromToken).minus(
+          new BigNumber(gasLimit)
+            .times(normalPrice)
+            .div(10 ** (chainInfo.nativeTokenDecimals || 1e18))
+        );
+        isSettingMaxRef.current = true;
+        handleAmountChange(val.toString(10));
+        setMaxNativeTokenGasPrice(normalPrice);
+        return;
+      }
+    } catch (error) {
+      console.error('Failed to fetch gas for max:', error);
+    }
+
+    isSettingMaxRef.current = true;
+    setMaxNativeTokenGasPrice(undefined);
+    handleAmountChange(tokenAmountBn(fromToken).toString(10));
+  }, [
+    fromToken,
+    fromChain,
+    wallet,
+    isFromNativeToken,
+    handleAmountChange,
+    setMaxNativeTokenGasPrice,
+  ]);
+
+  // Store filtered chains for use in child components
+  const fromChainProps = useMemo(
+    () => ({
+      supportedChains: supportedFromChains,
+    }),
+    [supportedFromChains]
+  );
   return (
     <UIContainer>
       <Container>
@@ -580,19 +694,29 @@ const SwapAndBridgeContainer = () => {
           Swap & Bridge
         </div>
         <Content>
+          {/* Asset Input Section */}
           <div className="flex flex-col bg-[#FAFAFA] min-h-[240px] max-h-[240px] border rounded-[18px] p-1">
             <AssetInput
               variant="source"
               assetTitle="From Token"
               value={{ amount: amount, currency: fromToken, chain: fromChain }}
               onChange={(value) => {
-                if (value.amount !== undefined)
+                if (value.amount !== undefined) {
+                  if (isSettingMaxRef.current) {
+                    isSettingMaxRef.current = false;
+                  } else {
+                    setMaxNativeTokenGasPrice(undefined);
+                  }
                   handleAmountChange(value.amount);
+                }
                 if (value.currency) setFromToken(value.currency);
                 if (value.chain) switchFromChain(value.chain);
               }}
               onChainChange={switchFromChain}
               onTokenChange={setFromToken}
+              selectionType="from"
+              showMax
+              onMax={handleMaxFromToken}
             />
             <AssetInput
               assetTitle="To Token"
@@ -609,13 +733,216 @@ const SwapAndBridgeContainer = () => {
               }}
               onChainChange={setToChain}
               onTokenChange={setToToken}
+              selectionType="to"
+              fromChain={fromChain}
+              fromToken={fromToken}
             />
           </div>
+
+          {!inSufficientCanGetQuote || (noQuote && !recommendFromToken) ? (
+            <Alert
+              className={clsx(
+                'mx-[20px] rounded-[4px] px-0 py-[3px] bg-transparent mt-6'
+              )}
+              icon={
+                <RcIconWarningCC
+                  viewBox="0 0 16 16"
+                  className={clsx(
+                    'relative top-[3px] mr-2 self-start origin-center w-16 h-15',
+                    'text-rabby-red-default'
+                  )}
+                />
+              }
+              banner
+              message={
+                <span
+                  className={clsx(
+                    'text-13 font-medium',
+                    'text-rabby-red-default'
+                  )}
+                >
+                  {!inSufficientCanGetQuote
+                    ? t('page.bridge.insufficient-balance')
+                    : t('page.bridge.no-quote-found')}
+                </span>
+              }
+            />
+          ) : null}
+
+          {/* Bridge Show More & Quote Details */}
+          {selectedBridgeQuote && (
+            <div className="mt-4">
+              <BridgeShowMore
+                supportDirectSign={canUseDirectSubmitTx}
+                openFeePopup={openFeePopup}
+                open={showMoreOpen}
+                setOpen={setShowMoreOpen}
+                sourceName={selectedBridgeQuote?.aggregator.name || ''}
+                sourceLogo={selectedBridgeQuote?.aggregator.logo_url || ''}
+                duration={selectedBridgeQuote?.duration || 0}
+                slippage={slippageState}
+                displaySlippage={slippage}
+                onSlippageChange={(e) => {
+                  setSlippageChanged(true);
+                  setSlippage(e);
+                }}
+                fromToken={fromToken}
+                toToken={toToken}
+                amount={amount || 0}
+                toAmount={selectedBridgeQuote?.to_token_amount}
+                openQuotesList={openQuote}
+                quoteLoading={quoteLoading}
+                slippageError={isSlippageHigh || isSlippageLow}
+                autoSlippage={autoSlippage}
+                isCustomSlippage={isCustomSlippage}
+                setAutoSlippage={setAutoSlippage}
+                setIsCustomSlippage={setIsCustomSlippage}
+                type="bridge"
+                isBestQuote={
+                  !!bestQuoteId &&
+                  !!selectedBridgeQuote &&
+                  bestQuoteId?.aggregatorId ===
+                    selectedBridgeQuote.aggregator.id &&
+                  bestQuoteId?.bridgeId === selectedBridgeQuote.bridge_id
+                }
+              />
+            </div>
+          )}
+          {!selectedBridgeQuote && !recommendFromToken && (
+            <div className="mt-20 mx-20">
+              <BridgePendingTxItem />
+            </div>
+          )}
+
+          {/* Recommend From Token */}
+          {noQuote && recommendFromToken && (
+            <div className="mt-4">
+              <RecommendFromToken
+                token={recommendFromToken}
+                onOk={fillRecommendFromToken}
+              />
+            </div>
+          )}
         </Content>
+
+        {/* Action Buttons */}
         <Action>
-          <Button>Review</Button>
+          <div>
+            {(fromChain as string) === 'DBK' ? (
+              <DbkButton
+                className="h-[48px] w-full text-[16px] font-medium bg-r-orange-DBK border-transparent rounded-[6px]"
+                onClick={() => {
+                  history.push(
+                    `/ecology/${DBK_CHAIN_ID}/bridge?activeTab=withdraw`
+                  );
+                }}
+              >
+                {t('page.bridge.bridgeDbkBtn')}
+              </DbkButton>
+            ) : (
+              <>
+                {canUseDirectSubmitTx &&
+                currentAccount?.type &&
+                isSupportedChain ? (
+                  <DirectSignToConfirmBtn
+                    disabled={btnDisabled}
+                    title={btnText}
+                    onConfirm={handleBridge}
+                    showRiskTips={showRiskTips && !btnDisabled}
+                    accountType={currentAccount?.type}
+                    riskReset={btnDisabled}
+                    loading={miniSignLoading}
+                    buttonClassName="h-[56px] rounded-full bg-[#B6E632] text-black text-lg font-semibold hover:bg-[#A5D32E] transition-colors"
+                  />
+                ) : (
+                  <Button
+                    className="h-[56px] rounded-full bg-[#B6E632] text-black text-lg font-semibold hover:bg-[#A5D32E] transition-colors"
+                    onClick={() => {
+                      if (showExternalDappTips && externalDapps.length > 0) {
+                        setExternalDappOpen(true);
+                        return;
+                      }
+                      if (fetchingBridgeQuote) return;
+                      if (!selectedBridgeQuote) {
+                        refresh((e) => e + 1);
+
+                        return;
+                      }
+                      if (selectedBridgeQuote?.shouldTwoStepApprove) {
+                        setShowTwoStepApproveModal(true);
+                        return;
+                      }
+                      // gotoBridge();
+                      handleBridge();
+                    }}
+                    disabled={
+                      !isSupportedChain && externalDapps.length > 0
+                        ? false
+                        : canUseDirectSubmitTx
+                        ? btnDisabled
+                        : btnDisabled
+                    }
+                  >
+                    {btnText}
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
         </Action>
       </Container>
+
+      <RabbyFeePopup
+        type="bridge"
+        visible={feePopupVisible}
+        onClose={closeFeePopup}
+      />
+
+      <BottomFloatingSheet
+        open={showTwoStepApproveModal}
+        onClose={() => setShowTwoStepApproveModal(false)}
+      >
+        <div className="px-16 pb-16">
+          <div className="text-16 font-medium text-r-neutral-title-1 mb-18 text-center">
+            Sign 2 transactions to change allowance
+          </div>
+          <div className="text-13 leading-[17px] text-r-neutral-body mb-20">
+            Token {fromToken?.symbol || 'token'} requires 2 transactions to
+            change allowance. First you would need to reset allowance to zero,
+            and only then set new allowance value.
+          </div>
+          <div className="flex gap-3">
+            <Button
+              className="flex-1 h-48 text-14 font-medium"
+              onClick={() => setShowTwoStepApproveModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setShowTwoStepApproveModal(false);
+                handleBridge();
+              }}
+            >
+              Proceed with two step approve
+            </Button>
+          </div>
+        </div>
+      </BottomFloatingSheet>
+      <QuoteList
+        list={quoteList}
+        loading={quoteLoading}
+        actionRef={openQuoteRef}
+        onClose={() => {
+          setVisible(false);
+        }}
+        userAddress={userAddress}
+        payToken={fromToken}
+        payAmount={amount}
+        receiveToken={toToken}
+        inSufficient={inSufficient}
+        setSelectedBridgeQuote={setSelectedBridgeQuote}
+      />
     </UIContainer>
   );
 };

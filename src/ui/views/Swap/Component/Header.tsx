@@ -90,7 +90,6 @@ export const Header = ({
         dexName={dexName}
         feeDexDesc={feeDexDesc}
         onClose={() => setRabbyFeeVisible({ visible: false })}
-        getContainer={getContainer}
       />
     </>
   );

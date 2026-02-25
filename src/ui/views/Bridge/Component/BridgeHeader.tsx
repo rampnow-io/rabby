@@ -97,7 +97,6 @@ export const Header = ({
         type="bridge"
         visible={feePopupVisible}
         onClose={closeFeePopup}
-        getContainer={getContainer}
       />
     </>
   );
