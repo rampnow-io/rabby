@@ -437,30 +437,22 @@ const AssetList = ({ assets, onChainChange, onTokenChange, close }: AssetListPro
                 {/* Token Info - Left Side */}
                 <div className='flex-1 min-w-0'>
                   <div className='flex items-center gap-2 mb-1'>
-                    <span className='font-semibold text-sm text-gray-900'>
+                    <span className='font-semibold text-sm text-primary-foreground '>
                       {token.symbol}
                     </span>
                     {/* Exchange Indicators */}
-                    <div className='flex items-center gap-1'>
-                      {/* Placeholder for exchange icons */}
-                      <span className='text-xs text-gray-400'>+25</span>
-                    </div>
+                   
                   </div>
 
 
                   {/* Price Info */}
-                  <div className='mt-1 text-xs text-gray-600'>
-                    <span>@{formatPrice(token.price)}</span>
-                  </div>
+                  
                 </div>
 
                 {/* Balance & USD Value - Right Side */}
                 <div className='text-right flex-shrink-0'>
-                  <div className='font-semibold text-sm text-gray-900 mb-1'>
+                  <div className='font-semibold text-sm text-secondary-foreground mb-1'>
                     {balance}
-                  </div>
-                  <div className='text-xs text-gray-600'>
-                    {priceUsd}
                   </div>
                 </div>
               </div>

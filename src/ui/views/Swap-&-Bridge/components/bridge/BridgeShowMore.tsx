@@ -179,6 +179,25 @@ export const BridgeShowMore = ({
 
   const showSlippageError = slippageError;
 
+  const estimatedFeeDisplay = useMemo(() => {
+    if (!selectedQuote?.gas_fee) {
+      return '-';
+    }
+
+    const gasFeeAmount = selectedQuote.gas_fee.amount;
+    const gasFeeSymbol = selectedQuote.gas_fee.symbol;
+
+    if (gasFeeAmount && gasFeeSymbol) {
+      return `${gasFeeAmount} ${gasFeeSymbol}`;
+    }
+
+    if (selectedQuote?.gas_fee?.usd_value) {
+      return formatUsdValue(selectedQuote.gas_fee.usd_value);
+    }
+
+    return '-';
+  }, [selectedQuote]);
+
   const showMinDuration = useMemo(() => {
     return Math.max(Math.round((duration || 0) / 60), 1);
   }, [duration]);
@@ -194,6 +213,37 @@ export const BridgeShowMore = ({
     return 'text-r-blue-default';
   }, [showMinDuration]);
 
+  const exchangeRateDisplay = useMemo(() => {
+    if (!fromToken || !toToken || !amount || !toAmount || quoteLoading) {
+      return { fromLabel: '-', toDisplay: '-' };
+    }
+
+    const amountBN = new BigNumber(amount);
+    const toAmountBN = new BigNumber(toAmount);
+
+    if (amountBN.lte(0) || toAmountBN.lte(0)) {
+      return { fromLabel: '-', toDisplay: '-' };
+    }
+
+    const fromSymbol = getTokenSymbol(fromToken);
+    const toSymbol = getTokenSymbol(toToken);
+
+    // Calculate: 1 fromToken = ? toToken
+    const fromDecimals = fromToken.decimals || 18;
+    const toDecimals = toToken.decimals || 18;
+
+    const rate = toAmountBN
+      .div(new BigNumber(10).pow(toDecimals))
+      .div(amountBN.div(new BigNumber(10).pow(fromDecimals)));
+
+    const rateStr = rate.dp(8, BigNumber.ROUND_DOWN).toString();
+
+    return {
+      fromLabel: `1 ${fromSymbol}`,
+      toDisplay: `${rateStr} ${toSymbol}`,
+    };
+  }, [fromToken, toToken, amount, toAmount, quoteLoading]);
+
   const sourceContentRender = useMemoizedFn(() => {
     return (
       <ListItem
@@ -202,7 +252,7 @@ export const BridgeShowMore = ({
             ? t('page.bridge.showMore.source')
             : t('page.swap.source')
         }
-        className="mb-4 h-[18px] text-xs text-primary-foreground"
+        className="mb-4 h-[18px] text-[14px] font-normal text-primary-foreground"
       >
         {quoteLoading ? (
           <Skeleton />
@@ -221,15 +271,15 @@ export const BridgeShowMore = ({
                   alt={sourceName}
                 />
               )}
-              <span className="text-xs text-primary-foreground font-medium">
+              <span className="text-[14px] font-light text-secondary-foreground">
                 {sourceName}
               </span>
               {!sourceLogo && !sourceName ? (
-                <span className="text-xs text-r-neutral-foot">-</span>
+                <span className="text-[14px] text-r-neutral-foot">-</span>
               ) : null}
             </div>
             {type === 'bridge' && (
-              <span className={`text-xs font-medium`}>
+              <span className={`text-[14px] font-light`}>
                 {' · '}
                 {t('page.bridge.duration', {
                   duration: showMinDuration,
@@ -275,19 +325,23 @@ export const BridgeShowMore = ({
   return (
     <div className="px-4 pb-4 space-y-4">
       <div className="flex items-center justify-between pb-4 border-b border-r-neutral-line">
-        <h2 className="text-[12px] font-normal text-primary-foreground">
-          {t('page.bridge.showMore.title')}
+        <h2 className="text-[20px] font-medium text-primary-foreground">
+          Your Order
         </h2>
       </div>
+
+      <ListItem name={exchangeRateDisplay.fromLabel} className="mb-4">
+        <div className="text-[14px] font-medium text-secondary-foreground">
+          {exchangeRateDisplay.toDisplay}
+        </div>
+      </ListItem>
 
       {lostValueContentRender()}
       {sourceContentRender()}
 
-      <ListItem name="Estimated fee" className="mt-3">
-        <div className="text-12 font-medium text-r-neutral-title-1">
-          {selectedQuote?.gas_fee?.usd_value
-            ? formatUsdValue(selectedQuote.gas_fee.usd_value)
-            : '-'}
+      <ListItem name="Network Fee" className="mt-3">
+        <div className="text-[14px] font-medium text-secondary-foreground">
+          {estimatedFeeDisplay}
         </div>
       </ListItem>
 
@@ -335,6 +389,10 @@ export const BridgeShowMore = ({
         isWrapToken={isWrapToken}
         recommendValue={recommendValue}
       />
+
+      <Button onClick={() => setOpen(false)} className="w-full">
+        Close
+      </Button>
     </div>
   );
 };
@@ -635,13 +693,13 @@ function ListItem({
   return (
     <div
       className={clsx(
-        'flex items-center justify-between',
-        'text-[12px] text-primary-foreground',
+        'flex items-center justify-between py-1.5',
+        'text-[14px] text-primary-foreground',
         className
       )}
     >
-      <span>{name}</span>
-      <div className="flex items-center text-secondary-foreground">
+      <span className="text-primary-foreground">{name}</span>
+      <div className="flex items-center text-secondary-foreground text-[14px]">
         {children}
       </div>
     </div>

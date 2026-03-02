@@ -7,22 +7,25 @@
 /* Base Styles */
 html,
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Roboto, sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 [lang='zh-CN'] html,
 [lang='zh-CN'] html body,
 [lang='zh-HK'] html,
 [lang='zh-HK'] html body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Roboto, 'PingFang SC', 'Microsoft Yahei', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 [lang='ja'] html,
 [lang='ja'] html body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Roboto, 'Noto Sans JP', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   margin: 0;
 }
 

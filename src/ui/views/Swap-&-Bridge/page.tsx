@@ -261,6 +261,13 @@ const SwapAndBridgeContainer = () => {
             : String(quote.to_token_amount)
           : undefined;
 
+      const usdValue =
+        outputAmount && toToken?.price
+          ? formatUsdValue(
+              new BigNumber(outputAmount).times(toToken.price).toNumber()
+            )
+          : undefined;
+
       return {
         id,
         name: isSwapQuote
@@ -282,6 +289,7 @@ const SwapAndBridgeContainer = () => {
         type: quote.type,
         isBest,
         outputAmount: outputAmount ? formatTokenAmount(outputAmount) : undefined,
+        usdValue,
       };
     });
   }, [quoteList, bestQuoteId, toToken]);
@@ -991,6 +999,13 @@ const SwapAndBridgeContainer = () => {
               selectionType="from"
               showMax
               onMax={handleMaxFromToken}
+              maxAmount={
+                fromToken
+                  ? new BigNumber(fromToken.raw_amount_hex_str || 0, 16)
+                      .div(10 ** (fromToken.decimals || 18))
+                      .toString(10)
+                  : '0'
+              }
             />
             <AssetInput
               assetTitle="To Token"
@@ -1299,6 +1314,8 @@ const SwapAndBridgeContainer = () => {
             riskReset={btnDisabled}
             canUseDirectSubmitTx={canUseDirectSubmitTx}
             isSupportedChain={isSupportedChain}
+            fromChain={fromChain}
+            toChain={toChain}
             rabbyFeeDisplay={
               selectedBridgeQuote.type === 'bridge' &&
               (selectedBridgeQuote as any).rabby_fee

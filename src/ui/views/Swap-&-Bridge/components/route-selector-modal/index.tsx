@@ -113,11 +113,6 @@ function RouteSelectorModal({
                   />
                 )}
                 <span>{selectedRoute.name}</span>
-                {selectedRoute.isBest && (
-                  <span className="bg-primary text-primary-foreground text-[10px] font-medium px-2 py-0.5 rounded">
-                    Best
-                  </span>
-                )}
               </div>
             </div>
           ) : (

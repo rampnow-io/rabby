@@ -65,20 +65,42 @@ const AssetInput: React.FC<AssetInputProps> = ({
   }, [value.amount]);
 
   const symbol = '';
+  
+  const formatDisplayAmount = (amount: string) => {
+    if (!amount) return '';
+    const [intPart, decimalPart] = amount.split('.');
+    if (!decimalPart) return intPart || '0';
+    // Truncate decimal part to 4 characters
+    return `${intPart}.${decimalPart.substring(0, 4)}`;
+  };
+
+  const displayAmount = formatDisplayAmount(localAmount);
+
   const percentageOptions = [
     { label: '25%', value: 0.25 },
-    { label: '50%', value: 0.5 },
     { label: '75%', value: 0.75 },
     { label: 'Max', value: 1 },
   ];
 
   const handlePercentageClick = (percentage: number) => {
-    if (maxAmount && !readOnly) {
-      const calculatedAmount = (parseFloat(maxAmount) * percentage).toString();
-      setLocalAmount(calculatedAmount);
-      onChange?.({ amount: calculatedAmount });
-    } else if (percentage === 1 && onMax) {
-      onMax();
+    if (percentage === 1) {
+      // Max button
+      if (onMax) {
+        onMax();
+      } else if (maxAmount && !readOnly) {
+        const calculatedAmount = parseFloat(maxAmount).toString();
+        setLocalAmount(calculatedAmount);
+        onChange?.({ amount: calculatedAmount });
+      }
+    } else {
+      // 25% and 75% buttons
+      if (maxAmount && !readOnly) {
+        const calculatedAmount = (
+          parseFloat(maxAmount) * percentage
+        ).toString();
+        setLocalAmount(calculatedAmount);
+        onChange?.({ amount: calculatedAmount });
+      }
     }
   };
 
@@ -107,12 +129,12 @@ const AssetInput: React.FC<AssetInputProps> = ({
                   {symbol}
                 </p>
                 <Input
-                  value={localAmount}
+                  value={displayAmount}
                   onChange={handleInputChange}
-                  placeholder={amountPlaceholder}
+                  placeholder="0"
                   readOnly={readOnly}
                   className={'border-none p-0 outline-none'}
-                  subClassName="text-[35px] text-primary-foreground font-semibold bg-inherit"
+                  subClassName="text-[35px] text-primary-foreground font-normal bg-inherit"
                 />
               </div>
 
