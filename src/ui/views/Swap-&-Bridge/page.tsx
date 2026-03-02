@@ -972,7 +972,7 @@ const SwapAndBridgeContainer = () => {
           }
         >
           <div className="text-primary-foreground text-xl font-normal">
-            Swap & Bridge
+          Exchange
           </div>
         </HeaderNavPage>
         <Content>

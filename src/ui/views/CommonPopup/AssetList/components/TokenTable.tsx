@@ -45,7 +45,7 @@ export const TokenTable: React.FC<Props> = ({
     <>
       <div className="h-full">
         <Table className="!w-full  ml-0 mr-0">
-          <TBody className="flex flex-col gap-5 pb-5">
+          <TBody className="flex flex-col gap-2">
             {list?.map((item) => (
               <TokenItem
                 key={`${item.chain}-${item.id}`}

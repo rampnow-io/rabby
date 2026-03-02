@@ -105,7 +105,7 @@ export const TokenItem: React.FC<Props> = ({ item, style, onClick }) => {
       onClick={onClick}
       className={clsx(
         'cursor-pointer flex items-center justify-between px-4',
-        'rounded-[16px] border border-transparent bg-[#FAFAFA] hover:bg-[#F4F4F4] h-[60px] '
+        'rounded-[16px] border border-transparent bg-[#FAFAFA] hover:bg-[#F4F4F4] !h-[76px] '
       )}
     >
       <TokenItemAsset item={item} />

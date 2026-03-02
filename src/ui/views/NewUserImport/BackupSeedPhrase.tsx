@@ -102,7 +102,7 @@ export const BackupSeedPhrase = () => {
                 <Copy
                   key="emailId"
                   value={`${mnemonics}`}
-                  className="text-sm text-gray-900"
+                  className="text-sm font-medium text-[#030303]"
                 >
                   {t('page.newAddress.seedPhrase.copy')}
                 </Copy>
@@ -111,7 +111,7 @@ export const BackupSeedPhrase = () => {
           </div>
         </Content>
         <Action className="flex flex-col gap-[9px]">
-          <div className="text-[10px] font-medium text-r-neutral-title1 text-center">
+          <div className="text-[10px] font-medium text-[#454745] text-center">
             {t('page.newAddress.seedPhrase.backupTips2')}
           </div>
           <Button onClick={handleNext} className="w-full">

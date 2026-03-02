@@ -35,7 +35,7 @@ const buttonVariants = cva(
         [ButtonType.NONE]: "",
       },
       buttonSize: {
-        [ButtonSize.DEFAULT]: "text-lg px-4 py-2",
+        [ButtonSize.DEFAULT]: "text-lg px-4 py-3",
         [ButtonSize.SM]: "h-9 px-4",
         [ButtonSize.NONE]: "",
       },

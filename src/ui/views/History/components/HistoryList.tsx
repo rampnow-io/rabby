@@ -113,16 +113,12 @@ export const HistoryList = ({
 
       {/* Empty */}
       {isEmpty && (
-        <span>
-          <Trans i18nKey="page.transactions.empty.desc" t={t}>
-            No transactions found on{' '}
-            <Link to="/settings/chain-list" className="underline">
-              supported chains
-            </Link>
-          </Trans>
-        </span>
+        <div className="h-full w-full flex justify-center items-center text-primary-foreground font-medium">
+          <span>No transactions found on this wallet.</span>
+        </div>
       )}
 
+      {/* List */}
       {!loading && !isEmpty && (
         <div
           ref={scrollRef}

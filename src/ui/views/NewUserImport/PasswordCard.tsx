@@ -23,6 +23,7 @@ import {
   FormLabel,
   FormMessage,
   Input,
+  Label,
 } from '@repo/ui/primitives';
 import { IconLock } from '@/ui/assets';
 import { UiProvider } from '@/ui/component/NewUserImport';
@@ -115,11 +116,11 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack }) => {
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
+                      <Label className="text-[#454745] font-medium">
                         {t(
                           'page.newUserImport.PasswordCard.form.password.label'
                         )}
-                      </FormLabel>
+                      </Label>
 
                       <FormControl>
                         <div className="flex flex-col gap-2">
@@ -156,11 +157,11 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack }) => {
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
+                      <Label className="text-[#454745] font-medium">
                         {t(
                           'page.newUserImport.PasswordCard.form.confirmPassword.label'
                         )}
-                      </FormLabel>
+                      </Label>
                       <FormControl>
                         <div className="flex flex-col gap-2">
                           <div className="relative">
@@ -208,7 +209,9 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack }) => {
           <Button
             disabled={
               form.watch('password') !== form.watch('confirmPassword') ||
-              !form.watch('password')
+              !form.watch('password') ||
+              getPasswordStrength(form.watch('password'))?.level ===
+                'This password is weak'
             }
             onClick={form.handleSubmit(formSubmit)}
             className="w-full"

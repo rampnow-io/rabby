@@ -106,7 +106,10 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
     history.push('/switch-address');
   });
 
-  const panelItems: Record<'receive' | 'send' | 'swap' | 'buy', IPanelItem> = {
+  const panelItems: Record<
+    'receive' | 'send' | 'exchange' | 'buy',
+    IPanelItem
+  > = {
     receive: {
       icon: RcIconReceiveCC,
       eventKey: 'Receive',
@@ -119,10 +122,10 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
       content: t('page.dashboard.home.panel.send'),
       onClick: () => history.push('/send-token?rbisource=dashboard'),
     },
-    swap: {
+    exchange: {
       icon: RcIconSwapCC,
-      eventKey: 'Swap',
-      content: t('page.dashboard.home.panel.swap'),
+      eventKey: 'Exchange',
+      content: 'Exchange',
       onClick: () => history.push('/swap-and-bridge'),
     },
     buy: {
@@ -134,12 +137,12 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
   };
 
   const pickedPanelKeys = useMemo(
-    () => ['receive', 'send', 'swap', 'buy'] as const,
+    () => ['receive', 'send', 'exchange', 'buy'] as const,
     []
   );
 
   return (
-    <div className="w-full bg-white pt-[60px] px-4 pb-6 rounded-b-[24px]">
+    <div className="w-full bg-white pt-[30px] px-4 pb-8 rounded-b-[24px]">
       {/* Top Right */}
 
       {/* Account */}

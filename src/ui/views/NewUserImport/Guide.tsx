@@ -33,7 +33,7 @@ export const Guide = () => {
             </div>
           </div>
         </Content>
-        <Action className="flex flex-col gap-3 items-center">
+        <Action className="flex flex-col gap-4 items-center">
           <Button
             onClick={gotoCreate}
             className="w-full text-[16px] font-medium "
@@ -48,7 +48,7 @@ export const Guide = () => {
           >
             {t('page.newUserImport.guide.importAddress')}
           </Button>
-          <div className="w-[200px] text-[8px] font-normal text-[#606060] text-center">
+          <div className="w-[200px] text-[8px] pt-2 font-normal text-[#606060] text-center">
             {substituteLinks(
               'By continuing, you accept our {Terms & Conditions} and {Privacy Policy}.',
               {

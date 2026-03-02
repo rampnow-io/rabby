@@ -167,6 +167,7 @@ const Unlock = () => {
           <Button
             onClick={form.handleSubmit(handleSubmit)}
             className="w-full text-[16px] font-medium"
+            disabled={isUnlockingRef.current || !form.formState.isValid}
           >
             {t('page.unlock.btn.unlock')}
           </Button>
