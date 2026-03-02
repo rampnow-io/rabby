@@ -29,7 +29,12 @@ import { useRabbySelector } from '@/ui/store';
 import { CHAINS_ENUM } from '@/types/chain';
 import { useExternalSwapBridgeDapps } from '@/ui/component/ExternalSwapBridgeDappPopup/hooks';
 import { useTranslation } from 'react-i18next';
-import { isSameAddress, useWallet } from '@/ui/utils';
+import {
+  isSameAddress,
+  useWallet,
+  formatUsdValue,
+  formatTokenAmount,
+} from '@/ui/utils';
 import { useRbiSource } from '@/ui/utils/ga-event';
 import pRetry, { AbortError } from 'p-retry';
 import stats from '@/stats';
@@ -51,10 +56,19 @@ import { DBK_CHAIN_ID } from '@/constant';
 import { Alert } from 'antd';
 import {
   BridgeShowMore,
+  BridgeInfoSummary,
+  BridgeInlineWarnings,
+  DirectSignGasInfo,
   RecommendFromToken,
 } from './components/bridge/BridgeShowMore';
 import { BridgePendingTxItem } from './components/bridge/PendingTxItem';
 import { QuoteList } from './components/bridge/BridgeQuotes';
+
+import { PendingTxItem } from './components/swap/PendingTxItem';
+import ReviewSwapBridge from './components/ReviewSwapBridge';
+import RouteSelectorModal, {
+  type Route as RouteOption,
+} from './components/route-selector-modal';
 
 const isTab = getUiType().isTab;
 const isDesktop = getUiType().isDesktop;
@@ -114,11 +128,12 @@ const SwapAndBridgeContainer = () => {
     maxNativeTokenGasPrice,
     setMaxNativeTokenGasPrice,
     inSufficientCanGetQuote,
+    isSwap,
   } = useBridge();
 
   const [historyVisible, setHistoryVisible] = useState(false);
-  const [showMoreOpen, setShowMoreOpen] = useState(false);
-  const [showTwoStepApproveModal, setShowTwoStepApproveModal] = useState(false);
+  const [infoSheetOpen, setInfoSheetOpen] = useState(false);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const isSettingMaxRef = useRef(false);
 
   const currentAccount = useCurrentAccount();
@@ -200,13 +215,14 @@ const SwapAndBridgeContainer = () => {
       return t('component.externalSwapBrideDappPopup.bridgeOnDapp');
     }
     if (selectedBridgeQuote?.shouldApproveToken) {
-      return t('page.bridge.approve-and-bridge');
+      return isSwap ? 'Review & Swap' : 'Review & Bridge';
     }
-    return t('page.bridge.title');
+    return isSwap ? 'Review & Swap' : 'Review & Bridge';
   }, [
     selectedBridgeQuote?.shouldApproveToken,
     showExternalDappTips,
     externalDapps,
+    isSwap,
   ]);
 
   const rbiSource = useRbiSource();
@@ -218,160 +234,382 @@ const SwapAndBridgeContainer = () => {
 
   const [fetchingBridgeQuote, setFetchingBridgeQuote] = useState(false);
 
+  const routes = useMemo<RouteOption[]>(() => {
+    return (quoteList || []).map((quote) => {
+      const isSwapQuote = quote.type === 'swap';
+      const id = isSwapQuote
+        ? `${quote.aggregator?.id || 'unknown'}-${
+            quote.dexQuote?.name || 'unknown'
+          }`
+        : `${quote.aggregator?.id || 'unknown'}-${
+            quote.bridge_id || 'unknown'
+          }`;
+
+      const isBest =
+        !!bestQuoteId &&
+        bestQuoteId?.aggregatorId === quote.aggregator?.id &&
+        (isSwapQuote
+          ? bestQuoteId?.bridgeId === quote.dexQuote?.name
+          : bestQuoteId?.bridgeId === quote.bridge_id);
+
+      const outputAmount =
+        toToken && quote.to_token_amount
+          ? isSwapQuote
+            ? new BigNumber(quote.to_token_amount)
+                .div(10 ** toToken.decimals)
+                .toString(10)
+            : String(quote.to_token_amount)
+          : undefined;
+
+      return {
+        id,
+        name: isSwapQuote
+          ? quote.dexQuote?.name ||
+            (quote.aggregator as any)?.name ||
+            'Unknown DEX'
+          : (quote.aggregator as any)?.name || 'Unknown Bridge',
+        logo: isSwapQuote
+          ? quote.aggregator?.logo || ''
+          : quote.aggregator?.logo_url || '',
+        fee:
+          !isSwapQuote && quote.rabby_fee
+            ? formatUsdValue(
+                new BigNumber(quote.rabby_fee.usd_value || 0).toNumber()
+              )
+            : undefined,
+        duration:
+          !isSwapQuote && quote.duration ? String(quote.duration) : undefined,
+        type: quote.type,
+        isBest,
+        outputAmount: outputAmount ? formatTokenAmount(outputAmount) : undefined,
+      };
+    });
+  }, [quoteList, bestQuoteId, toToken]);
+
+  const selectedRouteId = useMemo(() => {
+    if (!selectedBridgeQuote) return undefined;
+
+    if (selectedBridgeQuote.type === 'swap') {
+      return `${selectedBridgeQuote.aggregator?.id || 'unknown'}-${
+        selectedBridgeQuote.dexQuote?.name || 'unknown'
+      }`;
+    }
+
+    return `${selectedBridgeQuote.aggregator?.id || 'unknown'}-${
+      selectedBridgeQuote.bridge_id || 'unknown'
+    }`;
+  }, [selectedBridgeQuote]);
+
+  const handleSelectRoute = useCallback(
+    (route: RouteOption) => {
+      const nextQuote = quoteList?.find((quote) => {
+        const isSwapQuote = quote.type === 'swap';
+        const id = isSwapQuote
+          ? `${quote.aggregator?.id || 'unknown'}-${
+              quote.dexQuote?.name || 'unknown'
+            }`
+          : `${quote.aggregator?.id || 'unknown'}-${
+              quote.bridge_id || 'unknown'
+            }`;
+        return id === route.id;
+      });
+
+      if (nextQuote) {
+        setSelectedBridgeQuote(nextQuote);
+      }
+    },
+    [quoteList, setSelectedBridgeQuote]
+  );
+
   const gotoBridge = useCallback(async () => {
-    if (
-      !inSufficient &&
-      fromToken &&
-      toToken &&
-      selectedBridgeQuote?.bridge_id
-    ) {
+    if (!inSufficient && fromToken && toToken && selectedBridgeQuote) {
       try {
         setFetchingBridgeQuote(true);
-        const tx = await pRetry(
-          () =>
-            wallet.openapi
-              .buildBridgeTx({
-                aggregator_id: selectedBridgeQuote.aggregator.id,
-                bridge_id: selectedBridgeQuote.bridge_id,
-                from_token_id: fromToken.id,
-                user_addr: userAddress,
+
+        // Branch: Execute DEX swap for same-chain transactions
+        if (selectedBridgeQuote.type === 'swap') {
+          const swapQuote = selectedBridgeQuote;
+          const dexQuote = swapQuote.dexQuote;
+
+          if (!dexQuote.data || !fromChain) {
+            throw new Error('Invalid swap quote data');
+          }
+
+          const promise = wallet.dexSwap(
+            {
+              swapPreferMEVGuarded: false,
+              chain: fromChain,
+              quote: dexQuote.data,
+              needApprove: swapQuote.shouldApproveToken || false,
+              spender: dexQuote.data.tx.to || '',
+              pay_token_id: fromToken.id,
+              unlimited: false,
+              shouldTwoStepApprove: swapQuote.shouldTwoStepApprove || false,
+              gasPrice: maxNativeTokenGasPrice,
+              postSwapParams: {
+                quote: {
+                  pay_token_id: fromToken.id,
+                  pay_token_amount: Number(amount),
+                  receive_token_id: toToken.id,
+                  receive_token_amount: new BigNumber(
+                    dexQuote.data.toTokenAmount
+                  )
+                    .div(
+                      10 ** (dexQuote.data.toTokenDecimals || toToken.decimals)
+                    )
+                    .toNumber(),
+                  slippage: new BigNumber(slippage).div(100).toNumber(),
+                },
+                dex_id: dexQuote.name,
+              },
+              addHistoryData: {
+                address: userAddress,
+                chainId: findChain({ enum: fromChain })?.id || 0,
+                fromToken: fromToken,
+                toToken: toToken,
+                fromAmount: Number(amount),
+                toAmount: new BigNumber(dexQuote.data.toTokenAmount)
+                  .div(
+                    10 ** (dexQuote.data.toTokenDecimals || toToken.decimals)
+                  )
+                  .toNumber(),
+                slippage: new BigNumber(slippage).div(100).toNumber(),
+                dexId: dexQuote.name,
+                status: 'pending',
+                createdAt: Date.now(),
+              },
+            },
+            {
+              ga: {
+                category: 'Swap',
+                source: 'swap-bridge-same-chain',
+                trigger: rbiSource,
+              },
+            }
+          );
+
+          if (!(isTab || isDesktop)) {
+            window.close();
+          } else {
+            await promise;
+            handleAmountChange('');
+            setFetchingBridgeQuote(false);
+          }
+          return;
+        }
+
+        // Branch: Execute bridge transaction for cross-chain
+        if (
+          selectedBridgeQuote.type === 'bridge' &&
+          selectedBridgeQuote.bridge_id
+        ) {
+          const bridgeQuote = selectedBridgeQuote;
+
+          const tx = await pRetry(
+            () =>
+              wallet.openapi
+                .buildBridgeTx({
+                  aggregator_id: bridgeQuote.aggregator.id,
+                  bridge_id: bridgeQuote.bridge_id,
+                  from_token_id: fromToken.id,
+                  user_addr: userAddress,
+                  from_chain_id: fromToken.chain,
+                  from_token_raw_amount: new BigNumber(amount)
+                    .times(10 ** fromToken.decimals)
+                    .toFixed(0, 1)
+                    .toString(),
+                  to_chain_id: toToken.chain,
+                  to_token_id: toToken.id,
+                  slippage: new BigNumber(slippageState).div(100).toString(10),
+                  quote_key: JSON.stringify(bridgeQuote.quote_key || {}),
+                })
+                .catch((e) => {
+                  throw new AbortError(e?.message || String(e));
+                }),
+            { retries: 1 }
+          );
+
+          stats.report('bridgeQuoteResult', {
+            aggregatorIds: bridgeQuote.aggregator.id,
+            bridgeId: bridgeQuote.bridge_id,
+            fromChainId: fromToken.chain,
+            fromTokenId: fromToken.id,
+            toTokenId: toToken.id,
+            toChainId: toToken.chain,
+            status: tx ? 'success' : 'fail',
+          });
+
+          const promise = wallet.bridgeToken(
+            {
+              to: tx.to,
+              value: tx.value,
+              data: tx.data,
+              payTokenRawAmount: new BigNumber(amount)
+                .times(10 ** fromToken.decimals)
+                .toFixed(0, 1)
+                .toString(),
+              chainId: tx.chainId,
+              shouldApprove: !!bridgeQuote.shouldApproveToken,
+              shouldTwoStepApprove: !!bridgeQuote.shouldTwoStepApprove,
+              payTokenId: fromToken.id,
+              payTokenChainServerId: fromToken.chain,
+              gasPrice: maxNativeTokenGasPrice,
+              info: {
+                aggregator_id: bridgeQuote.aggregator.id,
+                bridge_id: bridgeQuote.bridge_id,
                 from_chain_id: fromToken.chain,
-                from_token_raw_amount: new BigNumber(amount)
-                  .times(10 ** fromToken.decimals)
-                  .toFixed(0, 1)
-                  .toString(),
+                from_token_id: fromToken.id,
+                from_token_amount: amount,
                 to_chain_id: toToken.chain,
                 to_token_id: toToken.id,
-                slippage: new BigNumber(slippageState).div(100).toString(10),
-                quote_key: JSON.stringify(selectedBridgeQuote.quote_key || {}),
-              })
-              .catch((e) => {
-                throw new AbortError(e?.message || String(e));
-              }),
-          { retries: 1 }
-        );
-        stats.report('bridgeQuoteResult', {
-          aggregatorIds: selectedBridgeQuote.aggregator.id,
-          bridgeId: selectedBridgeQuote.bridge_id,
-          fromChainId: fromToken.chain,
-          fromTokenId: fromToken.id,
-          toTokenId: toToken.id,
-          toChainId: toToken.chain,
-          status: tx ? 'success' : 'fail',
-        });
-        const promise = wallet.bridgeToken(
-          {
-            to: tx.to,
-            value: tx.value,
-            data: tx.data,
-            payTokenRawAmount: new BigNumber(amount)
-              .times(10 ** fromToken.decimals)
-              .toFixed(0, 1)
-              .toString(),
-            chainId: tx.chainId,
-            shouldApprove: !!selectedBridgeQuote.shouldApproveToken,
-            shouldTwoStepApprove: !!selectedBridgeQuote.shouldTwoStepApprove,
-            payTokenId: fromToken.id,
-            payTokenChainServerId: fromToken.chain,
-            gasPrice: maxNativeTokenGasPrice,
-            info: {
-              aggregator_id: selectedBridgeQuote.aggregator.id,
-              bridge_id: selectedBridgeQuote.bridge_id,
-              from_chain_id: fromToken.chain,
-              from_token_id: fromToken.id,
-              from_token_amount: amount,
-              to_chain_id: toToken.chain,
-              to_token_id: toToken.id,
-              to_token_amount: selectedBridgeQuote.to_token_amount,
-              tx: tx,
-              rabby_fee: selectedBridgeQuote.rabby_fee.usd_value,
-              slippage: new BigNumber(slippage).div(100).toNumber(),
+                to_token_amount: bridgeQuote.to_token_amount,
+                tx: tx,
+                rabby_fee: bridgeQuote.rabby_fee.usd_value,
+                slippage: new BigNumber(slippageState).div(100).toNumber(),
+              },
+              addHistoryData: {
+                address: userAddress,
+                fromChainId: findChain({ serverId: fromToken.chain })?.id || 0,
+                toChainId: findChain({ serverId: toToken.chain })?.id || 0,
+                fromToken: fromToken,
+                estimatedDuration: bridgeQuote.duration,
+                toToken: toToken,
+                fromAmount: Number(amount),
+                toAmount: Number(bridgeQuote.to_token_amount),
+                slippage: new BigNumber(slippageState).div(100).toNumber(),
+                dexId: bridgeQuote.aggregator.id,
+                status: 'pending',
+                createdAt: Date.now(),
+              },
             },
-            addHistoryData: {
-              address: userAddress,
-              fromChainId: findChain({ serverId: fromToken.chain })?.id || 0,
-              toChainId: findChain({ serverId: toToken.chain })?.id || 0,
-              fromToken: fromToken,
-              estimatedDuration: selectedBridgeQuote.duration,
-              toToken: toToken,
-              fromAmount: Number(amount),
-              toAmount: Number(selectedBridgeQuote.to_token_amount),
-              slippage: new BigNumber(slippage).div(100).toNumber(),
-              dexId: selectedBridgeQuote.aggregator.id,
-              status: 'pending',
-              createdAt: Date.now(),
-            },
-          },
-          {
-            ga: {
-              category: 'Bridge',
-              source: 'bridge',
-              trigger: rbiSource,
-            },
+            {
+              ga: {
+                category: 'Bridge',
+                source: 'bridge',
+                trigger: rbiSource,
+              },
+            }
+          );
+
+          if (!(isTab || isDesktop)) {
+            window.close();
+          } else {
+            await promise;
+            handleAmountChange('');
+            setFetchingBridgeQuote(false);
           }
-        );
-        if (!(isTab || isDesktop)) {
-          window.close();
-        } else {
-          await promise;
-          handleAmountChange('');
         }
       } catch (error) {
-        setQuotesList((pre) =>
-          pre?.filter(
-            (item) =>
-              !(
-                item?.aggregator?.id === selectedBridgeQuote?.aggregator?.id &&
-                item?.bridge_id === selectedBridgeQuote?.bridge_id
-              )
-          )
-        );
-        stats.report('bridgeQuoteResult', {
-          aggregatorIds: selectedBridgeQuote.aggregator.id,
-          bridgeId: selectedBridgeQuote.bridge_id,
-          fromChainId: fromToken.chain,
-          fromTokenId: fromToken.id,
-          toTokenId: toToken.id,
-          toChainId: toToken.chain,
-          status: 'fail',
-        });
-        console.error(error);
-      } finally {
         setFetchingBridgeQuote(false);
+        console.error(error);
       }
     }
   }, [
     inSufficient,
     fromToken,
     toToken,
-    selectedBridgeQuote?.tx,
-    selectedBridgeQuote?.shouldApproveToken,
-    selectedBridgeQuote?.shouldTwoStepApprove,
-    selectedBridgeQuote?.aggregator.id,
-    selectedBridgeQuote?.bridge_id,
-    selectedBridgeQuote?.to_token_amount,
-    wallet,
+    fromChain,
+    selectedBridgeQuote,
+    userAddress,
     amount,
-    rbiSource,
+    slippage,
     slippageState,
+    wallet,
     maxNativeTokenGasPrice,
+    rbiSource,
+    isTab,
+    isDesktop,
+    handleAmountChange,
   ]);
 
   const buildTxs = useMemoizedFn(async () => {
+    // Handle swap type (same-chain swap via DEX)
+    if (
+      selectedBridgeQuote &&
+      selectedBridgeQuote.type === 'swap' &&
+      !inSufficient &&
+      fromToken &&
+      toToken
+    ) {
+      const swapQuote = selectedBridgeQuote;
+      const dexQuote = swapQuote.dexQuote;
+
+      if (!dexQuote?.data || !fromChain) {
+        throw new Error('Invalid swap quote data');
+      }
+
+      try {
+        return await wallet.buildDexSwap(
+          {
+            swapPreferMEVGuarded: false,
+            chain: fromChain,
+            quote: dexQuote.data,
+            needApprove: swapQuote.shouldApproveToken || false,
+            spender: dexQuote.data.tx.to || '',
+            pay_token_id: fromToken.id,
+            unlimited: false,
+            shouldTwoStepApprove: swapQuote.shouldTwoStepApprove || false,
+            gasPrice: maxNativeTokenGasPrice,
+            postSwapParams: {
+              quote: {
+                pay_token_id: fromToken.id,
+                pay_token_amount: Number(amount),
+                receive_token_id: toToken.id,
+                receive_token_amount: new BigNumber(dexQuote.data.toTokenAmount)
+                  .div(
+                    10 ** (dexQuote.data.toTokenDecimals || toToken.decimals)
+                  )
+                  .toNumber(),
+                slippage: new BigNumber(slippage).div(100).toNumber(),
+              },
+              dex_id: dexQuote.name,
+            },
+            addHistoryData: {
+              address: userAddress,
+              chainId: findChain({ enum: fromChain })?.id || 0,
+              fromToken: fromToken,
+              toToken: toToken,
+              fromAmount: Number(amount),
+              toAmount: new BigNumber(dexQuote.data.toTokenAmount)
+                .div(10 ** (dexQuote.data.toTokenDecimals || toToken.decimals))
+                .toNumber(),
+              slippage: new BigNumber(slippage).div(100).toNumber(),
+              dexId: dexQuote.name,
+              status: 'pending',
+              createdAt: Date.now(),
+            },
+          },
+          {
+            ga: {
+              category: 'Swap',
+              source: 'swap-bridge-same-chain',
+              trigger: rbiSource,
+            },
+          }
+        );
+      } catch (error) {
+        console.error('Error building dex swap:', error);
+        throw error;
+      }
+    }
+
+    // Handle bridge type (cross-chain bridge)
     if (
       !inSufficient &&
       fromToken &&
       toToken &&
-      selectedBridgeQuote?.bridge_id
+      selectedBridgeQuote &&
+      selectedBridgeQuote.type === 'bridge' &&
+      selectedBridgeQuote.bridge_id
     ) {
+      const bridgeQuote = selectedBridgeQuote;
       try {
-        // setFetchingBridgeQuote(true);
         const tx = await pRetry(
           () =>
             wallet.openapi
               .buildBridgeTx({
-                aggregator_id: selectedBridgeQuote.aggregator.id,
-                bridge_id: selectedBridgeQuote.bridge_id,
+                aggregator_id: bridgeQuote.aggregator.id,
+                bridge_id: bridgeQuote.bridge_id,
                 from_chain_id: fromToken.chain,
                 from_token_id: fromToken.id,
                 user_addr: userAddress,
@@ -382,7 +620,7 @@ const SwapAndBridgeContainer = () => {
                 to_chain_id: toToken.chain,
                 to_token_id: toToken.id,
                 slippage: new BigNumber(slippageState).div(100).toString(10),
-                quote_key: JSON.stringify(selectedBridgeQuote.quote_key || {}),
+                quote_key: JSON.stringify(bridgeQuote.quote_key || {}),
               })
               .catch((e) => {
                 throw new AbortError(e?.message || String(e));
@@ -390,8 +628,8 @@ const SwapAndBridgeContainer = () => {
           { retries: 1 }
         );
         stats.report('bridgeQuoteResult', {
-          aggregatorIds: selectedBridgeQuote.aggregator.id,
-          bridgeId: selectedBridgeQuote.bridge_id,
+          aggregatorIds: bridgeQuote.aggregator.id,
+          bridgeId: bridgeQuote.bridge_id,
           fromChainId: fromToken.chain,
           fromTokenId: fromToken.id,
           toTokenId: toToken.id,
@@ -408,22 +646,22 @@ const SwapAndBridgeContainer = () => {
               .toFixed(0, 1)
               .toString(),
             chainId: tx.chainId,
-            shouldApprove: !!selectedBridgeQuote.shouldApproveToken,
-            shouldTwoStepApprove: !!selectedBridgeQuote.shouldTwoStepApprove,
+            shouldApprove: !!bridgeQuote.shouldApproveToken,
+            shouldTwoStepApprove: !!bridgeQuote.shouldTwoStepApprove,
             payTokenId: fromToken.id,
             payTokenChainServerId: fromToken.chain,
             gasPrice: maxNativeTokenGasPrice,
             info: {
-              aggregator_id: selectedBridgeQuote.aggregator.id,
-              bridge_id: selectedBridgeQuote.bridge_id,
+              aggregator_id: bridgeQuote.aggregator.id,
+              bridge_id: bridgeQuote.bridge_id,
               from_chain_id: fromToken.chain,
               from_token_id: fromToken.id,
               from_token_amount: amount,
               to_chain_id: toToken.chain,
               to_token_id: toToken.id,
-              to_token_amount: selectedBridgeQuote.to_token_amount,
+              to_token_amount: bridgeQuote.to_token_amount,
               tx: tx,
-              rabby_fee: selectedBridgeQuote.rabby_fee.usd_value,
+              rabby_fee: bridgeQuote.rabby_fee.usd_value,
               slippage: new BigNumber(slippage).div(100).toNumber(),
             },
             addHistoryData: {
@@ -432,11 +670,11 @@ const SwapAndBridgeContainer = () => {
               toChainId: findChain({ serverId: toToken.chain })?.id || 0,
               fromToken: fromToken,
               toToken: toToken,
-              estimatedDuration: selectedBridgeQuote.duration,
+              estimatedDuration: bridgeQuote.duration,
               fromAmount: Number(amount),
-              toAmount: Number(selectedBridgeQuote.to_token_amount),
+              toAmount: Number(bridgeQuote.to_token_amount),
               slippage: new BigNumber(slippage).div(100).toNumber(),
-              dexId: selectedBridgeQuote.aggregator.id,
+              dexId: bridgeQuote.aggregator.id,
               status: 'pending',
               createdAt: Date.now(),
             },
@@ -454,15 +692,15 @@ const SwapAndBridgeContainer = () => {
           pre?.filter(
             (item) =>
               !(
-                item?.aggregator?.id === selectedBridgeQuote?.aggregator?.id &&
-                item?.bridge_id === selectedBridgeQuote?.bridge_id
+                item.type === 'bridge' &&
+                item.aggregator?.id === bridgeQuote.aggregator?.id &&
+                item.bridge_id === bridgeQuote.bridge_id
               )
           )
         );
-        // message.error(error?.message || String(error));
         stats.report('bridgeQuoteResult', {
-          aggregatorIds: selectedBridgeQuote.aggregator.id,
-          bridgeId: selectedBridgeQuote.bridge_id,
+          aggregatorIds: bridgeQuote.aggregator.id,
+          bridgeId: bridgeQuote.bridge_id,
           fromChainId: fromToken.chain,
           fromTokenId: fromToken.id,
           toTokenId: toToken.id,
@@ -470,8 +708,7 @@ const SwapAndBridgeContainer = () => {
           status: 'fail',
         });
         console.error(error);
-      } finally {
-        // setFetchingBridgeQuote(false);
+        throw error;
       }
     }
   });
@@ -485,14 +722,26 @@ const SwapAndBridgeContainer = () => {
   });
 
   const showLoss = useMemo(() => {
-    const impact = tokenPriceImpact(
-      fromToken,
-      toToken,
-      amount,
-      selectedBridgeQuote?.to_token_amount
-    );
+    // For swap quotes, to_token_amount is RAW and needs decimal adjustment
+    // For bridge quotes, to_token_amount is already decimal-adjusted
+    const toAmount =
+      toToken && selectedBridgeQuote?.to_token_amount
+        ? selectedBridgeQuote.type === 'swap'
+          ? new BigNumber(selectedBridgeQuote.to_token_amount)
+              .div(10 ** toToken.decimals)
+              .toString(10)
+          : String(selectedBridgeQuote.to_token_amount)
+        : selectedBridgeQuote?.to_token_amount;
+
+    const impact = tokenPriceImpact(fromToken, toToken, amount, toAmount);
     return !!impact?.showLoss;
-  }, [fromToken, amount, selectedBridgeQuote?.to_token_amount, toToken]);
+  }, [
+    fromToken,
+    amount,
+    selectedBridgeQuote?.to_token_amount,
+    toToken,
+    selectedBridgeQuote?.type,
+  ]);
 
   const runBuildSwapTxsRef = useRef<
     ReturnType<typeof runBuildSwapTxs> | undefined
@@ -621,6 +870,14 @@ const SwapAndBridgeContainer = () => {
     switchFeePopup(false);
   }, [switchFeePopup]);
 
+  const openInfoSheet = useCallback(() => {
+    setInfoSheetOpen(true);
+  }, []);
+
+  const closeInfoSheet = useCallback(() => {
+    setInfoSheetOpen(false);
+  }, []);
+
   const isFromNativeToken = useMemo(() => {
     if (!fromToken || !fromChain) return false;
     const chainInfo = findChainByEnum(fromChain);
@@ -647,6 +904,7 @@ const SwapAndBridgeContainer = () => {
       });
       const normalPrice = gasList?.find((e) => e.level === 'normal')?.price;
       const gasLimit = fromChain === CHAINS_ENUM.ETH ? 1000000 : 2000000;
+      const nativeTokenDecimals = chainInfo.nativeTokenDecimals || 18;
 
       if (
         normalPrice &&
@@ -657,17 +915,27 @@ const SwapAndBridgeContainer = () => {
         const val = tokenAmountBn(fromToken).minus(
           new BigNumber(gasLimit)
             .times(normalPrice)
-            .div(10 ** (chainInfo.nativeTokenDecimals || 1e18))
+            .div(10 ** nativeTokenDecimals)
         );
-        isSettingMaxRef.current = true;
-        handleAmountChange(val.toString(10));
-        setMaxNativeTokenGasPrice(normalPrice);
-        return;
+
+        if (!val.lt(0)) {
+          // Apply formatting to avoid long decimal strings
+          const isTooSmall = val.lt(0.0001);
+          const formattedVal = isTooSmall
+            ? val.toString(10)
+            : new BigNumber(val.toFixed(4, 1)).toString(10);
+
+          isSettingMaxRef.current = true;
+          handleAmountChange(formattedVal);
+          setMaxNativeTokenGasPrice(normalPrice);
+          return;
+        }
       }
     } catch (error) {
       console.error('Failed to fetch gas for max:', error);
     }
 
+    // Fallback: use full balance if gas unavailable or result would be negative
     isSettingMaxRef.current = true;
     setMaxNativeTokenGasPrice(undefined);
     handleAmountChange(tokenAmountBn(fromToken).toString(10));
@@ -690,9 +958,15 @@ const SwapAndBridgeContainer = () => {
   return (
     <UIContainer>
       <Container>
-        <div className="text-primary-foreground text-center text-xl font-normal p-6">
-          Swap & Bridge
-        </div>
+         <HeaderNavPage
+          handleBack={() =>
+            history.goBack() 
+          }
+        >
+          <div className="text-primary-foreground text-xl font-normal">
+            Swap & Bridge
+          </div>
+        </HeaderNavPage>
         <Content>
           {/* Asset Input Section */}
           <div className="flex flex-col bg-[#FAFAFA] min-h-[240px] max-h-[240px] border rounded-[18px] p-1">
@@ -723,7 +997,16 @@ const SwapAndBridgeContainer = () => {
               variant="destination"
               readOnly
               value={{
-                amount: String(selectedBridgeQuote?.to_token_amount || ''),
+                amount:
+                  toToken && selectedBridgeQuote?.to_token_amount
+                    ? selectedBridgeQuote.type === 'swap'
+                      ? // For swap quotes: toTokenAmount is RAW, needs decimal division
+                        new BigNumber(selectedBridgeQuote.to_token_amount)
+                          .div(10 ** toToken.decimals)
+                          .toString(10)
+                      : // For bridge quotes: to_token_amount is already decimal-adjusted
+                        String(selectedBridgeQuote.to_token_amount)
+                    : String(selectedBridgeQuote?.to_token_amount || ''),
                 currency: toToken,
                 chain: toChain,
               }}
@@ -742,13 +1025,13 @@ const SwapAndBridgeContainer = () => {
           {!inSufficientCanGetQuote || (noQuote && !recommendFromToken) ? (
             <Alert
               className={clsx(
-                'mx-[20px] rounded-[4px] px-0 py-[3px] bg-transparent mt-6'
+                'mx-[20px] rounded-[4px] px-0 py-[3px] bg-transparent mt-[6px]'
               )}
               icon={
                 <RcIconWarningCC
                   viewBox="0 0 16 16"
                   className={clsx(
-                    'relative top-[3px] mr-2 self-start origin-center w-16 h-15',
+                    'relative top-[3px] mr-2 self-start origin-center w-[16px] h-[15px]',
                     'text-rabby-red-default'
                   )}
                 />
@@ -769,48 +1052,83 @@ const SwapAndBridgeContainer = () => {
             />
           ) : null}
 
-          {/* Bridge Show More & Quote Details */}
-          {selectedBridgeQuote && (
+          {/* Bridge Info Summary & Quote Details */}
+          
+
+          {routes.length ? (
             <div className="mt-4">
-              <BridgeShowMore
-                supportDirectSign={canUseDirectSubmitTx}
-                openFeePopup={openFeePopup}
-                open={showMoreOpen}
-                setOpen={setShowMoreOpen}
-                sourceName={selectedBridgeQuote?.aggregator.name || ''}
-                sourceLogo={selectedBridgeQuote?.aggregator.logo_url || ''}
-                duration={selectedBridgeQuote?.duration || 0}
-                slippage={slippageState}
-                displaySlippage={slippage}
-                onSlippageChange={(e) => {
-                  setSlippageChanged(true);
-                  setSlippage(e);
-                }}
+              <RouteSelectorModal
+                routes={routes}
+                value={selectedRouteId}
+                onChange={handleSelectRoute}
+                disabled={routes.length <= 1}
+                toToken={toToken}
+                toAmount={
+                  toToken && selectedBridgeQuote?.to_token_amount
+                    ? selectedBridgeQuote.type === 'swap'
+                      ? new BigNumber(selectedBridgeQuote.to_token_amount)
+                          .div(10 ** toToken.decimals)
+                          .toString(10)
+                      : String(selectedBridgeQuote.to_token_amount)
+                    : '0'
+                }
+              />
+            </div>
+          ) : null}
+          {selectedBridgeQuote && (
+            <>
+              <div className="mt-4">
+                <BridgeInfoSummary
+                  sourceName={
+                    selectedBridgeQuote.type === 'bridge'
+                      ? selectedBridgeQuote.aggregator.name || ''
+                      : selectedBridgeQuote.dexQuote.name || ''
+                  }
+                  sourceLogo={
+                    selectedBridgeQuote.type === 'bridge'
+                      ? selectedBridgeQuote.aggregator.logo_url || ''
+                      : selectedBridgeQuote.aggregator.logo || ''
+                  }
+                  duration={
+                    selectedBridgeQuote.type === 'bridge'
+                      ? selectedBridgeQuote.duration || 0
+                      : 0
+                  }
+                  type={selectedBridgeQuote.type === 'swap' ? 'swap' : 'bridge'}
+                  isBestQuote={
+                    !!bestQuoteId &&
+                    !!selectedBridgeQuote &&
+                    bestQuoteId?.aggregatorId ===
+                      selectedBridgeQuote.aggregator.id &&
+                    (selectedBridgeQuote.type === 'bridge'
+                      ? bestQuoteId?.bridgeId === selectedBridgeQuote.bridge_id
+                      : bestQuoteId?.bridgeId ===
+                        selectedBridgeQuote.dexQuote.name)
+                  }
+                  quoteLoading={quoteLoading}
+                  openQuotesList={openQuote}
+                  onOpenInfo={openInfoSheet}
+                  fromToken={fromToken}
+                  toToken={toToken}
+                  amount={amount || 0}
+                  toAmount={selectedBridgeQuote?.to_token_amount}
+                />
+              </div>
+              <BridgeInlineWarnings
                 fromToken={fromToken}
                 toToken={toToken}
                 amount={amount || 0}
                 toAmount={selectedBridgeQuote?.to_token_amount}
-                openQuotesList={openQuote}
                 quoteLoading={quoteLoading}
                 slippageError={isSlippageHigh || isSlippageLow}
-                autoSlippage={autoSlippage}
-                isCustomSlippage={isCustomSlippage}
-                setAutoSlippage={setAutoSlippage}
-                setIsCustomSlippage={setIsCustomSlippage}
-                type="bridge"
-                isBestQuote={
-                  !!bestQuoteId &&
-                  !!selectedBridgeQuote &&
-                  bestQuoteId?.aggregatorId ===
-                    selectedBridgeQuote.aggregator.id &&
-                  bestQuoteId?.bridgeId === selectedBridgeQuote.bridge_id
-                }
+                supportDirectSign={canUseDirectSubmitTx}
+                chainServeId={fromToken?.chain}
               />
-            </div>
+            </>
           )}
           {!selectedBridgeQuote && !recommendFromToken && (
             <div className="mt-20 mx-20">
-              <BridgePendingTxItem />
+              {isSwap ? <PendingTxItem type="swap" /> : <BridgePendingTxItem />}
             </div>
           )}
 
@@ -826,69 +1144,46 @@ const SwapAndBridgeContainer = () => {
         </Content>
 
         {/* Action Buttons */}
-        <Action>
-          <div>
-            {(fromChain as string) === 'DBK' ? (
-              <DbkButton
-                className="h-[48px] w-full text-[16px] font-medium bg-r-orange-DBK border-transparent rounded-[6px]"
-                onClick={() => {
-                  history.push(
-                    `/ecology/${DBK_CHAIN_ID}/bridge?activeTab=withdraw`
-                  );
-                }}
-              >
-                {t('page.bridge.bridgeDbkBtn')}
-              </DbkButton>
-            ) : (
-              <>
-                {canUseDirectSubmitTx &&
-                currentAccount?.type &&
-                isSupportedChain ? (
-                  <DirectSignToConfirmBtn
-                    disabled={btnDisabled}
-                    title={btnText}
-                    onConfirm={handleBridge}
-                    showRiskTips={showRiskTips && !btnDisabled}
-                    accountType={currentAccount?.type}
-                    riskReset={btnDisabled}
-                    loading={miniSignLoading}
-                    buttonClassName="h-[56px] rounded-full bg-[#B6E632] text-black text-lg font-semibold hover:bg-[#A5D32E] transition-colors"
-                  />
-                ) : (
-                  <Button
-                    className="h-[56px] rounded-full bg-[#B6E632] text-black text-lg font-semibold hover:bg-[#A5D32E] transition-colors"
-                    onClick={() => {
-                      if (showExternalDappTips && externalDapps.length > 0) {
-                        setExternalDappOpen(true);
-                        return;
-                      }
-                      if (fetchingBridgeQuote) return;
-                      if (!selectedBridgeQuote) {
-                        refresh((e) => e + 1);
-
-                        return;
-                      }
-                      if (selectedBridgeQuote?.shouldTwoStepApprove) {
-                        setShowTwoStepApproveModal(true);
-                        return;
-                      }
-                      // gotoBridge();
-                      handleBridge();
-                    }}
-                    disabled={
-                      !isSupportedChain && externalDapps.length > 0
-                        ? false
-                        : canUseDirectSubmitTx
-                        ? btnDisabled
-                        : btnDisabled
-                    }
-                  >
-                    {btnText}
-                  </Button>
-                )}
-              </>
-            )}
-          </div>
+        <Action className='flex flex-col gap-2'>
+          {fromToken && canUseDirectSubmitTx ? (
+            <DirectSignGasInfo
+              supportDirectSign={canUseDirectSubmitTx}
+              loading={!!quoteLoading}
+              openShowMore={() => {}}
+              noQuote={noQuote}
+              chainServeId={fromToken.chain}
+            />
+          ) : null}
+          
+          {selectedBridgeQuote && (fromChain as string) !== 'DBK' && (
+            <Button
+              onClick={() => {
+                if (fetchingBridgeQuote) return;
+                if (!selectedBridgeQuote) {
+                  refresh((e) => e + 1);
+                  return;
+                }
+                setReviewModalOpen(true);
+              }}
+              disabled={btnDisabled}
+            >
+              {selectedBridgeQuote.type === 'swap'
+                ? 'Review & Swap'
+                : 'Review & Bridge'}
+            </Button>
+          )}
+          {(fromChain as string) === 'DBK' && (
+            <DbkButton
+              className="h-[48px] w-full text-[16px] font-medium bg-r-orange-DBK border-transparent rounded-[6px]"
+              onClick={() => {
+                history.push(
+                  `/ecology/${DBK_CHAIN_ID}/bridge?activeTab=withdraw`
+                );
+              }}
+            >
+          {selectedBridgeQuote?.type === 'swap'? 'Review & Swap' : 'Review & Bridge'}
+            </DbkButton>
+          )}
         </Action>
       </Container>
 
@@ -898,37 +1193,6 @@ const SwapAndBridgeContainer = () => {
         onClose={closeFeePopup}
       />
 
-      <BottomFloatingSheet
-        open={showTwoStepApproveModal}
-        onClose={() => setShowTwoStepApproveModal(false)}
-      >
-        <div className="px-16 pb-16">
-          <div className="text-16 font-medium text-r-neutral-title-1 mb-18 text-center">
-            Sign 2 transactions to change allowance
-          </div>
-          <div className="text-13 leading-[17px] text-r-neutral-body mb-20">
-            Token {fromToken?.symbol || 'token'} requires 2 transactions to
-            change allowance. First you would need to reset allowance to zero,
-            and only then set new allowance value.
-          </div>
-          <div className="flex gap-3">
-            <Button
-              className="flex-1 h-48 text-14 font-medium"
-              onClick={() => setShowTwoStepApproveModal(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                setShowTwoStepApproveModal(false);
-                handleBridge();
-              }}
-            >
-              Proceed with two step approve
-            </Button>
-          </div>
-        </div>
-      </BottomFloatingSheet>
       <QuoteList
         list={quoteList}
         loading={quoteLoading}
@@ -943,6 +1207,122 @@ const SwapAndBridgeContainer = () => {
         inSufficient={inSufficient}
         setSelectedBridgeQuote={setSelectedBridgeQuote}
       />
+
+      <BottomFloatingSheet open={infoSheetOpen} onClose={closeInfoSheet}>
+        {selectedBridgeQuote && (
+          <BridgeShowMore
+            supportDirectSign={canUseDirectSubmitTx}
+            openFeePopup={openFeePopup}
+            open
+            setOpen={() => {}}
+            showHeader={false}
+            selectedQuote={selectedBridgeQuote}
+            sourceName={
+              selectedBridgeQuote.type === 'bridge'
+                ? selectedBridgeQuote.aggregator.name || ''
+                : selectedBridgeQuote.dexQuote.name || ''
+            }
+            sourceLogo={
+              selectedBridgeQuote.type === 'bridge'
+                ? selectedBridgeQuote.aggregator.logo_url || ''
+                : selectedBridgeQuote.aggregator.logo || ''
+            }
+            duration={
+              selectedBridgeQuote.type === 'bridge'
+                ? selectedBridgeQuote.duration || 0
+                : 0
+            }
+            slippage={slippageState}
+            displaySlippage={slippage}
+            onSlippageChange={(e) => {
+              setSlippageChanged(true);
+              setSlippage(e);
+            }}
+            fromToken={fromToken}
+            toToken={toToken}
+            amount={amount || 0}
+            toAmount={selectedBridgeQuote?.to_token_amount}
+            openQuotesList={openQuote}
+            quoteLoading={quoteLoading}
+            slippageError={isSlippageHigh || isSlippageLow}
+            autoSlippage={autoSlippage}
+            isCustomSlippage={isCustomSlippage}
+            setAutoSlippage={setAutoSlippage}
+            setIsCustomSlippage={setIsCustomSlippage}
+            type={selectedBridgeQuote.type === 'swap' ? 'swap' : 'bridge'}
+            isBestQuote={
+              !!bestQuoteId &&
+              !!selectedBridgeQuote &&
+              bestQuoteId?.aggregatorId ===
+                selectedBridgeQuote.aggregator.id &&
+              (selectedBridgeQuote.type === 'bridge'
+                ? bestQuoteId?.bridgeId === selectedBridgeQuote.bridge_id
+                : bestQuoteId?.bridgeId ===
+                  selectedBridgeQuote.dexQuote.name)
+            }
+          />
+        )}
+      </BottomFloatingSheet>
+
+      {/* Review Swap/Bridge Modal */}
+      <BottomFloatingSheet
+        open={reviewModalOpen}
+        onClose={() => setReviewModalOpen(false)}
+      >
+        {selectedBridgeQuote && fromToken && toToken && (
+          <ReviewSwapBridge
+            fromToken={fromToken}
+            toToken={toToken}
+            fromAmount={amount}
+            toAmount={
+              selectedBridgeQuote.type === 'swap'
+                ? new BigNumber(selectedBridgeQuote.to_token_amount)
+                    .div(10 ** toToken.decimals)
+                    .toString(10)
+                : String(selectedBridgeQuote.to_token_amount)
+            }
+            fromPrice={fromToken.price}
+            toPrice={toToken.price}
+            selectedQuote={selectedBridgeQuote}
+            loading={fetchingBridgeQuote || miniSignLoading}
+            onConfirm={() => {
+              if (!canUseDirectSubmitTx) {
+                setReviewModalOpen(false);
+              }
+              handleBridge();
+            }}
+            type={selectedBridgeQuote.type === 'swap' ? 'swap' : 'bridge'}
+            btnText={btnText}
+            btnDisabled={btnDisabled}
+            showRiskTips={showRiskTips && !btnDisabled}
+            accountType={currentAccount?.type}
+            riskReset={btnDisabled}
+            canUseDirectSubmitTx={canUseDirectSubmitTx}
+            isSupportedChain={isSupportedChain}
+            rabbyFeeDisplay={
+              selectedBridgeQuote.type === 'bridge' &&
+              (selectedBridgeQuote as any).rabby_fee
+                ? formatUsdValue(
+                    new BigNumber(
+                      (selectedBridgeQuote as any).rabby_fee.usd_value || 0
+                    ).toNumber()
+                  )
+                : '$0'
+            }
+            networkFeeDisplay={
+              maxNativeTokenGasPrice
+                ? '$' + maxNativeTokenGasPrice
+                : 'calculating...'
+            }
+            estimatedTimeDisplay={
+              selectedBridgeQuote.type === 'bridge' &&
+              (selectedBridgeQuote as any).duration
+                ? String((selectedBridgeQuote as any).duration)
+                : undefined
+            }
+          />
+        )}
+      </BottomFloatingSheet>
     </UIContainer>
   );
 };

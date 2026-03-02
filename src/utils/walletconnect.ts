@@ -8,11 +8,11 @@ export const GET_WALLETCONNECT_CONFIG: () => ConstructorOptions = () => {
     maxDuration: 3600000,
     clientMeta: {
       description: t('global.appDescription'),
-      url: 'https://rabby.io',
+      url: 'https://rampnow.io',
       icons: [
-        'https://static-assets.rabby.io/files/122da969-da58-42e9-ab39-0a8dd38d94b8.png',
+        'https://cdn.rampnow.io/image/icon/general/logo-black.svg?format=auto&width=64',
       ],
-      name: 'Rabby',
+      name: 'Rampnow Wallet',
     },
     projectId: 'ed21a1293590bdc995404dff7e033f04',
   };

@@ -15,37 +15,45 @@ import BigNumber from 'bignumber.js';
 import { Tooltip } from 'antd';
 import { useRabbySelector } from '@/ui/store';
 import styled from 'styled-components';
-import { SelectedBridgeQuote, useSetQuoteVisible } from '../../hooks';
+import { UnifiedQuote, useSetQuoteVisible } from '../../hooks';
 
 const ItemWrapper = styled.div`
   position: relative;
 `;
 
-interface QuoteItemProps extends SelectedBridgeQuote {
+interface QuoteItemProps {
+  quote: UnifiedQuote;
   payAmount: string;
   payToken: TokenItem;
   receiveToken: TokenItem;
   isBestQuote?: boolean;
   bestQuoteUsd: string;
   sortIncludeGasFee: boolean;
-  setSelectedBridgeQuote?: (quote: SelectedBridgeQuote) => void;
+  setSelectedBridgeQuote?: (quote: UnifiedQuote) => void;
   onlyShow?: boolean;
   loading?: boolean;
   inSufficient?: boolean;
 }
 
 export const bridgeQuoteEstimatedValueBn = (
-  quote: SelectedBridgeQuote,
+  quote: UnifiedQuote,
   receiveToken: TokenItem,
   sortIncludeGasFee: boolean
 ) => {
+  const gasFee =
+    quote.type === 'bridge'
+      ? quote.gas_fee.usd_value
+      : (quote.type === 'swap' && quote.dexQuote.preExecResult?.gasUsdValue) ||
+        0;
+
   return new BigNumber(quote.to_token_amount)
     .times(receiveToken.price || 1)
-    .minus(sortIncludeGasFee ? quote.gas_fee.usd_value : 0);
+    .minus(sortIncludeGasFee ? gasFee : 0);
 };
 
 export const BridgeQuoteItem = (props: QuoteItemProps) => {
   const { t } = useTranslation();
+  const { quote } = props;
 
   const openSwapQuote = useSetQuoteVisible();
 
@@ -57,8 +65,11 @@ export const BridgeQuoteItem = (props: QuoteItemProps) => {
   );
 
   const showMinDuration = useMemo(() => {
-    return Math.max(Math.round(props.duration / 60), 1);
-  }, [props.duration]);
+    if (quote.type === 'bridge') {
+      return Math.max(Math.round(quote.duration / 60), 1);
+    }
+    return 0; // Swaps are instant
+  }, [quote]);
 
   const durationColor = useMemo(() => {
     if (showMinDuration > 10) {
@@ -77,7 +88,7 @@ export const BridgeQuoteItem = (props: QuoteItemProps) => {
     }
 
     const percent = bridgeQuoteEstimatedValueBn(
-      props,
+      quote,
       props.receiveToken,
       props.sortIncludeGasFee
     )
@@ -88,14 +99,21 @@ export const BridgeQuoteItem = (props: QuoteItemProps) => {
       .toFixed(2, 1)
       .toString();
     return `-${percent}%`;
-  }, [props]);
+  }, [
+    quote,
+    props.onlyShow,
+    props.isBestQuote,
+    props.receiveToken,
+    props.sortIncludeGasFee,
+    props.bestQuoteUsd,
+  ]);
 
   const handleClick = async () => {
     if (props.inSufficient) {
       return;
     }
 
-    props?.setSelectedBridgeQuote?.({ ...props, manualClick: true });
+    props?.setSelectedBridgeQuote?.({ ...quote, manualClick: true });
     openSwapQuote(false);
   };
   return (
@@ -133,34 +151,44 @@ export const BridgeQuoteItem = (props: QuoteItemProps) => {
         <div className="flex items-center justify-between relative">
           <div className="flex gap-6  items-center  overflow-hidden pr-16">
             <QuoteLogo
-              logo={props.aggregator.logo_url}
-              bridgeLogo={props.bridge.logo_url}
-              isLoading={props.onlyShow ? false : props.loading}
+              logo={
+                quote.type === 'bridge'
+                  ? quote.aggregator.logo_url
+                  : quote.aggregator.logo
+              }
+              bridgeLogo={
+                quote.type === 'bridge' ? quote.bridge.logo_url : undefined
+              }
+              isLoading={props.onlyShow ? false : quote.loading}
             />
             <span className="text-[16px] font-medium text-r-neutral-title1">
-              {props.aggregator.name}
+              {quote.type === 'bridge'
+                ? quote.aggregator.name
+                : quote.dexQuote.name}
             </span>
-            <TooltipWithMagnetArrow
-              title={t('page.bridge.via-bridge', {
-                bridge: props.bridge.name,
-              })}
-              className="rectangle w-[max-content]"
-              arrowPointAtCenter
-              visible={props.onlyShow ? undefined : false}
-            >
-              <span
-                className={clsx(
-                  'text-13 text-r-neutral-foot',
-                  'overflow-hidden overflow-ellipsis whitespace-nowrap'
-                )}
-              >
-                {t('page.bridge.via-bridge', {
-                  bridge: props.bridge.name,
+            {quote.type === 'bridge' && (
+              <TooltipWithMagnetArrow
+                title={t('page.bridge.via-bridge', {
+                  bridge: quote.bridge.name,
                 })}
-              </span>
-            </TooltipWithMagnetArrow>
-            {/* {props.shouldApproveToken &&  */}
-            {props.shouldApproveToken && (
+                className="rectangle w-[max-content]"
+                arrowPointAtCenter
+                visible={props.onlyShow ? undefined : false}
+              >
+                <span
+                  className={clsx(
+                    'text-13 text-r-neutral-foot',
+                    'overflow-hidden overflow-ellipsis whitespace-nowrap'
+                  )}
+                >
+                  {t('page.bridge.via-bridge', {
+                    bridge: quote.bridge.name,
+                  })}
+                </span>
+              </TooltipWithMagnetArrow>
+            )}
+            {/* {quote.shouldApproveToken &&  */}
+            {quote.shouldApproveToken && (
               <TooltipWithMagnetArrow
                 overlayClassName="rectangle w-[max-content]"
                 title={t('page.bridge.need-to-approve-token-before-bridge')}
@@ -185,9 +213,9 @@ export const BridgeQuoteItem = (props: QuoteItemProps) => {
                 'text-[16px] font-medium text-rabby-neutral-title1 overflow-hidden overflow-ellipsis whitespace-nowrap',
                 props.onlyShow ? 'max-w-[126px]' : 'max-w-[138px]'
               )}
-              title={formatTokenAmount(props.to_token_amount)}
+              title={formatTokenAmount(quote.to_token_amount)}
             >
-              {formatTokenAmount(props.to_token_amount)}
+              {formatTokenAmount(quote.to_token_amount)}
             </span>
           </div>
         </div>
@@ -195,22 +223,32 @@ export const BridgeQuoteItem = (props: QuoteItemProps) => {
         <div className="flex items-center justify-between">
           <div className="flex  items-center text-13 text-r-neutral-foot">
             <img src={ImgGas} className="w-16 h16 mr-4" />
-            <span>{formatUsdValue(props.gas_fee.usd_value)}</span>
-            <RCIconDurationCC
-              viewBox="0 0 16 16"
-              className={`w-16 h16 ml-8 mr-4 ${durationColor}`}
-            />
-            <span className={durationColor}>
-              {t('page.bridge.duration', {
-                duration: showMinDuration,
-              })}
+            <span>
+              {formatUsdValue(
+                quote.type === 'bridge'
+                  ? quote.gas_fee.usd_value
+                  : quote.dexQuote.preExecResult?.gasUsdValue || 0
+              )}
             </span>
+            {quote.type === 'bridge' && (
+              <>
+                <RCIconDurationCC
+                  viewBox="0 0 16 16"
+                  className={`w-16 h16 ml-8 mr-4 ${durationColor}`}
+                />
+                <span className={durationColor}>
+                  {t('page.bridge.duration', {
+                    duration: showMinDuration,
+                  })}
+                </span>
+              </>
+            )}
           </div>
           <div className="flex items-center gap-2 text-13 text-r-neutral-foot">
             <span>
               {t('page.bridge.estimated-value', {
                 value: formatUsdValue(
-                  new BigNumber(props.to_token_amount)
+                  new BigNumber(quote.to_token_amount)
                     .times(props.receiveToken.price)
                     .toString()
                 ),

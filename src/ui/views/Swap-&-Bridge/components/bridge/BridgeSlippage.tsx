@@ -7,49 +7,13 @@ import {
   useState,
   useEffect,
 } from 'react';
-import styled from 'styled-components';
 import BigNumber from 'bignumber.js';
 import React from 'react';
-import { Input } from 'antd';
+import { Pencil } from 'lucide-react';
+
 import i18n from '@/i18n';
 import { Trans, useTranslation } from 'react-i18next';
-
-const SlippageItem = styled.div`
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid transparent;
-  cursor: pointer;
-  border-radius: 6px;
-  width: 58px;
-  height: 32px;
-  font-weight: 500;
-  font-size: 13px;
-  background: var(--r-neutral-card-1, #fff);
-  border-radius: 6px;
-  overflow: hidden;
-  color: var(--r-neutral-title1, #192945);
-
-  &.input-wrapper {
-    border: 1px solid var(--r-neutral-line, #e0e5ec);
-    background: var(--r-neutral-card-1, #fff);
-  }
-
-  &:hover,
-  &.active {
-    color: var(--r-blue-default, #7084ff);
-    background: var(--r-blue-light1, #eef1ff);
-    border: 1px solid var(--r-blue-default, #7084ff);
-  }
-
-  &.error,
-  &.active.error,
-  &.error:hover {
-    border: 1px solid var(--r-red-default, #e34935);
-    background: var(--r-red-light, #fff2f0);
-  }
-`;
+import { Input } from '@repo/ui/primitives';
 
 const BRIDGE_SLIPPAGE = ['0.5', '1'];
 
@@ -59,44 +23,6 @@ const BRIDGE_MAX_SLIPPAGE = 10;
 
 const SWAP_MAX_SLIPPAGE = 50;
 
-const Wrapper = styled.section`
-  .slippage {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .input {
-    font-weight: 500;
-    font-size: 12px;
-    border: none;
-    border-radius: 4px;
-    background: transparent;
-
-    &:placeholder-shown {
-      color: #707280;
-    }
-    .ant-input {
-      border-radius: 0;
-      font-weight: 500;
-      font-size: 12px;
-    }
-  }
-
-  .warning {
-    padding: 8px;
-    border-radius: 4px;
-    border: 0.5px solid var(--r-red-default, #e34935);
-    background: var(--r-red-light, #fff2f0);
-    color: var(--r-red-default, #e34935);
-    font-size: 13px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-    position: relative;
-    margin-top: 8px;
-  }
-`;
 interface BridgeSlippageProps {
   value: string;
   displaySlippage: string;
@@ -250,18 +176,18 @@ export const BridgeSlippage = memo((props: BridgeSlippageProps) => {
   return (
     <div>
       <div
-        className="flex justify-between cursor-pointer text-12"
+        className="flex justify-between cursor-pointer text-[12px] mb-3"
         onClick={() => {
           setSlippageOpen((e) => !e);
         }}
       >
-        <span className="font-normal text-r-neutral-foot">
+        <span className="font-normal text-primary-foreground">
           {t('page.swap.slippage-tolerance')}
         </span>
-        <span className="font-medium text-r-neutral-title-1 inline-flex items-center">
+        <span className="font-normal text-primary-foreground inline-flex items-center gap-1.5">
           <span
             className={clsx(
-              tips ? 'text-r-red-default' : 'text-r-blue-default'
+              tips ? 'text-r-red-default' : 'text-secondary-foreground'
             )}
           >
             {type === 'swap' && autoSlippage
@@ -269,16 +195,17 @@ export const BridgeSlippage = memo((props: BridgeSlippageProps) => {
               : displaySlippage}
             %
           </span>
+          <Pencil size={16} className="text-r-neutral-body" />
         </span>
       </div>
-      <Wrapper className="widget-has-ant-input">
+      <div className="widget-has-ant-input">
         <div
           className={clsx(
-            'slippage',
-            slippageOpen ? 'mt-8' : 'h-0 overflow-hidden'
+            'flex items-center gap-2',
+            slippageOpen ? '' : 'h-0 overflow-hidden'
           )}
         >
-          <SlippageItem
+          <div
             onClick={(event) => {
               if (autoSlippage) {
                 return;
@@ -288,12 +215,24 @@ export const BridgeSlippage = memo((props: BridgeSlippageProps) => {
               setAutoSlippage(true);
               setIsCustomSlippage(false);
             }}
-            className={clsx(autoSlippage && 'active')}
+            className={clsx(
+              'relative flex justify-center items-center',
+              'border',
+              'cursor-pointer',
+              'min-w-[50px] h-[36px]',
+              'font-medium text-xs',
+              'overflow-hidden',
+              'rounded-[8px]',
+              'hover:border-primary text-secondary-foreground',
+              autoSlippage
+                ? 'border-[#8ACE00] bg-[#FDFDFD] '
+                : 'border-[#C9CBCE] bg-[#FDFDFD] '
+            )}
           >
             {t('page.swap.Auto')}
-          </SlippageItem>
+          </div>
           {SLIPPAGE.map((e) => (
-            <SlippageItem
+            <div
               key={e}
               onClick={(event) => {
                 event.stopPropagation();
@@ -302,47 +241,79 @@ export const BridgeSlippage = memo((props: BridgeSlippageProps) => {
                 onChange(e);
               }}
               className={clsx(
-                !autoSlippage && !isCustomSlippage && e === value && 'active'
+                'relative flex justify-center items-center',
+                'border',
+                'cursor-pointer',
+                'min-w-[50px] h-[36px]',
+                'font-medium text-xs',
+                'overflow-hidden',
+                'rounded-[8px]',
+                'hover:border-primary text-secondary-foreground',
+                !autoSlippage && !isCustomSlippage && e === value
+                  ? 'border-[#8ACE00] bg-[#FDFDFD] '
+                  : 'border-[#C9CBCE] bg-[#FDFDFD] '
               )}
             >
               {e}%
-            </SlippageItem>
+            </div>
           ))}
-          <SlippageItem
+          <div
             onClick={(event) => {
               event.stopPropagation();
               setAutoSlippage(false);
               setIsCustomSlippage(true);
             }}
             className={clsx(
-              'input-wrapper',
+              'relative flex flex-col justify-center items-center',
+              'border',
+              'cursor-pointer',
+              'min-w-[50px] h-[36px]',
+              'font-medium text-xs',
+              'overflow-hidden',
               'flex-1',
-              isCustomSlippage && 'active',
-              tips && 'error'
+              'gap-10',
+              'rounded-[8px]',
+              'hover:border-primary text-secondary-foreground',
+              isCustomSlippage && !tips
+                ? 'border-[#8ACE00] bg-[#FDFDFD] '
+                : 'border-[#C9CBCE] bg-[#FDFDFD] ',
+              tips && 'border-r-red-default bg-r-red-light'
             )}
           >
-            <Input
-              className={clsx(
-                'input bg-transparent',
-                tips && 'text-r-red-default'
-              )}
-              bordered={false}
-              value={value}
-              onChange={onInputChange}
-              onFocus={() => {
-                setAutoSlippage(false);
-                setIsCustomSlippage(true);
-              }}
-              placeholder="0.5"
-              suffix={
-                <div className={clsx(tips && 'text-r-red-default')}>%</div>
-              }
-            />
-          </SlippageItem>
+            {isCustomSlippage ? (
+              <Input
+                className={clsx(
+                  'bg-transparent border-none rounded font-medium text-xs text-center',
+                  tips && 'text-r-red-default'
+                )}
+                value={value}
+                onChange={onInputChange}
+                onFocus={() => {
+                  setAutoSlippage(false);
+                  setIsCustomSlippage(true);
+                }}
+                placeholder="Enter"
+                iconRight={
+                  <div
+                    className={clsx('text-12', tips && 'text-r-red-default')}
+                  >
+                    %
+                  </div>
+                }
+                autoFocus
+              />
+            ) : (
+              <span className="text-r-neutral-body">Enter</span>
+            )}
+          </div>
         </div>
 
-        {!!tips && <div className={clsx('warning')}>{tips}</div>}
-      </Wrapper>
+        {!!tips && (
+          <div className="p-8 rounded-[4px] border-[0.5px] border-r-red-default bg-r-red-light text-r-red-default text-13 font-normal mt-8">
+            {tips}
+          </div>
+        )}
+      </div>
     </div>
   );
 });

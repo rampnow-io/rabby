@@ -19,16 +19,11 @@ import IconUnknown from '@/ui/assets/token-default.svg';
 import { ReactComponent as RcIconQueuedCC } from '@/ui/assets/bridge/IconQueuedCC.svg';
 import { ReactComponent as RcIconFailedCC } from '@/ui/assets/bridge/IconFailedCC.svg';
 import { useHistory, useLocation } from 'react-router-dom';
-import { transactionHistoryService } from '@/background/service';
 import { useRabbySelector } from '@/ui/store';
-import {
-  SvgPendingSpin,
-  SvgIcPending,
-  SvgIcSuccess,
-  SvgIcWarning,
-  SvgIconCross,
-} from 'ui/assets';
-import { ReactComponent as RcIconSelectCC } from '@/ui/assets/bridge/IconSelectCC.svg';
+import { SvgIcPending, SvgIcSuccess, SvgIcWarning } from 'ui/assets';
+import { FailedIcon, ProcessingIcon, SuccessIcon } from '@repo/ui';
+import BottomDrawer from '@repo/ui/components/bottom-drawer';
+
 import type {
   SwapTxHistoryItem,
   SendTxHistoryItem,
@@ -38,19 +33,14 @@ import type {
 } from '@/background/service/transactionHistory';
 import { TooltipWithMagnetArrow } from '@/ui/component/Tooltip/TooltipWithMagnetArrow';
 import { Image } from 'antd';
-import { BridgeHistory, TokenItem } from '@rabby-wallet/rabby-api/dist/types';
+import { TokenItem } from '@rabby-wallet/rabby-api/dist/types';
 import { getUiType } from '@/ui/utils';
-import NFTAvatar from '../../../Dashboard/components/NFT/NFTAvatar';
 import { UI_TYPE } from '@/constant/ui';
-import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
-import BottomDrawer from '@repo/ui/components/bottom-drawer';
-import { ReactComponent as RcImgArrowCC } from '@/ui/assets/bridge/ImgArrowCC.svg';
 import { getChain } from '@/utils';
-import {
-  ONE_DAY_MS,
-  ONE_HOUR_MS,
-  ONE_MINUTE_MS,
-} from '@/ui/views/Bridge/constants';
+
+const ONE_MINUTE_MS = 60 * 1000;
+const ONE_HOUR_MS = 60 * ONE_MINUTE_MS;
+const ONE_DAY_MS = 24 * ONE_HOUR_MS;
 
 const isDesktop = getUiType().isDesktop;
 type PendingTxData = BridgeTxHistoryItem;
@@ -66,37 +56,11 @@ const StepStatusIcon = ({
 }) => {
   switch (status) {
     case 'loading':
-      return (
-        <div className="flex items-center justify-center">
-          <span className="text-15 font-medium text-r-orange-default mr-2">
-            {step}.{' '}
-          </span>
-          <SvgIcPending
-            className="w-16 h-16 animate-spin text-r-orange-default"
-            style={{
-              animation: 'spin 1.5s linear infinite',
-            }}
-          />
-        </div>
-      );
+      return <ProcessingIcon />;
     case 'success':
-      return (
-        <div className="flex items-center justify-center">
-          <span className="text-15 font-medium text-r-green-default mr-2">
-            {step}.{' '}
-          </span>
-          <RcIconSelectCC className="w-16 h-16 text-r-green-default" />
-        </div>
-      );
+      return <SuccessIcon />;
     case 'failed':
-      return (
-        <div className="flex items-center justify-center">
-          <span className="text-15 font-medium text-r-red-default mr-2">
-            {step}.{' '}
-          </span>
-          <RcIconFailedCC className="w-16 h-16 text-r-red-default" />
-        </div>
-      );
+      return <FailedIcon />;
     case 'queued':
       return (
         <div className="flex items-center justify-center">
@@ -349,37 +313,11 @@ const PendingStatusDetail = ({
   const getStatusLabel = (status: StepStatusType) => {
     switch (status) {
       case 'loading':
-        return (
-          <div className="flex items-center justify-center text-r-orange-default bg-r-orange-light text-13 font-medium px-8 py-6 rounded-[4px] gap-4">
-            <SvgIcPending
-              className="w-16 h-16 animate-spin text-r-orange-default"
-              style={{
-                animation: 'spin 1.5s linear infinite',
-              }}
-            />
-            <span className="text-r-orange-default text-13 font-medium">
-              {t('page.bridge.pendingItem.pending')}
-            </span>
-          </div>
-        );
+        return <ProcessingIcon />;
       case 'success':
-        return (
-          <div className="flex items-center justify-center text-r-green-default bg-r-green-light text-13 font-medium px-8 py-6 rounded-[4px] gap-4">
-            <RcIconSelectCC className="w-16 h-16 text-r-green-default" />
-            <span className="text-r-green-default text-13 font-medium">
-              {t('page.bridge.pendingItem.completed')}
-            </span>
-          </div>
-        );
+        return <SuccessIcon />;
       case 'failed':
-        return (
-          <div className="flex items-center justify-center text-r-red-default bg-r-red-light text-13 font-medium px-8 py-6 rounded-[4px] gap-4">
-            <RcIconFailedCC className="w-16 h-16 text-r-red-default" />
-            <span className="text-r-red-default text-13 font-medium">
-              {t('page.bridge.pendingItem.failed')}
-            </span>
-          </div>
-        );
+        return <FailedIcon />;
       case 'queued':
         return (
           <div className="flex items-center justify-center text-r-neutral-foot bg-r-neutral-bg-2 text-13 font-medium px-8 py-6 rounded-[4px] gap-4">
@@ -454,13 +392,6 @@ const PendingStatusDetail = ({
             </span>
           </div>
         )}
-      </div>
-
-      <div className="flex justify-center my-12">
-        <RcImgArrowCC
-          className="text-r-neutral-foot opacity-50"
-          style={{ width: 24, height: 24 }}
-        />
       </div>
 
       {/* Step 2: Receiving on chain */}

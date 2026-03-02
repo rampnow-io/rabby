@@ -118,7 +118,7 @@ export const BridgeToken = ({
   }, [token, chain, isFromToken]);
 
   const nativeTokenDecimals = useMemo(
-    () => findChainByEnum(chain)?.nativeTokenDecimals || 1e18,
+    () => findChainByEnum(chain)?.nativeTokenDecimals || 18,
     [chain]
   );
 
@@ -226,11 +226,16 @@ export const BridgeToken = ({
               .times(normalPrice)
               .div(10 ** nativeTokenDecimals)
           );
-          onInputChange?.(val.toString(10));
-          handleSetGasPrice?.(normalPrice);
-          return;
+
+          // Only set gas price if result is not negative
+          if (!val.lt(0)) {
+            onInputChange?.(val.toString(10));
+            handleSetGasPrice?.(normalPrice);
+            return;
+          }
         }
       }
+      // Fallback: use full balance
       handleSetGasPrice?.();
       onInputChange?.(tokenAmountBn(token)?.toString(10));
     }

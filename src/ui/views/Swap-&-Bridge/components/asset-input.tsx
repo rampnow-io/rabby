@@ -31,6 +31,7 @@ interface AssetInputProps {
   fromToken?: TokenItem;
   showMax?: boolean;
   onMax?: () => void;
+  maxAmount?: string;
 }
 
 const variantStyle = {
@@ -54,20 +55,41 @@ const AssetInput: React.FC<AssetInputProps> = ({
   fromToken,
   showMax = false,
   onMax,
+  maxAmount,
 }) => {
   const [localAmount, setLocalAmount] = useState(() => value.amount);
 
+  // Sync display value from parent
   useEffect(() => {
-    setLocalAmount(formatCurrency(value.amount, undefined, { noSymbol: true }));
+    setLocalAmount(value.amount);
   }, [value.amount]);
 
   const symbol = '';
-  const defaultDenominations: string[] = [];
+  const percentageOptions = [
+    { label: '25%', value: 0.25 },
+    { label: '50%', value: 0.5 },
+    { label: '75%', value: 0.75 },
+    { label: 'Max', value: 1 },
+  ];
 
-  useEffect(() => {
-    onChange?.({ amount: localAmount });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localAmount]);
+  const handlePercentageClick = (percentage: number) => {
+    if (maxAmount && !readOnly) {
+      const calculatedAmount = (parseFloat(maxAmount) * percentage).toString();
+      setLocalAmount(calculatedAmount);
+      onChange?.({ amount: calculatedAmount });
+    } else if (percentage === 1 && onMax) {
+      onMax();
+    }
+  };
+
+  // Handle input change - only for source (non-readOnly)
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setLocalAmount(newValue);
+    if (!readOnly) {
+      onChange?.({ amount: newValue });
+    }
+  };
 
   return (
     <label
@@ -86,21 +108,12 @@ const AssetInput: React.FC<AssetInputProps> = ({
                 </p>
                 <Input
                   value={localAmount}
-                  onChange={(e) => setLocalAmount(e.target.value)}
+                  onChange={handleInputChange}
                   placeholder={amountPlaceholder}
                   readOnly={readOnly}
                   className={'border-none p-0 outline-none'}
                   subClassName="text-[35px] text-primary-foreground font-semibold bg-inherit"
                 />
-                {showMax && onMax ? (
-                  <button
-                    type="button"
-                    onClick={onMax}
-                    className="mt-2 h-7 rounded-full bg-[#EEF2FF] px-3 text-xs font-semibold text-[#3B82F6]"
-                  >
-                    Max
-                  </button>
-                ) : null}
               </div>
 
               {error ? (
@@ -125,19 +138,16 @@ const AssetInput: React.FC<AssetInputProps> = ({
       <div className="flex gap-1.5">
         {!error &&
           variant === 'source' &&
-          value.amount &&
-          defaultDenominations?.map((data, index) => {
-            return (
-              <div
-                key={index}
-                onClick={() => setLocalAmount(data)}
-                className="bg-chip cursor-pointer text-sm border-inherit rounded-3xl px-3 py-0.5"
-              >
-                {symbol}
-                {data}
-              </div>
-            );
-          })}
+          (maxAmount || onMax) &&
+          percentageOptions.map((option, index) => (
+            <div
+              key={index}
+              onClick={() => handlePercentageClick(option.value)}
+              className="bg-chip cursor-pointer text-sm border-inherit rounded-3xl px-3 py-0.5 hover:opacity-80 transition-opacity"
+            >
+              {option.label}
+            </div>
+          ))}
       </div>
     </label>
   );

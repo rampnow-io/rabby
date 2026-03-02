@@ -3,6 +3,7 @@ import { getTokenSymbol } from '@/ui/utils/token';
 import { TokenItem } from '@rabby-wallet/rabby-api/dist/types';
 import { Switch, Tooltip } from 'antd';
 import clsx from 'clsx';
+import { Info } from 'lucide-react';
 import React, {
   Dispatch,
   PropsWithChildren,
@@ -22,7 +23,11 @@ import styled from 'styled-components';
 import { findChainByServerID } from '@/utils/chain';
 import BigNumber from 'bignumber.js';
 import { CHAINS_ENUM } from '@debank/common';
-import { formatGasHeaderUsdValue } from '@/ui/utils';
+import {
+  formatAmount,
+  formatGasHeaderUsdValue,
+  formatUsdValue,
+} from '@/ui/utils';
 import { calcGasEstimated } from '@/utils/time';
 import ShowMoreGasSelectModal, {
   useGetGasInfoByUI,
@@ -94,6 +99,9 @@ export const BridgeShowMore = ({
   openFeePopup,
   supportDirectSign = false,
   autoSuggestSlippage,
+  onOpenInfo,
+  showHeader = true,
+  selectedQuote,
 }: {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
@@ -128,6 +136,9 @@ export const BridgeShowMore = ({
   openFeePopup: () => void;
   autoSuggestSlippage?: string;
   supportDirectSign?: boolean;
+  onOpenInfo?: () => void;
+  showHeader?: boolean;
+  selectedQuote?: any;
 }) => {
   const { t } = useTranslation();
   const sourceAlwaysShow = type === 'bridge';
@@ -183,8 +194,6 @@ export const BridgeShowMore = ({
     return 'text-r-blue-default';
   }, [showMinDuration]);
 
-  const [showGasFeeError, setShowGasFeeError] = useState(false);
-
   const sourceContentRender = useMemoizedFn(() => {
     return (
       <ListItem
@@ -193,23 +202,13 @@ export const BridgeShowMore = ({
             ? t('page.bridge.showMore.source')
             : t('page.swap.source')
         }
-        className="mb-4 h-[18px]"
+        className="mb-4 h-[18px] text-xs text-primary-foreground"
       >
         {quoteLoading ? (
           <Skeleton />
         ) : (
-          <div
-            className="flex items-center gap-4  cursor-pointer"
-            onClick={openQuotesList}
-          >
-            <div
-              className={clsx(
-                'flex items-center gap-4 cursor-pointer',
-                isBestQuote &&
-                  'border-[0.5px] border-solid border-rabby-blue-default rounded-[4px] pr-[5px]'
-              )}
-              style={bestQuoteStyle}
-            >
+          <div className="flex items-center gap-4  cursor-pointer">
+            <div className="flex items-center gap-4 cursor-pointer">
               {isBestQuote ? (
                 <span className="text-r-neutral-title2 text-[12px] font-medium italic py-1 pl-6 pr-8">
                   {t('page.swap.best')}
@@ -222,15 +221,15 @@ export const BridgeShowMore = ({
                   alt={sourceName}
                 />
               )}
-              <span className="text-12 text-rabby-blue-default font-medium">
+              <span className="text-xs text-primary-foreground font-medium">
                 {sourceName}
               </span>
               {!sourceLogo && !sourceName ? (
-                <span className="text-12 text-r-neutral-foot">-</span>
+                <span className="text-xs text-r-neutral-foot">-</span>
               ) : null}
             </div>
             {type === 'bridge' && (
-              <span className={`text-12 font-medium ${durationColor}`}>
+              <span className={`text-xs font-medium`}>
                 {' · '}
                 {t('page.bridge.duration', {
                   duration: showMinDuration,
@@ -247,7 +246,7 @@ export const BridgeShowMore = ({
     return (
       <>
         {data?.showLoss && !quoteLoading && (
-          <div className="leading-4 mb-12 text-12 text-r-neutral-foot">
+          <div className="leading-4 mb-3 text-xs text-r-neutral-foot">
             <div className="flex justify-between">
               <span>{t('page.bridge.price-impact')}</span>
               <span
@@ -257,33 +256,12 @@ export const BridgeShowMore = ({
                 )}
               >
                 -{data.diff}%
-                <Tooltip
-                  align={{
-                    offset: [10, 0],
-                  }}
-                  placement={'topRight'}
-                  overlayClassName="rectangle max-w-[360px]"
-                  title={
-                    <div className="flex flex-col gap-4 py-[5px] text-13">
-                      <div>
-                        {t('page.bridge.est-payment')} {amount}
-                        {getTokenSymbol(fromToken)} ≈ {data.fromUsd}
-                      </div>
-                      <div>
-                        {t('page.bridge.est-receiving')} {toAmount}
-                        {getTokenSymbol(toToken)} ≈ {data.toUsd}
-                      </div>
-                      <div>
-                        {t('page.bridge.est-difference')} {data.lossUsd}
-                      </div>
-                    </div>
-                  }
-                >
-                  <RcIconInfo className="ml-4 text-rabby-neutral-foot w-14 h-14 " />
-                </Tooltip>
+                <div>
+                  <RcIconInfo className="ml-1 text-rabby-neutral-foot w-[14px] h-[14px] " />
+                </div>
               </span>
             </div>
-            <div className="mt-[8px] rounded-[4px] border-[0.5px] border-rabby-red-default bg-r-red-light p-8 text-13 font-normal text-r-red-default">
+            <div className="mt-[8px] rounded-[4px] border-[0.5px] border-rabby-red-default bg-r-red-light p-2 text-xs font-normal text-r-red-default">
               {t('page.bridge.loss-tips', {
                 usd: data?.lossUsd,
               })}
@@ -295,120 +273,68 @@ export const BridgeShowMore = ({
   }, [data, quoteLoading, toToken, fromToken]);
 
   return (
-    <div className="mx-4">
-      {sourceAlwaysShow && sourceContentRender()}
+    <div className="px-4 pb-4 space-y-4">
+      <div className="flex items-center justify-between pb-4 border-b border-r-neutral-line">
+        <h2 className="text-[12px] font-normal text-primary-foreground">
+          {t('page.bridge.showMore.title')}
+        </h2>
+      </div>
 
-      <div className="flex items-center justify-center gap-2 mb-2">
+      {lostValueContentRender()}
+      {sourceContentRender()}
+
+      <ListItem name="Estimated fee" className="mt-3">
+        <div className="text-12 font-medium text-r-neutral-title-1">
+          {selectedQuote?.gas_fee?.usd_value
+            ? formatUsdValue(selectedQuote.gas_fee.usd_value)
+            : '-'}
+        </div>
+      </ListItem>
+
+      <ListItem name={t('page.swap.rabbyFee.title')} className="mt-3 h-[18px]">
         <div
           className={clsx(
-            'flex items-center opacity-50',
-            'cursor-pointer',
-            'text-r-neutral-foot text-12'
+            'text-12 font-medium',
+            isWrapToken
+              ? 'text-r-neutral-foot'
+              : 'text-primary-foreground cursor-pointer'
           )}
-          onClick={() => setOpen((e) => !e)}
+          onClick={openFeePopup}
         >
-          <span>{t('page.bridge.showMore.title')}</span>
-          <IconArrowDownCC
-            viewBox="0 0 14 14"
-            width={14}
-            height={14}
-            className={clsx(
-              'transition-transform',
-              open && 'rotate-180 translate-y-1'
-            )}
-          />
+          {isWrapToken && type === 'swap'
+            ? t('page.swap.no-fees-for-wrap')
+            : RABBY_FEE}
         </div>
-      </div>
+      </ListItem>
 
-      <div className={clsx('overflow-hidden', !open && 'h-0')}>
-        {lostValueContentRender()}
-        {!sourceAlwaysShow && sourceContentRender()}
-        <BridgeSlippage
-          autoSuggestSlippage={autoSuggestSlippage}
-          value={slippage}
-          displaySlippage={displaySlippage}
-          onChange={onSlippageChange}
-          autoSlippage={autoSlippage}
-          isCustomSlippage={isCustomSlippage}
-          setAutoSlippage={setAutoSlippage}
-          setIsCustomSlippage={setIsCustomSlippage}
-          type={type}
-          isWrapToken={isWrapToken}
-          recommendValue={recommendValue}
-        />
-
-        {fromToken && supportDirectSign ? (
-          <DirectSignGasInfo
-            supportDirectSign={supportDirectSign}
-            loading={!!quoteLoading}
-            openShowMore={setShowGasFeeError}
-            noQuote={!sourceLogo && !sourceName}
-            chainServeId={fromToken?.chain}
+      {showMEVGuardedSwitch && type === 'swap' ? (
+        <ListItem
+          name={
+            <>
+              <span>{t('page.swap.preferMEV')}</span>
+            </>
+          }
+          className="mt-12"
+        >
+          <PreferMEVGuardSwitch
+            checked={originPreferMEVGuarded}
+            onChange={switchPreferMEV}
           />
-        ) : null}
-
-        <ListItem name={t('page.swap.rabbyFee.title')} className="mt-3 h-[18]">
-          <div
-            className={clsx(
-              'text-12 font-medium',
-              isWrapToken
-                ? 'text-r-neutral-foot'
-                : 'text-r-blue-default cursor-pointer'
-            )}
-            onClick={openFeePopup}
-          >
-            {isWrapToken && type === 'swap'
-              ? t('page.swap.no-fees-for-wrap')
-              : RABBY_FEE}
-          </div>
         </ListItem>
-
-        {showMEVGuardedSwitch && type === 'swap' ? (
-          <ListItem
-            name={
-              <>
-                <span>{t('page.swap.preferMEV')}</span>
-              </>
-            }
-            className="mt-12"
-          >
-            <PreferMEVGuardSwitch
-              checked={originPreferMEVGuarded}
-              onChange={switchPreferMEV}
-            />
-          </ListItem>
-        ) : null}
-      </div>
-
-      {!open && (
-        <>
-          {lostValueContentRender()}
-          {showSlippageError && (
-            <BridgeSlippage
-              autoSuggestSlippage={autoSuggestSlippage}
-              value={slippage}
-              displaySlippage={displaySlippage}
-              onChange={onSlippageChange}
-              autoSlippage={autoSlippage}
-              isCustomSlippage={isCustomSlippage}
-              setAutoSlippage={setAutoSlippage}
-              setIsCustomSlippage={setIsCustomSlippage}
-              type={type}
-              isWrapToken={isWrapToken}
-              recommendValue={recommendValue}
-            />
-          )}
-          {showGasFeeError && fromToken && supportDirectSign ? (
-            <DirectSignGasInfo
-              supportDirectSign={supportDirectSign}
-              loading={!!quoteLoading}
-              openShowMore={noop}
-              noQuote={!sourceLogo && !sourceName}
-              chainServeId={fromToken?.chain}
-            />
-          ) : null}
-        </>
-      )}
+      ) : null}
+      <BridgeSlippage
+        autoSuggestSlippage={autoSuggestSlippage}
+        value={slippage}
+        displaySlippage={displaySlippage}
+        onChange={onSlippageChange}
+        autoSlippage={autoSlippage}
+        isCustomSlippage={isCustomSlippage}
+        setAutoSlippage={setAutoSlippage}
+        setIsCustomSlippage={setIsCustomSlippage}
+        type={type}
+        isWrapToken={isWrapToken}
+        recommendValue={recommendValue}
+      />
     </div>
   );
 };
@@ -669,51 +595,20 @@ export const DirectSignGasInfo = ({
                     className="opacity-60"
                   />
                   {ctx.gasMethod === 'gasAccount' ? (
-                    <Tooltip
-                      align={{
-                        offset: [10, 0],
-                      }}
-                      placement={'topRight'}
-                      overlayClassName="rectangle w-[max-content]"
-                      title={
-                        <div onClick={(e) => e.stopPropagation()}>
-                          <div>{t('page.signTx.gasAccount.description')}</div>
-                          <div>
-                            {t('page.signTx.gasAccount.estimatedGas')}{' '}
-                            {calcGasAccountUsd(
-                              gasAccountCost?.estimate_tx_cost || 0
-                            )}
-                          </div>
-                          <div>
-                            {t('page.signTx.gasAccount.maxGas')}{' '}
-                            {calcGasAccountUsd(
-                              gasAccountCost?.total_cost || '0'
-                            )}
-                          </div>
-                          <div>
-                            {t('page.signTx.gasAccount.sendGas')}{' '}
-                            {calcGasAccountUsd(
-                              gasAccountCost?.total_cost || '0'
-                            )}
-                          </div>
-                          <div>
-                            {t('page.signTx.gasAccount.gasCost')}{' '}
-                            {calcGasAccountUsd(gasAccountCost?.gas_cost || '0')}
-                          </div>
-                        </div>
-                      }
-                    >
+                    <div>
                       <IconInfoSVG
                         className="text-r-neutral-foot -top-1"
                         onClick={(e) => e.stopPropagation()}
                       />
-                    </Tooltip>
+                    </div>
                   ) : null}
                 </button>
               </ShowMoreGasSelectModal>
             </div>
             {/* Second row: Estimated fee label */}
-            <div className="text-xs text-r-neutral-foot">Estimated fee</div>
+            <div className="text-xs text-secondary-foreground">
+              Estimated fee
+            </div>
           </>
         ) : !loading && noQuote ? (
           <div>-</div>
@@ -741,15 +636,206 @@ function ListItem({
     <div
       className={clsx(
         'flex items-center justify-between',
-        'text-12 text-r-neutral-foot',
+        'text-[12px] text-primary-foreground',
         className
       )}
     >
       <span>{name}</span>
-      <div className="flex items-center">{children}</div>
+      <div className="flex items-center text-secondary-foreground">
+        {children}
+      </div>
     </div>
   );
 }
+
+export const BridgeInfoSummary = ({
+  sourceName,
+  sourceLogo,
+  duration,
+  type,
+  isBestQuote,
+  quoteLoading,
+  openQuotesList,
+  onOpenInfo,
+  fromToken,
+  toToken,
+  amount,
+  toAmount,
+}: {
+  sourceName: string;
+  sourceLogo: string;
+  duration?: number;
+  type: 'swap' | 'bridge';
+  isBestQuote: boolean;
+  quoteLoading?: boolean;
+  openQuotesList: () => void;
+  onOpenInfo: () => void;
+  fromToken?: TokenItem;
+  toToken?: TokenItem;
+  amount?: string | number;
+  toAmount?: string | number;
+}) => {
+  const { t } = useTranslation();
+
+  const showMinDuration = useMemo(() => {
+    return Math.max(Math.round((duration || 0) / 60), 1);
+  }, [duration]);
+
+  const durationColor = useMemo(() => {
+    if (showMinDuration > 10) {
+      return 'text-r-red-default';
+    }
+    if (showMinDuration > 3) {
+      return 'text-r-orange-default';
+    }
+    return 'text-r-blue-default';
+  }, [showMinDuration]);
+
+  const bestQuoteStyle = useMemo(() => {
+    if (isBestQuote) {
+      return {
+        backgroundImage: `url(${imgBestQuoteSharpBg})`,
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: '38px',
+      };
+    }
+    return undefined;
+  }, [isBestQuote]);
+
+  const exchangeRate = useMemo(() => {
+    if (!fromToken || !toToken || !amount || !toAmount || quoteLoading) {
+      return null;
+    }
+
+    const amountBN = new BigNumber(amount);
+    const toAmountBN = new BigNumber(toAmount);
+
+    if (amountBN.lte(0) || toAmountBN.lte(0)) {
+      return null;
+    }
+
+    const fromSymbol = getTokenSymbol(fromToken);
+    const toSymbol = getTokenSymbol(toToken);
+
+    // Convert from smallest units to human-readable format
+    const fromDecimals = fromToken.decimals || 18;
+    const toDecimals = toToken.decimals || 18;
+
+    const humanReadableFromAmount = amountBN.div(
+      new BigNumber(10).pow(fromDecimals)
+    );
+    const humanReadableToAmount = toAmountBN.div(
+      new BigNumber(10).pow(toDecimals)
+    );
+
+    // Format the amounts with appropriate precision
+    const formattedFromAmount = formatAmount(
+      humanReadableFromAmount.toNumber(),
+      6
+    );
+    const formattedToAmount = formatAmount(humanReadableToAmount.toNumber(), 6);
+
+    return `${formattedFromAmount} ${fromSymbol}  ~  ${formattedToAmount} ${toSymbol}`;
+  }, [fromToken, toToken, amount, toAmount, quoteLoading]);
+
+  return (
+    <div
+      className="mx-4 flex items-center gap-1 justify-end cursor-pointer"
+      onClick={onOpenInfo}
+    >
+      <div>{exchangeRate || ''}</div>
+      <Info size={16} />
+    </div>
+  );
+};
+
+export const BridgeInlineWarnings = ({
+  fromToken,
+  toToken,
+  amount,
+  toAmount,
+  quoteLoading,
+  slippageError,
+  supportDirectSign,
+  chainServeId,
+}: {
+  fromToken?: TokenItem;
+  toToken?: TokenItem;
+  amount?: string | number;
+  toAmount?: string | number;
+  quoteLoading?: boolean;
+  slippageError?: boolean;
+  supportDirectSign?: boolean;
+  chainServeId?: string;
+}) => {
+  const { t } = useTranslation();
+
+  const data = useMemo(() => {
+    if (quoteLoading) {
+      return {
+        showLoss: false,
+        diff: '',
+        fromUsd: '',
+        toUsd: '',
+        lossUsd: '',
+      };
+    }
+    return tokenPriceImpact(fromToken, toToken, amount, toAmount);
+  }, [fromToken, toToken, amount, toAmount, quoteLoading]);
+
+  if (!data?.showLoss && !slippageError) {
+    return null;
+  }
+
+  return (
+    <div className="mx-4 mt-4 space-y-3">
+      {data?.showLoss && !quoteLoading && (
+        <div className="leading-4 text-12 text-r-neutral-foot">
+          <div className="flex justify-between">
+            <span>{t('page.bridge.price-impact')}</span>
+            <span
+              className={clsx(
+                'font-medium inline-flex items-center',
+                'text-r-red-default'
+              )}
+            >
+              -{data.diff}%
+              <Tooltip
+                align={{
+                  offset: [10, 0],
+                }}
+                placement={'topRight'}
+                overlayClassName="rectangle max-w-[360px]"
+                title={
+                  <div className="flex flex-col gap-4 py-[5px] text-13">
+                    <div>
+                      {t('page.bridge.est-payment')} {amount}
+                      {getTokenSymbol(fromToken)} ≈ {data.fromUsd}
+                    </div>
+                    <div>
+                      {t('page.bridge.est-receiving')} {toAmount}
+                      {getTokenSymbol(toToken)} ≈ {data.toUsd}
+                    </div>
+                    <div>
+                      {t('page.bridge.est-difference')} {data.lossUsd}
+                    </div>
+                  </div>
+                }
+              >
+                <RcIconInfo className="ml-4 text-rabby-neutral-foot w-14 h-14" />
+              </Tooltip>
+            </span>
+          </div>
+          <div className="mt-[8px] rounded-[4px] border-[0.5px] border-rabby-red-default bg-r-red-light p-8 text-13 font-normal text-r-red-default">
+            {t('page.bridge.loss-tips', {
+              usd: data?.lossUsd,
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const RecommendFromToken = ({
   token,
@@ -782,7 +868,7 @@ export const RecommendFromToken = ({
             className={clsx(
               'flex items-center gap-6',
               'px-8 py-6 mx-6',
-              'text-r-blue-default',
+              'text-primary-foreground ',
               'bg-rabby-blue-light1 rounded-[6px]'
             )}
           >

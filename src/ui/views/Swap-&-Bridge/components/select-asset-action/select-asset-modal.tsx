@@ -94,9 +94,20 @@ export default function SelectAssetModal({
     const chainObj = findChainByEnum(selectedChain)
     if (!chainObj?.serverId) return []
     
+    // Check if this is a same-chain swap
+    const isSameChainSwap = selectionType === 'to' && fromChain && fromChain === selectedChain
+    
     try {
-      // For "to" selection: use getBridgeToTokenList to get only route-available tokens
-      if (selectionType === 'to' && fromChain && fromToken) {
+      // For "to" selection with same chain: use swap token list (same as Swap view)
+      if (isSameChainSwap) {
+        const tokenList = await wallet.openapi.getSwapTokenList(
+          currentAccount.address,
+          chainObj.serverId
+        )
+        return tokenList || []
+      }
+      // For "to" selection with different chain: use getBridgeToTokenList to get only route-available tokens
+      else if (selectionType === 'to' && fromChain && fromToken) {
         const fromChainObj = findChainByEnum(fromChain)
         if (!fromChainObj?.serverId) return []
         
@@ -123,7 +134,13 @@ export default function SelectAssetModal({
 
   // Filter and sort tokens by search and liquidity (balance > 0 for 'from' only)
   const filteredTokens = useMemo(() => {
+    // Check if this is a same-chain swap
+    const isSameChainSwap = selectionType === 'to' && fromChain && fromChain === selectedChain
+    
     // First filter by balance requirement
+    // For same-chain swap destination: show all tokens (like Swap view)
+    // For cross-chain bridge destination: show all available tokens
+    // For source selection: require balance > 0
     let baseTokens = selectionType === 'from' 
       ? tokens.filter((t) => new BigNumber(t.raw_amount_hex_str || 0, 16).gt(0))
       : tokens
@@ -146,8 +163,29 @@ export default function SelectAssetModal({
         const balanceB = new BigNumber(b.raw_amount_hex_str || 0, 16)
         return balanceB.minus(balanceA).toNumber()
       })
+    } else if (isSameChainSwap) {
+      // For same-chain swap: sort by balance if exists, then by price/popularity
+      baseTokens.sort((a, b) => {
+        const balanceA = new BigNumber(a.raw_amount_hex_str || 0, 16)
+        const balanceB = new BigNumber(b.raw_amount_hex_str || 0, 16)
+        const hasBalanceA = balanceA.gt(0) ? 1 : 0
+        const hasBalanceB = balanceB.gt(0) ? 1 : 0
+        
+        // First: tokens with balance
+        if (hasBalanceA !== hasBalanceB) {
+          return hasBalanceB - hasBalanceA
+        }
+        // Then: by balance amount if both have balance
+        if (hasBalanceA && hasBalanceB) {
+          return balanceB.minus(balanceA).toNumber()
+        }
+        // Finally: by price data availability
+        const priceA = a.price ? 1 : 0
+        const priceB = b.price ? 1 : 0
+        return priceB - priceA
+      })
     } else {
-      // For 'to': sort by popularity/common tokens first (those with price data)
+      // For cross-chain bridge: sort by popularity/common tokens first (those with price data)
       baseTokens.sort((a, b) => {
         const priceA = a.price ? 1 : 0
         const priceB = b.price ? 1 : 0
@@ -156,7 +194,7 @@ export default function SelectAssetModal({
     }
 
     return baseTokens
-  }, [tokens, assetSearch, selectionType])
+  }, [tokens, assetSearch, selectionType, fromChain, selectedChain])
 
   const onSelectHandler = (token: TokenItem) => {
     if (onChainChange && selectedChain) {
@@ -409,12 +447,6 @@ const AssetList = ({ assets, onChainChange, onTokenChange, close }: AssetListPro
                     </div>
                   </div>
 
-                  {/* Liquidity Badge */}
-                  {liquidityBadge.label && (
-                    <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${liquidityBadge.color}`}>
-                      {liquidityBadge.label}
-                    </span>
-                  )}
 
                   {/* Price Info */}
                   <div className='mt-1 text-xs text-gray-600'>

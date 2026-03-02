@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { TokenItem } from '@/background/service/openapi';
 import { BridgeQuoteItem } from './BridgeQuoteItem';
 import { ReactComponent as RCIconCCEmpty } from 'ui/assets/bridge/empty-cc.svg';
-import { SelectedBridgeQuote, useSetRefreshId } from '../../hooks';
+import { UnifiedQuote, useSetRefreshId } from '../../hooks';
 
 interface QuotesProps {
   userAddress: string;
@@ -20,12 +20,12 @@ interface QuotesProps {
   inSufficient: boolean;
   payToken?: TokenItem;
   receiveToken?: TokenItem;
-  list?: SelectedBridgeQuote[];
+  list?: UnifiedQuote[];
   activeName?: string;
   actionRef?: MutableRefObject<(() => void) | undefined>;
   onClose: () => void;
   payAmount: string;
-  setSelectedBridgeQuote: (quote?: SelectedBridgeQuote) => void;
+  setSelectedBridgeQuote: (quote?: UnifiedQuote) => void;
   sortIncludeGasFee: boolean;
 }
 
@@ -44,14 +44,25 @@ export const Quotes = ({
 
   const sortedList = useMemo(() => {
     return list?.sort((b, a) => {
-      return new BigNumber(a.to_token_amount)
-        .times(other.receiveToken!.price || 1)
-        .minus(sortIncludeGasFee ? a.gas_fee.usd_value : 0)
-        .minus(
-          new BigNumber(b.to_token_amount)
-            .times(other.receiveToken!.price || 1)
-            .minus(sortIncludeGasFee ? b.gas_fee.usd_value : 0)
-        )
+      const aValue = new BigNumber(a.to_token_amount).times(
+        other.receiveToken!.price || 1
+      );
+      const bValue = new BigNumber(b.to_token_amount).times(
+        other.receiveToken!.price || 1
+      );
+
+      const aGasFee =
+        a.type === 'bridge'
+          ? a.gas_fee.usd_value
+          : (a.type === 'swap' && a.dexQuote.preExecResult?.gasUsdValue) || 0;
+      const bGasFee =
+        b.type === 'bridge'
+          ? b.gas_fee.usd_value
+          : (b.type === 'swap' && b.dexQuote.preExecResult?.gasUsdValue) || 0;
+
+      return aValue
+        .minus(sortIncludeGasFee ? aGasFee : 0)
+        .minus(bValue.minus(sortIncludeGasFee ? bGasFee : 0))
         .toNumber();
     });
   }, [list, sortIncludeGasFee, other.receiveToken]);
@@ -61,9 +72,16 @@ export const Quotes = ({
     if (!bestQuote) {
       return '0';
     }
+    const gasFee =
+      bestQuote.type === 'bridge'
+        ? bestQuote.gas_fee.usd_value
+        : (bestQuote.type === 'swap' &&
+            bestQuote.dexQuote.preExecResult?.gasUsdValue) ||
+          0;
+
     return new BigNumber(bestQuote.to_token_amount)
       .times(other.receiveToken!.price || 1)
-      .minus(sortIncludeGasFee ? bestQuote.gas_fee.usd_value : 0)
+      .minus(sortIncludeGasFee ? gasFee : 0)
       .toString();
   }, [sortedList, other.receiveToken, sortIncludeGasFee]);
 
@@ -71,10 +89,15 @@ export const Quotes = ({
     <div className="flex flex-col h-full w-full ">
       <div className="flex flex-col gap-12 flex-1 pb-12 px-20">
         {sortedList?.map((item, idx) => {
+          const itemKey =
+            item.type === 'bridge'
+              ? `${item.aggregator.id}-${item.bridge_id}`
+              : `${item.aggregator.id}-${item.dexQuote.name}`;
+
           return (
             <BridgeQuoteItem
-              key={item.aggregator.id + item.bridge_id}
-              {...item}
+              key={itemKey}
+              quote={item}
               sortIncludeGasFee={!!sortIncludeGasFee}
               isBestQuote={idx === 0}
               bestQuoteUsd={bestQuoteUsd}
