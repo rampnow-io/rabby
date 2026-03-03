@@ -61,7 +61,7 @@ export interface OrderTypeConfig {
   srcAssetConfig: AssetQuoteConfig[]
   dstAssetConfig: AssetQuoteConfig[]
   orderConfig?: OrderConfig
-  PaymentModeConfigMap: PaymentModeConfigMap
+  paymentModeConfigMap: PaymentModeConfigMap
   isDappRegion: boolean
 }
 

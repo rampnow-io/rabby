@@ -57,6 +57,25 @@ export const CryptoChainCode = Chain;
 export type CurrencyCode = Currency;
 export const CurrencyCode = Currency;
 
+export type GetRampOrderQuoteRequest = {
+  dstChain: CryptoChainCode;
+  dstCurrency: CurrencyCode;
+  orderType: OrderType;
+  paymentMode?: PaymentMode;
+  srcAmount: string;
+  srcChain: CryptoChainCode;
+  srcCurrency: CurrencyCode;
+};
+export type RampOrderAssetConfig = {
+  asset: CryptoAssetCode;
+  exchangeRate: string;
+  orderTypeConfigs: {
+    [key: string]: OrderTypeConfig;
+  };
+  payinModes: Array<PaymentMode>;
+  payoutModes: Array<PaymentMode>;
+  status: SettingStatus;
+};
 // HTTP Client - Axios-based implementation
 interface HttpClient {
   get<ResponseType, ErrorType, ThrowOnError extends boolean = false>(options: {
@@ -166,6 +185,7 @@ export interface Options<TData = any, ThrowOnError extends boolean = false> {
 import type {
   GetRampOrderQuoteResponses,
   GetRampOrderQuoteConfigResponse,
+  OrderTypeConfig,
 } from './type';
 
 export type GetRampOrderQuoteData = any;

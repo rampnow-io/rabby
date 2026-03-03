@@ -4,12 +4,19 @@ import {
   CryptoAssetConfigMap,
   CurrencyConfigMap,
   formatCurrency,
+
+} from "@repo/utils"
+import {
+  CryptoChainCode,
+  CurrencyCode,
+  GetRampOrderQuoteRequest,
   OrderType,
   PaymentMode,
+  type RampOrderAssetConfig,
   RouteType,
   SettingStatus,
-} from "@repo/utils"
-import { CryptoChainCode, CurrencyCode } from "./client"
+} from "./client"
+import type { OrderConfig } from "./type"
 
 import {
   type AssetQuoteConfig,
@@ -19,7 +26,6 @@ import {
   type OrderTypeConfig,
   type QuoteConfig,
 } from "./order-config"
-import { OrderConfig, RampOrderAssetConfig, RampOrderPaymentModeConfig } from "./type"
 
 export const buildQuoteCacheKey = (obj: Record<string, any>): string => {
   return Object.values(obj).join("-")
@@ -37,15 +43,15 @@ export const getPaymentModes = (
     )
       .filter(
         (mode) =>
-          orderTypeConfig?.PaymentModeConfigMap[mode]?.status ===
+          orderTypeConfig?.paymentModeConfigMap[mode]?.status ===
             SettingStatus.ACTIVE &&
-          orderTypeConfig.PaymentModeConfigMap[mode].payoutConfig?.status ===
+          orderTypeConfig.paymentModeConfigMap[mode].payoutConfig?.status ===
             SettingStatus.ACTIVE,
       )
       .sort((a, b) => {
         return (
-          (orderTypeConfig.PaymentModeConfigMap[a].payoutConfig?.order ?? 0) -
-          (orderTypeConfig.PaymentModeConfigMap[b].payoutConfig?.order ?? 0)
+          (orderTypeConfig.paymentModeConfigMap[a].payoutConfig?.order ?? 0) -
+          (orderTypeConfig.paymentModeConfigMap[b].payoutConfig?.order ?? 0)
         )
       })
   } else if (
@@ -59,18 +65,18 @@ export const getPaymentModes = (
     )
       .filter(
         (mode) =>
-          orderTypeConfig?.PaymentModeConfigMap[mode]?.status ===
+          orderTypeConfig?.paymentModeConfigMap[mode]?.status ===
             SettingStatus.ACTIVE &&
-          orderTypeConfig.PaymentModeConfigMap[mode].payinConfig?.status ===
+          orderTypeConfig.paymentModeConfigMap[mode].payinConfig?.status ===
             SettingStatus.ACTIVE &&
-          orderTypeConfig.PaymentModeConfigMap[
+          orderTypeConfig.paymentModeConfigMap[
             mode
           ].payinConfig.orderTypes.includes(orderTypeConfig.orderType),
       )
       .sort((a, b) => {
         return (
-          (orderTypeConfig.PaymentModeConfigMap[a].payinConfig?.order ?? 0) -
-          (orderTypeConfig.PaymentModeConfigMap[b].payinConfig?.order ?? 0)
+          (orderTypeConfig.paymentModeConfigMap[a].payinConfig?.order ?? 0) -
+          (orderTypeConfig.paymentModeConfigMap[b].payinConfig?.order ?? 0)
         )
       })
   }
@@ -79,7 +85,10 @@ export const getPaymentModes = (
 }
 
 export const getDefaultApiKey = () => {
- 
+  if (typeof window !== "undefined") {
+    return window.sessionStorage.getItem("apiKey") ?? defaultApiKey
+  }
+
   return defaultApiKey
 }
 
@@ -92,18 +101,12 @@ export const parseOrderTypeConfig = (
       orderType: OrderType.UNKNOWN,
       srcAssetConfig: [],
       dstAssetConfig: [],
-      PaymentModeConfigMap: {},
+      paymentModeConfigMap: {},
       isDappRegion: false,
     }
   }
 
-  const paymentModeConfig = quoteConfig.paymentModeConfigs.reduce<
-    Record<string, RampOrderPaymentModeConfig>
-  >((map, config) => {
-    map[config.paymentMode] = config
-    return map
-  }, {})
-
+  const paymentModeConfig = quoteConfig.paymentModeConfigs
   const assetConfigs = quoteConfig.assetConfigs
 
   return {
@@ -111,56 +114,59 @@ export const parseOrderTypeConfig = (
     srcAssetConfig: filterAssetConfigs(assetConfigs, orderType, OrderSide.SRC),
     dstAssetConfig: filterAssetConfigs(assetConfigs, orderType, OrderSide.DST),
     orderConfig: quoteConfig.orderConfigMap[orderType],
-    PaymentModeConfigMap: paymentModeConfig,
+    paymentModeConfigMap: paymentModeConfig,
     isDappRegion: quoteConfig.isDappRegion,
   }
 }
 
 const filterAssetConfigs = (
-  assetConfigs: RampOrderAssetConfig[],
+  assetConfigs: Record<string, RampOrderAssetConfig>,
   orderType: OrderType,
   orderSide: OrderSide,
 ) => {
-  return assetConfigs
+  return Object.values(assetConfigs)
     .filter((asset) => {
       const assetCode = asset.asset as unknown as CryptoAsset
       if (
         !CryptoAssetConfigMap[assetCode] ||
-        !asset?.orderConfigMap?.[orderType]
+        !asset?.orderTypeConfigs?.[orderType]
       ) {
         return false
       }
 
       return (
-        (asset.orderConfigMap[orderType].orderSide & orderSide) > 0 &&
+        (asset.orderTypeConfigs[orderType].orderSide & orderSide) > 0 &&
         asset.status === SettingStatus.ACTIVE &&
-        asset.orderConfigMap[orderType].status !== SettingStatus.INACTIVE
+        asset.orderTypeConfigs[orderType].status !== SettingStatus.INACTIVE
       )
     })
     .sort((a, b) => {
       // Sort based on listing order
-      const getListingOrder = (config: OrderConfig) => {
+      const getListingOrder = (config: { status: SettingStatus; order: number }) => {
         return config.status !== SettingStatus.ACTIVE
           ? config.order + 100000 // Move suspended assets to the end
           : config.order
       }
 
       return (
-        getListingOrder(a.orderConfigMap[orderType]) -
-        getListingOrder(b.orderConfigMap[orderType])
+        getListingOrder(a.orderTypeConfigs[orderType]) -
+        getListingOrder(b.orderTypeConfigs[orderType])
       )
     })
     .map((asset) => {
       // Create map
+      const assetCode = asset.asset as unknown as CryptoAsset
+      const assetConfig = CryptoAssetConfigMap[assetCode]
       return {
         ...asset,
-        ...CryptoAssetConfigMap[asset.asset as unknown as CryptoAsset],
-        minAmount: asset.orderConfigMap[orderType].minAmount,
-        maxAmount: asset.orderConfigMap[orderType].maxAmount,
-        routeTypes: asset.orderConfigMap[orderType].routeTypes,
-        order: asset.orderConfigMap[orderType].order,
+        ...assetConfig,
+        code: assetConfig?.code || assetCode,
+        minAmount: asset.orderTypeConfigs[orderType].minAmount,
+        maxAmount: asset.orderTypeConfigs[orderType].maxAmount,
+        routeTypes: asset.orderTypeConfigs[orderType].routeTypes,
+        order: asset.orderTypeConfigs[orderType].order,
         disabled:
-          asset.orderConfigMap[orderType].status !== SettingStatus.ACTIVE,
+          asset.orderTypeConfigs[orderType].status !== SettingStatus.ACTIVE,
       }
     })
 }
@@ -268,15 +274,10 @@ export const validateSrcAmount = (
     return { type: "invalid", message: `Invalid asset config` }
   }
 
-  const payinModeEntry = orderTypeConfig.PaymentModeConfigMap[payinMode]
-  const payoutModeEntry = orderTypeConfig.PaymentModeConfigMap[payoutMode]
-
-  if (!payinModeEntry || !payoutModeEntry) {
-    return { type: "invalid", message: `Invalid payment mode config` }
-  }
-
-  let payinModeConfig = payinModeEntry.payinConfig
-  let payoutModeConfig = payoutModeEntry.payoutConfig
+  let payinModeConfig =
+    orderTypeConfig.paymentModeConfigMap[payinMode].payinConfig
+  let payoutModeConfig =
+    orderTypeConfig.paymentModeConfigMap[payoutMode].payoutConfig
 
   const orderRange = getOrderRange(
     [
@@ -330,20 +331,6 @@ function getOrderRange(
   )
 }
 
-export type GetRampOrderQuoteRequest = {
-  orderType: OrderType;
-  srcAmount: string;
-  srcCurrency: CurrencyCode;
-  srcChain: CryptoChainCode;
-  dstCurrency: CurrencyCode;
-  dstChain: CryptoChainCode;
-  paymentMode: PaymentMode;
-  apiKey: string;
-  walletUid: string | undefined;
-  walletAddressTag: string | undefined;
-  dstAmount: string;
-}
-
 export function fetchQuoteRequestData(
   orderTypeConfig: OrderTypeConfig,
   currentQuote: GetRampOrderQuoteRequest,
@@ -381,9 +368,5 @@ export function fetchQuoteRequestData(
     dstCurrency: dstAsset.currency as CurrencyCode,
     dstChain: dstAsset.chain as CryptoChainCode,
     paymentMode: paymentMode as PaymentMode,
-    apiKey: currentQuote.apiKey,
-    walletUid: <string | undefined>undefined,
-    walletAddressTag: <string | undefined>undefined,
-    dstAmount: '',
   }
 }

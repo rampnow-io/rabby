@@ -80,7 +80,7 @@ const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
                   history.push('/add-token');
                   setIsPopoverOpen(false);
                 }}
-                className="px-5 py-[10px] text-left bg-gray-50 transition-colors flex items-center gap-3  rounded-lg border-gray-200"
+                className="px-5 py-[10px] text-left rounded-[32px] bg-white transition-colors flex items-center gap-3   border-gray-200"
               >
                 <span className="text-sm font-medium text-primary-foreground">
                   Import tokens
@@ -90,7 +90,7 @@ const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
               <button
                 onClick={handleRefresh}
                 disabled={isRefreshing}
-                className="px-5 py-[10px] text-left bg-gray-50 transition-colors flex items-center justify-between rounded-lg disabled:opacity-60 disabled:cursor-not-allowed"
+                className="px-5 py-[10px] text-left bg-white transition-colors flex items-center justify-between rounded-[32px] disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <span className="text-sm font-medium text-primary-foreground">
                   Refresh list

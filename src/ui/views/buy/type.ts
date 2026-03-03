@@ -18,6 +18,15 @@ export type OrderConfig = {
   status: SettingStatus;
 };
 
+export type OrderTypeConfig = {
+  maxAmount?: string;
+  minAmount?: string;
+  order: number;
+  orderSide: number;
+  routeTypes: Array<RouteType>;
+  status: SettingStatus;
+};
+
 export type Discount = {
   type: string;
   value: string;
@@ -59,8 +68,8 @@ export type GetRampOrderQuoteResponses = {
 export type RampOrderAssetConfig = {
   asset: CryptoAssetCode;
   exchangeRate: string;
-  orderConfigMap: {
-    [key: string]: OrderConfig;
+  orderTypeConfigs: {
+    [key: string]: OrderTypeConfig;
   };
   payinModes: Array<PaymentMode>;
   payoutModes: Array<PaymentMode>;
@@ -75,7 +84,7 @@ export type RampOrderPaymentModeConfig = {
   status: SettingStatus;
 };
 export type GetRampOrderQuoteConfigResponse = {
-  assetConfigs: Array<RampOrderAssetConfig>;
+  assetConfigs: Record<string, RampOrderAssetConfig>;
   initialQuote?: GetOrderRampQuoteResponse;
   isDappRegion: boolean;
   /**
@@ -89,5 +98,5 @@ export type GetRampOrderQuoteConfigResponse = {
   orderConfigMap: {
     [key: string]: OrderConfig;
   };
-  paymentModeConfigs: Array<RampOrderPaymentModeConfig>;
+  paymentModeConfigs: Record<string, RampOrderPaymentModeConfig>;
 };
