@@ -59,7 +59,7 @@ function AssetSelector({
               width={30}
               height={30}
               draggable={false}
-              className='rounded-full'
+              className='rounded-full h-[30px] w-[30px]'
             />
             <div className='text-xl max-w-[100px] truncate'>
               {getTokenCode(currencyConfig.code)}

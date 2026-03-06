@@ -67,5 +67,20 @@
       "resources": ["pageProvider.js"],
       "matches": ["<all_urls>"]
     }
-  ]
+  ],
+  "commands": {
+    "sidepanel_open_custom": {
+      "suggested_key": {
+        "default": "Ctrl+J",
+        "mac": "Command+Shift+J"
+      },
+      "description": "Toggle Sidepanel View"
+    },
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+R",
+        "mac": "Command+Shift+R"
+      }
+    }
+  }
 }

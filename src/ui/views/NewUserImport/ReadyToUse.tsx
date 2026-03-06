@@ -38,7 +38,7 @@ export const ReadyToUse = () => {
     return /Mac|iPhone|iPad|iPod/.test(navigator.platform);
   }, []);
   const shortcutKeys = useMemo(() => {
-    return [isMac ? 'Cmd' : 'Ctrl', 'Shift', 'R'];
+    return isMac ? ['Shift', 'Cmd', 'R'] : ['Shift', 'Ctrl', 'R'];
   }, [isMac]);
 
   useEffect(() => {
