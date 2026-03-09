@@ -146,8 +146,6 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack }) => {
                           </div>
                         </div>
                       </FormControl>
-
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -188,7 +186,6 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack }) => {
                           </div>
                         </div>
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />

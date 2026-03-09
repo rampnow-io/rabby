@@ -148,7 +148,6 @@ export default function CreatePassword() {
                       spellCheck={false}
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -170,7 +169,6 @@ export default function CreatePassword() {
                       spellCheck={false}
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />

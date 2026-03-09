@@ -17,12 +17,12 @@ const ShortcutKey = ({
 }) => (
   <div
     className={
-      'w-[110px] flex items-center justify-center h-[74px] rounded-[12px] ' +
-      'border border-solid border-rabby-neutral-line bg-r-neutral-card-1 ' +
-      'text-center text-[16px] font-semibold text-r-neutral-title1 shadow-[0_4px_12px_rgba(0,0,0,0.04)] ' +
+      'w-[110px] flex items-center justify-center h-[74px] rounded-[12px] transition-all duration-200 ' +
+      'border border-solid bg-r-neutral-card-1 ' +
+      'text-center text-[16px] font-semibold text-[#171923] ' +
       (isActive
-        ? 'border border-[#7CFF6B] to-[#FFC857] text-white shadow-[0_0_0_2px_rgba(124,255,107,0.45)]'
-        : '')
+        ? 'border-[#63BD4F] shadow-[0_0_22px_rgba(187,240,86,0.65)]'
+        : 'border-rabby-neutral-line shadow-[0_4px_12px_rgba(0,0,0,0.04)]')
     }
   >
     {label}
@@ -33,41 +33,47 @@ export const ReadyToUse = () => {
   const wallet = useWallet();
   const selectedColor = useRabbySelector((s) => s.newUserGuide.accountColor);
   const [activeKeys, setActiveKeys] = useState<Set<string>>(new Set());
+
   const isMac = useMemo(() => {
     if (typeof navigator === 'undefined') return false;
     return /Mac|iPhone|iPad|iPod/.test(navigator.platform);
   }, []);
+
   const shortcutKeys = useMemo(() => {
     return isMac ? ['Shift', 'Cmd', 'R'] : ['Shift', 'Ctrl', 'R'];
   }, [isMac]);
 
   useEffect(() => {
-    const keyToLabel = (event: KeyboardEvent) => {
-      if (event.metaKey || event.key === 'Meta') return isMac ? 'Cmd' : 'Ctrl';
-      if (event.ctrlKey || event.key === 'Control') return 'Ctrl';
-      if (event.shiftKey || event.key === 'Shift') return 'Shift';
-      if (event.key.toLowerCase() === 'r') return 'R';
-      return null;
+    const updateKeys = (event: KeyboardEvent) => {
+      const next = new Set<string>();
+
+      if (event.shiftKey) {
+        next.add('Shift');
+      }
+
+      if (isMac) {
+        if (event.metaKey) {
+          next.add('Cmd');
+        }
+      } else {
+        if (event.ctrlKey) {
+          next.add('Ctrl');
+        }
+      }
+
+      if (event.key.toLowerCase() === 'r') {
+        next.add('R');
+      }
+
+      setActiveKeys(next);
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      const label = keyToLabel(event);
-      if (!label) return;
-      setActiveKeys((prev) => {
-        const next = new Set(prev);
-        next.add(label);
-        return next;
-      });
+      updateKeys(event);
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
-      const label = keyToLabel(event);
-      if (!label) return;
-      setActiveKeys((prev) => {
-        const next = new Set(prev);
-        next.delete(label);
-        return next;
-      });
+      updateKeys(event);
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -77,10 +83,9 @@ export const ReadyToUse = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, []);
+  }, [isMac]);
 
   const handleOpenWallet = async () => {
-    // Save the selected color to the current account before closing
     if (selectedColor) {
       try {
         const currentAccount = await wallet.getCurrentAccount();
@@ -95,7 +100,6 @@ export const ReadyToUse = () => {
       }
     }
 
-    // Send message to background script to open side panel
     chrome.runtime.sendMessage({ type: 'SETUP_COMPLETE' }, () => {
       window.close();
     });
@@ -106,6 +110,7 @@ export const ReadyToUse = () => {
       <UiProvider>
         <Container>
           <HeaderNavPage />
+
           <Content>
             <div className="flex flex-col items-center gap-4">
               <img
@@ -113,6 +118,7 @@ export const ReadyToUse = () => {
                 alt="Rampnow logo"
                 className="w-[48px] h-[48px]"
               />
+
               <div className="flex flex-col items-center text-[24px] font-medium text-primary-foreground">
                 <div>Your Rampnow wallet is</div>
                 <div className="inline-block bg-[linear-gradient(180deg,#B0D966_0%,#50BE3A_100%)] bg-clip-text text-transparent">
@@ -135,14 +141,9 @@ export const ReadyToUse = () => {
               </div>
             </div>
           </Content>
+
           <Action>
-            <Button
-              onClick={() => {
-                handleOpenWallet();
-              }}
-            >
-              Open Rampnow Wallet
-            </Button>
+            <Button onClick={handleOpenWallet}>Open Rampnow Wallet</Button>
           </Action>
         </Container>
       </UiProvider>
