@@ -70,6 +70,34 @@ const { PortMessage } = Message;
 
 let appStoreLoaded = false;
 
+const openSidePanel = async () => {
+  const sidePanelApi = (chrome as any)?.sidePanel;
+  if (sidePanelApi?.open && chrome?.windows?.getLastFocused) {
+    chrome.windows.getLastFocused({}, (window) => {
+      if (!window?.id) {
+        return;
+      }
+
+      sidePanelApi.open({ windowId: window.id }, () => {
+        const err = chrome.runtime.lastError;
+        if (err) {
+          Sentry.captureMessage(`failed to open side panel: ${err.message}`);
+        }
+      });
+    });
+    return;
+  }
+
+  try {
+    await browser.windows.create({
+      url: browser.runtime.getURL('popup.html'),
+      type: 'popup',
+    });
+  } catch (error) {
+    Sentry.captureException(error);
+  }
+};
+
 Sentry.init({
   dsn:
     'https://f4a992c621c55f48350156a32da4778d@o4507018303438848.ingest.us.sentry.io/4507018389749760',
@@ -176,6 +204,16 @@ async function restoreAppState() {
           ready: true,
         },
       });
+    }
+
+    if (message.type === 'SETUP_COMPLETE') {
+      openSidePanel();
+    }
+  });
+
+  chrome.commands?.onCommand?.addListener((command) => {
+    if (command === 'sidepanel_open_custom') {
+      openSidePanel();
     }
   });
 

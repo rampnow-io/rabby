@@ -71,8 +71,8 @@
   "commands": {
     "sidepanel_open_custom": {
       "suggested_key": {
-        "default": "Ctrl+J",
-        "mac": "Command+Shift+J"
+        "default": "Ctrl+0",
+        "mac": "Command+Shift+0"
       },
       "description": "Toggle Sidepanel View"
     },
