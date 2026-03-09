@@ -40,48 +40,54 @@ export const ReadyToUse = () => {
   }, []);
 
   const shortcutKeys = useMemo(() => {
-    return isMac ? ['Shift', 'Cmd', 'R'] : ['Shift', 'Ctrl', 'R'];
+    return isMac ? ['Shift', 'Cmd', '0'] : ['Shift', 'Ctrl', '0'];
   }, [isMac]);
 
   useEffect(() => {
-    const updateKeys = (event: KeyboardEvent) => {
-      const next = new Set<string>();
-
-      if (event.shiftKey) {
-        next.add('Shift');
+    const keyToLabel = (event: KeyboardEvent) => {
+      if (event.key === 'Shift') return 'Shift';
+      if (event.key === 'Meta') return isMac ? 'Cmd' : null;
+      if (event.key === 'Control') return 'Ctrl';
+      if (event.code === 'Digit0' || event.code === 'Numpad0') {
+        return '0';
       }
-
-      if (isMac) {
-        if (event.metaKey) {
-          next.add('Cmd');
-        }
-      } else {
-        if (event.ctrlKey) {
-          next.add('Ctrl');
-        }
-      }
-
-      if (event.key.toLowerCase() === 'r') {
-        next.add('R');
-      }
-
-      setActiveKeys(next);
+      return null;
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      updateKeys(event);
+      const label = keyToLabel(event);
+      if (!label) return;
+
+      setActiveKeys((prev) => {
+        const next = new Set(prev);
+        next.add(label);
+        return next;
+      });
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
-      updateKeys(event);
+      const label = keyToLabel(event);
+      if (!label) return;
+
+      setActiveKeys((prev) => {
+        const next = new Set(prev);
+        next.delete(label);
+        return next;
+      });
+    };
+
+    const handleWindowBlur = () => {
+      setActiveKeys(new Set());
     };
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', handleWindowBlur);
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', handleWindowBlur);
     };
   }, [isMac]);
 
