@@ -167,19 +167,7 @@ const ChainIcon = ({
 
   if (tooltipTriggerElement === 'chain') {
     return (
-      <Tooltip
-        placement="top"
-        overlayClassName={clsx('rectangle')}
-        {...tooltipProps}
-        title={
-          customRPC && showCustomRPCToolTip ? (
-            <CustomRPCTooltipContent
-              rpc={customRPC}
-              avaliable={customRPCAvaliable}
-            />
-          ) : null
-        }
-      >
+      <div>
         <ChainIconWrapper className="chain-icon-comp">
           <ChainIconEle
             className={clsx(size, innerClassName)}
@@ -193,40 +181,20 @@ const ChainIcon = ({
               <UnavaliableIcon className={clsx(size)} />
             ))}
         </ChainIconWrapper>
-      </Tooltip>
+      </div>
     );
   } else {
     return (
       <div className="chain-icon-comp relative">
-        <Tooltip
-          placement="top"
-          overlayClassName={clsx('rectangle')}
-          title={chainItem?.name}
-          align={{
-            offset: [0, 2],
-          }}
-          {...tooltipProps}
-        >
+        <div>
           <ChainIconWrapper>
             <ChainIconEle
               className={clsx(size, innerClassName)}
               src={chainItem?.logo || ''}
             />
           </ChainIconWrapper>
-        </Tooltip>
-        <TooltipWithMagnetArrow
-          placement="top"
-          overlayClassName={clsx('rectangle')}
-          {...tooltipProps}
-          title={
-            customRPC && showCustomRPCToolTip ? (
-              <CustomRPCTooltipContent
-                rpc={customRPC}
-                avaliable={customRPCAvaliable}
-              />
-            ) : null
-          }
-        >
+        </div>
+        <div>
           {customRPC &&
             customRPCVlidated &&
             (customRPCAvaliable ? (
@@ -234,7 +202,7 @@ const ChainIcon = ({
             ) : (
               <UnavaliableIcon className={clsx(size)} />
             ))}
-        </TooltipWithMagnetArrow>
+        </div>
       </div>
     );
   }

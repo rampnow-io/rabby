@@ -96,15 +96,7 @@ export const SelectChainItem = forwardRef(
     }, [data.serverId, disableChainCheck]);
 
     return (
-      <Tooltip
-        trigger={['click', 'hover']}
-        mouseEnterDelay={3}
-        overlayClassName={clsx('rectangle')}
-        placement="top"
-        title={finalDisabledTips}
-        visible={disabled ? undefined : false}
-        align={{ targetOffset: [0, -30] }}
-      >
+      <div>
         <div
           className={clsx(
             'select-chain-item',
@@ -158,7 +150,7 @@ export const SelectChainItem = forwardRef(
                 <div className="text-[15px] font-medium text-r-neutral-title1">
                   {data.name}
                 </div>
-                {!!chainBalanceItem?.usd_value && (
+                {/* {!!chainBalanceItem?.usd_value && (
                   <div className="flex items-center text-[13px] text-r-neutral-body">
                     <ThemeIcon
                       className="w-[14px] h-[14px] mt-2"
@@ -169,7 +161,7 @@ export const SelectChainItem = forwardRef(
                       {formatUsdValue(chainBalanceItem?.usd_value || 0)}
                     </div>
                   </div>
-                )}
+                )} */}
               </div>
             </div>
             {value === data.enum ? (
@@ -192,7 +184,7 @@ export const SelectChainItem = forwardRef(
             </div>
           )}
         </div>
-      </Tooltip>
+      </div>
     );
   }
 );

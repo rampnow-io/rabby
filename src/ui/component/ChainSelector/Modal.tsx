@@ -31,6 +31,7 @@ import { ReactComponent as RcIconCloseCC } from 'ui/assets/component/close-cc.sv
 import { Chain } from 'background/service/openapi';
 import { Account } from '@/background/service/preference';
 import { TDisableCheckChainFn } from './components/SelectChainItem';
+import BottomFloatingSheet from '../BottomFloatingPopup';
 
 interface ChainSelectorModalProps {
   visible?: boolean;
@@ -190,23 +191,26 @@ const ChainSelectorBottomDrawer = ({
   if (!visible) return null;
 
   return (
-    <BottomDrawer
-      variant="semi"
-      rootSelector="body"
-      close={onCancel}
+    <BottomFloatingSheet
+      hideCloseButton
+      open={visible}
+      onClose={onCancel}
       className={clsx(className)}
+      contentClassName="!px-2 !pt-2 !pb-2"
     >
       <div className="h-[600px] flex flex-col p-4">
-        <div className="pt-[16px] pb-[12px]">
-          <div className="flex items-center justify-between">
-            <h2 className="text-[16px] font-semibold">
+        <div className="pb-[12px]">
+          <div className="flex items-center pb-4 justify-between">
+            <h2 className="text-[20px] font-normal text-primary-foreground">
               {title || t('page.bridge.select-chain')}
             </h2>
             {showClosableIcon && (
-              <RcIconCloseCC
-                className="w-[20px] h-[20px] cursor-pointer"
-                onClick={onCancel}
-              />
+              <div className="bg-[#EAEAEA] p-0.5 rounded-full">
+                <RcIconCloseCC
+                  className="w-[15px] h-[15px] cursor-pointer text-[#000000]"
+                  onClick={onCancel}
+                />
+              </div>
             )}
           </div>
 
@@ -222,7 +226,7 @@ const ChainSelectorBottomDrawer = ({
             placeholder={t('component.ChainSelectorModal.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="mt-[12px]"
+            className="h-[42px]"
           />
         </div>
 
@@ -280,7 +284,7 @@ const ChainSelectorBottomDrawer = ({
           )}
         </div>
       </div>
-    </BottomDrawer>
+    </BottomFloatingSheet>
   );
 };
 
