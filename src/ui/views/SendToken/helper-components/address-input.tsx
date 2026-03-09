@@ -139,6 +139,10 @@ const ToAddress = ({ value, onChange }: Pros) => {
     accountsList: s.accountToDisplay.accountsList,
   }));
 
+  const currentAccountAddress = useRabbySelector(
+    (s) => s.account.currentAccount?.address
+  );
+
   const sortedAccounts = useMemo(() => {
     const whitelistSet = new Set(whitelist.map((item) => item.toLowerCase()));
     const groupAccounts = groupBy(accountsList, (item) =>
@@ -150,6 +154,14 @@ const ToAddress = ({ value, onChange }: Pros) => {
 
     Object.values(groupAccounts).forEach((item) => {
       const result = findAccountByPriority(item);
+
+      if (
+        currentAccountAddress &&
+        result.address.toLowerCase() === currentAccountAddress.toLowerCase()
+      ) {
+        return;
+      }
+
       const value: RenderAccount = {
         ...result,
         _inWhitelist: whitelistSet.has(result.address.toLowerCase()),
@@ -171,7 +183,7 @@ const ToAddress = ({ value, onChange }: Pros) => {
     });
 
     return myImportedAccounts.concat(otherAccounts);
-  }, [accountsList, whitelist]);
+  }, [accountsList, whitelist, currentAccountAddress]);
   return (
     <div className="flex flex-col gap-3">
       {isShowInput && (
@@ -195,8 +207,10 @@ const ToAddress = ({ value, onChange }: Pros) => {
           onClick={() => setIsShowInput(!isShowInput)}
           className={`${CARD_STYLES.selected} `}
         >
-          <div className={`${CARD_STYLES.avatar} bg-green-500`}>🕶️</div>
-          <p className="text-sm h-full flex items-center font-normal text-secondary-foreground">
+          <div className={`${CARD_STYLES.avatar} bg-[#BBF7D0] text-[17.455px]`}>
+            🕶️
+          </div>
+          <p className="text-sm h-full flex items-center font-normal text-[#252830]">
             {truncate(inputValue, [13, 13])}
           </p>
         </Card>

@@ -72,7 +72,7 @@ const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
           <PopoverContent
             align="start"
             side="bottom"
-            className="!mr-1 max-w-[200px] rounded-[32px] border border-[#CACACD] bg-[rgba(250,250,250,0.75)] shadow-[0_23px_14px_4px_rgba(24,24,27,0.03)] backdrop-blur-[12px]"
+            className="!mr-1 max-w-[200px] !p-2 rounded-[32px] border border-[#CACACD] bg-[rgba(250,250,250,0.75)] shadow-[0_23px_14px_4px_rgba(24,24,27,0.03)] backdrop-blur-[12px]"
           >
             <div className="flex flex-col gap-2 rounded-lg overflow-hidden">
               <button
@@ -80,7 +80,7 @@ const AddTokenEntry = React.forwardRef<AddTokenEntryInst, Props>(
                   history.push('/add-token');
                   setIsPopoverOpen(false);
                 }}
-                className="px-5 py-[10px] text-left rounded-[32px] bg-white transition-colors flex items-center gap-3   border-gray-200"
+                className="px-5 py-[10px] text-left bg-white transition-colors flex items-center justify-between rounded-[32px] disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <span className="text-sm font-medium text-primary-foreground">
                   Import tokens
