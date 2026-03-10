@@ -136,10 +136,6 @@ export default function ShowMoreGasSelectModal({
                     e.preventDefault();
                     e.stopPropagation();
 
-                    if (ctx?.gasMethod !== 'native') {
-                      signatureStore.setGasMethod('native');
-                    }
-
                     try {
                       if (externalPanelSelection) {
                         externalPanelSelection(gas);

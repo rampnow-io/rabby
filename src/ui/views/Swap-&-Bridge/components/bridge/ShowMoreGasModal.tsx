@@ -1,28 +1,14 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import BigNumber from 'bignumber.js';
-import { ReactComponent as IconGasCustomRightArrowCC } from 'ui/assets/approval/edit-arrow-right.svg';
-import { ReactComponent as IconGasLevelChecked } from '@/ui/assets/sign/check.svg';
-import { formatGasHeaderUsdValue, getUiType, useWallet } from '@/ui/utils';
+import { useWallet } from '@/ui/utils';
 import { getGasLevelI18nKey } from '@/ui/utils/trans';
-import { Dropdown, Modal, Tooltip } from 'antd';
-import { GasLevelIcon } from '../../../Approval/components/TxComponents/GasMenuButton';
-
-import { ReactComponent as RcIconGasActive } from 'ui/assets/sign/tx/gas-active.svg';
-import { ReactComponent as RcIconGasBlurCC } from 'ui/assets/sign/tx/gas-blur-cc.svg';
-
-import { ReactComponent as RcIconGasAccountBlurCC } from 'ui/assets/sign/tx/gas-account-blur-cc.svg';
-import { ReactComponent as RcIconGasAccountActive } from 'ui/assets/sign/tx/gas-account-active.svg';
-import { GasMethod } from '../../../Approval/components/TxComponents/GasSelectorHeader';
 import clsx from 'clsx';
 import { createGlobalState } from 'react-use';
-import { ReactComponent as RcIconLoading } from 'ui/component/ChainSelector/icons/loading-cc.svg';
 import {
   useSignatureStore,
   signatureStore,
 } from '@/ui/component/MiniSignV2/state';
-import { Popup } from '@/ui/component';
-import styled, { css } from 'styled-components';
 import { GasLevel } from '@rabby-wallet/rabby-api/dist/types';
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/primitives';
 
@@ -80,27 +66,13 @@ export default function ShowMoreGasSelectModal({
   const [open, setOpen] = useShowMoreGasSelectModalVisible();
   const [internalOpen, setInternalOpen] = React.useState(false);
 
-  const {
-    externalPanelSelection,
-    handleClickEdit,
-    gasCostUsdStr,
-    gasUsdList,
-    gasAccountIsNotEnough,
-    gasAccountCost,
-  } = gasInfoByUI || {};
+  const { externalPanelSelection, handleClickEdit } = gasInfoByUI || {};
 
   useEffect(() => {
     if (['idle', 'prefetching'].includes(status) || !ctx?.txsCalc?.length) {
       useSetGasInfoByUI()(undefined);
     }
   }, [status, ctx?.txsCalc?.length]);
-
-  const hasCustomRpc = !ctx?.noCustomRPC;
-
-  const calcGasAccountUsd = useCallback((n: number) => {
-    if (Number(n) < 0.0001) return `$${n}`;
-    return formatGasHeaderUsdValue(n || '0');
-  }, []);
 
   if (!ctx?.txsCalc?.length) return null;
 
@@ -124,117 +96,70 @@ export default function ShowMoreGasSelectModal({
         side="top"
         align="center"
         sideOffset={8}
-        className="w-[256px] rounded-[8px] border border-rabby-neutral-line bg-r-neutral-bg1 shadow-lg p-0 z-50"
+        className="!mr-1 max-w-[300px] !p-2 rounded-[32px] border border-[#CACACD] bg-[rgba(250,250,250,0.75)] shadow-[0_23px_14px_4px_rgba(24,24,27,0.03)] backdrop-blur-[12px]"
         onInteractOutside={(e) => {
           e.preventDefault();
           handleOpenChange(false);
         }}
       >
-        {/* GAS METHOD */}
-        <div className="flex items-center p-2 m-2 rounded-md border border-rabby-neutral-line">
-          <GasMethod
-            active={ctx?.gasMethod === 'native'}
-            onChange={() => signatureStore.setGasMethod('native')}
-            ActiveComponent={RcIconGasActive}
-            BlurComponent={RcIconGasBlurCC}
-            title={t('page.gasAccount.gasToken')}
-          />
+        <div>
+          <div className="space-y-2">
+            {ctx.gasList?.map((gas) => {
+              const gwei = new BigNumber(gas.price / 1e9).toFixed().slice(0, 8);
 
-          <div
-            className={clsx(hasCustomRpc && 'cursor-not-allowed opacity-50')}
-          >
-            <GasMethod
-              active={ctx?.gasMethod === 'gasAccount'}
-              onChange={() => {
-                if (hasCustomRpc) return;
-                signatureStore.setGasMethod('gasAccount');
-              }}
-              ActiveComponent={RcIconGasAccountActive}
-              BlurComponent={RcIconGasAccountBlurCC}
-              title={t('page.gasAccount.title')}
-            />
-          </div>
-        </div>
+              const isActive = ctx.selectedGas?.level === gas.level;
+              const isCustom = gas.level === 'custom';
 
-        {/* GAS LIST */}
-        <div className="space-y-2 px-4 pb-2">
-          {ctx.gasList?.map((gas) => {
-            const gwei = new BigNumber(gas.price / 1e9).toFixed().slice(0, 8);
+              return (
+                <div
+                  key={gas.level}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-            const isActive = ctx.selectedGas?.level === gas.level;
-            const isCustom = gas.level === 'custom';
-
-            let costUsd =
-              ctx.gasMethod === 'native'
-                ? gasUsdList?.[gas.level]
-                : gasAccountIsNotEnough?.[gas.level]?.[1];
-
-            if (isActive) {
-              costUsd =
-                ctx.gasMethod === 'gasAccount'
-                  ? calcGasAccountUsd(
-                      (gasAccountCost?.estimate_tx_cost || 0) +
-                        (gasAccountCost?.gas_cost || 0)
-                    )
-                  : gasCostUsdStr;
-            }
-
-            return (
-              <div
-                key={gas.level}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                onClick={async (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  try {
-                    if (externalPanelSelection) {
-                      externalPanelSelection(gas);
-                    } else if (wallet) {
-                      await signatureStore.updateGasLevel(gas, wallet as any);
+                    try {
+                      if (externalPanelSelection) {
+                        externalPanelSelection(gas);
+                      } else if (wallet) {
+                        await signatureStore.updateGasLevel(gas, wallet as any);
+                      }
+                    } catch (err) {
+                      console.error('Failed to select gas level', err);
                     }
-                  } catch (err) {
-                    console.error('Failed to select gas level', err);
-                  }
-                  if (isCustom) handleClickEdit?.();
-                  setTimeout(() => handleOpenChange(false), 0);
-                }}
-                className={clsx(
-                  'flex items-center justify-between h-[48px] px-2 rounded-md cursor-pointer',
-                  'hover:bg-r-blue-light-1',
-                  isActive && 'bg-r-blue-light-1'
-                )}
-                style={{
-                  pointerEvents: 'auto',
-                  userSelect: 'none',
-                  touchAction: 'manipulation',
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <GasLevelIcon level={gas.level} isActive={false} />
-                  <span className="text-sm font-medium">
-                    {t(getGasLevelI18nKey(gas.level))}
-                  </span>
-                  {!isCustom && (
-                    <span className="text-xs text-r-neutral-foot">
-                      {gwei} Gwei
+                    if (isCustom) handleClickEdit?.();
+                    setTimeout(() => handleOpenChange(false), 0);
+                  }}
+                  className={clsx(
+                    'flex items-center justify-between min-h-[66px] px-[22px] py-[12px] rounded-[999px] cursor-pointer',
+                    'bg-white ',
+                    isActive && 'ring-1 ring-primary'
+                  )}
+                  style={{
+                    pointerEvents: 'auto',
+                    userSelect: 'none',
+                    touchAction: 'manipulation',
+                  }}
+                >
+                  <div className="flex flex-col items-start gap-1">
+                    <span className="text-[15px] leading-none font-medium text-r-neutral-title-1">
+                      {t(getGasLevelI18nKey(gas.level))}
                     </span>
-                  )}
-                  {isActive && !isCustom && (
-                    <IconGasLevelChecked className="text-r-blue-default" />
-                  )}
-                </div>
+                    {!isCustom && (
+                      <span className="text-[13px] leading-none text-r-neutral-foot">
+                        {gwei} Gwei
+                      </span>
+                    )}
+                  </div>
 
-                {isCustom ? (
-                  <IconGasCustomRightArrowCC />
-                ) : (
-                  <span className="text-sm font-medium">{costUsd}</span>
-                )}
-              </div>
-            );
-          })}
+                  {isCustom ? <div className="w-16" /> : null}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </PopoverContent>
     </Popover>
