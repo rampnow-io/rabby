@@ -83,7 +83,6 @@ import { sendPersonalMessage } from '@/ui/utils/sendPersonalMessage';
 import { ga4 } from '@/utils/ga4';
 import { EcosystemBanner } from './components/EcosystemBanner';
 import { useMemoizedFn } from 'ahooks';
-import RateModalTriggerOnSettings from '@/ui/component/RateModal/RateModalTriggerOnSettings';
 import { useMakeMockDataForRateGuideExposure } from '@/ui/component/RateModal/hooks';
 import { BottomDrawer } from '@repo/ui';
 import { Button, ButtonType } from '@repo/ui/primitives';
@@ -1507,8 +1506,6 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
               />
             </div>
           )}
-
-          <RateModalTriggerOnSettings className="mb-[16px]" />
 
           {Object.values(renderData).map((group, idxl1) => (
             <div key={`g-${idxl1}`} className="setting-block py-2">
