@@ -15,8 +15,14 @@ const PAGE_COUNT = 10;
 
 export const HistoryList = ({
   isFilterScam = false,
+  chainId,
+  tokenId,
+  pageCount = 100,
 }: {
   isFilterScam?: boolean;
+  chainId?: string;
+  tokenId?: string;
+  pageCount?: number;
 }) => {
   const wallet = useWallet();
   const { t } = useTranslation();
@@ -52,8 +58,10 @@ export const HistoryList = ({
       ? await getAllTxHistory({ id: address })
       : await wallet.openapi.listTxHisotry({
           id: address,
+          chain_id: chainId,
+          token_id: tokenId,
           start_time: startTime,
-          page_count: 100,
+          page_count: pageCount,
         });
 
     const { project_dict, cate_dict, history_list } = res;
@@ -80,12 +88,11 @@ export const HistoryList = ({
     {
       target: scrollRef,
       isNoMore: (d) =>
-        isFilterScam ? true : !d?.last || (d?.list?.length || 0) < PAGE_COUNT,
+        isFilterScam ? true : !d?.last || (d?.list?.length || 0) < pageCount,
     }
   );
 
   const isEmpty = !loading && (data?.list?.length || 0) === 0;
-  console.log('HistoryList Rendered:', data);
 
   return (
     <div className="h-full relative">

@@ -106,6 +106,7 @@ import BuyPage from './buy/page';
 // import SendToken from './send-token';
 import ConnectedDappsPage from './ConnectedDapps';
 import SwapAndBridge from './Swap-&-Bridge';
+import TokenPortfolioPage from './token-portfolio/index';
 
 declare global {
   interface Window {
@@ -293,6 +294,9 @@ const Main = () => {
         </PrivateRoute>
         <PrivateRoute exact path="/add-token">
           <AddToken />
+        </PrivateRoute>
+        <PrivateRoute exact path="/token-portfolio">
+          <TokenPortfolioPage />
         </PrivateRoute>
         <PrivateRoute exact path="/hardware-wallet-list">
           <HardwareWalletList />

@@ -60,12 +60,12 @@ const BridgeOrNative = ({
 
   return tokenEntity ? (
     <>
-      <div className="flex flex-col gap-3 bg-r-neutral-card-1 rounded-[8px] gap-12 py-12">
+      <div className="flex flex-col gap-3 bg-r-neutral-card-1 rounded-[8px]  py-12">
         {tokenEntity?.domain_id ? (
           <>
             {isVerified && (
               <>
-                <div className="flex flex-row gap-2 justify-center items-center px-16 gap-6 w-full flex flex-row">
+                <div className="flex flex-row gap-2 justify-center items-center px-16  w-full ">
                   <Divide className="bg-r-neutral-line" />
                   {isBridgeDomain ? (
                     <div className="text-r-neutral-foot text-12 flex flex-row">
@@ -191,86 +191,91 @@ const ChainAndName = ({
   });
 
   return (
-    <div className="flex flex-col gap-3 bg-r-neutral-card-1 rounded-[8px]">
-      <div className="flex flex-row justify-between w-full px-16 py-12">
-        <span className="text-r-neutral-body text-[13px] font-normal">
-          {t('page.dashboard.tokenDetail.TokenName')}
-        </span>
-        <span className="text-r-neutral-title-1 text-13 font-medium">
-          {token.name || ''}
-        </span>
+    <div className="flex flex-col gap-1">
+      <div className="text-base text-primary-foreground pb-1 font-light">
+        Token details
       </div>
-      <div className="flex flex-row justify-between w-full px-16 py-12">
-        <span className="text-r-neutral-body text-[13px] font-normal">
-          {t('page.dashboard.tokenDetail.Chain')}
-        </span>
-        <div className="flex flex-row items-center gap-6">
-          <img src={chain?.logo || IconUnknown} className="w-16 h-16" />
-          <span className="text-r-neutral-title-1 text-13 font-medium">
-            {getChain(token?.chain)?.name}
+      <div className="flex flex-col gap-1.5 bg-r-neutral-card-1 rounded-[8px]">
+        <div className="flex flex-row justify-between w-full  ">
+          <span className="text-primary-foreground text-[13px] font-light">
+            Token
+          </span>
+          <span className="text-secondary-foreground text-[13px] font-light">
+            {token.name || ''}
           </span>
         </div>
-      </div>
-      {isShowAddress && (
-        <div className="flex flex-row justify-between w-full px-16 py-12">
-          <span className="text-r-neutral-body text-[13px] font-normal">
-            {t('page.dashboard.tokenDetail.ContractAddress')}
+        <div className="flex flex-row justify-between w-full  ">
+          <span className="text-primary-foreground text-[13px] font-light">
+            Network
           </span>
-          <div className="flex flex-row items-center gap-6">
-            <span className="text-r-neutral-title-1 text-13 font-medium">
-              {ellipsis(token.id)}
+          <div className="flex flex-row items-center gap-1.5">
+            <img src={chain?.logo} className="w-[16px] h-[16px]" />
+            <span className="text-secondary-foreground text-[13px] font-light">
+              {getChain(token?.chain)?.name}
             </span>
-            <ThemeIcon
-              src={RcIconExternal}
-              className="w-14 cursor-pointer text-r-neutral-foot"
-              onClick={() => {
-                handleClickLink(token);
-              }}
-            />
-            <ThemeIcon
-              src={IconCopy}
-              className="w-14 cursor-pointer text-r-neutral-foot"
-              onClick={() => {
-                copyAddress(token.id);
-              }}
-            ></ThemeIcon>
-            {/* <Copy
+          </div>
+        </div>
+        {isShowAddress && (
+          <div className="flex flex-row justify-between w-full ">
+            <span className="text-primary-foreground text-[13px] font-light">
+              {t('page.dashboard.tokenDetail.ContractAddress')}
+            </span>
+            <div className="flex flex-row items-center gap-1.5">
+              <span className="text-secondary-foreground text-[13px] font-light">
+                {ellipsis(token.id)}
+              </span>
+              <ThemeIcon
+                src={RcIconExternal}
+                className="w-[14px] cursor-pointer text-primary-foreground"
+                onClick={() => {
+                  handleClickLink(token);
+                }}
+              />
+              <ThemeIcon
+                src={IconCopy}
+                className="w-[14px] cursor-pointer text-primary-foreground"
+                onClick={() => {
+                  copyAddress(token.id);
+                }}
+              ></ThemeIcon>
+              {/* <Copy
               data={token.id}
               variant="address"
-              className="w-14 cursor-pointer text-r-neutral-foot font-medium"
+              className="w-14 cursor-pointer text-primary-foreground font-medium"
             /> */}
+            </div>
           </div>
-        </div>
-      )}
-      <div className="flex flex-row justify-between w-full px-16 py-12">
-        <div className="flex flex-row items-center gap-4">
-          <span className="text-r-neutral-body text-[13px] font-normal">
-            {'FDV'}
+        )}
+        <div className="flex flex-row justify-between w-full ">
+          <div className="flex flex-row items-center gap-1">
+            <span className="text-primary-foreground text-[13px] font-light">
+              {'FDV'}
+            </span>
+            <div className="relative">
+              <TooltipWithMagnetArrow
+                className="rectangle w-[max-content]"
+                title={t('page.dashboard.tokenDetail.fdvTips')}
+              >
+                <ThemeIcon
+                  src={RcIconHelp}
+                  className="w-[14px] text-primary-foreground"
+                ></ThemeIcon>
+              </TooltipWithMagnetArrow>
+            </div>
+          </div>
+          <span className="text-secondary-foreground text-[13px] font-light">
+            {tokenEntity?.fdv ? formatUsdValueKMB(tokenEntity.fdv) : '-'}
           </span>
-          <div className="relative">
-            <TooltipWithMagnetArrow
-              className="rectangle w-[max-content]"
-              title={t('page.dashboard.tokenDetail.fdvTips')}
-            >
-              <ThemeIcon
-                src={RcIconHelp}
-                className="w-14 text-r-neutral-foot"
-              ></ThemeIcon>
-            </TooltipWithMagnetArrow>
-          </div>
         </div>
-        <span className="text-r-neutral-title-1 text-13 font-medium">
-          {tokenEntity?.fdv ? formatUsdValueKMB(tokenEntity.fdv) : '-'}
-        </span>
+        {tokenEntity?.origin_token && (
+          <TokenDetailPopup
+            variant="add"
+            token={tokenEntity?.origin_token}
+            visible={visible}
+            onClose={() => setVisible(false)}
+          />
+        )}
       </div>
-      {tokenEntity?.origin_token && (
-        <TokenDetailPopup
-          variant="add"
-          token={tokenEntity?.origin_token}
-          visible={visible}
-          onClose={() => setVisible(false)}
-        />
-      )}
     </div>
   );
 };
@@ -305,61 +310,10 @@ const ListSiteAndCex = ({
   const { t } = useTranslation();
   const [detailVisible, setDetailVisible] = React.useState(false);
 
-  const SiteComponentsRender = useMemoizedFn(
-    (
-      siteArr: TokenEntityDetail['listed_sites'] | TokenEntityDetail['cex_list']
-    ) => {
-      const newArr = siteArr.slice(0, 5);
-      if (siteArr && siteArr.length > 0) {
-        return (
-          <div className="flex flex-row items-center gap-6">
-            {newArr.map((item, index) => (
-              <div key={index} className="relative">
-                <TooltipWithMagnetArrow
-                  className="rectangle"
-                  title={
-                    <div className="flex flex-row items-center gap-4">
-                      <div className="text-r-neutral-title-2 text-13">
-                        {item.name}
-                      </div>
-                      <ThemeIcon
-                        src={RcIconExternal}
-                        className="w-14 cursor-pointer text-r-neutral-title2"
-                        onClick={() => {
-                          openInTab(item.url || item.site_url);
-                        }}
-                        color="var(--r-neutral-title2, #FFF)"
-                      />
-                    </div>
-                  }
-                >
-                  <div>
-                    <img
-                      key={index}
-                      src={item.logo_url}
-                      className="w-20 h-20 rounded-full"
-                    ></img>
-                  </div>
-                </TooltipWithMagnetArrow>
-              </div>
-            ))}
-            {siteArr.length > 5 && (
-              <div className="text-r-neutral-foot text-12 flex flex-row">
-                +{siteArr.length - 5}
-              </div>
-            )}
-          </div>
-        );
-      } else {
-        return null;
-      }
-    }
-  );
-
   if (!siteArr?.length) {
     return (
-      <div className="flex flex-col gap-3 bg-r-neutral-card-1 rounded-[8px] gap-12 py-12">
-        <div className="text-r-neutral-foot text-13 flex flex-row items-center justify-center w-full">
+      <div className="flex flex-col gap-3 bg-r-neutral-card-1 rounded-[8px]  py-12">
+        <div className="text-r-neutral-foot text-[13px] flex flex-row items-center justify-center w-full">
           <img src={IconNoFind} className="w-14 mr-4" />
           {noSiteString}
         </div>
@@ -369,26 +323,6 @@ const ListSiteAndCex = ({
 
   return (
     <>
-      <div
-        className="flex flex-row bg-r-neutral-card-1 rounded-[8px] 
-      px-16 py-14 items-center justify-between 
-      border border-transparent
-      hover:bg-blue-light hover:bg-opacity-[0.1] hover:border-rabby-blue-default
-      cursor-pointer"
-        onClick={() => {
-          setDetailVisible(true);
-        }}
-      >
-        <div className="text-r-neutral-body text-13 font-normal">{title}</div>
-        <div className="flex flex-row items-center gap-6">
-          {SiteComponentsRender(siteArr || [])}
-
-          <ThemeIcon
-            src={IconArrowRight}
-            className="w-14 cursor-pointer text-r-neutral-foot"
-          ></ThemeIcon>
-        </div>
-      </div>
       <Popup
         visible={detailVisible}
         maskClosable
@@ -410,11 +344,11 @@ const ListSiteAndCex = ({
         }
         destroyOnClose
       >
-        <div className="flex flex-1 flex-col py-12 px-20 gap-12 overflow-y-auto">
+        <div className="flex flex-1 flex-col py-[12px] px-1 gap-3 overflow-y-auto">
           {siteArr?.map((item, index) => (
             <div
               key={index}
-              className="w-full flex flex-row items-center justify-between px-16 py-16 
+              className="w-full flex flex-row items-center justify-between px-4 py-4 
               rounded-[6px]
               border border-transparent 
               bg-r-neutral-card-1
@@ -428,13 +362,13 @@ const ListSiteAndCex = ({
                 <img
                   key={index}
                   src={item.logo_url}
-                  className="w-20 h-20 rounded-full"
+                  className="w-[20px] h-[20px] rounded-full"
                 ></img>
                 {item.name}
               </div>
               <ThemeIcon
                 src={RcIconExternal}
-                className="w-14 text-r-neutral-foot"
+                className="w-[14px] text-r-neutral-foot"
               />
             </div>
           ))}
@@ -458,45 +392,8 @@ const TokenChainAndContract = ({
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col gap-12">
-      {entityLoading ? (
-        <Skeleton.Input
-          active
-          style={{ width: 360, height: 48, borderRadius: 8 }}
-        />
-      ) : (
-        <BridgeOrNative
-          token={token}
-          tokenEntity={tokenEntity}
-        ></BridgeOrNative>
-      )}
-      {entityLoading ? (
-        <Skeleton.Input
-          active
-          style={{ width: 360, height: 48, borderRadius: 8 }}
-        />
-      ) : (
-        <ListSiteAndCex
-          siteArr={tokenEntity?.cex_list}
-          title={t('page.dashboard.tokenDetail.SupportedExchanges')}
-          noSiteString={t('page.dashboard.tokenDetail.NoSupportedExchanges')}
-          popupHeight={popupHeight}
-        ></ListSiteAndCex>
-      )}
-      {entityLoading ? (
-        <Skeleton.Input
-          active
-          style={{ width: 360, height: 48, borderRadius: 8 }}
-        />
-      ) : (
-        <ListSiteAndCex
-          popupHeight={popupHeight}
-          siteArr={tokenEntity?.listed_sites}
-          title={t('page.dashboard.tokenDetail.ListedBy')}
-          noSiteString={t('page.dashboard.tokenDetail.NoListedBy')}
-        ></ListSiteAndCex>
-      )}
-      <ChainAndName token={token} tokenEntity={tokenEntity}></ChainAndName>
+    <div className="flex flex-col gap-3">
+      <ChainAndName token={token} tokenEntity={tokenEntity} />
     </div>
   );
 };

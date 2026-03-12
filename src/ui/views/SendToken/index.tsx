@@ -189,7 +189,12 @@ function encodeTokenParam(currentToken: Pick<TokenItem, 'chain' | 'id'>) {
 }
 
 function decodeTokenParam(tokenParam: string) {
-  const [chain, id] = tokenParam.split(':');
+  const splitIndex = tokenParam.indexOf(':');
+  if (splitIndex === -1) {
+    return { chain: '', id: '' };
+  }
+  const chain = tokenParam.slice(0, splitIndex);
+  const id = tokenParam.slice(splitIndex + 1);
   return { chain, id };
 }
 
@@ -219,6 +224,10 @@ const SendToken = () => {
 
   // Core States
   const [form] = useForm<FormSendToken>();
+  const hasQueryToken = useMemo(
+    () => Boolean(new URLSearchParams(search).get('token')),
+    [search]
+  );
   const { toAddress, toAddressType, paramAmount } = useMemo(() => {
     const query = new URLSearchParams(search);
     return {
@@ -314,8 +323,10 @@ const SendToken = () => {
   }, [currentAccount?.type]);
 
   useEffect(() => {
-    showTokenSelectorRef?.();
-  }, []);
+    if (!hasQueryToken) {
+      showTokenSelectorRef?.();
+    }
+  }, [hasQueryToken, showTokenSelectorRef]);
 
   useEffect(() => {
     const values = form.getFieldsValue();
