@@ -35,6 +35,7 @@ import clsx from 'clsx';
 import { copyAddress } from '@/ui/utils/clipboard';
 import { usePopupContainer } from '@/ui/hooks/usePopupContainer';
 import { useLocation } from 'react-router-dom';
+import { CopyField } from '@repo/ui';
 
 const isDesktop = getUiType().isDesktop;
 const Divide = styled.div`
@@ -200,9 +201,13 @@ const ChainAndName = ({
           <span className="text-primary-foreground text-[13px] font-light">
             Token
           </span>
-          <span className="text-secondary-foreground text-[13px] font-light">
-            {token.name || ''}
-          </span>
+
+          <div className="flex flex-row items-center gap-1.5">
+            <img src={token?.logo_url} className="w-[16px] h-[16px]" />
+            <span className="text-secondary-foreground text-[13px] font-light">
+              {token.name || ''}
+            </span>
+          </div>
         </div>
         <div className="flex flex-row justify-between w-full  ">
           <span className="text-primary-foreground text-[13px] font-light">
@@ -231,13 +236,11 @@ const ChainAndName = ({
                   handleClickLink(token);
                 }}
               />
-              <ThemeIcon
-                src={IconCopy}
-                className="w-[14px] cursor-pointer text-primary-foreground"
-                onClick={() => {
-                  copyAddress(token.id);
-                }}
-              ></ThemeIcon>
+              <CopyField
+                value={token.id}
+                group={[4, 4]}
+                className="text-[16px] text-primary-foreground font-medium"
+              />
               {/* <Copy
               data={token.id}
               variant="address"

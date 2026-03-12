@@ -37,7 +37,7 @@ const TokenItemAsset: React.FC<Props> = ({ item }) => {
         </TooltipView>
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 overflow-hidden">
+      <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
         <span className="text-primary-foreground text-base font-medium truncate">
           {chain?.name}
         </span>
@@ -79,7 +79,7 @@ const TokenItemUSDValue: React.FC<Props> = ({ item }) => {
   const hasPriceChange = typeof item.price_24h_change === 'number';
 
   return (
-    <TCell className={clsx('flex flex-col items-end gap-2 py-8')}>
+    <TCell className={clsx('flex flex-col items-end gap-0.5 py-8')}>
       <div className="text-base text-primary-foreground">
         {item._usdValueStr || '$0.00'}
       </div>
