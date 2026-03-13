@@ -7,9 +7,14 @@ import { CHAINS } from 'consts';
 import { DisplayedProject } from './project';
 import { WalletControllerType } from '../WalletContext';
 import { requestOpenApiWithChainId } from '@/ui/utils/openapi';
-import { isTestnet as checkIsTestnet } from '@/utils/chain';
+import {
+  isTestnet as checkIsTestnet,
+  getChainList,
+  getMainnetChainList,
+} from '@/utils/chain';
 import { pQueue } from './utils';
 import { flatten } from 'lodash';
+import { getTokenList } from '@/snippets/client';
 
 export const queryTokensCache = async (
   user_id: string,
@@ -33,54 +38,28 @@ export const batchQueryTokens = async (
   isAll: boolean = true
 ) => {
   if (!chainId && !isTestnet) {
-    const usedChains = await wallet.openapi.usedChainList(user_id);
-    let chainIdList = usedChains.map((item) => item.id);
-
-    console.log('📊 usedChainList returned:', chainIdList.length, 'chains');
-
-    // Dynamically get all supported chains from CHAINS constant
-    // Filter out testnet chains to get all mainnet chains
-    const allSupportedChains = Object.values(CHAINS)
-      .filter((chain) => !chain.isTestnet)
-      .map((chain) => chain.serverId);
-
-    // Add any missing supported chains to ensure we query all available tokens
-    const missingChains = allSupportedChains.filter(
-      (chain) => !chainIdList.includes(chain)
+    const allSupportedChains = getMainnetChainList().map(
+      (chain) => chain.serverId
     );
 
-    if (missingChains.length > 0) {
-      chainIdList = [...chainIdList, ...missingChains];
-    }
+    const response = await getTokenList({
+      body: {
+        address: user_id,
+        chains: allSupportedChains,
+      },
+    });
 
-    const res = await Promise.all(
-      chainIdList.map((serverId) =>
-        pQueue.add(() => {
-          return requestOpenApiWithChainId(
-            ({ openapi }) => openapi.listToken(user_id, serverId, isAll),
-            {
-              wallet,
-              isTestnet,
-            }
-          );
-        })
-      )
-    );
-
-    const flatRes = flatten(res);
-
-    // Debug: Log API response for Pulse tokens
-    const pulseTokensFromAPI = flatRes.filter((t) => t.chain === 'pls');
-
-    return flatRes;
+    return flatten((response.data?.data?.list as unknown) as TokenItem[][]);
   }
-  return requestOpenApiWithChainId(
-    ({ openapi }) => openapi.listToken(user_id, chainId, isAll),
-    {
-      wallet,
-      isTestnet,
-    }
-  );
+
+  const response = await getTokenList({
+    body: {
+      address: user_id,
+      chains: [chainId || ''],
+    },
+  });
+
+  return flatten((response.data?.data?.list as unknown) as TokenItem[]);
 };
 
 export const batchQueryHistoryTokens = async (

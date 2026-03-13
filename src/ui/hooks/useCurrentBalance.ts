@@ -93,7 +93,6 @@ export default function useCurrentBalance(
     if (!account || noNeedBalance) return;
     setBalanceLoading(true);
     const cacheData = await wallet.getAddressCacheBalance(account);
-    const apiLevel = await wallet.getAPIConfig([], 'ApiLevel', false);
     if (cacheData) {
       setBalanceFromCache(true);
       setBalance(cacheData.total_usd_value);
@@ -102,23 +101,15 @@ export default function useCurrentBalance(
       setChainBalances(chainList);
 
       if (update) {
-        if (apiLevel < 2) {
-          setBalanceLoading(true);
-          await getInMemoryAddressBalance(account, force);
-        } else {
-          setBalanceLoading(false);
-        }
+        setBalanceLoading(true);
+        await getInMemoryAddressBalance(account, force);
       } else {
         setBalanceLoading(false);
       }
     } else {
-      if (apiLevel < 2) {
-        await getInMemoryAddressBalance(account, force);
-        setBalanceLoading(false);
-        setBalanceFromCache(false);
-      } else {
-        setBalanceLoading(false);
-      }
+      await getInMemoryAddressBalance(account, force);
+      setBalanceLoading(false);
+      setBalanceFromCache(false);
     }
   };
 

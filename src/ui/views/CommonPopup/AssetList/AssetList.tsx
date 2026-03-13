@@ -15,12 +15,10 @@ export const AssetList = ({
   visible,
   onClose,
   selectedNetwork,
-  onNetworkChange,
 }: {
   visible: boolean;
   onClose?(): void;
   selectedNetwork?: string | null;
-  onNetworkChange?(network: string | null): void;
 }) => {
   const { t } = useTranslation();
   const { setHeight, data } = useCommonPopupView();

@@ -218,12 +218,12 @@ const TokenSelectorModal = ({
                     <div className="flex flex-col gap-1 text-right flex-shrink-0">
                       {token.amount !== undefined && token.amount > 0 && (
                         <div className="text-12 text-r-neutral-body">
-                          {token.amount?.toFixed(4)}
+                          {Number(token.amount)?.toFixed(4)}
                         </div>
                       )}
                       {token.price !== undefined && token.price > 0 && (
                         <div className="text-12 font-medium text-r-neutral-title-1">
-                          ${token.price.toFixed(2)}
+                          ${Number(token.price)?.toFixed(2)}
                         </div>
                       )}
                     </div>

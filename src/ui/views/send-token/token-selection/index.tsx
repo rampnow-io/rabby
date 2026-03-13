@@ -207,12 +207,13 @@ const TokenSelection: React.FC<TokenSelectionProps> = ({
                   </div>
                 ) : (
                   <div className="flex flex-col gap-1 text-right">
-                    {token.amount !== undefined && token.amount > 0 && (
+                    {token.amount !== undefined && Number(token.amount) > 0 && (
                       <div className="text-12 text-r-neutral-body">
-                        {token.amount?.toFixed(4)} {getTokenSymbol(token)}
+                        {Number(token.amount)?.toFixed(4)}{' '}
+                        {getTokenSymbol(token)}
                       </div>
                     )}
-                    {token.price !== undefined && token.price > 0 && (
+                    {token.price !== undefined && Number(token.price) > 0 && (
                       <div className="text-12 font-medium text-r-neutral-title-1">
                         ${token.price.toFixed(2)}
                       </div>

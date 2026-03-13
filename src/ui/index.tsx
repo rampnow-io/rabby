@@ -1,3 +1,7 @@
+import { initializeRampnowClient } from '@/utils/rampnow-client';
+
+initializeRampnowClient();
+
 import browser from 'webextension-polyfill';
 
 // Import pre-built UI package CSS directly (already processed by Tailwind)

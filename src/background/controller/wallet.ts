@@ -62,6 +62,7 @@ import { ConnectedSite } from '../service/permission';
 import {
   BridgeHistory,
   TokenItem,
+  TotalBalanceResponse,
   Tx,
   testnetOpenapiService,
 } from '../service/openapi';
@@ -101,7 +102,7 @@ import { ProviderRequest } from './provider/type';
 import { QuoteResult } from '@rabby-wallet/rabby-swap/dist/quote';
 import transactionWatcher from '../service/transactionWatcher';
 import Safe from '@rabby-wallet/gnosis-sdk';
-import { Chain } from '@debank/common';
+import { Chain, CHAINS } from '@debank/common';
 import { Chain as LocalChain } from '@/types/chain';
 import { fromHex, isAddress, zeroAddress } from 'viem';
 import {
@@ -110,6 +111,7 @@ import {
   findChainByEnum,
   findChainByServerID,
   getChainList,
+  getMainnetChainList,
 } from '@/utils/chain';
 import { cached } from '../utils/cache';
 import { createSafeService } from '../utils/safe';
@@ -156,6 +158,7 @@ import {
   SendTxHistoryItem,
   SwapTxHistoryItem,
 } from '../service/transactionHistory';
+import { getChainBalanceList } from '@/snippets/client';
 
 const stashKeyrings: Record<string | number, any> = {};
 
@@ -1691,6 +1694,22 @@ export class WalletController extends BaseController {
   private getTotalBalanceCached = cached(
     'getTotalBalanceCached',
     async (address: string) => {
+      const fetchhainBalanceList = async (address: string) => {
+        const allSupportedChains = getMainnetChainList().map(
+          (chain) => chain.serverId
+        );
+
+        const chainBalanceResp = await getChainBalanceList({
+          body: {
+            address,
+            chains: allSupportedChains,
+            force_fetch: true,
+          },
+        });
+
+        return (chainBalanceResp.data?.data as unknown) as TotalBalanceResponse;
+      };
+
       const addresses = await keyringService.getAllAdresses();
       const filtered = addresses.filter((item) =>
         isSameAddress(item.address, address)
@@ -1701,7 +1720,15 @@ export class WalletController extends BaseController {
       ) {
         core = true;
       }
-      const data = await openapiService.getTotalBalance(address, core);
+      const data = await fetchhainBalanceList(address);
+      if (!data) {
+        return {
+          total_usd_value: 0,
+          evmUsdValue: 0,
+          appChainIds: [],
+          chain_list: [],
+        };
+      }
       let appChainTotalNetWorth = 0;
       const appChainIds: string[] = [];
       try {
@@ -1758,7 +1785,7 @@ export class WalletController extends BaseController {
     const addr = address?.toLowerCase() || '';
 
     if (isTestnet) {
-      return this.getTestnetTotalBalanceCached.fn([addr], addr, force);
+      // return this.getTestnetTotalBalanceCached.fn([addr], addr, force);
     }
     return this.getTotalBalanceCached.fn([addr], addr, force);
   };

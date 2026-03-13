@@ -8,7 +8,7 @@ interface Props {
   balance: number;
 }
 export const BalanceLabel: React.FC<Props> = ({ balance }) => {
-  const splitBalance = splitNumberByStep((balance || 0).toFixed(2));
+  const splitBalance = splitNumberByStep((Number(balance) || 0).toFixed(2));
   const { hiddenBalance } = useRabbySelector((state) => state.preference);
   const dispatch = useRabbyDispatch();
 

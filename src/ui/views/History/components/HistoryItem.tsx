@@ -238,7 +238,7 @@ export const HistoryItem = ({
   isTestnet,
 }: HistoryItemProps) => {
   const chainItem = getChain(data.chain);
-  const isFailed = data.tx?.status === 0;
+  // const isFailed = data.tx?.status === 0;
   // const isScam = data.is_scam;
   const [isViewModal, setIsViewModal] = useState(false);
   const { t } = useTranslation();
@@ -246,7 +246,7 @@ export const HistoryItem = ({
   const cateName =
     data.cate_id && cateDict ? cateDict[data.cate_id]?.name : undefined;
 
-  if (!chainItem || isFailed) {
+  if (!chainItem) {
     return <div></div>;
   }
   // console.log('History Item Rendered:', data);
@@ -310,11 +310,11 @@ export const HistoryItem = ({
               <span className="text-[14px] font-medium text-r-neutral-title-1">
                 {cateName || (isReceive ? 'Received' : 'Sent')}
               </span>
-              {isFailed && (
+              {/* {isFailed && (
                 <span className="text-[11px] px-[6px] py-[1px] rounded-full bg-r-red-light text-r-red-default font-medium">
                   {t('global.failed')}
                 </span>
-              )}
+              )} */}
             </div>
             <div className="text-[13px] max-w-[170px] text-secondary-foreground truncate">
               {amountText && tokenSymbol

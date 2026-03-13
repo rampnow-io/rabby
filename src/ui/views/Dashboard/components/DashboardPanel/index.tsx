@@ -17,6 +17,8 @@ import useCurrentBalance from '@/ui/hooks/useCurrentBalance';
 import { formatAppChain } from '@/ui/hooks/useAppChain';
 import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 import { CHAINS } from 'consts';
+import { getChain } from '@/utils';
+import { getMainnetChainList } from '@/utils/chain';
 
 const className =
   '!bg-white text-base data-[state=active]:!bg-white shadow-none data-[state=active]:!hover:bg-white data-[state=active]:shadow-none w-16';
@@ -35,7 +37,6 @@ export const DashboardPanel: React.FC<{
   );
   const [showNetworkMenu, setShowNetworkMenu] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const { data, apps, setData } = useCommonPopupView();
   const addTokenEntryRef = React.useRef<AddTokenEntryInst>(null);
 
@@ -64,7 +65,7 @@ export const DashboardPanel: React.FC<{
   // Memoize fallback chains to prevent infinite loops
   const fallbackChains = useMemo(
     () =>
-      Object.values(CHAINS)
+      Object.values(getMainnetChainList())
         .filter((chain) => !chain.isTestnet)
         .map(
           (chain) =>
@@ -196,7 +197,7 @@ export const DashboardPanel: React.FC<{
                           handleNetworkSelect(
                             chain.id,
                             chain.name,
-                            chain.logo_url
+                            getChain(chain.id)?.logo || chain.logo_url
                           )
                         }
                         className={`w-full text-left px-4 py-2 hover:bg-r-neutral-bg-1 text-primary-foreground transition-colors font-medium text-xs flex items-center gap-2 ${
@@ -205,17 +206,17 @@ export const DashboardPanel: React.FC<{
                             : ''
                         }`}
                       >
-                        {chain.logo_url && (
+                        {getChain(chain.id)?.logo && (
                           <img
-                            src={chain.logo_url}
-                            alt={chain.name}
+                            src={getChain(chain.id)?.logo}
+                            alt={getChain(chain.id)?.name}
                             className="w-4 h-4 rounded-full"
                           />
                         )}
                         <span>
                           {chain.name}
                           {chain.usd_value
-                            ? ` (${chain.usd_value.toFixed(2)})`
+                            ? ` (${Number(chain.usd_value).toFixed(2)})`
                             : ''}
                         </span>
                       </button>
@@ -241,14 +242,11 @@ export const DashboardPanel: React.FC<{
               visible={true}
               onClose={() => {}}
               selectedNetwork={selectedNetworkId}
-              onNetworkChange={(id) => {
-                setSelectedNetworkId(id);
-              }}
             />
           </TabsContent>
 
           <TabsContent value="activity" className="h-full">
-            <HistoryList />
+            <HistoryList selectedChainId={selectedNetworkId} />
           </TabsContent>
         </div>
       </Tabs>

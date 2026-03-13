@@ -5,10 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAsync, useDebounce } from 'react-use';
 import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 import { ReactComponent as RcIconInfo } from '@/ui/assets/perps/IconInfo.svg';
-import {
-  batchQueryTokens,
-  queryTokensCache,
-} from '@/ui/utils/portfolio/tokenUtils';
+import { batchQueryTokens } from '@/ui/utils/portfolio/tokenUtils';
 import { isSameAddress, useWallet } from '@/ui/utils';
 import { ARB_USDC_TOKEN_ID, ARB_USDC_TOKEN_ITEM } from '../constants';
 import { ARB_USDC_TOKEN_SERVER_CHAIN } from '../constants';
@@ -26,7 +23,11 @@ import {
 import clsx from 'clsx';
 import { Account } from '@/background/service/preference';
 import { getTokenSymbol, tokenAmountBn } from '@/ui/utils/token';
-import { findChainByEnum, findChainByServerID } from '@/utils/chain';
+import {
+  findChainByEnum,
+  findChainByServerID,
+  getMainnetChainList,
+} from '@/utils/chain';
 import { CHAINS_ENUM } from '@/types/chain';
 import { Tx } from 'background/service/openapi';
 import { useRabbyDispatch } from '@/ui/store';
@@ -35,6 +36,8 @@ import { useMiniSigner } from '@/ui/hooks/useSigner';
 import { MINI_SIGN_ERROR } from '@/ui/component/MiniSignV2/state/SignatureManager';
 import TokenSelectPopup from './TokenSelectPopup';
 import { Button } from '@repo/ui/primitives';
+import { flatten } from 'lodash';
+import { getTokenListCached } from '@/snippets/client';
 
 export type PerpsDepositAmountPopupProps = PopupProps & {
   type: 'deposit' | 'withdraw';
@@ -125,7 +128,20 @@ export const PerpsDepositAmountPopup: React.FC<PerpsDepositAmountPopupProps> = (
   const fetchTokenList = useCallback(async () => {
     setTokenListLoading(true);
     if (!currentPerpsAccount?.address || !visible) return [];
-    const res = await queryTokensCache(currentPerpsAccount.address, wallet);
+
+    const allSupportedChains = getMainnetChainList().map(
+      (chain) => chain.serverId
+    );
+
+    const response = await getTokenListCached({
+      body: {
+        address: currentPerpsAccount.address,
+        chains: allSupportedChains,
+      },
+    }).then((res) => (res.data?.data?.list as unknown) as TokenItem[][]);
+
+    const res = flatten(response);
+
     const usdcToken = res.find(
       (t) =>
         t.id === ARB_USDC_TOKEN_ID && t.chain === ARB_USDC_TOKEN_SERVER_CHAIN

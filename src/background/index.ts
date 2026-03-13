@@ -1,3 +1,7 @@
+import { initializeRampnowClient } from '@/utils/rampnow-client';
+
+initializeRampnowClient();
+
 import eventBus from '@/eventBus';
 import migrateData from '@/migrations';
 import { getOriginFromUrl, transformFunctionsToZero } from '@/utils';

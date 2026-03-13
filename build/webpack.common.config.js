@@ -31,7 +31,10 @@ const {
   minify: false, // it's still an experimental feature
   componentIdPrefix: 'rabby-',
   // Fix for empty path write error with newer TypeScript versions
-  identifierCachePath: path.resolve(__dirname, '../tmp/styled-components-id-mappings.json'),
+  identifierCachePath: path.resolve(
+    __dirname,
+    '../tmp/styled-components-id-mappings.json'
+  ),
 });
 // 'chrome-mv2', 'chrome-mv3', 'firefox-mv2', 'firefox-mv3'
 const MANIFEST_TYPE = process.env.MANIFEST_TYPE || 'chrome-mv2';
@@ -241,6 +244,7 @@ const config = {
       'process.env.RABBY_BUILD_GIT_HASH': JSON.stringify(BUILD_GIT_HASH),
       'process.env.ETHERSCAN_KEY': JSON.stringify(process.env.ETHERSCAN_KEY),
       'process.env.SAFE_API_KEY': JSON.stringify(process.env.SAFE_API_KEY),
+      'process.env.APP_API_URL': JSON.stringify(process.env.APP_API_URL),
     }),
     new CopyPlugin({
       patterns: [
@@ -298,7 +302,9 @@ const config = {
       moment: require.resolve('dayjs'),
       '@debank/common': require.resolve('@debank/common/dist/index-rabby'),
       'react-window': paths.rootResolve('src/utils/react-window-shim.ts'),
-      '@repo/ui/styles.css': paths.rootResolve('src/packages/ui/dist/index.css'),
+      '@repo/ui/styles.css': paths.rootResolve(
+        'src/packages/ui/dist/index.css'
+      ),
     },
     plugins: [new TSConfigPathsPlugin()],
     fallback: {

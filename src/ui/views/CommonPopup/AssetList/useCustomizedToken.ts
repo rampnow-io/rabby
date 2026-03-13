@@ -1,4 +1,5 @@
 import { Token as CustomizedToken } from '@/background/service/preference';
+import { getCustomTokenList } from '@/snippets/client';
 import { useRabbySelector } from '@/ui/store';
 import { useWallet } from '@/ui/utils';
 import {
@@ -30,10 +31,14 @@ export const useCustomizedToken = () => {
   const getAll = React.useCallback(async () => {
     const list = await wallet.getCustomizedToken();
     const uuids = list.map((item) => `${item.chain}:${item.address}`);
-    const tokenRes = await wallet.openapi.customListToken(
-      uuids,
-      currentAccount!.address
-    );
+    const res = await getCustomTokenList({
+      body: {
+        assets: uuids,
+        address: currentAccount?.address || '',
+      },
+    });
+
+    const tokenRes = (res.data?.data as unknown) as TokenItem[];
     const tokensDict: Record<string, TokenItem[]> = {};
     tokenRes.forEach((token) => {
       if (!tokensDict[token.chain]) {
