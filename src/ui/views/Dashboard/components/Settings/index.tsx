@@ -844,202 +844,202 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
         // },
       ] as SettingItem[],
     },
-    settings: {
-      label: t('page.dashboard.settings.settings.label'),
-      items: [
-        // {
-        //   leftIcon: RcIconDappSwitchAddress,
-        //   content: t('page.dashboard.settings.settings.enableDappAccount'),
-        //   rightIcon: (
-        //     <Switch
-        //       checked={isEnabledDappAccount}
-        //       onChange={handleEnableDappAccount}
-        //     />
-        //   ),
-        // },
+    // settings: {
+    //   label: t('page.dashboard.settings.settings.label'),
+    //   items: [
+    //     // {
+    //     //   leftIcon: RcIconDappSwitchAddress,
+    //     //   content: t('page.dashboard.settings.settings.enableDappAccount'),
+    //     //   rightIcon: (
+    //     //     <Switch
+    //     //       checked={isEnabledDappAccount}
+    //     //       onChange={handleEnableDappAccount}
+    //     //     />
+    //     //   ),
+    //     // },
 
-        // {
-        //   leftIcon: RcIconCustomTestnet,
-        //   content: t('page.dashboard.settings.settings.customTestnet'),
-        //   onClick: () => {
-        //     history.push('/custom-testnet');
-        //     matomoRequestEvent({
-        //       category: 'Setting',
-        //       action: 'clickToUse',
-        //       label: 'Custom Testnet',
-        //     });
+    //     // {
+    //     //   leftIcon: RcIconCustomTestnet,
+    //     //   content: t('page.dashboard.settings.settings.customTestnet'),
+    //     //   onClick: () => {
+    //     //     history.push('/custom-testnet');
+    //     //     matomoRequestEvent({
+    //     //       category: 'Setting',
+    //     //       action: 'clickToUse',
+    //     //       label: 'Custom Testnet',
+    //     //     });
 
-        //     ga4.fireEvent('More_CustomTestnet', {
-        //       event_category: 'Click More',
-        //     });
+    //     //     ga4.fireEvent('More_CustomTestnet', {
+    //     //       event_category: 'Click More',
+    //     //     });
 
-        //     reportSettings('Custom Testnet');
-        //   },
-        // },
-        // {
-        //   leftIcon: RcIconCustomRPC,
-        //   content: t('page.dashboard.settings.settings.customRpc'),
-        //   onClick: () => {
-        //     history.push('/custom-rpc');
-        //     matomoRequestEvent({
-        //       category: 'Setting',
-        //       action: 'clickToUse',
-        //       label: 'Custom RPC',
-        //     });
+    //     //     reportSettings('Custom Testnet');
+    //     //   },
+    //     // },
+    //     // {
+    //     //   leftIcon: RcIconCustomRPC,
+    //     //   content: t('page.dashboard.settings.settings.customRpc'),
+    //     //   onClick: () => {
+    //     //     history.push('/custom-rpc');
+    //     //     matomoRequestEvent({
+    //     //       category: 'Setting',
+    //     //       action: 'clickToUse',
+    //     //       label: 'Custom RPC',
+    //     //     });
 
-        //     ga4.fireEvent('More_CustomRPC', {
-        //       event_category: 'Click More',
-        //     });
+    //     //     ga4.fireEvent('More_CustomRPC', {
+    //     //       event_category: 'Click More',
+    //     //     });
 
-        //     reportSettings('Custom RPC');
-        //   },
-        // },
-        // {
-        //   leftIcon: RcIconI18n,
-        //   content: t('page.dashboard.settings.settings.currentLanguage'),
-        //   onClick: () => {
-        //     matomoRequestEvent({
-        //       category: 'Setting',
-        //       action: 'clickToUse',
-        //       label: 'Current Language',
-        //     });
+    //     //     reportSettings('Custom RPC');
+    //     //   },
+    //     // },
+    //     // {
+    //     //   leftIcon: RcIconI18n,
+    //     //   content: t('page.dashboard.settings.settings.currentLanguage'),
+    //     //   onClick: () => {
+    //     //     matomoRequestEvent({
+    //     //       category: 'Setting',
+    //     //       action: 'clickToUse',
+    //     //       label: 'Current Language',
+    //     //     });
 
-        //     ga4.fireEvent('More_CurrentLanguage', {
-        //       event_category: 'Click More',
-        //     });
+    //     //     ga4.fireEvent('More_CurrentLanguage', {
+    //     //       event_category: 'Click More',
+    //     //     });
 
-        //     reportSettings('Current Language');
-        //     setIsShowLangModal(true);
-        //   },
-        //   rightIcon: (
-        //     <div className="flex items-center">
-        //       <span
-        //         className="text-14 mr-[8px] text-r-neutral-title-1"
-        //         role="button"
-        //       >
-        //         {langLabel}
-        //       </span>
-        //       <ThemeIcon
-        //         src={RcIconArrowRight}
-        //         className="icon icon-arrow-right"
-        //       />
-        //     </div>
-        //   ),
-        // },
-        {
-          leftIcon: RcThemeIcon,
-          content: t('page.dashboard.settings.settings.toggleThemeMode'),
-          onClick: () => {
-            matomoRequestEvent({
-              category: 'Setting',
-              action: 'clickToUse',
-              label: 'Theme Mode',
-            });
+    //     //     reportSettings('Current Language');
+    //     //     setIsShowLangModal(true);
+    //     //   },
+    //     //   rightIcon: (
+    //     //     <div className="flex items-center">
+    //     //       <span
+    //     //         className="text-14 mr-[8px] text-r-neutral-title-1"
+    //     //         role="button"
+    //     //       >
+    //     //         {langLabel}
+    //     //       </span>
+    //     //       <ThemeIcon
+    //     //         src={RcIconArrowRight}
+    //     //         className="icon icon-arrow-right"
+    //     //       />
+    //     //     </div>
+    //     //   ),
+    //     // },
+    //     {
+    //       leftIcon: RcThemeIcon,
+    //       content: t('page.dashboard.settings.settings.toggleThemeMode'),
+    //       onClick: () => {
+    //         matomoRequestEvent({
+    //           category: 'Setting',
+    //           action: 'clickToUse',
+    //           label: 'Theme Mode',
+    //         });
 
-            ga4.fireEvent('More_ThemeMode', {
-              event_category: 'Click More',
-            });
+    //         ga4.fireEvent('More_ThemeMode', {
+    //           event_category: 'Click More',
+    //         });
 
-            reportSettings('Theme Mode');
-            setIsShowThemeModeModal(true);
-          },
-          rightIcon: (
-            <div className="flex items-center">
-              <span
-                className="text-14 mr-[8px] text-r-neutral-title-1"
-                role="button"
-              >
-                {ThemeModes.find((item) => item.code === themeMode)?.name ||
-                  '-'}
-              </span>
-              <ThemeIcon
-                src={RcIconArrowRight}
-                className="icon icon-arrow-right"
-              />
-            </div>
-          ),
-        },
-        // {
-        //   leftIcon: RcIconPreferMetamask,
-        //   content: (
-        //     <div className="text-[13px]">
-        //       {t('page.dashboard.settings.settings.metamaskMode')}
-        //     </div>
-        //   ),
-        //   onClick: () => {
-        //     history.push('/metamask-mode-dapps');
-        //     matomoRequestEvent({
-        //       category: 'Setting',
-        //       action: 'clickToUse',
-        //       label: 'MetaMask Mode Dapps',
-        //     });
+    //         reportSettings('Theme Mode');
+    //         setIsShowThemeModeModal(true);
+    //       },
+    //       rightIcon: (
+    //         <div className="flex items-center">
+    //           <span
+    //             className="text-14 mr-[8px] text-r-neutral-title-1"
+    //             role="button"
+    //           >
+    //             {ThemeModes.find((item) => item.code === themeMode)?.name ||
+    //               '-'}
+    //           </span>
+    //           <ThemeIcon
+    //             src={RcIconArrowRight}
+    //             className="icon icon-arrow-right"
+    //           />
+    //         </div>
+    //       ),
+    //     },
+    //     // {
+    //     //   leftIcon: RcIconPreferMetamask,
+    //     //   content: (
+    //     //     <div className="text-[13px]">
+    //     //       {t('page.dashboard.settings.settings.metamaskMode')}
+    //     //     </div>
+    //     //   ),
+    //     //   onClick: () => {
+    //     //     history.push('/metamask-mode-dapps');
+    //     //     matomoRequestEvent({
+    //     //       category: 'Setting',
+    //     //       action: 'clickToUse',
+    //     //       label: 'MetaMask Mode Dapps',
+    //     //     });
 
-        //     ga4.fireEvent('More_MetaMaskModeDapps', {
-        //       event_category: 'Click More',
-        //     });
+    //     //     ga4.fireEvent('More_MetaMaskModeDapps', {
+    //     //       event_category: 'Click More',
+    //     //     });
 
-        //     reportSettings('MetaMask Mode Dapps');
-        //   },
-        // },
-        // {
-        //   leftIcon: RcIconAutoLock,
-        //   content: t('page.dashboard.settings.autoLockTime'),
-        //   onClick: () => {
-        //     matomoRequestEvent({
-        //       category: 'Setting',
-        //       action: 'clickToUse',
-        //       label: 'Auto lock time',
-        //     });
+    //     //     reportSettings('MetaMask Mode Dapps');
+    //     //   },
+    //     // },
+    //     // {
+    //     //   leftIcon: RcIconAutoLock,
+    //     //   content: t('page.dashboard.settings.autoLockTime'),
+    //     //   onClick: () => {
+    //     //     matomoRequestEvent({
+    //     //       category: 'Setting',
+    //     //       action: 'clickToUse',
+    //     //       label: 'Auto lock time',
+    //     //     });
 
-        //     ga4.fireEvent('More_AutoLockTime', {
-        //       event_category: 'Click More',
-        //     });
+    //     //     ga4.fireEvent('More_AutoLockTime', {
+    //     //       event_category: 'Click More',
+    //     //     });
 
-        //     reportSettings('Auto lock time');
-        //     setIsShowAutoLockModal(true);
-        //   },
-        //   rightIcon: (
-        //     <div className="flex items-center">
-        //       <span
-        //         className="text-14 mr-[8px] text-r-neutral-title-1"
-        //         role="button"
-        //       >
-        //         {autoLockTimeLabel}
-        //       </span>
-        //       <ThemeIcon
-        //         src={RcIconArrowRight}
-        //         className="icon icon-arrow-right"
-        //       />
-        //     </div>
-        //   ),
-        // },
+    //     //     reportSettings('Auto lock time');
+    //     //     setIsShowAutoLockModal(true);
+    //     //   },
+    //     //   rightIcon: (
+    //     //     <div className="flex items-center">
+    //     //       <span
+    //     //         className="text-14 mr-[8px] text-r-neutral-title-1"
+    //     //         role="button"
+    //     //       >
+    //     //         {autoLockTimeLabel}
+    //     //       </span>
+    //     //       <ThemeIcon
+    //     //         src={RcIconArrowRight}
+    //     //         className="icon icon-arrow-right"
+    //     //       />
+    //     //     </div>
+    //     //   ),
+    //     // },
 
-        // {
-        //   leftIcon: RcIconClear,
-        //   content: t('page.dashboard.settings.clearPending'),
-        //   onClick: () => {
-        //     matomoRequestEvent({
-        //       category: 'Setting',
-        //       action: 'clickToUse',
-        //       label: 'Reset Account',
-        //     });
+    //     // {
+    //     //   leftIcon: RcIconClear,
+    //     //   content: t('page.dashboard.settings.clearPending'),
+    //     //   onClick: () => {
+    //     //     matomoRequestEvent({
+    //     //       category: 'Setting',
+    //     //       action: 'clickToUse',
+    //     //       label: 'Reset Account',
+    //     //     });
 
-        //     ga4.fireEvent('More_ResetAccount', {
-        //       event_category: 'Click More',
-        //     });
+    //     //     ga4.fireEvent('More_ResetAccount', {
+    //     //       event_category: 'Click More',
+    //     //     });
 
-        //     setShowResetAccountModal(true);
-        //     reportSettings('Reset Account');
-        //   },
-        //   rightIcon: (
-        //     <ThemeIcon
-        //       src={RcIconArrowRight}
-        //       className="icon icon-arrow-right"
-        //     />
-        //   ),
-        // },
-      ] as SettingItem[],
-    },
+    //     //     setShowResetAccountModal(true);
+    //     //     reportSettings('Reset Account');
+    //     //   },
+    //     //   rightIcon: (
+    //     //     <ThemeIcon
+    //     //       src={RcIconArrowRight}
+    //     //       className="icon icon-arrow-right"
+    //     //     />
+    //     //   ),
+    //     // },
+    //   ] as SettingItem[],
+    // },
     privacyAndSupport: {
       label: 'Privacy and support',
       items: [
@@ -1439,7 +1439,7 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
       <div className="flex-1 overflow-auto p-6">
         <div className="content">
           {/* HEADER */}
-          <div className="flex items-center justify-between mb-6 text-18 font-medium">
+          <div className="flex items-center justify-between mb-6 text-[20px] font-medium">
             <IconBackCC onClick={handleClose} />
             <p>{t('page.dashboard.home.panel.settings')}</p>
             <div />

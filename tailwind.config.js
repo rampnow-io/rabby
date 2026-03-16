@@ -57,46 +57,6 @@ module.exports = {
         sm: { max: '600px' },
         lg: { min: '600px' },
       },
-      fontSize: {
-        12: [
-          '12px',
-          {
-            lineHeight: '14px',
-          },
-        ],
-        13: '13px',
-        14: [
-          '14px',
-          {
-            lineHeight: '18px',
-          },
-        ],
-        15: [
-          '15px',
-          {
-            lineHeight: '18px',
-          },
-        ],
-        18: [
-          '18px',
-          {
-            lineHeight: '22px',
-          },
-        ],
-        20: '20px',
-        24: [
-          '24px',
-          {
-            lineHeight: '28px',
-          },
-        ],
-        28: [
-          '28px',
-          {
-            lineHeight: '33px',
-          },
-        ],
-      },
       colors: {
         [`${rabbyCssPrefix.replace(/\-$/, '')}`]: rabbyColors.auto,
         [`${'rabby-'.replace(/\-$/, '')}`]: rabbyColors.auto,

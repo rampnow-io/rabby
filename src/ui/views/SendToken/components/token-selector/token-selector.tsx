@@ -136,8 +136,8 @@ const TokenSelectorModal = ({
   );
   return (
     <BottomDrawer secondaryAnimation close={close}>
-      <div className="flex flex-shrink flex-grow flex-col overflow-hidden p-4">
-        <div className=" w-full flex items-center justify-between pb-[16px]">
+      <div className="flex flex-shrink flex-grow flex-col overflow-hidden ">
+        <div className=" w-full flex items-center justify-between p-6">
           <div />
           <div className="text-lg leading-[22px] font-medium">Send</div>
           <X
@@ -153,7 +153,7 @@ const TokenSelectorModal = ({
           />
         </div>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 p-4">
           <div className="text-[16px] text-primary-foreground font-medium">
             Asset
           </div>

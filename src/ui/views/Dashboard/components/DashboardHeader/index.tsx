@@ -189,7 +189,7 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
               address={currentAccount.address}
             /> */}
               <div
-                className="text-[13px] text-secondary-foreground font-medium truncate max-w-[86px]"
+                className="text-[13px] text-secondary-foreground font-normal truncate max-w-[86px]"
                 title={displayName}
               >
                 {displayName}
@@ -261,7 +261,7 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
                 )}
               />
 
-              <div className="text-[13px] font-medium leading-4 text-center">
+              <div className="text-[12px] font-medium leading-4 text-center">
                 {item.content}
               </div>
 

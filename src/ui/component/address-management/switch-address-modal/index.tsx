@@ -149,7 +149,7 @@ const SwitchAddress = () => {
         {currentAccount &&
           currentAccountIndex >= 0 &&
           allSortedAccountList[currentAccountIndex] && (
-            <div className="mb-10 bg-white">
+            <div className="mb-10 bg-white rounded-b-[24px]">
               <div className="relative w-[305px] h-[250px] mx-auto bg-black rounded-[36px] flex flex-col items-center justify-center">
                 <div
                   className="absolute -top-2 left-1/2 -translate-x-1/2

@@ -19,7 +19,7 @@ import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 import { CHAINS } from 'consts';
 
 const className =
-  '!bg-white text-base data-[state=active]:!bg-white shadow-none data-[state=active]:!hover:bg-white data-[state=active]:shadow-none w-16';
+  '!bg-white text-[16px] font-medium data-[state=active]:text-primary-foreground text-[#A1A1AA] data-[state=active]:!bg-white shadow-none data-[state=active]:!hover:bg-white data-[state=active]:shadow-none w-16';
 
 export const DashboardPanel: React.FC<{
   onRefresh?: () => void;
@@ -173,8 +173,7 @@ export const DashboardPanel: React.FC<{
                   {selectedNetwork ? selectedNetwork : 'All networks'}
                 </span>
                 <ChevronDown
-                  size={16}
-                  className={`text-r-neutral-foot transition-transform ${
+                  className={`text-primary-foreground h-4 w-4 transition-transform ${
                     showNetworkMenu ? 'rotate-180' : ''
                   }`}
                 />
@@ -184,7 +183,7 @@ export const DashboardPanel: React.FC<{
                 <div className="absolute right-0 top-full mt-2 w-56 bg-white border-2 border-r-neutral-line rounded-lg shadow-lg z-[100] max-h-64 overflow-y-auto">
                   <button
                     onClick={() => handleNetworkSelect(undefined)}
-                    className="w-full text-left px-4 py-2 hover:bg-r-neutral-bg-1 font-medium text-primary-foreground transition-colors text-xs"
+                    className="w-full text-left px-4 py-1.5 hover:bg-r-neutral-bg-1 font-medium not-italic text-primary-foreground transition-colors text-xs"
                   >
                     All networks
                   </button>

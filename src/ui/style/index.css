@@ -7,7 +7,13 @@
 /* Base Styles */
 html,
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter';
+  /* font-optical-sizing: auto; */
+  font-style: normal;
+}
+
+html {
+  font-size: 15px;
 }
 
 [lang='zh-CN'] html,
@@ -345,7 +351,7 @@ button:focus {
 
 /* Slogan */
 .slogan {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: bold;
   width: 100%;
   margin: 0;
