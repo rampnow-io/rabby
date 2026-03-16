@@ -6,22 +6,22 @@
   "default_locale": "en",
   "description": "__MSG_appDescription__",
   "icons": {
-    "16": "images/ramp-icon.png",
-    "19": "images/ramp-icon.png",
-    "32": "images/ramp-icon.png",
-    "38": "images/ramp-icon.png",
-    "48": "images/ramp-icon.png",
-    "64": "images/ramp-icon.png",
-    "128": "images/ramp-icon.png",
-    "512": "images/ramp-icon.png"
+    "16": "images/icon-16.png",
+    "19": "images/icon-19.png",
+    "32": "images/icon-32.png",
+    "38": "images/icon-38.png",
+    "48": "images/icon-48.png",
+    "64": "images/icon-64.png",
+    "128": "images/icon-128.png",
+    "512": "images/icon-512.png"
   },
   "action": {
     "default_icon": {
-      "16": "images/ramp-icon.png",
-      "19": "images/ramp-icon.png",
-      "32": "images/ramp-icon.png",
-      "48": "images/ramp-icon.png",
-      "128": "images/ramp-icon.png"
+      "16": "images/icon-16.png",
+      "19": "images/icon-19.png",
+      "32": "images/icon-32.png",
+      "48": "images/icon-48.png",
+      "128": "images/icon-128.png"
     },
     "default_title": "Rabby"
   },

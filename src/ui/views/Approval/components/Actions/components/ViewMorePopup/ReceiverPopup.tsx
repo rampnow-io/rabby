@@ -6,7 +6,6 @@ import { Table, Col, Row } from '../Table';
 import * as Values from '../Values';
 import LogoWithText from '../LogoWithText';
 import { ellipsisTokenSymbol, getTokenSymbol } from '@/ui/utils/token';
-import RabbyChainLogo from '@/ui/assets/rabby-chain-logo.png';
 import { ALIAS_ADDRESS } from '@/constant';
 
 export interface ReceiverData {
@@ -145,7 +144,7 @@ export const ReceiverPopup: React.FC<Props> = ({ data }) => {
             <Row>
               <LogoWithText
                 text={data.name}
-                logo={data.labelAddressLogo || RabbyChainLogo}
+                logo={data.labelAddressLogo}
                 logoRadius="100%"
                 logoSize={14}
                 textStyle={{

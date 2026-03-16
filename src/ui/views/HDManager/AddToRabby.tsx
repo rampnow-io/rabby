@@ -1,7 +1,5 @@
 import React from 'react';
 import RcSwitch from 'rc-switch';
-import { ReactComponent as RabbySVG } from 'ui/assets/ledger/rabby.svg';
-import { ReactComponent as RabbyGraySVG } from 'ui/assets/ledger/rabby-gray.svg';
 import { ReactComponent as LoadingSVG } from '@/ui/assets/swap/loading.svg';
 
 interface Props {
@@ -28,9 +26,27 @@ export const AddToRabby: React.FC<Props> = ({ checked, onChange }) => {
           {locked ? (
             <LoadingSVG className="icon-loading animate-spin" />
           ) : checked ? (
-            <RabbySVG className="icon" />
+            <span
+              className="icon"
+              style={{
+                display: 'block',
+                width: 16,
+                height: 16,
+                borderRadius: '50%',
+                background: 'var(--r-blue-default, #7084FF)',
+              }}
+            />
           ) : (
-            <RabbyGraySVG className="icon" />
+            <span
+              className="icon"
+              style={{
+                display: 'block',
+                width: 16,
+                height: 16,
+                borderRadius: '50%',
+                background: 'var(--r-neutral-foot, #B0B8C5)',
+              }}
+            />
           )}
         </div>
       }

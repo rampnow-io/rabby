@@ -42,7 +42,6 @@ import IconTwitterHover from 'ui/assets/twitter-hover.svg';
 import { ReactComponent as RcIconTwitter } from 'ui/assets/twitter.svg';
 import { ReactComponent as RcIconClear } from 'ui/assets/icon-clear.svg';
 import { ReactComponent as RcIconClearCC } from 'ui/assets/icon-clear-cc.svg';
-import LogoRabby from 'ui/assets/logo-rabby-large.svg';
 import { ReactComponent as RcIconServerCC } from 'ui/assets/server-cc.svg';
 import IconSuccess from 'ui/assets/success.svg';
 import {
@@ -1509,7 +1508,7 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
 
           {Object.values(renderData).map((group, idxl1) => (
             <div key={`g-${idxl1}`} className="setting-block py-2">
-              <div className="text-[#A1A1AA] text-sm font-medium">
+              <div className="text-[#A1A1AA] text-sm font-normal py-2">
                 {group.label}
               </div>
 
@@ -1576,8 +1575,8 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
             reportSettings('Lock Wallet');
           }}
         >
-          <div className="flex items-center justify-center gap-2">
-            <RcIconLockWallet />
+          <div className="flex items-center justify-center text-[15px] font-normal gap-2">
+            <RcIconLockWallet className="" />
             {t('page.dashboard.settings.features.lockWallet')}
           </div>
         </Button>

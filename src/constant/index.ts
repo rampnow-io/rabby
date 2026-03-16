@@ -209,8 +209,6 @@ import Logo1inch from 'ui/assets/swap/1inch.png';
 import LogoOdos from 'ui/assets/swap/odos.png';
 import LogoParaswap from 'ui/assets/swap/paraswap.png';
 import LogoMagpie from 'ui/assets/swap/magpie.png';
-
-import RabbyChainLogo from '@/ui/assets/rabby-chain-logo.png';
 import LogoBinance from 'ui/assets/swap/binance.png';
 import LogoCoinbase from 'ui/assets/swap/coinbase.png';
 import LogoKyberSwap from 'ui/assets/swap/kyberswap.png';
@@ -503,7 +501,7 @@ export const INTERNAL_REQUEST_ORIGIN = location.origin;
 export const INTERNAL_REQUEST_SESSION = {
   name: 'Rabby',
   origin: INTERNAL_REQUEST_ORIGIN,
-  icon: RabbyChainLogo,
+  icon: '',
 };
 
 export const INITIAL_OPENAPI_URL = 'https://api.rabby.io';

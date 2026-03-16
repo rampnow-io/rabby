@@ -21,8 +21,8 @@ import {
 } from './hooks';
 import ClickableStar from './ClickableStar';
 
-import { ReactComponent as RabbyLogo } from './icons/rabby-logo.svg';
 import { ReactComponent as ChromeLogo } from './icons/chrome.svg';
+import RampIconOne from 'ui/assets/ramp-icon-one.png';
 import clsx from 'clsx';
 import { useRabbyDispatch, useRabbySelector } from '@/ui/store';
 import { Button } from '@repo/ui/primitives';
@@ -143,7 +143,10 @@ export default function RateModal() {
           >
             <div className="flex flex-col items-center justify-center w-[100%] px-[20px]">
               <div className="w-[80px] h-[80px] flex items-center justify-center mb-[16px]">
-                <RabbyLogo className="w-[100%] h-[100%]" />
+                <img
+                  src={RampIconOne}
+                  className="w-[80px] h-[80px] rounded-full"
+                />
               </div>
 
               <div
@@ -203,7 +206,10 @@ export default function RateModal() {
           >
             <div className="flex flex-col items-center justify-center w-[100%] px-[20px]">
               <div className="w-[52px] h-[52px] flex items-center justify-center mb-[16px]">
-                <RabbyLogo className="w-[100%] h-[100%]" />
+                <img
+                  src={RampIconOne}
+                  className="w-[52px] h-[52px] rounded-full"
+                />
               </div>
 
               <div

@@ -3,7 +3,7 @@ import { Skeleton } from 'antd';
 import clsx from 'clsx';
 import React, { SVGProps } from 'react';
 import { useRabbySelector } from '@/ui/store';
-import ImgRabbyWallet from '@/ui/assets/swap/rabby-wallet.png';
+import RampIconOne from '@/ui/assets/ramp-icon-one.png';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 
@@ -314,7 +314,7 @@ export const BestQuoteLoading = () => {
       </StyledLoading>
 
       <div className="mt-18 flex items-center justify-center gap-4">
-        <img src={ImgRabbyWallet} className="w-14 h-14 rounded-full" />
+        <img src={RampIconOne} className="w-14 h-14 rounded-full" />
         <span className="text-12 text-r-neutral-foot">
           {t('page.swap.fetch-best-quote')}
         </span>

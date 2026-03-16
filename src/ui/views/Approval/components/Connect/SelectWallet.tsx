@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 // import { ReactComponent as RcIconBack } from 'ui/assets/icon-back-cc.svg';
-import IconLogo from 'ui/assets/rabby-logo-circle.svg';
+import RampIconOne from 'ui/assets/ramp-icon-one.png';
 
 export interface EIP6963ProviderInfo {
   uuid: string;
@@ -53,7 +53,7 @@ export const SelectWallet: React.FC<Props> = ({
           >
             <img
               className="block w-[32px] h-[32px] mb-[8px]"
-              src={IconLogo}
+              src={RampIconOne}
               alt=""
             />
             <div className="truncate text-[18px] leading-[21px] font-medium text-r-neutral-title1">
