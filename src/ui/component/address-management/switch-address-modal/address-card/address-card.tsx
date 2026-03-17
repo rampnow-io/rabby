@@ -193,60 +193,59 @@ const AddressCardModal = ({
             align="end"
             side="bottom"
             sideOffset={6}
-            className="w-[220px] rounded-[32px] border border-[#CACACD] bg-[rgba(250,250,250,0.75)] shadow-[0_23px_14px_4px_rgba(24,24,27,0.03)] backdrop-blur-[12px]"
+            className="w-[220px] p-2 !ring-0 ring-offset-0 focus-visible:ring-0 !outline-none focus:outline-none focus-visible:outline-none !p-2 rounded-[32px] border border-[#CACACD] bg-[rgba(250,250,250,0.75)] shadow-[0_23px_14px_4px_rgba(24,24,27,0.03)] backdrop-blur-[12px]"
             onClick={(e) => {
               e.stopPropagation();
               isChildInteractingRef.current = true;
             }}
           >
-            {/* RENAME */}
-            <div
-              role="menuitem"
-              onClick={(e) => {
-                e.stopPropagation();
-                isChildInteractingRef.current = true;
-                setPopoverOpen(false); // Close popover first
-                // Use setTimeout to ensure popover closes before modal opens
-                setTimeout(() => {
-                  setNewName(alias); // Reset to current alias when opening
-                  setShowRenameModal(true);
-                }, 100);
-              }}
-              className="w-full px-4 py-2 text-sm
-              hover:bg-gray-100 flex items-center  hover:rounded-sm justify-between cursor-pointer rounded-sm"
-            >
-              <span>Rename wallet</span>
-              <Edit size={18} className="flex-shrink-0" />
-            </div>
+            <div className="flex flex-col gap-3">
+              {/* RENAME */}
+              <div
+                role="menuitem"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  isChildInteractingRef.current = true;
+                  setPopoverOpen(false); // Close popover first
+                  // Use setTimeout to ensure popover closes before modal opens
+                  setTimeout(() => {
+                    setNewName(alias); // Reset to current alias when opening
+                    setShowRenameModal(true);
+                  }, 100);
+                }}
+                className="px-5 w-full py-[10px] text-sm text-left bg-white transition-colors flex items-center justify-between rounded-[32px] disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                <span>Rename wallet</span>
+                <Edit size={18} className="flex-shrink-0" />
+              </div>
 
-            {/* COPY */}
-            <div
-              role="menuitem"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleCopyAddress();
-                setPopoverOpen(false);
-              }}
-              className="w-full px-4 py-2 text-sm
-              hover:bg-gray-100 flex items-center  hover:rounded-sm justify-between cursor-pointer rounded-sm"
-            >
-              <span>Copy address</span>
-              <Copy size={18} className="flex-shrink-0" />
-            </div>
+              {/* COPY */}
+              <div
+                role="menuitem"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCopyAddress();
+                  setPopoverOpen(false);
+                }}
+                className="px-5 w-full py-[10px] text-sm text-left bg-white transition-colors flex items-center justify-between rounded-[32px] disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                <span>Copy address</span>
+                <Copy size={18} className="flex-shrink-0" />
+              </div>
 
-            {/* DELETE */}
-            <div
-              role="menuitem"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete();
-                setPopoverOpen(false);
-              }}
-              className="w-full px-4 py-2 text-sm text-red-600
-              hover:bg-red-50 flex items-center  hover:rounded-sm justify-between cursor-pointer rounded-sm"
-            >
-              <span>Remove wallet</span>
-              <Trash2 size={18} className="flex-shrink-0" />
+              {/* DELETE */}
+              <div
+                role="menuitem"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete();
+                  setPopoverOpen(false);
+                }}
+                className="px-5 w-full py-[10px] text-sm text-left text-red-600 bg-white transition-colors flex items-center justify-between rounded-[32px] disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                <span>Remove wallet</span>
+                <Trash2 size={18} className="flex-shrink-0" />
+              </div>
             </div>
           </PopoverContent>
         </Popover>
@@ -262,7 +261,7 @@ const AddressCardModal = ({
         }}
       >
         <div className="pb-10">
-          <div className="flex justify-between items-center pt-6">
+          <div className="flex justify-between items-center pt-3">
             <div />
             <div className="font-normal text-primary-foreground text-base">
               Rename wallet

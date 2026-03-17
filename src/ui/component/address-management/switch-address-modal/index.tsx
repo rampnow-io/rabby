@@ -133,193 +133,210 @@ const SwitchAddress = () => {
 
   return (
     <UIContainer>
-      <Container>
-        <div className="p-6 flex justify-between items-center">
-          <X
-            size={18}
-            onClick={() => {
-              history.goBack();
-            }}
-            className="cursor-pointer text-gray-600 hover:text-gray-800"
-          />
-          <div className="text-xl font-medium">Wallets</div>
-          <div className="w-6" />
-        </div>
-
-        {currentAccount &&
-          currentAccountIndex >= 0 &&
-          allSortedAccountList[currentAccountIndex] && (
-            <div className="mb-10 bg-white rounded-b-[24px]">
-              <div className="relative w-[305px] h-[250px] mx-auto bg-black rounded-[36px] flex flex-col items-center justify-center">
-                <div
-                  className="absolute -top-2 left-1/2 -translate-x-1/2
+      <Container className="bg-card-border">
+        <Content className="px-0 py-0">
+          <div className="flex h-full flex-col gap-3">
+            <div className="w-full bg-white pt-[10px] px-4  rounded-b-[24px]">
+              <div className="py-6 flex justify-between items-center">
+                <X
+                  size={18}
+                  onClick={() => {
+                    history.goBack();
+                  }}
+                  className="cursor-pointer text-gray-600 hover:text-gray-800"
+                />
+                <div className="text-xl font-medium">Wallets</div>
+                <div className="w-6" />
+              </div>
+              {currentAccount &&
+                currentAccountIndex >= 0 &&
+                allSortedAccountList[currentAccountIndex] && (
+                  <div className="mb-10 bg-white rounded-b-[24px]">
+                    <div className="relative w-[305px] h-[250px] mx-auto bg-black rounded-[36px] flex flex-col items-center justify-center">
+                      <div
+                        className="absolute -top-2 left-1/2 -translate-x-1/2
                      w-[284px] h-[70px] 
                      rounded-t-[28px]
                        border border-[#BFBDFF] bg-[#D2D0FF]"
-                />
+                      />
 
-                <div
-                  className="absolute top-5 left-1/2 -translate-x-1/2
+                      <div
+                        className="absolute top-5 left-1/2 -translate-x-1/2
                      w-[284px] h-[70px]
                      rounded-t-[28px]
                      border  border-[#94C3FF] bg-[#A8CEFE]"
-                />
+                      />
 
-                <div
-                  className="absolute top-12 left-1/2 -translate-x-1/2
+                      <div
+                        className="absolute top-12 left-1/2 -translate-x-1/2
                      w-[284px] h-[90px]
                      rounded-[26px]
                      border  border-[#DCFFB3] bg-[#F1FFE1]
                      p-4"
-                >
-                  <div className="flex gap-2 items-center">
-                    {(() => {
-                      const colorOrClass = allSortedAccountList[
-                        currentAccountIndex
-                      ]?.color
-                        ? getAvatarColor(
-                            allSortedAccountList[currentAccountIndex]?.color
-                          )
-                        : 'bg-[#DCFFB3]';
-                      const avatarClass = colorOrClass?.startsWith('#')
-                        ? ''
-                        : colorOrClass;
-                      const avatarStyle = getAvatarColorStyle(colorOrClass);
+                      >
+                        <div className="flex gap-2 items-center">
+                          {(() => {
+                            const colorOrClass = allSortedAccountList[
+                              currentAccountIndex
+                            ]?.color
+                              ? getAvatarColor(
+                                  allSortedAccountList[currentAccountIndex]
+                                    ?.color
+                                )
+                              : 'bg-[#DCFFB3]';
+                            const avatarClass = colorOrClass?.startsWith('#')
+                              ? ''
+                              : colorOrClass;
+                            const avatarStyle = getAvatarColorStyle(
+                              colorOrClass
+                            );
 
-                      return (
-                        <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-base font-medium ${avatarClass}`}
-                          style={
-                            avatarStyle || {
-                              backgroundColor: '#DCFFB3',
-                              color: '#000',
-                            }
-                          }
-                        >
-                          {allSortedAccountList[currentAccountIndex].alianName
-                            .charAt(0)
-                            .toUpperCase()}
+                            return (
+                              <div
+                                className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-base font-medium ${avatarClass}`}
+                                style={
+                                  avatarStyle || {
+                                    backgroundColor: '#DCFFB3',
+                                    color: '#000',
+                                  }
+                                }
+                              >
+                                {allSortedAccountList[
+                                  currentAccountIndex
+                                ].alianName
+                                  .charAt(0)
+                                  .toUpperCase()}
+                              </div>
+                            );
+                          })()}
+
+                          <div>
+                            <div className="text-[8px] font-medium text-primary-foreground">
+                              {allSortedAccountList[currentAccountIndex]
+                                .alianName ||
+                                `Account ${currentAccountIndex + 1}`}
+                            </div>
+
+                            <div className="text-[10px] font-medium text-primary-foreground">
+                              {truncate(
+                                allSortedAccountList[currentAccountIndex]
+                                  .address,
+                                [6, 4]
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      );
-                    })()}
-
-                    <div>
-                      <div className="text-[8px] font-medium text-primary-foreground">
-                        {allSortedAccountList[currentAccountIndex].alianName ||
-                          `Account ${currentAccountIndex + 1}`}
                       </div>
 
-                      <div className="text-[10px] font-medium text-primary-foreground">
-                        {truncate(
-                          allSortedAccountList[currentAccountIndex].address,
-                          [6, 4]
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  className="absolute bottom-0 left-1/2 -translate-x-1/2
+                      <div
+                        className="absolute bottom-0 left-1/2 -translate-x-1/2
              w-[305px] h-[140px]
              rounded-t-[20px] rounded-b-[36px]
              bg-black
              flex flex-col items-center justify-center gap-2
              cursor-pointer
              overflow-hidden"
-                  onClick={handleToggleBalance}
-                >
-                  {/* SVG LEATHER OVERLAY */}
-                  <svg className="absolute inset-0 w-full h-full opacity-30 pointer-events-none">
-                    <filter id="noise">
-                      <feTurbulence
-                        type="fractalNoise"
-                        baseFrequency="0.8"
-                        numOctaves="2"
-                      />
-                    </filter>
-                    <rect
-                      width="100%"
-                      height="100%"
-                      filter="url(#noise)"
-                      fill="white"
-                    />
-                  </svg>
+                        onClick={handleToggleBalance}
+                      >
+                        {/* SVG LEATHER OVERLAY */}
+                        <svg className="absolute inset-0 w-full h-full opacity-30 pointer-events-none">
+                          <filter id="noise">
+                            <feTurbulence
+                              type="fractalNoise"
+                              baseFrequency="0.8"
+                              numOctaves="2"
+                            />
+                          </filter>
+                          <rect
+                            width="100%"
+                            height="100%"
+                            filter="url(#noise)"
+                            fill="white"
+                          />
+                        </svg>
 
-                  <div className="relative z-10 flex flex-col items-center">
-                    {hiddenBalance ? (
-                      <div className="text-base font-semibold tracking-widest text-[#8A8B89]">
-                        *****
+                        <div className="relative z-10 flex flex-col items-center">
+                          {hiddenBalance ? (
+                            <div className="text-base font-semibold tracking-widest text-[#8A8B89]">
+                              *****
+                            </div>
+                          ) : (
+                            <div className="text-sm font-semibold text-white">
+                              $
+                              {Number(
+                                allSortedAccountList[currentAccountIndex]
+                                  ?.balance || 0
+                              ).toLocaleString('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}
+                            </div>
+                          )}
+
+                          <div className="text-[11px] text-[#8A8B89]">
+                            Total Balance
+                          </div>
+
+                          <div className="mt-4 text-[#8A8B89]">
+                            {hiddenBalance ? (
+                              <EyeOff size={16} />
+                            ) : (
+                              <Eye size={16} />
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    ) : (
-                      <div className="text-sm font-semibold text-white">
-                        $
-                        {Number(
-                          allSortedAccountList[currentAccountIndex]?.balance ||
-                            0
-                        ).toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </div>
-                    )}
-
-                    <div className="text-[11px] text-[#8A8B89]">
-                      Total Balance
-                    </div>
-
-                    <div className="mt-4 text-[#8A8B89]">
-                      {hiddenBalance ? <EyeOff size={16} /> : <Eye size={16} />}
                     </div>
                   </div>
-                </div>
+                )}
+            </div>
+            <div className="bg-white rounded-t-[24px] px-[16px] pt-[14px] pb-[12px] flex flex-col h-full">
+              <div className="flex-1 overflow-y-auto">
+                {flatAccounts
+                  .sort((a, b) => {
+                    const aIsCurrent =
+                      currentAccount?.address?.toLowerCase() ===
+                      a.address.toLowerCase();
+                    const bIsCurrent =
+                      currentAccount?.address?.toLowerCase() ===
+                      b.address.toLowerCase();
+                    return aIsCurrent ? -1 : bIsCurrent ? 1 : 0;
+                  })
+                  .map((acc) => (
+                    <div key={acc.address} className="py-1">
+                      <AddressCard
+                        balance={acc.balance}
+                        address={acc.address}
+                        type={acc.type}
+                        brandName={acc.brandName}
+                        alias={acc.alianName}
+                        color={acc.color}
+                        isUpdatingBalance={isUpdatingBalance}
+                        enableSwitch={enableSwitch}
+                        isCurrentAccount={
+                          currentAccount?.address?.toLowerCase() ===
+                          acc.address.toLowerCase()
+                        }
+                        onSwitchCurrentAccount={() => switchAccount(acc)}
+                        onClick={() =>
+                          history.push(
+                            `/settings/address-detail?${obj2query({
+                              address: acc.address,
+                              type: acc.type,
+                              brandName: acc.brandName,
+                              byImport: String(acc.byImport ?? ''),
+                            })}`
+                          )
+                        }
+                      />
+                    </div>
+                  ))}
               </div>
             </div>
-          )}
-
-        <Content className="px-4">
-          {flatAccounts
-            .sort((a, b) => {
-              const aIsCurrent =
-                currentAccount?.address?.toLowerCase() ===
-                a.address.toLowerCase();
-              const bIsCurrent =
-                currentAccount?.address?.toLowerCase() ===
-                b.address.toLowerCase();
-              return aIsCurrent ? -1 : bIsCurrent ? 1 : 0;
-            })
-            .map((acc) => (
-              <div key={acc.address} className="py-1">
-                <AddressCard
-                  balance={acc.balance}
-                  address={acc.address}
-                  type={acc.type}
-                  brandName={acc.brandName}
-                  alias={acc.alianName}
-                  color={acc.color}
-                  isUpdatingBalance={isUpdatingBalance}
-                  enableSwitch={enableSwitch}
-                  isCurrentAccount={
-                    currentAccount?.address?.toLowerCase() ===
-                    acc.address.toLowerCase()
-                  }
-                  onSwitchCurrentAccount={() => switchAccount(acc)}
-                  onClick={() =>
-                    history.push(
-                      `/settings/address-detail?${obj2query({
-                        address: acc.address,
-                        type: acc.type,
-                        brandName: acc.brandName,
-                        byImport: String(acc.byImport ?? ''),
-                      })}`
-                    )
-                  }
-                />
-              </div>
-            ))}
+          </div>
         </Content>
 
-        <Action>
+        <Action className="bg-white">
           <Button
             buttonType={ButtonType.SECONDARY}
             onClick={handleAddNewAddress}
