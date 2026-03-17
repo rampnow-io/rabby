@@ -39,6 +39,12 @@ import {
   ButtonType,
   ButtonSize,
 } from '@repo/ui/primitives';
+import { truncate } from '@repo/utils';
+import {
+  BROADCAST_TO_UI_EVENTS,
+  BROADCAST_TO_UI_EVENTS_PAYLOAD,
+} from '@/utils/broadcastToUI';
+import { onBroadcastToUI } from '@/ui/utils/broadcastToUI';
 
 interface CurrentConnectionProps {
   onChainChange?: (chain: CHAINS_ENUM) => void;
@@ -141,6 +147,41 @@ export const CurrentConnection = memo((props: CurrentConnectionProps) => {
     });
   }, []);
 
+  useEffect(() => {
+    const disposers = [
+      onBroadcastToUI(BROADCAST_TO_UI_EVENTS.storeChanged, (payload) => {
+        if (payload?.bgStoreName === 'permission') {
+          getCurrentSite();
+        }
+      }),
+      onBroadcastToUI(
+        BROADCAST_TO_UI_EVENTS.accountsChanged,
+        (_payload: BROADCAST_TO_UI_EVENTS_PAYLOAD['accountsChanged']) => {
+          getCurrentSite();
+        }
+      ),
+    ];
+
+    const handleFocus = () => {
+      getCurrentSite();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        getCurrentSite();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      disposers.forEach((dispose) => dispose());
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [getCurrentSite]);
+
   const chain = useMemo(() => {
     if (!site || !site.isConnected) {
       return null;
@@ -168,9 +209,31 @@ export const CurrentConnection = memo((props: CurrentConnectionProps) => {
 
   const handleSiteIconClick = useMemoizedFn(() => {
     if (site?.isConnected) {
+      getCurrentSite();
       setPopoverVisible(!popoverVisible);
     }
   });
+
+  const handlePopoverOpenChange = useMemoizedFn((open: boolean) => {
+    setPopoverVisible(open);
+    if (open) {
+      getCurrentSite();
+    }
+  });
+
+  useEffect(() => {
+    if (!popoverVisible) {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      getCurrentSite();
+    }, 1200);
+
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [popoverVisible, getCurrentSite]);
 
   const dispatch = useRabbyDispatch();
 
@@ -266,7 +329,7 @@ export const CurrentConnection = memo((props: CurrentConnectionProps) => {
   return (
     <>
       {site ? (
-        <Popover open={popoverVisible} onOpenChange={setPopoverVisible}>
+        <Popover open={popoverVisible} onOpenChange={handlePopoverOpenChange}>
           <PopoverTrigger asChild>
             <div
               className={clsx(
@@ -281,29 +344,16 @@ export const CurrentConnection = memo((props: CurrentConnectionProps) => {
                   origin={site.origin}
                   width="20px"
                 ></FallbackSiteLogo>
-                {site.isMetamaskMode ? (
-                  <TooltipWithMagnetArrow
-                    placement="top"
-                    overlayClassName={clsx('rectangle max-w-[360px] w-[360px]')}
-                    align={{
-                      offset: [0, 4],
-                    }}
-                    title={t(
-                      'page.dashboard.recentConnection.metamaskModeTooltipNew'
-                    )}
-                  >
+                {/* {site.isMetamaskMode ? (
+                  <div>
                     <div className="absolute top-[-4px] right-[-4px] text-r-neutral-title-2">
                       <img src={IconMetamaskMode} alt="metamask mode"></img>
                     </div>
-                  </TooltipWithMagnetArrow>
-                ) : null}
+                  </div>
+                ) : null} */}
                 {chain ? (
-                  <div className="absolute bottom-[-3px] right-[-3px]">
-                    <img
-                      src={chain.logo}
-                      alt="chain logo"
-                      className="rounded-full w-[16px] h-[16px] border-[#fff] border-[0.5px] border-solid"
-                    />
+                  <div className="absolute bottom-[12px] right-[-3px]">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#27c193]" />
                   </div>
                 ) : null}
               </div>
@@ -312,21 +362,27 @@ export const CurrentConnection = memo((props: CurrentConnectionProps) => {
           <PopoverContent
             align="start"
             side="bottom"
-            className="!mr-1 rounded-[32px] border border-[#CACACD] bg-[rgba(250,250,250,0.75)] shadow-[0_23px_14px_4px_rgba(24,24,27,0.03)] backdrop-blur-[12px]"
+            className="!mr-1 w-[220px] rounded-[32px] border border-[#CACACD] bg-[rgba(250,250,250,0.75)] shadow-[0_23px_14px_4px_rgba(24,24,27,0.03)] backdrop-blur-[12px]"
           >
-            <div className="p-2">
+            <div className="">
               <div className="flex items-center gap-4 mb-3">
                 <FallbackSiteLogo
                   url={site.icon}
                   origin={site.origin}
                   width="32px"
                 />
-                <div className="flex-1">
+                <div className="flex flex-col gap-1">
                   <div className="font-medium text-sm text-primary-foreground truncate text-nowrap">
-                    {site.rdns}
+                    {truncate(site.name, [10, 0])}
                   </div>
-                  <div className="text-xs text-secondary-foreground">
-                    {site.origin}
+                  <div className="text-xs text-secondary-foreground truncate">
+                    <TooltipView
+                      variant="dark"
+                      content={site.origin}
+                      className="flex items-center gap-2  truncate"
+                    >
+                      {truncate(site.origin, [10, 0])}
+                    </TooltipView>
                   </div>
                 </div>
               </div>
@@ -335,14 +391,14 @@ export const CurrentConnection = memo((props: CurrentConnectionProps) => {
                 {site.isConnected ? (
                   <Fragment>
                     <div className="w-1.5 h-1.5 rounded-full bg-[#27c193]" />
-                    <div className="font-medium text-primary-foreground">
+                    <div className="font-medium text-[#27c193]">
                       {t('page.dashboard.recentConnection.connected')}
                     </div>
                   </Fragment>
                 ) : (
                   <Fragment>
                     <div className="w-1.5 h-1.5 rounded-full bg-[#ff5c5c]" />
-                    <div className="font-medium text-primary-foreground">
+                    <div className="font-medium text-[#ff5c5c]">
                       {t('page.dashboard.recentConnection.disconnected')}
                     </div>
                   </Fragment>
@@ -351,7 +407,7 @@ export const CurrentConnection = memo((props: CurrentConnectionProps) => {
                 {chain ? (
                   <div className="flex items-center gap-1 ml-auto">
                     <img src={chain.logo} alt="chain" className="w-4 h-4" />
-                    <span className="text-secondary-foreground">
+                    <span className="text-secondary-primary ">
                       {chain.name}
                     </span>
                   </div>
