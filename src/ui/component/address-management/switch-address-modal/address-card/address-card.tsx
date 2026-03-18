@@ -193,7 +193,7 @@ const AddressCardModal = ({
             align="end"
             side="bottom"
             sideOffset={6}
-            className="w-[220px] p-2 !ring-0 ring-offset-0 focus-visible:ring-0 !outline-none focus:outline-none focus-visible:outline-none !p-2 rounded-[32px] border border-[#CACACD] bg-[rgba(250,250,250,0.75)] shadow-[0_23px_14px_4px_rgba(24,24,27,0.03)] backdrop-blur-[12px]"
+            className="w-[220px]  !ring-0 ring-offset-0 focus-visible:ring-0 !outline-none focus:outline-none focus-visible:outline-none !p-2 rounded-[32px] border border-[#CACACD] bg-[rgba(250,250,250,0.75)] shadow-[0_23px_14px_4px_rgba(24,24,27,0.03)] backdrop-blur-[12px]"
             onClick={(e) => {
               e.stopPropagation();
               isChildInteractingRef.current = true;
@@ -259,8 +259,16 @@ const AddressCardModal = ({
           setShowRenameModal(false);
           setNewName(alias);
         }}
-      >
-        <div className="pb-10">
+        footer={
+          <Button
+            className="w-full"
+            onClick={handleRename}
+            disabled={isRenaming}
+          >
+            {isRenaming ? 'Saving...' : 'Done'}
+          </Button>
+        }
+        header={
           <div className="flex justify-between items-center pt-3">
             <div />
             <div className="font-normal text-primary-foreground text-base">
@@ -272,7 +280,9 @@ const AddressCardModal = ({
               onClick={() => setShowRenameModal(false)}
             />
           </div>
-
+        }
+      >
+        <div className="pb-10">
           <div className="flex flex-col items-center gap-3 mt-6">
             <div
               className={`h-12 w-12 rounded-full flex items-center justify-center
@@ -297,16 +307,6 @@ const AddressCardModal = ({
                 if (e.key === 'Escape') setShowRenameModal(false);
               }}
             />
-          </div>
-
-          <div className=" mt-4 w-full">
-            <Button
-              className="w-full"
-              onClick={handleRename}
-              disabled={isRenaming}
-            >
-              {isRenaming ? 'Saving...' : 'Done'}
-            </Button>
           </div>
         </div>
       </BottomFloatingSheet>

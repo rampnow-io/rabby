@@ -52,6 +52,9 @@ module.exports = {
   ],
   presets: [uiConfig],
   theme: {
+    fontFamily: {
+      sans: ['Inter', 'sans-serif'],
+    },
     extend: {
       screens: {
         sm: { max: '600px' },

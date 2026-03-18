@@ -28,7 +28,7 @@ export const Guide = () => {
             <div className="text-2xl font-medium text-primary-foreground text-center">
               {t('page.newUserImport.guide.title')}
             </div>
-            <div className="max-w-[320px] text-sm font-medium text-[#71717A] text-center">
+            <div className="max-w-[320px] text-[14px] font-medium text-[#71717A] text-center">
               {t('page.newUserImport.guide.desc')}
             </div>
           </div>

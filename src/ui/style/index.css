@@ -1,31 +1,79 @@
-@import './globals.css';
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', sans-serif;
+    font-optical-sizing: auto;
+    font-feature-settings: 'liga' 1, 'calt' 1;
+    font-style: normal;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+  }
+
+  button,
+  input,
+  optgroup,
+  select,
+  textarea {
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+  }
+
+  * {
+    @apply border-border;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.25s ease-out;
+}
+
+.hide-on-mobile {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .hide-on-mobile {
+    display: block;
+  }
+}
+
 @import './cssvars.css';
 @import './cssvars-custom.css';
 @import './antd-overwrite.css';
 @import './component-utilities.css';
-
-/* Base Styles */
-html,
-body {
-  font-family: 'Inter';
-  /* font-optical-sizing: auto; */
-  font-style: normal;
-}
-
-html {
-  font-size: 15px;
-}
 
 [lang='zh-CN'] html,
 [lang='zh-CN'] html body,
 [lang='zh-HK'] html,
 [lang='zh-HK'] html body {
   font-family: 'Inter', sans-serif;
+  font-style: normal;
 }
 
 [lang='ja'] html,
 [lang='ja'] html body {
   font-family: 'Inter', sans-serif;
+  font-style: normal;
 }
 
 h1,

@@ -241,35 +241,16 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
                 });
                 item.onClick(e);
               }}
-              className="group h-[74px] cursor-pointer rounded-[16px]
-                         border border-[var(--r-neutral-card2,#f2f4f7)]
-                         bg-white hover:bg-[var(--r-neutral-card2,#f2f4f7)]
-                         flex flex-col items-center justify-center relative"
+              className="group h-[74px] px-2 py-3 cursor-pointer rounded-[16px] shadow-[inset_0_-4px_8px_0_rgba(0,0,0,0.01)] border border-[#EFEFEF] bg-white hover:bg-[var(--r-neutral-card2,#f2f4f7)] flex flex-col gap-2 items-center justify-center relative"
             >
-              {item.showAlert && (
-                <ThemeIcon
-                  src={IconAlertRed}
-                  className="absolute right-2 top-2"
-                />
-              )}
-
               <ThemeIcon
                 src={item.icon}
-                className={clsx(
-                  'w-6 h-6 mb-1',
-                  item.iconSpin && 'animate-spin'
-                )}
+                className={clsx('w-5 h-5', item.iconSpin && 'animate-spin')}
               />
 
-              <div className="text-[12px] font-medium leading-4 text-center">
+              <div className="text-[12px]/[18px] font-medium leading-4 text-center">
                 {item.content}
               </div>
-
-              {item.isFullscreen && (
-                <div className="absolute top-1.5 right-1.5 opacity-50 hidden group-hover:block">
-                  <RcIconExternal1CC />
-                </div>
-              )}
             </div>
           );
         })}

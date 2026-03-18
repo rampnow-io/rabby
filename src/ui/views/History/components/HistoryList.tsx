@@ -2,7 +2,7 @@ import { last } from 'lodash';
 import React, { useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-
+import NoTokenIcon1 from '@/ui/assets/no-tokens-icon-1.svg';
 import { useAccount } from '@/ui/store-hooks';
 import { useInfiniteScroll } from 'ahooks';
 import { Empty, Modal } from 'ui/component';
@@ -10,6 +10,7 @@ import { sleep, useWallet } from 'ui/utils';
 
 import { HistoryItem, HistoryItemActionContext } from './HistoryItem';
 import { Loading } from './Loading';
+import { Button } from '@repo/ui/primitives';
 
 const PAGE_COUNT = 10;
 
@@ -120,8 +121,32 @@ export const HistoryList = ({
 
       {/* Empty */}
       {isEmpty && (
-        <div className="h-full w-full flex justify-center items-center text-primary-foreground font-medium">
-          <span>No transactions found on this wallet.</span>
+        <div className="flex flex-col items-center justify-center gap-6 py-12">
+          <div className="flex items-center justify-center gap-2">
+            <img
+              src={NoTokenIcon1}
+              alt="No tokens icon 1"
+              className="w-full h-full"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <h3 className="text-base font-semibold text-primary-foreground text-center">
+              No transactions found on this wallet.
+            </h3>
+            <p className="text-14 text-secondary-foreground text-center">
+              Buy your first crypto with Rampnow
+            </p>
+          </div>
+
+          <Button
+            className="w-full"
+            onClick={() =>
+              window.open('https://app.rampnow.io/order/quote', '_blank')
+            }
+          >
+            Buy
+          </Button>
         </div>
       )}
 

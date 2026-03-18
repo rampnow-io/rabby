@@ -115,8 +115,8 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack }) => {
                   name="password"
                   control={form.control}
                   render={({ field }) => (
-                    <FormItem>
-                      <Label className="text-[#454745] font-medium">
+                    <FormItem className="space-y-0.5">
+                      <Label className="text-[#454745] font-medium text-sm">
                         {t(
                           'page.newUserImport.PasswordCard.form.password.label'
                         )}
@@ -154,8 +154,8 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack }) => {
                   name="confirmPassword"
                   control={form.control}
                   render={({ field }) => (
-                    <FormItem>
-                      <Label className="text-[#454745] font-medium">
+                    <FormItem className="space-y-0.5">
+                      <Label className="text-[#454745] font-medium text-sm">
                         {t(
                           'page.newUserImport.PasswordCard.form.confirmPassword.label'
                         )}
@@ -191,7 +191,7 @@ export const PasswordCard: React.FC<Props> = ({ onSubmit, onBack }) => {
                 />
                 {form.watch('password') && (
                   <div
-                    className={`text-sm font-medium capitalize flex items-center justify-center gap-1 ${
+                    className={`text-xs -mt-[1px] font-medium capitalize flex items-center justify-center gap-1 ${
                       getPasswordStrength(form.watch('password'))?.color
                     }`}
                   >
