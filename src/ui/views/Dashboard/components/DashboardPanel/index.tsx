@@ -147,8 +147,8 @@ export const DashboardPanel: React.FC<{
   return (
     <div className="bg-white rounded-t-[24px] px-[16px] pt-[14px] pb-[12px] flex flex-col h-full">
       <Tabs defaultValue="asset" className="flex flex-col h-full">
-        <div className="flex items-center justify-between mb-2">
-          <TabsList className="bg-white justify-start shrink-0 py-2">
+        <div className="flex items-center justify-between ">
+          <TabsList className="bg-white justify-start shrink-0 py-1">
             <TabsTrigger className={className} value="asset">
               Asset
             </TabsTrigger>

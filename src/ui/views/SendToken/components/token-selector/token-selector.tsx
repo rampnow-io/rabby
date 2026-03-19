@@ -137,12 +137,11 @@ const TokenSelectorModal = ({
   return (
     <BottomDrawer secondaryAnimation close={close}>
       <div className="flex flex-shrink flex-grow flex-col overflow-hidden ">
-        <div className=" w-full flex items-center justify-between p-6">
-          <div />
-          <div className="text-lg leading-[22px] font-medium">Send</div>
+        <div className=" w-full flex items-center justify-between px-4 py-6">
+          <div className="text-lg font-medium">Send</div>
           <X
             className="cursor-pointer justify-self-end"
-            size={24}
+            size={20}
             onClick={() => {
               if (allTokensHaveZeroLiquidity) {
                 history.goBack();
@@ -153,8 +152,8 @@ const TokenSelectorModal = ({
           />
         </div>
 
-        <div className="flex flex-col gap-4 p-4">
-          <div className="text-[16px] text-primary-foreground font-medium">
+        <div className="flex flex-col gap-4 px-4 flex-1 overflow-hidden">
+          <div className="text-base text-primary-foreground font-semibold">
             Asset
           </div>
           {isLoading ? (
@@ -162,7 +161,7 @@ const TokenSelectorModal = ({
               <></>
             </div>
           ) : (
-            <div className="flex flex-col gap-2 py-0">
+            <div className="flex flex-col gap-2 py-0 flex-1 min-h-0 overflow-y-auto">
               {displayTokenList.map((token) => {
                 // Filter out tokens with amount === 0 or undefined
                 if (token.amount === 0 || token.amount === undefined) {
@@ -173,7 +172,7 @@ const TokenSelectorModal = ({
                 return (
                   <div
                     key={`${token.chain}-${token.id}`}
-                    className={`px-4 py-[18px] rounded-2xl cursor-pointer bg-[#F9F9F9] transition-all duration-200 flex items-center gap-4 self-stretch hover:border hover:border-gray-400 `}
+                    className={`p-4  rounded-2xl cursor-pointer bg-[#FAFAFA] hover:bg-[#F4F4F4]  flex items-center gap-4 `}
                     onClick={() => handleTokenClick(token)}
                   >
                     <div className="relative w-10 h-10 flex-shrink-0">
@@ -207,22 +206,22 @@ const TokenSelectorModal = ({
                       </>
                     </div>
                     <div className="flex flex-col gap-0.5 flex-1">
-                      <div className="font-semibold text-14 text-r-neutral-title-1">
-                        {token.name}
+                      <div className="font-medium text-base text-primary-foreground">
+                        {token.symbol}
                       </div>
-                      <div className="text-12 text-r-neutral-body">
-                        {getTokenSymbol(token)}
+                      <div className="text-sm text-secondary-foreground">
+                        {token.chain}
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-1 text-right flex-shrink-0">
+                    <div className="flex flex-col gap-0.5 text-right flex-shrink-0">
                       {token.amount !== undefined && token.amount > 0 && (
-                        <div className="text-12 text-r-neutral-body">
+                        <div className="text-base text-primary-foreground">
                           {token.amount?.toFixed(4)}
                         </div>
                       )}
                       {token.price !== undefined && token.price > 0 && (
-                        <div className="text-12 font-medium text-r-neutral-title-1">
+                        <div className="text-sm font-medium text-secondary-foreground">
                           ${token.price.toFixed(2)}
                         </div>
                       )}

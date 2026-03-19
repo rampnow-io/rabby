@@ -1987,14 +1987,11 @@ const SendToken = () => {
   return (
     <UIContainer>
       <Container>
-        <div className="grid flex-shrink-0 flex-grow-0 grid-cols-3 items-end justify-between p-6">
-          <div />
-          <div className="text-primary-foreground text-xl font-normal">
-            Send
-          </div>
+        <div className=" w-full flex items-center justify-between px-4 py-6">
+          <div className="text-lg font-medium">Send</div>
           <X
             className="cursor-pointer justify-self-end"
-            size={24}
+            size={20}
             onClick={() => {
               history.goBack();
             }}
@@ -2007,9 +2004,9 @@ const SendToken = () => {
             onValuesChange={handleFormValuesChange}
             initialValues={initialFormValues}
           >
-            <div className="section">
-              <div>
-                {/* <div className="token-balance-slider flex pl-[2px] w-[192px] pr-[8px] justify-between items-center">
+            <div className="flex flex-col gap-6">
+              {/* <div>
+                <div className="token-balance-slider flex pl-[2px] w-[192px] pr-[8px] justify-between items-center">
                   <SendSlider
                     min={0}
                     max={100}
@@ -2072,8 +2069,8 @@ const SendToken = () => {
                   <div className="ml-[8px] w-[42px] text-right text-[13px] text-r-blue-default">
                     {sliderPercentValue}%
                   </div>
-                </div> */}
-              </div>
+                </div>
+              </div> */}
               {currentAccount && chainItem && (
                 <div className="bg-r-neutral-card1 rounded-[8px]">
                   {/* <ChainSelectWrapper>

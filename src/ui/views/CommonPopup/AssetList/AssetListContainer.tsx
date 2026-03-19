@@ -232,7 +232,7 @@ export const AssetListContainer: React.FC<Props> = ({
       {isTokensLoading || isSearching ? (
         <TokenListSkeleton />
       ) : (
-        <div className="mt-4 ">
+        <div>
           <HomeTokenList
             list={sortTokens}
             onFocusInput={handleFocusInput}

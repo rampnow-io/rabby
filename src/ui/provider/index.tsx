@@ -7,7 +7,7 @@ interface Props {
   isOnboarding?: boolean;
 }
 
-const onboardingClass = 'lg:!h-[583px] lg:!w-[458px] ';
+const onboardingClass = 'lg:!h-[583px] lg:!w-[458px] lg:!rounded-[22px]';
 const normalClass =
   'lg:!h-full lg:!w-full lg:!absolute lg:!min-w-[375px] lg:!overflow-x-auto';
 

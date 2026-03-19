@@ -1457,17 +1457,6 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
 
                   return (
                     <div
-                      onClick={() => {
-                        copyAddress(currentAccount.address);
-                        matomoRequestEvent({
-                          category: 'AccountInfo',
-                          action: 'headCopyAddress',
-                          label: [
-                            getKRCategoryByType(currentAccount.type),
-                            currentAccount.brandName,
-                          ].join('|'),
-                        });
-                      }}
                       className={`h-10 w-10 flex items-center justify-center rounded-full cursor-pointer
                                     text-xl font-medium text-white`}
                       style={avatarStyle}
@@ -1495,6 +1484,7 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
                   <AddressViewer
                     address={currentAccount.address}
                     showArrow={false}
+                    isCopy={false}
                   />
                 </div>
               </div>

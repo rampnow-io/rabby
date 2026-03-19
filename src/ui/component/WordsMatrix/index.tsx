@@ -58,7 +58,7 @@ function WordsMatrix({
             }}
           >
             {/* Number box */}
-            <div className="flex w-8 items-center justify-center border-r border-[var(--r-neutral-line)] text-[14px] text-[#A1A1AA] font-medium">
+            <div className="flex w-8 items-center justify-center border-r text-[14px] text-[#A1A1AA] font-medium">
               {number}
             </div>
 

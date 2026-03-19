@@ -158,6 +158,7 @@ const AddressCardModal = ({
           <AddressViewer
             address={address.toLowerCase()}
             showArrow={false}
+            isCopy={false}
             className="text-xs text-secondary-foreground"
           />
         </div>

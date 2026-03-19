@@ -159,17 +159,6 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
 
               return (
                 <div
-                  onClick={() => {
-                    copyAddress(currentAccount.address);
-                    matomoRequestEvent({
-                      category: 'AccountInfo',
-                      action: 'headCopyAddress',
-                      label: [
-                        getKRCategoryByType(currentAccount.type),
-                        currentAccount.brandName,
-                      ].join('|'),
-                    });
-                  }}
                   className={`h-10 w-10 flex items-center justify-center rounded-full cursor-pointer
                            text-xl font-medium text-white`}
                   style={avatarStyle}
@@ -194,14 +183,16 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
               >
                 {displayName}
               </div>
-              <AddressViewer
-                address={currentAccount.address}
-                showArrow={false}
-              />
+              <div onClick={(e) => e.stopPropagation()}>
+                <AddressViewer
+                  address={currentAccount.address}
+                  showArrow={false}
+                />
+              </div>
             </div>
           </div>
 
-          <div className="ml-auto flex gap-2">
+          <div className="ml-auto flex gap-3">
             <div className="rounded cursor-pointer ">
               <CurrentConnection />
             </div>
