@@ -237,7 +237,7 @@ const ReviewSwapBridge: React.FC<ReviewSwapBridgeProps> = ({
       </div>
 
       {/* Info Section */}
-      <div className="space-y-3 mb-6 max-h-[200px] overflow-y-auto pr-2">
+      <div className="space-y-3 mb-6 max-h-[250px] overflow-y-auto pr-2">
         {/* Minimum Received */}
         <div className="flex justify-between items-start gap-4 py-1 text-sm">
           <span className="text-primary-foreground text-sm font-medium leading-[1.25]">
