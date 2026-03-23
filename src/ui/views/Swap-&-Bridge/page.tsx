@@ -1382,9 +1382,25 @@ const SwapAndBridgeContainer = () => {
       <BottomFloatingSheet
         open={reviewModalOpen}
         onClose={() => setReviewModalOpen(false)}
+        hideCloseButton
+        header={<div className="flex justify-between items-center w-full min-h-7">
+                    <div className="font-medium text-primary-foreground text-base leading-7 text-center">
+                    Review Your Order
+                    </div>
+                    <button
+                      type="button"
+                      className="flex items-center justify-end cursor-pointer"
+                      onClick={() => setReviewModalOpen(false)}
+                      aria-label="Close review modal"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>}
+
       >
         {selectedBridgeQuote && fromToken && toToken && (
           <ReviewSwapBridge
+
             fromToken={fromToken}
             toToken={toToken}
             fromAmount={amount}

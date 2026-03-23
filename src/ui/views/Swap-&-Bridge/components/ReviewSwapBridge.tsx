@@ -73,7 +73,7 @@ const ReviewSwapBridge: React.FC<ReviewSwapBridgeProps> = ({
     [toChain]
   );
 
-  const formatDisplayAmount = (amount: string, maxDecimals = 6) => {
+  const formatDisplayAmount = (amount: string, maxDecimals = 3) => {
     try {
       const bn = new BigNumber(amount || 0);
       if (!bn.isFinite()) return amount;
@@ -112,13 +112,27 @@ const ReviewSwapBridge: React.FC<ReviewSwapBridgeProps> = ({
     }
   }, [toAmount, toPrice]);
 
-  const displayFromAmount = useMemo(() => formatDisplayAmount(fromAmount, 6), [
+  const displayFromAmount = useMemo(() => formatDisplayAmount(fromAmount, 3), [
     fromAmount,
   ]);
 
-  const displayToAmount = useMemo(() => formatDisplayAmount(toAmount, 6), [
+  const displayToAmount = useMemo(() => formatDisplayAmount(toAmount, 3), [
     toAmount,
   ]);
+
+  const displayFromUsdValue = useMemo(() => {
+    const value = new BigNumber(fromUsdValue || 0)
+      .toFixed(3, BigNumber.ROUND_DOWN)
+      .toString();
+    return formatUsdValue(value);
+  }, [fromUsdValue]);
+
+  const displayToUsdValue = useMemo(() => {
+    const value = new BigNumber(toUsdValue || 0)
+      .toFixed(3, BigNumber.ROUND_DOWN)
+      .toString();
+    return formatUsdValue(value);
+  }, [toUsdValue]);
 
   const sourceName = useMemo(() => {
     if (type === 'bridge' && selectedQuote?.aggregator) {
@@ -138,7 +152,10 @@ const ReviewSwapBridge: React.FC<ReviewSwapBridgeProps> = ({
             .div(10 ** toToken.decimals)
             .toString(10)
         : String(selectedQuote.to_token_amount);
-    return new BigNumber(adjustedToAmount).times(0.99).toFixed(8).toString();
+    return formatDisplayAmount(
+      new BigNumber(adjustedToAmount).times(0.99).toString(10),
+      3
+    );
   }, [toToken, selectedQuote, type]);
 
   const protocolFeeAmount = useMemo(() => {
@@ -166,21 +183,17 @@ const ReviewSwapBridge: React.FC<ReviewSwapBridgeProps> = ({
   return (
     <div className="w-full">
       {/* Header */}
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">
-        Review & {type === 'swap' ? 'Swap' : 'Bridge'}
-      </h2>
 
       {/* Token Card */}
       <div className="bg-gray-100 rounded-2xl px-6 py-4 mb-6 flex items-center justify-between gap-4">
         {/* From Token */}
         <div className="flex-1">
           <div className="text-sm text-gray-500 mb-1">
-            {formatUsdValue(fromUsdValue)}
+            {displayFromUsdValue}
           </div>
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-gray-900">
-              {displayFromAmount} {fromToken?.symbol}
-            </span>
+          <div className="text-gray-900 leading-tight">
+            <div className="font-semibold text-[18px]">{displayFromAmount}</div>
+            <div className="font-semibold text-[18px]">{fromToken?.symbol}</div>
           </div>
         </div>
 
@@ -215,13 +228,10 @@ const ReviewSwapBridge: React.FC<ReviewSwapBridgeProps> = ({
 
         {/* To Token */}
         <div className="flex-1 text-right">
-          <div className="text-sm text-gray-500 mb-1">
-            {formatUsdValue(toUsdValue)}
-          </div>
-          <div className="flex items-center gap-2 justify-end">
-            <span className="font-semibold text-green-500">
-              {displayToAmount} {toToken?.symbol}
-            </span>
+          <div className="text-sm text-gray-500 mb-1">{displayToUsdValue}</div>
+          <div className="text-green-500 leading-tight">
+            <div className="font-semibold text-[18px]">{displayToAmount}</div>
+            <div className="font-semibold text-[18px]">{toToken?.symbol}</div>
           </div>
         </div>
       </div>
@@ -229,28 +239,34 @@ const ReviewSwapBridge: React.FC<ReviewSwapBridgeProps> = ({
       {/* Info Section */}
       <div className="space-y-3 mb-6 max-h-[200px] overflow-y-auto pr-2">
         {/* Minimum Received */}
-        <div className="flex justify-between items-center px-4 py-3 text-sm">
-          <span className="text-gray-500">Minimum received</span>
-          <span className="text-gray-700 font-medium">
+        <div className="flex justify-between items-start gap-4 py-1 text-sm">
+          <span className="text-primary-foreground text-sm font-medium leading-[1.25]">
+            Minimum received
+          </span>
+          <span className="text-secondary-foreground text-sm font-normal text-right leading-[1.25]">
             {minimumReceived} {toToken?.symbol}
           </span>
         </div>
 
         {/* Swapping/Bridging Via */}
-        <div className="flex justify-between items-center px-4 py-3 rounded-lg text-sm">
-          <span className="text-gray-500">
+        <div className="flex justify-between items-center gap-4 py-1 rounded-lg text-sm">
+          <span className="text-primary-foreground text-sm font-medium">
             {type === 'swap' ? 'Swapping via' : 'Bridging via'}
           </span>
-          <span className="text-gray-700 font-medium">{sourceName}</span>
+          <span className="text-secondary-foreground text-sm font-normal text-right">
+            {sourceName}
+          </span>
         </div>
 
         {/* Bridge-specific rows */}
         {type === 'bridge' && (
           <>
             {/* Network */}
-            <div className="flex justify-between items-center px-4 py-3 text-sm">
-              <span className="text-gray-500">Network</span>
-              <div className="flex items-center gap-1">
+            <div className="flex justify-between items-center gap-4 py-1 text-sm">
+              <span className="text-primary-foreground text-sm font-medium">
+                Network
+              </span>
+              <div className="flex items-center justify-end gap-1">
                 {fromChainObj?.logo && (
                   <img
                     src={fromChainObj.logo}
@@ -270,9 +286,11 @@ const ReviewSwapBridge: React.FC<ReviewSwapBridgeProps> = ({
             </div>
 
             {/* Token */}
-            <div className="flex justify-between items-center px-4 py-3 rounded-lg text-sm">
-              <span className="text-gray-500">Token</span>
-              <div className="flex items-center gap-1">
+            <div className="flex justify-between items-center gap-4 py-1 rounded-lg text-sm">
+              <span className="text-primary-foreground text-sm font-medium">
+                Token
+              </span>
+              <div className="flex items-center justify-end gap-1">
                 {fromToken?.logo_url && (
                   <img
                     src={fromToken.logo_url}
@@ -292,9 +310,11 @@ const ReviewSwapBridge: React.FC<ReviewSwapBridgeProps> = ({
             </div>
 
             {/* Route */}
-            <div className="flex justify-between items-center px-4 py-3 text-sm">
-              <span className="text-gray-500">Route</span>
-              <div className="flex items-center gap-2">
+            <div className="flex justify-between items-center gap-4 py-1 text-sm">
+              <span className="text-primary-foreground text-sm font-medium">
+                Route
+              </span>
+              <div className="flex items-center justify-end gap-2">
                 {fromChainObj?.logo && (
                   <img
                     src={fromChainObj.logo}
@@ -325,23 +345,29 @@ const ReviewSwapBridge: React.FC<ReviewSwapBridgeProps> = ({
 
         {/* Protocol Fee */}
         {type === 'bridge' && selectedQuote?.gas_fee && (
-          <div className="flex justify-between items-center px-4 py-3  rounded-lg text-sm">
-            <span className="text-gray-500">{sourceName} fee</span>
-            <span className="text-gray-700 font-medium">
+          <div className="flex justify-between items-center gap-4 py-1 rounded-lg text-sm">
+            <span className="text-primary-foreground text-sm font-medium">
+              {sourceName} fee
+            </span>
+            <span className="text-secondary-foreground text-sm font-normal text-right">
               {protocolFeeAmount} {selectedQuote.gas_fee.symbol || 'ETH'}
             </span>
           </div>
         )}
-        <div className="px-4 mb-6">
-          <div className="flex items-center justify-center gap-2 text-sm font-medium">
-            <span>Network fee</span>
-            <span>{networkFeeDisplay}</span>
-            {estimatedTimeDisplay && (
-              <>
-                <span>•</span>
-                <span>{estimatedTimeDisplay}</span>
-              </>
-            )}
+        <div className=" mb-6">
+          <div className="flex justify-between items-center gap-4 text-sm font-normal">
+            <span className="text-primary-foreground text-sm font-medium">
+              Network fee
+            </span>
+            <div className="flex items-center justify-end gap-2 text-secondary-foreground text-sm font-normal">
+              <span>{networkFeeDisplay}</span>
+              {estimatedTimeDisplay && (
+                <>
+                  <span>•</span>
+                  <span>{estimatedTimeDisplay}</span>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
