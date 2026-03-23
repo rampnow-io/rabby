@@ -1439,7 +1439,7 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
       <div className="flex-1 overflow-auto p-6">
         <div className="content">
           {/* HEADER */}
-          <div className="mb-6 grid grid-cols-3 items-center text-[20px] font-medium">
+          <div className="grid grid-cols-3 items-center text-[20px] font-medium">
             <div className="justify-self-start">
               <IconBackCC onClick={handleClose} />
             </div>
