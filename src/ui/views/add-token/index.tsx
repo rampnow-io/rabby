@@ -166,7 +166,7 @@ const AddToken = () => {
             }
           }}
         >
-          <div className="text-primary-foreground text-xl font-normal">
+          <div className="text-primary-foreground text-xl font-medium">
             Add Custom Token
           </div>
         </HeaderNavPage>

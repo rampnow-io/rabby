@@ -1439,10 +1439,14 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
       <div className="flex-1 overflow-auto p-6">
         <div className="content">
           {/* HEADER */}
-          <div className="flex items-center justify-between mb-6 text-[20px] font-medium">
-            <IconBackCC onClick={handleClose} />
-            <p>{t('page.dashboard.home.panel.settings')}</p>
-            <div />
+          <div className="mb-6 grid grid-cols-3 items-center text-[20px] font-medium">
+            <div className="justify-self-start">
+              <IconBackCC onClick={handleClose} />
+            </div>
+            <p className="text-center">
+              {t('page.dashboard.home.panel.settings')}
+            </p>
+            <div className="h-20 w-20 justify-self-end" aria-hidden="true" />
           </div>
           {currentAccount && (
             <div className="flex justify-between items-center pb-4">
@@ -1565,8 +1569,8 @@ const SettingsInner = ({ visible, onClose }: SettingsProps) => {
             reportSettings('Lock Wallet');
           }}
         >
-          <div className="flex items-center justify-center text-[15px] font-normal gap-2">
-            <RcIconLockWallet className="" />
+          <div className="flex items-center text-primary-foreground justify-center text-sm font-medium gap-2">
+            <RcIconLockWallet className="h-4 w-4" />
             {t('page.dashboard.settings.features.lockWallet')}
           </div>
         </Button>

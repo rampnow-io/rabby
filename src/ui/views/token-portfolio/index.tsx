@@ -129,7 +129,7 @@ const TokenPortfolioPage = () => {
     <UIContainer>
       <Container>
         <HeaderNavPage handleBack={handleBack}>
-          <div className="text-primary-foreground text-xl font-normal">
+          <div className="text-primary-foreground text-xl font-medium">
             Token
           </div>
         </HeaderNavPage>

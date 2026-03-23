@@ -1056,7 +1056,7 @@ const SwapAndBridgeContainer = () => {
             history.goBack() 
           }
         >
-          <div className="text-primary-foreground text-xl font-normal">
+          <div className="text-primary-foreground text-xl font-medium">
           Exchange
           </div>
         </HeaderNavPage>

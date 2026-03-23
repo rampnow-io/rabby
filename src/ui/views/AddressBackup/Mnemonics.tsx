@@ -49,7 +49,7 @@ const AddressBackupMnemonics: React.FC<{
             }
           }}
         >
-          <div className="text-primary-foreground text-xl font-normal">
+          <div className="text-primary-foreground text-xl font-medium">
             Secret recovery phrase
           </div>
         </HeaderNavPage>
@@ -72,7 +72,7 @@ const AddressBackupMnemonics: React.FC<{
               )}
             </div>
             <div className="flex justify-center gap-1 mt-6">
-              <p className="text-primary-foreground text-[14px]">
+              <p className="text-primary-foreground text-[14px] font-medium">
                 copy to clipboard
               </p>
               <Copy value={`${data}`} />
@@ -80,7 +80,7 @@ const AddressBackupMnemonics: React.FC<{
           </div>
         </Content>
         <Action className="gap-2">
-          <p className="text-secondary-foreground text-xs text-center">
+          <p className="text-secondary-foreground text-xs text-center font-medium">
             Just make sure nobody’s looking! 👀
           </p>
           <Button onClick={() => history.goBack()}>{t('global.Done')}</Button>

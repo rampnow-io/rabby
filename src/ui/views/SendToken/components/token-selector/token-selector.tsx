@@ -115,17 +115,24 @@ const TokenSelectorModal = ({
     availableTokens as (TokenItem | AbstractPortfolioToken)[]
   );
 
+  const hasPositiveBalance = useCallback(
+    (token: TokenItem | AbstractPortfolioToken) => {
+      const numericAmount = Number((token as TokenItem).amount ?? 0);
+      return Number.isFinite(numericAmount) && numericAmount > 0;
+    },
+    []
+  );
+
+  const nonZeroTokenList = useMemo(() => {
+    return displayTokenList.filter((token) => hasPositiveBalance(token));
+  }, [displayTokenList, hasPositiveBalance]);
+
   const isLoading = isLoadingAllTokens;
 
   // Check if all tokens have 0 or undefined liquidity
   const allTokensHaveZeroLiquidity = useMemo(() => {
-    return (
-      displayTokenList.length === 0 ||
-      displayTokenList.every(
-        (token) => token.amount === 0 || token.amount === undefined
-      )
-    );
-  }, [displayTokenList]);
+    return nonZeroTokenList.length === 0;
+  }, [nonZeroTokenList]);
 
   const handleTokenClick = useCallback(
     (token: TokenItem) => {
@@ -156,81 +163,75 @@ const TokenSelectorModal = ({
           <div className="text-base text-primary-foreground font-semibold">
             Asset
           </div>
-          {isLoading ? (
-            <div className="flex justify-center items-center py-8">
-              <></>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-2 py-0 flex-1 min-h-0 overflow-y-auto">
-              {displayTokenList.map((token) => {
-                // Filter out tokens with amount === 0 or undefined
-                if (token.amount === 0 || token.amount === undefined) {
-                  return null;
-                }
 
-                const chain = findChain({ serverId: token.chain });
-                return (
-                  <div
-                    key={`${token.chain}-${token.id}`}
-                    className={`p-4  rounded-2xl cursor-pointer bg-[#FAFAFA] hover:bg-[#F4F4F4]  flex items-center gap-4 `}
-                    onClick={() => handleTokenClick(token)}
-                  >
-                    <div className="relative w-10 h-10 flex-shrink-0">
-                      {token.logo_url ? (
-                        <img
-                          src={token.logo_url}
-                          alt={token.symbol}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
-                      ) : (
-                        <img
-                          src={IconUnknown}
-                          alt={token.symbol}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
-                      )}
-                      <>
-                        {chain?.logo ? (
+          <>
+            {nonZeroTokenList.length > 0 && (
+              <div className="flex flex-col gap-2 py-0 flex-1 min-h-0 overflow-y-auto">
+                {nonZeroTokenList.map((token) => {
+                  const chain = findChain({ serverId: token.chain });
+                  return (
+                    <div
+                      key={`${token.chain}-${token.id}`}
+                      className={`p-4  rounded-2xl cursor-pointer bg-[#FAFAFA] hover:bg-[#F4F4F4]  flex items-center gap-4 `}
+                      onClick={() => handleTokenClick(token)}
+                    >
+                      <div className="relative w-10 h-10 flex-shrink-0">
+                        {token.logo_url ? (
                           <img
-                            src={chain.logo}
-                            alt={token.chain}
-                            className="absolute w-4 h-4 right-[-4px] bottom-[-4px] rounded-full border-2 border-white bg-white"
+                            src={token.logo_url}
+                            alt={token.symbol}
+                            className="w-10 h-10 rounded-full object-cover"
                           />
                         ) : (
                           <img
                             src={IconUnknown}
-                            alt={token.chain}
-                            className="absolute w-4 h-4 right-[-4px] bottom-[-4px] rounded-full border-2 border-white bg-white"
+                            alt={token.symbol}
+                            className="w-10 h-10 rounded-full object-cover"
                           />
                         )}
-                      </>
-                    </div>
-                    <div className="flex flex-col gap-0.5 flex-1">
-                      <div className="font-medium text-base text-primary-foreground">
-                        {token.symbol}
+                        <>
+                          {chain?.logo ? (
+                            <img
+                              src={chain.logo}
+                              alt={token.chain}
+                              className="absolute w-4 h-4 right-[-4px] bottom-[-4px] rounded-full border-2 border-white bg-white"
+                            />
+                          ) : (
+                            <img
+                              src={IconUnknown}
+                              alt={token.chain}
+                              className="absolute w-4 h-4 right-[-4px] bottom-[-4px] rounded-full border-2 border-white bg-white"
+                            />
+                          )}
+                        </>
                       </div>
-                      <div className="text-sm text-secondary-foreground">
-                        {token.chain}
+                      <div className="flex flex-col gap-0.5 flex-1">
+                        <div className="font-medium text-base text-primary-foreground">
+                          {token.symbol}
+                        </div>
+                        <div className="text-sm text-secondary-foreground">
+                          {token.chain}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="flex flex-col gap-0.5 text-right flex-shrink-0">
-                      {token.amount !== undefined && token.amount > 0 && (
-                        <div className="text-base text-primary-foreground">
-                          {token.amount?.toFixed(4)}
-                        </div>
-                      )}
-                      {token.price !== undefined && token.price > 0 && (
-                        <div className="text-sm font-medium text-secondary-foreground">
-                          ${token.price.toFixed(2)}
-                        </div>
-                      )}
+                      <div className="flex flex-col gap-0.5 text-right flex-shrink-0">
+                        {token.amount !== undefined && token.amount > 0 && (
+                          <div className="text-base text-primary-foreground">
+                            {token.amount?.toFixed(4)}
+                          </div>
+                        )}
+                        {token.price !== undefined && token.price > 0 && (
+                          <div className="text-sm font-medium text-secondary-foreground">
+                            ${token.price.toFixed(2)}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            )}
+          </>
 
           {!isLoading && allTokensHaveZeroLiquidity && (
             <div className="flex flex-col items-center justify-center gap-6 py-12">

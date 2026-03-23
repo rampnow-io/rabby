@@ -22,7 +22,7 @@ const ConnectedDappsPage = () => {
             }
           }}
         >
-          <div className="text-primary-foreground text-xl font-normal">
+          <div className="text-primary-foreground text-xl font-medium">
             Connected Dapps
           </div>
         </HeaderNavPage>

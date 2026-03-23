@@ -76,7 +76,7 @@ const DisplayMnemonic = () => {
         <HeaderNavPage
           handleBack={() => dispatch.createMnemonics.stepTo('risk-check')}
         >
-          <div className="text-primary-foreground text-xl font-normal">
+          <div className="text-primary-foreground text-xl font-medium">
             {t('page.newAddress.seedPhrase.backup')}
           </div>
         </HeaderNavPage>
