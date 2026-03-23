@@ -47,15 +47,17 @@ const filterDisplayToken = (
         isSameAddress(token._tokenId, item.address) &&
         item.chain === token.chain
     );
-    const shouldInclude = !isBlocked && chain;
 
-    // Debug logging for Pulse Chain tokens
-    if (token.chain === 'pls' && !shouldInclude) {
-      console.warn('🔴 Pulse token filtered out:', {
+    const shouldInclude = !isBlocked && !!chain;
+
+    // Debug logging for ALL pls tokens
+    if (token.chain === 'pls') {
+      console.log('🔍 [filterDisplayToken] PLS Token:', {
         symbol: token.symbol,
-        chain: token.chain,
+        tokenId: token._tokenId,
         isBlocked: !!isBlocked,
         chainFound: !!chain,
+        shouldInclude,
       });
     }
 
