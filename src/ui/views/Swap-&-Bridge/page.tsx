@@ -20,7 +20,7 @@ import {
   useSetSettingVisible,
   useSettingVisible,
 } from './hooks';
-
+import {  X } from 'lucide-react';
 import { RabbyFeePopup } from '../Swap/Component/RabbyFeePopup';
 import BottomFloatingSheet from '@/ui/component/BottomFloatingPopup';
 import { useCss, useAsync } from 'react-use';
@@ -51,7 +51,7 @@ import { DirectSignToConfirmBtn } from '@/ui/component/ToConfirmButton';
 import { DbkButton } from '../Ecology/dbk-chain/components/DbkButton';
 import clsx from 'clsx';
 import { TooltipWithMagnetArrow } from '@/ui/component/Tooltip/TooltipWithMagnetArrow';
-import { DBK_CHAIN_ID } from '@/constant';
+import { DBK_CHAIN_ID, DEX_WITH_WRAP } from '@/constant';
 
 import { Alert } from 'antd';
 import {
@@ -234,6 +234,85 @@ const SwapAndBridgeContainer = () => {
 
   const [fetchingBridgeQuote, setFetchingBridgeQuote] = useState(false);
 
+  const normalizeLogo = useCallback((logo: unknown): string => {
+    if (!logo) {
+      return '';
+    }
+
+    if (typeof logo === 'string') {
+      return logo;
+    }
+
+    if (typeof logo === 'object') {
+      const maybeLogo = logo as { default?: string; src?: string };
+      return maybeLogo.default || maybeLogo.src || '';
+    }
+
+    return '';
+  }, []);
+
+  const resolveSwapLogo = useCallback(
+    (
+      dexName?: string,
+      aggregatorLogo?: string,
+      quoteProviderLogo?: string,
+      aggregatorId?: string
+    ) => {
+      const providerLogo = normalizeLogo(quoteProviderLogo);
+      if (providerLogo) {
+        return providerLogo;
+      }
+
+      const aggLogo = normalizeLogo(aggregatorLogo);
+      if (aggLogo) {
+        return aggLogo;
+      }
+
+      if (!dexName) {
+        const fromAggIdOnly = normalizeLogo(
+          (DEX_WITH_WRAP as Record<string, { logo?: unknown }>)[
+            aggregatorId || ''
+          ]?.logo
+        );
+        return fromAggIdOnly;
+      }
+
+      const byKey = normalizeLogo(
+        (DEX_WITH_WRAP as Record<string, { logo?: unknown }>)[dexName]?.logo
+      );
+      if (byKey) {
+        return byKey;
+      }
+
+      const byAggregatorId = normalizeLogo(
+        (DEX_WITH_WRAP as Record<string, { logo?: unknown }>)[
+          aggregatorId || ''
+        ]?.logo
+      );
+      if (byAggregatorId) {
+        return byAggregatorId;
+      }
+
+      const lowerDexName = dexName.toLowerCase();
+      const lowerAggregatorId = (aggregatorId || '').toLowerCase();
+
+      const matchedDex = Object.values(
+        DEX_WITH_WRAP as Record<string, { id?: string; name?: string; logo?: unknown }>
+      ).find((dex) => {
+        const dexId = (dex.id || '').toLowerCase();
+        const dexLabel = (dex.name || '').toLowerCase();
+        return (
+          dexId === lowerDexName ||
+          dexLabel === lowerDexName ||
+          (lowerAggregatorId && (dexId === lowerAggregatorId || dexLabel === lowerAggregatorId))
+        );
+      });
+
+      return normalizeLogo(matchedDex?.logo);
+    },
+    [normalizeLogo]
+  );
+
   const routes = useMemo<RouteOption[]>(() => {
     return (quoteList || []).map((quote) => {
       const isSwapQuote = quote.type === 'swap';
@@ -276,7 +355,13 @@ const SwapAndBridgeContainer = () => {
             'Unknown DEX'
           : (quote.aggregator as any)?.name || 'Unknown Bridge',
         logo: isSwapQuote
-          ? quote.aggregator?.logo || ''
+          ? resolveSwapLogo(
+              quote.dexQuote?.name,
+              quote.aggregator?.logo,
+              (quote as any)?.dexQuote?.quoteProviderInfo?.logo ||
+                (quote as any)?.quoteProviderInfo?.logo,
+              quote.aggregator?.id
+            )
           : quote.aggregator?.logo_url || '',
         fee:
           !isSwapQuote && quote.rabby_fee
@@ -292,7 +377,7 @@ const SwapAndBridgeContainer = () => {
         usdValue,
       };
     });
-  }, [quoteList, bestQuoteId, toToken]);
+  }, [quoteList, bestQuoteId, toToken, resolveSwapLogo]);
 
   const selectedRouteId = useMemo(() => {
     if (!selectedBridgeQuote) return undefined;
@@ -1040,7 +1125,7 @@ const SwapAndBridgeContainer = () => {
           {!inSufficientCanGetQuote || (noQuote && !recommendFromToken) ? (
             <span
                   className={clsx(
-                    'text-13 font-medium',
+                    'text-sm font-medium',
                     'text-rabby-red-default'
                   )}
                 >
@@ -1084,7 +1169,15 @@ const SwapAndBridgeContainer = () => {
                   sourceLogo={
                     selectedBridgeQuote.type === 'bridge'
                       ? selectedBridgeQuote.aggregator.logo_url || ''
-                      : selectedBridgeQuote.aggregator.logo || ''
+                      : resolveSwapLogo(
+                          selectedBridgeQuote.dexQuote?.name,
+                          selectedBridgeQuote.aggregator.logo,
+                          (selectedBridgeQuote as any)?.dexQuote
+                            ?.quoteProviderInfo?.logo ||
+                            (selectedBridgeQuote as any)?.quoteProviderInfo
+                              ?.logo,
+                          selectedBridgeQuote.aggregator?.id
+                        )
                   }
                   duration={
                     selectedBridgeQuote.type === 'bridge'
@@ -1205,7 +1298,24 @@ const SwapAndBridgeContainer = () => {
         setSelectedBridgeQuote={setSelectedBridgeQuote}
       />
 
-      <BottomFloatingSheet open={infoSheetOpen} onClose={closeInfoSheet}>
+      <BottomFloatingSheet
+        contentClassName="px-4 py-4"
+        open={infoSheetOpen}
+        hideCloseButton
+        onClose={closeInfoSheet}
+        header={<div className="flex justify-between items-center w-full min-h-7">
+                    <div className="font-medium text-primary-foreground text-base leading-7 text-center">
+                    Your Order
+                    </div>
+                    <button
+                      type="button"
+                      className="flex items-center justify-end cursor-pointer"
+                      onClick={() => closeInfoSheet()}
+                      aria-label="Close rename wallet modal"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>} >
         {selectedBridgeQuote && (
           <BridgeShowMore
             supportDirectSign={canUseDirectSubmitTx}
@@ -1222,7 +1332,14 @@ const SwapAndBridgeContainer = () => {
             sourceLogo={
               selectedBridgeQuote.type === 'bridge'
                 ? selectedBridgeQuote.aggregator.logo_url || ''
-                : selectedBridgeQuote.aggregator.logo || ''
+                : resolveSwapLogo(
+                    selectedBridgeQuote.dexQuote?.name,
+                      selectedBridgeQuote.aggregator.logo,
+                      (selectedBridgeQuote as any)?.dexQuote?.quoteProviderInfo
+                        ?.logo ||
+                      (selectedBridgeQuote as any)?.quoteProviderInfo?.logo,
+                    selectedBridgeQuote.aggregator?.id
+                  )
             }
             duration={
               selectedBridgeQuote.type === 'bridge'

@@ -26,6 +26,7 @@ import { CHAINS_ENUM } from '@debank/common';
 import {
   formatAmount,
   formatGasHeaderUsdValue,
+  formatTokenAmount,
   formatUsdValue,
 } from '@/ui/utils';
 import { calcGasEstimated } from '@/utils/time';
@@ -47,7 +48,7 @@ import {
 } from '../../../Approval/components/FooterBar/GasLessComponents';
 import { useGasAccountSign } from '../../../GasAccount/hooks';
 import { useMemoizedFn } from 'ahooks';
-import { Button, Skeleton } from '@repo/ui/primitives';
+import { Button, Skeleton, TooltipView } from '@repo/ui/primitives';
 import { tokenPriceImpact } from '../../hooks';
 
 const PreferMEVGuardSwitch = styled(Switch)`
@@ -247,12 +248,8 @@ export const BridgeShowMore = ({
   const sourceContentRender = useMemoizedFn(() => {
     return (
       <ListItem
-        name={
-          type === 'bridge'
-            ? t('page.bridge.showMore.source')
-            : t('page.swap.source')
-        }
-        className="mb-4 h-[18px] text-[14px] font-normal text-primary-foreground"
+        name={type === 'bridge' ? 'Source' : 'Source'}
+        className="mb-4 h-[18px] text-[14px] font-medium text-primary-foreground"
       >
         {quoteLoading ? (
           <Skeleton />
@@ -278,14 +275,6 @@ export const BridgeShowMore = ({
                 <span className="text-[14px] text-r-neutral-foot">-</span>
               ) : null}
             </div>
-            {type === 'bridge' && (
-              <span className={`text-[14px] font-light`}>
-                {' · '}
-                {t('page.bridge.duration', {
-                  duration: showMinDuration,
-                })}
-              </span>
-            )}
           </div>
         )}
       </ListItem>
@@ -323,13 +312,7 @@ export const BridgeShowMore = ({
   }, [data, quoteLoading, toToken, fromToken]);
 
   return (
-    <div className="px-4 pb-4 space-y-4">
-      <div className="flex items-center justify-between pb-4 border-b border-r-neutral-line">
-        <h2 className="text-[20px] font-medium text-primary-foreground">
-          Your Order
-        </h2>
-      </div>
-
+    <div className=" space-y-4">
       <ListItem name={exchangeRateDisplay.fromLabel} className="mb-4">
         <div className="text-[14px] font-medium text-secondary-foreground">
           {exchangeRateDisplay.toDisplay}
@@ -347,12 +330,7 @@ export const BridgeShowMore = ({
 
       <ListItem name={t('page.swap.rabbyFee.title')} className="mt-3 h-[18px]">
         <div
-          className={clsx(
-            'text-12 font-medium',
-            isWrapToken
-              ? 'text-r-neutral-foot'
-              : 'text-primary-foreground cursor-pointer'
-          )}
+          className="text-[14px] font-medium text-secondary-foreground"
           onClick={openFeePopup}
         >
           {isWrapToken && type === 'swap'
@@ -435,6 +413,7 @@ export const DirectSignGasInfo = ({
   const [, setGasModalVisible] = useShowMoreGasSelectModalVisible();
 
   const chainEnum = findChainByServerID(chainServeId)?.enum;
+  const chainInfo = findChainByServerID(chainServeId);
 
   const calcGasAccountUsd = useCallback((n: number | string) => {
     const v = Number(n);
@@ -461,6 +440,19 @@ export const DirectSignGasInfo = ({
             Number(gasAccountCost?.gas_cost || 0)
         )
       : gasCostUsdStr;
+
+  const gasCostUsdDisplay =
+    gasCostUsd ||
+    (ctx?.selectedGasCost?.gasCostUsd
+      ? formatGasHeaderUsdValue(ctx.selectedGasCost.gasCostUsd.toString())
+      : '--');
+
+  const gasTokenAmountDisplay = ctx?.selectedGasCost?.gasCostAmount
+    ? formatTokenAmount(ctx.selectedGasCost.gasCostAmount.toString(), 6, true)
+    : '';
+
+  const gasTokenSymbol = chainInfo?.nativeTokenSymbol || '';
+  const gasTokenLogo = chainInfo?.nativeTokenLogo || '';
 
   const showGasContent = !!ctx?.txsCalc?.length && !loading && !noQuote;
 
@@ -619,9 +611,25 @@ export const DirectSignGasInfo = ({
             <div className="flex items-center justify-between mb-1">
               {/* Left: Cost + Time */}
               <div className="flex items-center gap-1 text-r-neutral-title-1">
-                <span className="text-base font-semibold">{gasCostUsd}</span>
-                <span className="text-r-neutral-foot">~</span>
-                <span className="text-sm text-r-neutral-foot">
+                {gasTokenLogo ? (
+                  <img
+                    src={gasTokenLogo}
+                    alt="token"
+                    className="w-[18px] h-[18px] rounded-full object-cover"
+                  />
+                ) : null}
+                {gasTokenAmountDisplay ? (
+                  <span className="text-base font-medium text-primary-foreground">
+                    {gasTokenAmountDisplay}
+                    {gasTokenSymbol ? ` ${gasTokenSymbol}` : ''}
+                  </span>
+                ) : (
+                  <span className="text-base font-medium text-primary-foreground">
+                    {gasCostUsdDisplay}
+                  </span>
+                )}
+                <span className="text-secondary-foreground">~</span>
+                <span className="text-sm text-secondary-foreground">
                   {estimatedTime}
                 </span>
               </div>
@@ -653,20 +661,51 @@ export const DirectSignGasInfo = ({
                     className="opacity-60"
                   />
                   {ctx.gasMethod === 'gasAccount' ? (
-                    <div>
+                    <Tooltip
+                      align={{
+                        offset: [10, 0],
+                      }}
+                      placement={'topRight'}
+                      overlayClassName="rectangle w-[max-content]"
+                      title={
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <div>{t('page.signTx.gasAccount.description')}</div>
+                          <div>
+                            {t('page.signTx.gasAccount.estimatedGas')}{' '}
+                            {calcGasAccountUsd(
+                              gasAccountCost?.estimate_tx_cost || 0
+                            )}
+                          </div>
+                          <div>
+                            {t('page.signTx.gasAccount.maxGas')}{' '}
+                            {calcGasAccountUsd(
+                              gasAccountCost?.total_cost || '0'
+                            )}
+                          </div>
+                          <div>
+                            {t('page.signTx.gasAccount.sendGas')}{' '}
+                            {calcGasAccountUsd(
+                              gasAccountCost?.total_cost || '0'
+                            )}
+                          </div>
+                          <div>
+                            {t('page.signTx.gasAccount.gasCost')}{' '}
+                            {calcGasAccountUsd(gasAccountCost?.gas_cost || '0')}
+                          </div>
+                        </div>
+                      }
+                    >
                       <IconInfoSVG
                         className="text-r-neutral-foot -top-1"
                         onClick={(e) => e.stopPropagation()}
                       />
-                    </div>
+                    </Tooltip>
                   ) : null}
                 </button>
               </ShowMoreGasSelectModal>
             </div>
             {/* Second row: Estimated fee label */}
-            <div className="text-xs text-secondary-foreground">
-              Estimated fee
-            </div>
+            <div className="text-xs text-r-neutral-foot">Estimated fee</div>
           </>
         ) : !loading && noQuote ? (
           <div>-</div>
@@ -858,13 +897,8 @@ export const BridgeInlineWarnings = ({
               )}
             >
               -{data.diff}%
-              <Tooltip
-                align={{
-                  offset: [10, 0],
-                }}
-                placement={'topRight'}
-                overlayClassName="rectangle max-w-[360px]"
-                title={
+              <TooltipView
+                content={
                   <div className="flex flex-col gap-4 py-[5px] text-13">
                     <div>
                       {t('page.bridge.est-payment')} {amount}
@@ -880,8 +914,8 @@ export const BridgeInlineWarnings = ({
                   </div>
                 }
               >
-                <RcIconInfo className="ml-4 text-rabby-neutral-foot w-14 h-14" />
-              </Tooltip>
+                <RcIconInfo className="ml-4 text-rabby-neutral-foot w-[14px] h-[14px]" />
+              </TooltipView>
             </span>
           </div>
           <div className="mt-[8px] rounded-[4px] border-[0.5px] border-rabby-red-default bg-r-red-light p-8 text-13 font-normal text-r-red-default">

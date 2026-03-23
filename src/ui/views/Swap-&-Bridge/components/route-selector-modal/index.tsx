@@ -1,12 +1,20 @@
 'use client';
 
-import { Image, Label, RadioGroup, RadioGroupItem } from '@repo/ui/primitives';
+import { Label, RadioGroup, RadioGroupItem } from '@repo/ui/primitives';
 import { cn } from '@repo/utils';
 import { ChevronRight } from 'lucide-react';
-import { RefObject, useEffect, useImperativeHandle, useState } from 'react';
+import {
+  RefObject,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useState,
+} from 'react';
 import { useEventRef } from '@repo/ui';
 import RouteListAction from './route-list-action';
 import { TokenItem } from '@rabby-wallet/rabby-api/dist/types';
+import { DEX_WITH_WRAP } from '@/constant';
 
 export interface Route {
   id: string;
@@ -46,10 +54,76 @@ function RouteSelectorModal({
   toToken,
   toAmount,
 }: RouteSelectorModalProps) {
+  const normalizeLogo = useCallback((logo: unknown): string => {
+    if (!logo) return '';
+    if (typeof logo === 'string') return logo;
+    if (typeof logo === 'object') {
+      const maybe = logo as { default?: string; src?: string };
+      return maybe.default || maybe.src || '';
+    }
+    return '';
+  }, []);
+
+  const normalizeKey = useCallback((value?: string): string => {
+    return (value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  }, []);
+
+  const findDexLogo = useCallback(
+    (name?: string, idPrefix?: string): string => {
+      const candidates = [name, idPrefix].filter(Boolean) as string[];
+      if (!candidates.length) return '';
+
+      const dexEntries = Object.entries(
+        DEX_WITH_WRAP as Record<
+          string,
+          { id?: string; name?: string; logo?: unknown }
+        >
+      );
+
+      for (const candidate of candidates) {
+        const normalizedCandidate = normalizeKey(candidate);
+        const matched = dexEntries.find(([key, dex]) => {
+          return [key, dex?.id || '', dex?.name || ''].some(
+            (source) => normalizeKey(source) === normalizedCandidate
+          );
+        });
+
+        if (matched) {
+          const logo = normalizeLogo(matched[1]?.logo);
+          if (logo) return logo;
+        }
+      }
+
+      return '';
+    },
+    [normalizeKey, normalizeLogo]
+  );
+
+  const resolveRouteLogo = useCallback(
+    (route?: Route): string => {
+      if (!route) return '';
+
+      const idPrefix = route.id.split('-')[0];
+
+      if (route.type === 'swap') {
+        const dexLogo = findDexLogo(route.name, idPrefix);
+        if (dexLogo) return dexLogo;
+      }
+
+      return normalizeLogo(route.logo);
+    },
+    [findDexLogo, normalizeLogo]
+  );
+
   const [openRoutesModal, openRoutesModalRef] = useEventRef<() => void>();
   const [selectedRoute, setSelectedRoute] = useState<Route | undefined>(
     defaultValue ? routes.find((r) => r.id === defaultValue) : undefined
   );
+
+  const selectedRouteLogo = useMemo(() => resolveRouteLogo(selectedRoute), [
+    resolveRouteLogo,
+    selectedRoute,
+  ]);
 
   useImperativeHandle(actionRef, () => openRoutesModal, [openRoutesModal]);
 
@@ -102,16 +176,6 @@ function RouteSelectorModal({
           {selectedRoute ? (
             <div className="flex flex-row justify-between items-center w-full">
               <div className="flex items-center gap-2 flex-1">
-                {selectedRoute.logo && (
-                  <Image
-                    src={selectedRoute.logo}
-                    alt={selectedRoute.name}
-                    width={32}
-                    height={32}
-                    draggable={false}
-                    className="h-5 w-5"
-                  />
-                )}
                 <span>{selectedRoute.name}</span>
               </div>
             </div>
@@ -119,7 +183,17 @@ function RouteSelectorModal({
             <p className="text-[#6A6C6A]">Select Route</p>
           )}
         </>
-        <ChevronRight />
+        <div className="flex items-center gap-1.5">
+          {selectedRouteLogo && (
+            <img
+              src={selectedRouteLogo}
+              alt={selectedRoute?.name}
+              draggable={false}
+              className="h-5 w-5 rounded-full"
+            />
+          )}
+          <ChevronRight />
+        </div>
       </div>
       <RouteListAction
         actionRef={openRoutesModalRef}

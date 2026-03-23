@@ -50,7 +50,9 @@ export default function BottomFloatingSheet({
         >
           {showHeader && (
             <div className={clsx('px-6 pt-4', headerClassName)}>
-              <div className="relative pr-8">{header}</div>
+              <div className={clsx('relative', !hideCloseButton && 'pr-8')}>
+                {header}
+              </div>
               {!hideCloseButton && (
                 <X
                   size={22}
@@ -71,12 +73,7 @@ export default function BottomFloatingSheet({
           </div>
 
           {footer && (
-            <div
-              className={clsx(
-                'border-t border-gray-100 px-6 pb-6 pt-3',
-                footerClassName
-              )}
-            >
+            <div className={clsx('px-6 pb-6 pt-3', footerClassName)}>
               {footer}
             </div>
           )}

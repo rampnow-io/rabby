@@ -19,7 +19,6 @@ import React, {
 import { useTranslation } from 'react-i18next';
 import { useDebounce } from 'react-use';
 import { ReactComponent as IconInfoSVG } from 'ui/assets/info-cc.svg';
-import { Popup } from 'ui/component';
 import { TooltipWithMagnetArrow } from 'ui/component/Tooltip/TooltipWithMagnetArrow';
 import {
   formatGasCostUsd,
@@ -51,10 +50,12 @@ import { getUiType, useHover, useWallet } from '@/ui/utils';
 import IconUnknown from '@/ui/assets/token-default.svg';
 import { noop } from 'lodash';
 import {
+  useGetShowMoreCustomGasEditorTrigger,
   useGetShowMoreGasSelectVisible,
   useSetGasInfoByUI,
 } from '@/ui/views/Bridge/Component/ShowMoreGasModal';
 import { Button } from '@repo/ui/primitives';
+import BottomFloatingSheet from '@/ui/component/BottomFloatingPopup';
 
 export interface GasSelectorResponse extends GasLevel {
   gasLimit: number;
@@ -541,6 +542,7 @@ const GasSelectorHeader = ({
   );
 
   const outGasModalIsOpen = useGetShowMoreGasSelectVisible();
+  const showMoreCustomEditorTrigger = useGetShowMoreCustomGasEditorTrigger();
 
   const gasAccountStateInit = useRef(false);
 
@@ -653,12 +655,18 @@ const GasSelectorHeader = ({
 
   const [isSelectCustom, setIsSelectCustom] = useState(false);
   const handleClickEdit = useCallback(() => {
+    console.log('[GasSelectorHeader] handleClickEdit called', {
+      rawSelectedGasLevel: rawSelectedGas?.level,
+      gasLimit,
+      nonce,
+    });
+
     setModalVisible(true);
+    setIsSelectCustom(true);
     if (rawSelectedGas?.level !== 'custom') {
       setSelectedGas(rawSelectedGas);
       setGasLimit(Number(gasLimit));
       setCustomNonce(Number(nonce));
-      setIsSelectCustom(true);
     }
     matomoRequestEvent({
       category: 'Transaction',
@@ -672,6 +680,19 @@ const GasSelectorHeader = ({
       getContainer ? 1000 : 50
     );
   }, [chain?.serverId, gasLimit, nonce, rawSelectedGas]);
+
+  const lastShowMoreCustomEditorTriggerRef = useRef(0);
+  useEffect(() => {
+    if (!showMoreCustomEditorTrigger) return;
+    if (showMoreCustomEditorTrigger === lastShowMoreCustomEditorTriggerRef.current)
+      return;
+
+    lastShowMoreCustomEditorTriggerRef.current = showMoreCustomEditorTrigger;
+    console.log('[GasSelectorHeader] received show more custom editor trigger', {
+      showMoreCustomEditorTrigger,
+    });
+    handleClickEdit();
+  }, [showMoreCustomEditorTrigger, handleClickEdit]);
 
   const panelSelection = (e, gas: GasLevel) => {
     e.stopPropagation();
@@ -841,6 +862,7 @@ const GasSelectorHeader = ({
   useEffect(() => {
     if (!rawSelectedGas) return;
     setSelectedGas(rawSelectedGas);
+    setIsSelectCustom(rawSelectedGas.level === 'custom');
     if (rawSelectedGas?.level !== 'custom') return;
     setCustomGas((e) =>
       Number(e) * 1e9 === rawSelectedGas.price ? e : rawSelectedGas.price / 1e9
@@ -946,13 +968,7 @@ const GasSelectorHeader = ({
   const setGasInfoByUI = useSetGasInfoByUI();
 
   useEffect(() => {
-    if (
-      isFirstTimeLoad ||
-      disabled ||
-      !isReady ||
-      !selectedGas ||
-      !directSubmit
-    ) {
+    if (isFirstTimeLoad || disabled || !isReady || !selectedGas) {
       setGasInfoByUI(undefined);
       return;
     }
@@ -976,7 +992,6 @@ const GasSelectorHeader = ({
   }, [
     gasAccountIsNotEnough,
     gasIsNotEnough,
-    directSubmit,
     isReady,
     isFirstTimeLoad,
     disabled,
@@ -1199,233 +1214,242 @@ const GasSelectorHeader = ({
           showCustomGasPrice={changedCustomGas}
         />
       </HeaderStyled>
-      <Popup
-        isNew
-        height={'auto'}
-        visible={modalVisible}
-        title={t('page.signTx.gasSelectorTitle')}
-        className={clsx('gas-modal', uiType.isPop && 'is-popup')}
-        onCancel={handleClosePopup}
-        destroyOnClose
-        closable
-        isSupportDarkMode
-        getContainer={getContainer}
-      >
-        <div className="mb-20 -mt-4">
-          {disabled ? (
-            <div className="text-[20px] font-medium text-r-neutral-title1 text-center">
-              {t('page.signTx.noGasRequired')}
+      {modalVisible && (
+        <BottomFloatingSheet
+          open={modalVisible}
+          onClose={handleClosePopup}
+          header={
+            <div className="text-[20px] font-medium text-r-neutral-title1">
+              {t('page.signTx.gasSelectorTitle')}
             </div>
-          ) : gas.error || !gas.success ? (
-            <>
-              <div className="text-[20px] font-medium text-r-red-default text-center">
-                {t('page.signTx.failToFetchGasCost')}
-              </div>
-              {version === 'v2' && gas.error ? (
-                <div className="gas-selector-modal-error-desc mt-[8px] flex items-center justify-center">
-                  <RcIconAlert className="w-16 mr-6 text-r-neutral-body" />
-                  {gas.error.msg}{' '}
-                  <span className="number">#{gas.error.code}</span>
-                </div>
-              ) : null}
-            </>
-          ) : (
-            <>
-              <div className="text-[20px] font-medium text-r-neutral-title1 text-center">
-                {gasCostUsdStr}
-              </div>
-              <div className="flex items-center justify-center gap-[6px] text-[14px] text-r-neutral-body mt-[8px]">
-                <img
-                  src={chain.nativeTokenLogo || IconUnknown}
-                  className="w-16 h-16 rounded-full"
-                />
-                {gasCostAmountStr}
-              </div>
-            </>
-          )}
-        </div>
-        <div className="mt-[16px] p-[16px] rounded-[8px] bg-r-neutral-card-1 border border-rabby-neutral-line">
+          }
+          contentClassName="px-4 py-4"
+        >
           <div
-            className={clsx('card-container-title', {
-              disabled: disabled,
-            })}
+            className={clsx(
+              'gas-modal custom-popup is-support-darkmode is-new min-h-[320px] overflow-auto',
+              uiType.isPop && 'is-popup'
+            )}
           >
-            {t('page.signTx.gasPriceTitle')}
-          </div>
-          <Tooltip
-            overlayClassName="rectangle"
-            title={
-              disabled ? t('page.signTx.gasNotRequireForSafeTransaction') : null
-            }
-          >
-            <CardBody $disabled={disabled}>
-              {gasList.map((item, idx) => (
-                <div
-                  key={`gas-item-${item.level}-${idx}`}
-                  className={clsx('card', {
-                    active: isSelectCustom
-                      ? item.level === 'custom'
-                      : selectedGas?.level === item.level,
-                  })}
-                  onClick={(e) => handlePanelSelection(e, item)}
-                >
-                  <div className="gas-level">
-                    {t(getGasLevelI18nKey(item.level))}
-                  </div>
-                  <div
-                    className={clsx('cardTitle', {
-                      'custom-input': item.level === 'custom',
-                      active: selectedGas?.level === item.level,
-                    })}
-                  >
-                    {item.level === 'custom' ? (
-                      notSelectCustomGasAndIsNil ? (
-                        '-'
-                      ) : (
-                        <Input
-                          value={hiddenCustomGas ? '' : customGas}
-                          defaultValue={hiddenCustomGas ? '' : customGas}
-                          onChange={handleCustomGasChange}
-                          onClick={(e) => handlePanelSelection(e, item)}
-                          // onPressEnter={customGasConfirm}
-                          ref={customerInputRef}
-                          autoFocus={
-                            getContainer
-                              ? false
-                              : selectedGas?.level === item.level
-                          }
-                          min={0}
-                          bordered={false}
-                          disabled={disabled}
-                        />
-                      )
-                    ) : (
-                      <Tooltip
-                        title={new BigNumber(item.price / 1e9).toFixed()}
-                        overlayClassName={clsx('rectangle')}
-                      >
-                        <div>
-                          {new BigNumber(item.price / 1e9)
-                            .toFixed()
-                            .slice(0, 8)}
-                        </div>
-                      </Tooltip>
-                    )}
-                  </div>
-                  <div className="cardTime">
-                    {item.level === 'custom' ? (
-                      notSelectCustomGasAndIsNil ? null : isLoadingGas ? (
-                        <Skeleton.Input
-                          className="w-[44px] h-[12px] rounded"
-                          active
-                        />
-                      ) : (
-                        calcGasEstimated(customGasEstimated)
-                      )
-                    ) : (
-                      calcGasEstimated(item.estimated_seconds)
-                    )}
-                  </div>
+            <div className="mb-20 -mt-4">
+              {disabled ? (
+                <div className="text-[20px] font-medium text-r-neutral-title1 text-center">
+                  {t('page.signTx.noGasRequired')}
                 </div>
-              ))}
-            </CardBody>
-          </Tooltip>
-        </div>
-
-        <GasPriceDesc>
-          <div>
-            {t('page.signTx.myNativeTokenBalance')}
-            <GasPriceBold>
-              {formatTokenAmount(
-                new BigNumber(nativeTokenBalance).div(1e18).toFixed(),
-                4,
-                true
-              )}{' '}
-              {chain.nativeTokenSymbol}
-            </GasPriceBold>
-          </div>
-          {gasPriceMedian !== null && (
-            <div>
-              {t('page.signTx.gasPriceMedian')}
-              <GasPriceBold>
-                {new BigNumber(gasPriceMedian).div(1e9).toFixed()} Gwei
-              </GasPriceBold>
+              ) : gas.error || !gas.success ? (
+                <>
+                  <div className="text-[20px] font-medium text-r-red-default text-center">
+                    {t('page.signTx.failToFetchGasCost')}
+                  </div>
+                  {version === 'v2' && gas.error ? (
+                    <div className="gas-selector-modal-error-desc mt-[8px] flex items-center justify-center">
+                      <RcIconAlert className="w-16 mr-6 text-r-neutral-body" />
+                      {gas.error.msg}{' '}
+                      <span className="number">#{gas.error.code}</span>
+                    </div>
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  <div className="text-[20px] font-medium text-r-neutral-title1 text-center">
+                    {gasCostUsdStr}
+                  </div>
+                  <div className="flex items-center justify-center gap-[6px] text-[14px] text-r-neutral-body mt-[8px]">
+                    <img
+                      src={chain.nativeTokenLogo || IconUnknown}
+                      className="w-16 h-16 rounded-full"
+                    />
+                    {gasCostAmountStr}
+                  </div>
+                </>
+              )}
             </div>
-          )}
-        </GasPriceDesc>
-
-        <div>
-          {is1559 && (
-            <>
-              <Divide className="my-20 bg-r-neutral-line" />
-
+            <div className="mt-[16px] p-[16px] rounded-[8px] bg-r-neutral-card-1 border border-rabby-neutral-line">
               <div
-                className={clsx('priority-slider', {
-                  'opacity-50': maxPriorityFee === undefined,
+                className={clsx('card-container-title', {
+                  disabled: disabled,
                 })}
               >
-                <p className="flex items-center text-[14px] text-r-neutral-title1 font-medium mb-[12px]">
-                  {t('page.signTx.maxPriorityFee')}
-                  <Tooltip
-                    title={
-                      <ol className="list-decimal list-outside pl-[12px] mb-0">
-                        <li>{t('page.signTx.eip1559Desc1')}</li>
-                        <li>{t('page.signTx.eip1559Desc2')}</li>
-                      </ol>
-                    }
-                    overlayClassName="rectangle"
-                  >
-                    <IconInfoSVG className="mt-2 ml-2 text-r-neutral-foot" />
-                  </Tooltip>
-                </p>
-                <Tooltip
-                  title={
-                    isSelectCustom && isNilCustomGas
-                      ? t('page.signTx.maxPriorityFeeDisabledAlert')
-                      : undefined
-                  }
-                  overlayClassName="rectangle"
-                >
-                  <div className="flex items-center gap-[12px]">
-                    <Input
-                      onFocus={(e) => e.target.select()}
-                      value={maxPriorityFee}
-                      onChange={(e) =>
-                        handleMaxPriorityFeeChange(e.target.value)
-                      }
-                      prefixCls="priority-slider-input h-[52px]"
-                      type="number"
-                      min={0}
-                      max={priorityFeeMax}
-                      step={0.01}
-                      disabled={isSelectCustom && isNilCustomGas}
-                    />
-                  </div>
-                </Tooltip>
+                {t('page.signTx.gasPriceTitle')}
               </div>
-            </>
-          )}
-          {isReal1559 && isHardware && (
-            <div className="hardware-1559-tip">
-              {t('page.signTx.hardwareSupport1559Alert')}
+              <Tooltip
+                overlayClassName="rectangle"
+                title={
+                  disabled
+                    ? t('page.signTx.gasNotRequireForSafeTransaction')
+                    : null
+                }
+              >
+                <CardBody $disabled={disabled}>
+                  {gasList.map((item, idx) => (
+                    <div
+                      key={`gas-item-${item.level}-${idx}`}
+                      className={clsx('card', {
+                        active: isSelectCustom
+                          ? item.level === 'custom'
+                          : selectedGas?.level === item.level,
+                      })}
+                      onClick={(e) => handlePanelSelection(e, item)}
+                    >
+                      <div className="gas-level">
+                        {t(getGasLevelI18nKey(item.level))}
+                      </div>
+                      <div
+                        className={clsx('cardTitle', {
+                          'custom-input': item.level === 'custom',
+                          active: selectedGas?.level === item.level,
+                        })}
+                      >
+                        {item.level === 'custom' ? (
+                          notSelectCustomGasAndIsNil ? (
+                            '-'
+                          ) : (
+                            <Input
+                              value={hiddenCustomGas ? '' : customGas}
+                              defaultValue={hiddenCustomGas ? '' : customGas}
+                              onChange={handleCustomGasChange}
+                              onClick={(e) => handlePanelSelection(e, item)}
+                              // onPressEnter={customGasConfirm}
+                              ref={customerInputRef}
+                              autoFocus={
+                                getContainer
+                                  ? false
+                                  : selectedGas?.level === item.level
+                              }
+                              min={0}
+                              bordered={false}
+                              disabled={disabled}
+                            />
+                          )
+                        ) : (
+                          <Tooltip
+                            title={new BigNumber(item.price / 1e9).toFixed()}
+                            overlayClassName={clsx('rectangle')}
+                          >
+                            <div>
+                              {new BigNumber(item.price / 1e9)
+                                .toFixed()
+                                .slice(0, 8)}
+                            </div>
+                          </Tooltip>
+                        )}
+                      </div>
+                      <div className="cardTime">
+                        {item.level === 'custom' ? (
+                          notSelectCustomGasAndIsNil ? null : isLoadingGas ? (
+                            <Skeleton.Input
+                              className="w-[44px] h-[12px] rounded"
+                              active
+                            />
+                          ) : (
+                            calcGasEstimated(customGasEstimated)
+                          )
+                        ) : (
+                          calcGasEstimated(item.estimated_seconds)
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </CardBody>
+              </Tooltip>
             </div>
-          )}
-        </div>
 
-        <div className="flex justify-center mt-32 popup-footer">
-          <Button
-            className="w-full mx-20"
-            onClick={handleModalConfirmGas}
-            disabled={
-              !isReady ||
-              validateStatus.customGas.status === 'error' ||
-              maxPriorityFee === undefined
-            }
-          >
-            {t('global.confirm')}
-          </Button>
-        </div>
-      </Popup>
+            <GasPriceDesc>
+              <div>
+                {t('page.signTx.myNativeTokenBalance')}
+                <GasPriceBold>
+                  {formatTokenAmount(
+                    new BigNumber(nativeTokenBalance).div(1e18).toFixed(),
+                    4,
+                    true
+                  )}{' '}
+                  {chain.nativeTokenSymbol}
+                </GasPriceBold>
+              </div>
+              {gasPriceMedian !== null && (
+                <div>
+                  {t('page.signTx.gasPriceMedian')}
+                  <GasPriceBold>
+                    {new BigNumber(gasPriceMedian).div(1e9).toFixed()} Gwei
+                  </GasPriceBold>
+                </div>
+              )}
+            </GasPriceDesc>
+
+            <div>
+              {is1559 && (
+                <>
+                  <Divide className="my-20 bg-r-neutral-line" />
+
+                  <div
+                    className={clsx('priority-slider', {
+                      'opacity-50': maxPriorityFee === undefined,
+                    })}
+                  >
+                    <p className="flex items-center text-[14px] text-r-neutral-title1 font-medium mb-[12px]">
+                      {t('page.signTx.maxPriorityFee')}
+                      <Tooltip
+                        title={
+                          <ol className="list-decimal list-outside pl-[12px] mb-0">
+                            <li>{t('page.signTx.eip1559Desc1')}</li>
+                            <li>{t('page.signTx.eip1559Desc2')}</li>
+                          </ol>
+                        }
+                        overlayClassName="rectangle"
+                      >
+                        <IconInfoSVG className="mt-2 ml-2 text-r-neutral-foot" />
+                      </Tooltip>
+                    </p>
+                    <Tooltip
+                      title={
+                        isSelectCustom && isNilCustomGas
+                          ? t('page.signTx.maxPriorityFeeDisabledAlert')
+                          : undefined
+                      }
+                      overlayClassName="rectangle"
+                    >
+                      <div className="flex items-center gap-[12px]">
+                        <Input
+                          onFocus={(e) => e.target.select()}
+                          value={maxPriorityFee}
+                          onChange={(e) =>
+                            handleMaxPriorityFeeChange(e.target.value)
+                          }
+                          prefixCls="priority-slider-input h-[52px]"
+                          type="number"
+                          min={0}
+                          max={priorityFeeMax}
+                          step={0.01}
+                          disabled={isSelectCustom && isNilCustomGas}
+                        />
+                      </div>
+                    </Tooltip>
+                  </div>
+                </>
+              )}
+              {isReal1559 && isHardware && (
+                <div className="hardware-1559-tip">
+                  {t('page.signTx.hardwareSupport1559Alert')}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-center mt-32 popup-footer">
+              <Button
+                className="w-full mx-20"
+                onClick={handleModalConfirmGas}
+                disabled={
+                  !isReady ||
+                  validateStatus.customGas.status === 'error' ||
+                  maxPriorityFee === undefined
+                }
+              >
+                {t('global.confirm')}
+              </Button>
+            </div>
+          </div>
+        </BottomFloatingSheet>
+      )}
     </>
   );
 };

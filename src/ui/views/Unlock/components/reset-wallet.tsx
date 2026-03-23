@@ -3,6 +3,7 @@ import * as React from 'react';
 import { AlertTriangle } from 'lucide-react';
 import {
   Button,
+  ButtonType,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -47,8 +48,8 @@ export function ResetWalletModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[320px] !rounded-[32px]">
-        <DialogHeader className="items-center text-center">
+      <DialogContent className="sm:max-w-[320px] !rounded-[32px] p-6 pb-[40px] ">
+        <DialogHeader className="items-center pt-6 gap-4 text-center ">
           <div>
             {isForget ? (
               <img
@@ -60,30 +61,34 @@ export function ResetWalletModal({
               <AlertTriangle className="w-[53px] h-[70px] text-orange-500" />
             )}
           </div>
+          <div className="flex flex-col gap-3 items-center justify-center">
+            <DialogTitle className="text-lg font-medium">
+              {isForget ? 'Forget password' : 'Before you continue'}
+            </DialogTitle>
 
-          <DialogTitle className="text-lg font-medium">
-            {isForget ? 'Forget password' : 'Before you continue'}
-          </DialogTitle>
-
-          <DialogDescription className="text-sm text-center text-muted-foreground">
-            {isForget ? (
-              <>
-                Rampnow can’t help recover your password. You need to reset your
-                wallet by re-entering your 12-word recovery phrase.
-              </>
-            ) : (
-              <>
-                Make sure you have your 12-words recovery phrase before you
-                reset your wallet. Otherwise you will not be able to recover
-                your funds.
-              </>
-            )}
-          </DialogDescription>
+            <DialogDescription className="text-[12px] font-normal text-center text-muted-foreground">
+              {isForget ? (
+                <>
+                  Rampnow can’t help recover your password. <br /> You need to
+                  reset your wallet by re-entering
+                  <br /> your 12-word recovery phrase.
+                </>
+              ) : (
+                <>
+                  Make sure you have your 12-words recovery phrase before you
+                  reset your wallet.
+                  <br /> Otherwise you will not be able to recover your <br />
+                  funds.
+                </>
+              )}
+            </DialogDescription>
+          </div>
         </DialogHeader>
 
         <div className="mt-6 flex flex-col gap-3">
           <Button
             className="rounded-full"
+            buttonType={ButtonType.SECONDARY}
             onClick={() => {
               if (isForget) {
                 setStep('warning');
@@ -96,7 +101,7 @@ export function ResetWalletModal({
           </Button>
 
           <button
-            className="text-sm text-muted-foreground underline underline-offset-4"
+            className="text-sm font-normal text-[454745] hover:text-gray-700"
             onClick={() => {
               if (isForget) {
                 console.log('Where do I find recovery phrase');

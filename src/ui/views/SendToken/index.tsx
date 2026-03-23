@@ -1366,11 +1366,6 @@ const SendToken = () => {
   const loadCurrentToken = useCallback(
     async (id: string, chainId: string, currentAddress: string) => {
       try {
-        console.log('[loadCurrentToken] START', {
-          id,
-          chainId,
-          currentAddress,
-        });
         const chain = findChain({
           serverId: chainId,
         });
@@ -1653,11 +1648,7 @@ const SendToken = () => {
   const handleClickMaxButton = useCallback(async () => {
     setSendMaxInfo((prev) => ({ ...prev, clickedMax: true }));
 
-    if (couldReserveGas) {
-      setReserveGasOpen(true);
-    } else {
-      handleMaxInfoChanged(undefined, { updateSliderValue: false });
-    }
+    handleMaxInfoChanged(undefined, { updateSliderValue: false });
   }, [couldReserveGas, handleMaxInfoChanged]);
 
   const handleClickBack = () => {
@@ -1983,7 +1974,7 @@ const SendToken = () => {
       handleCurrentTokenChange(currentToken, true);
     }
   });
-  console.log('render send token', selectedGasLevel);
+
   return (
     <UIContainer>
       <Container>

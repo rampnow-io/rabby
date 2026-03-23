@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import { Copy, MoreVertical, Edit, Trash2, X } from 'lucide-react';
 import SkeletonInput from 'antd/lib/skeleton/Input';
+import { Copy as TextCopyField } from '@repo/ui/primitives';
 
 import AddressViewer from '@/ui/component/AddressViewer';
 import { splitNumberByStep, useAlias } from '@/ui/utils';
@@ -19,6 +20,7 @@ import {
   PopoverTrigger,
 } from '@repo/ui/primitives';
 import BottomFloatingSheet from '@/ui/component/BottomFloatingPopup';
+import { truncate } from '@repo/utils';
 
 export interface AddressItemProps {
   balance: number;
@@ -254,7 +256,7 @@ const AddressCardModal = ({
 
       <BottomFloatingSheet
         open={showRenameModal}
-        contentClassName="!px-6 !pb-2"
+        contentClassName="!px-6 !pt-5 !pb-2"
         hideCloseButton={true}
         onClose={() => {
           setShowRenameModal(false);
@@ -270,35 +272,48 @@ const AddressCardModal = ({
           </Button>
         }
         header={
-          <div className="flex justify-between items-center pt-3">
+          <div className="grid grid-cols-[24px_1fr_24px] items-center w-full min-h-7">
             <div />
-            <div className="font-normal text-primary-foreground text-base">
+
+            <div className="font-medium text-primary-foreground text-base leading-7 text-center">
               Rename wallet
             </div>
-            <X
-              size={22}
-              className="cursor-pointer"
+
+            <button
+              type="button"
+              className="flex items-center justify-end cursor-pointer"
               onClick={() => setShowRenameModal(false)}
-            />
+              aria-label="Close rename wallet modal"
+            >
+              <X size={16} />
+            </button>
           </div>
         }
       >
-        <div className="pb-10">
-          <div className="flex flex-col items-center gap-3 mt-6">
+        <div className="pb-2">
+          <div className="flex flex-col items-center gap-3 mt-3">
             <div
-              className={`h-12 w-12 rounded-full flex items-center justify-center
+              className={`h-14 w-14 rounded-full flex items-center justify-center
               text-white text-base font-medium ${avatarColor}`}
               style={avatarStyle}
             >
               {alias.charAt(0).toUpperCase()}
             </div>
-            <AddressViewer
-              className="text-secondary-foreground"
-              address={address.toLowerCase()}
-            />
+
+            <TextCopyField
+              value={`${address}`}
+              className="text-sm font-medium text-[#030303]"
+            >
+              <div
+                className={'text-sm text-secondary-foreground  font-normal '}
+                title={address?.toLowerCase()}
+              >
+                {truncate(address.toLowerCase(), [10, 8])}
+              </div>
+            </TextCopyField>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-7">
             <Input
               value={newName}
               onChange={(e) => setNewName(e.target.value)}

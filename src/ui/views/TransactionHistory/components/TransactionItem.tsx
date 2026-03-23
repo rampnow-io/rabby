@@ -274,7 +274,6 @@ export const TransactionItem = ({
         }, 500);
         return;
       } catch (error) {
-        console.log('speedUp direct sign error', error);
         if (error === MINI_SIGN_ERROR.USER_CANCELLED) {
           closeSign();
           return;
@@ -381,7 +380,6 @@ export const TransactionItem = ({
         }, 500);
         return;
       } catch (error) {
-        console.log('speedUp direct sign error', error);
         if (error === MINI_SIGN_ERROR.USER_CANCELLED) {
           closeSign();
           return;

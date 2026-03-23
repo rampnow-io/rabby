@@ -12,6 +12,7 @@ import { X } from 'lucide-react';
 import { BottomDrawer } from '@repo/ui';
 import type { Route } from './index';
 import { TokenItem } from '@rabby-wallet/rabby-api/dist/types';
+import { DEX_WITH_WRAP } from '@/constant';
 
 interface RouteListProps {
   value: string | undefined;
@@ -32,6 +33,59 @@ function RouteList({
   toToken,
   toAmount,
 }: RouteListProps): React.ReactNode {
+  const normalizeLogo = (logo: unknown): string => {
+    if (!logo) return '';
+    if (typeof logo === 'string') return logo;
+    if (typeof logo === 'object') {
+      const maybe = logo as { default?: string; src?: string };
+      return maybe.default || maybe.src || '';
+    }
+    return '';
+  };
+
+  const normalizeKey = (value?: string): string => {
+    return (value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  };
+
+  const findDexLogo = (name?: string, idPrefix?: string): string => {
+    const candidates = [name, idPrefix].filter(Boolean) as string[];
+    if (!candidates.length) return '';
+
+    const dexEntries = Object.entries(
+      DEX_WITH_WRAP as Record<
+        string,
+        { id?: string; name?: string; logo?: unknown }
+      >
+    );
+
+    for (const candidate of candidates) {
+      const normalizedCandidate = normalizeKey(candidate);
+      const matched = dexEntries.find(([key, dex]) => {
+        return [key, dex?.id || '', dex?.name || ''].some(
+          (source) => normalizeKey(source) === normalizedCandidate
+        );
+      });
+
+      if (matched) {
+        const logo = normalizeLogo(matched[1]?.logo);
+        if (logo) return logo;
+      }
+    }
+
+    return '';
+  };
+
+  const resolveRouteLogo = (route: Route): string => {
+    const idPrefix = route.id.split('-')[0];
+
+    if (route.type === 'swap') {
+      const dexLogo = findDexLogo(route.name, idPrefix);
+      if (dexLogo) return dexLogo;
+    }
+
+    return normalizeLogo(route.logo);
+  };
+
   const handleSelect = (routeId: string) => {
     const route = routes.find((r) => r.id === routeId);
     if (route) {
@@ -39,8 +93,6 @@ function RouteList({
       close();
     }
   };
-
-  console.log(routes, 'routes');
 
   return (
     <BottomDrawer variant="semi" rootSelector={rootSelector} close={close}>
@@ -56,6 +108,7 @@ function RouteList({
         >
           {routes.map((route) => {
             const displayAmount = route.outputAmount || toAmount;
+            const routeLogo = resolveRouteLogo(route);
             return (
               <div key={route.id}>
                 <div>
@@ -80,12 +133,10 @@ function RouteList({
                       >
                         <div className="flex flex-col gap-1">
                           <div className="flex items-center gap-3 flex-1 pt-4">
-                            {route.logo && (
-                              <Image
-                                src={route.logo}
+                            {routeLogo && (
+                              <img
+                                src={routeLogo}
                                 alt={route.name}
-                                width={40}
-                                height={40}
                                 draggable={false}
                                 className="h-5 w-auto"
                               />
