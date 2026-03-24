@@ -18,7 +18,26 @@ import { REAL_TIME_TAB_LIST, TabKey, TIME_TAB_LIST, TimeTab } from './TimeTab';
 import { useRequest } from 'ahooks';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
-import { Area, AreaChart, Tooltip, XAxis, YAxis } from 'recharts';
+import {
+  Area,
+  AreaChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip as ChartJSTooltip,
+  Legend,
+  Filler,
+} from 'chart.js';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Skeleton } from 'antd';
 
@@ -26,34 +45,34 @@ const CurveWrapper = styled.div`
   width: 100%;
   height: 100%;
   z-index: 1;
+  position: relative;
 `;
-
-const DATE_FORMATTER = 'MMM DD, YYYY';
 
 const isRealTimeKey = (key: TabKey) => REAL_TIME_TAB_LIST.includes(key);
 
-const Wrapper = styled.div`
-  border-radius: 8px;
-  background: var(--r-neutral-card1, #fff);
-`;
+const DATE_FORMATTER = 'MMM DD, YYYY';
 
 type TokenChartsProps = {
   token: TokenItem;
   className?: string;
 };
 
-const CurveGlobalStyle = createGlobalStyle`
-  :root {
-    --color-curve-token-green: #2abb7f;
-    --color-curve-token-red: #e34935;
-  }
-`;
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  ChartJSTooltip,
+  Legend,
+  Filler
+);
 
 export const TokenCharts = ({ token: _token, className }: TokenChartsProps) => {
   const { t } = useTranslation();
   const [priceType, setPriceType] = useState<'price' | 'holding'>('price');
   const [activeKey, setActiveKey] = useState<TabKey>(TIME_TAB_LIST[0].key);
-
   const [ready, setReady] = useState(false);
 
   const currentAccount = useCurrentAccount();
@@ -64,7 +83,6 @@ export const TokenCharts = ({ token: _token, className }: TokenChartsProps) => {
       if (!_token.chain || !_token.id) {
         return;
       }
-
       return wallet.openapi.getToken(
         currentAccount!.address,
         _token.chain,
@@ -93,7 +111,7 @@ export const TokenCharts = ({ token: _token, className }: TokenChartsProps) => {
     tokenId: _token.id,
     serverId: _token.chain,
     days: activeKey === '24h' ? 1 : 7,
-    amount,
+    amount: 1, // Always use 1 for curve shape consistency
   });
 
   const { data: dateCurveData, loading: timeMachineLoading } = useDateCurveData(
@@ -114,12 +132,12 @@ export const TokenCharts = ({ token: _token, className }: TokenChartsProps) => {
         result[e.key] = formatTokenDateCurve(
           e.value,
           dateCurveData as any,
-          amount
+          1 // Always use 1 for curve shape consistency
         );
       }
     });
     return result;
-  }, [dateCurveData, amount]);
+  }, [dateCurveData]);
 
   const data = useMemo(() => {
     if (isRealTimeKey(activeKey)) {
@@ -128,6 +146,25 @@ export const TokenCharts = ({ token: _token, className }: TokenChartsProps) => {
     return timeMachMapping[activeKey as keyof typeof timeMachMapping];
   }, [activeKey, realTimeData, timeMachMapping]);
 
+  // Apply amount multiplier only for display values, not curve shape
+  const displayData = useMemo(() => {
+    if (!data) return data;
+    return {
+      ...data,
+      list: data.list.map((item) => ({
+        ...item,
+        value: item.value * amount,
+        netWorth: '$' + formatPrice(item.value * amount, 8),
+        change:
+          '$' +
+          formatPrice(
+            Math.abs(item.value * amount - data.list[0].value * amount),
+            8
+          ),
+      })),
+    };
+  }, [data, amount]);
+
   const curveIsLoading = useMemo(() => {
     if (isRealTimeKey(activeKey)) {
       return curveLoading;
@@ -135,7 +172,7 @@ export const TokenCharts = ({ token: _token, className }: TokenChartsProps) => {
     return timeMachineLoading;
   }, [activeKey, curveLoading, timeMachineLoading]);
 
-  const { isUp, percent } = useMemo(() => {
+  const { percent } = useMemo(() => {
     if (data?.list?.length) {
       const pre = data?.list?.[0]?.value;
       const now = data?.list?.[data?.list?.length - 1]?.value;
@@ -156,12 +193,10 @@ export const TokenCharts = ({ token: _token, className }: TokenChartsProps) => {
             : Math.abs(((now - pre) / pre) * 100).toFixed(2) + '%';
       }
       return {
-        isUp: !isLoss,
         percent: currentPercent,
       };
     }
     return {
-      isUp: true,
       percent: '',
     };
   }, [activeKey, data?.list, token?.price_24h_change]);
@@ -169,7 +204,6 @@ export const TokenCharts = ({ token: _token, className }: TokenChartsProps) => {
   const currentInfo = useMemo(() => {
     const price =
       priceType === 'holding' ? token.price * amountSum : token.price;
-    // price_24h_change will loss some zero point
     const oneDayIsLoss = token.price_24h_change
       ? Number(token.price_24h_change) < 0
       : false;
@@ -189,41 +223,31 @@ export const TokenCharts = ({ token: _token, className }: TokenChartsProps) => {
     token?.price_24h_change,
   ]);
 
-  const headerTab: { label: string; key: typeof priceType }[] = useMemo(() => {
-    if (token.amount < 0) {
-      return [
-        {
-          label: t('component.TokenChart.price'),
-          key: 'price',
-        },
-      ];
-    }
-    return [
-      {
-        label: 'Price',
-        key: 'price',
-      },
-      {
-        label: t('component.TokenChart.holding'),
-        key: 'holding',
-      },
-    ];
-  }, [token.amount]);
-
-  // const color = useMemo(() => {
-  //   return isUp ? '#2ABB7F' : 'var(--r-red-default, #E34935)';
-  // }, [isUp]);
-
-  const color = useMemo(() => {
-    return `var(--color-curve-token-${!isUp ? 'red' : 'green'})`;
-  }, [isUp]);
-
+  const curveRef = useRef<HTMLDivElement>(null);
   const [curveHoverPoint, setHoverCurvePoint] = useState<
-    typeof data['list'][number]
+    typeof displayData['list'][number]
   >();
 
-  const handleHoverCurve = (data) => {
-    setHoverCurvePoint(data);
+  const sampledDisplayList = useMemo(() => {
+    const list = displayData?.list || [];
+    const MAX_POINTS = 160;
+    if (list.length <= MAX_POINTS) {
+      return list;
+    }
+
+    const stride = Math.ceil(list.length / MAX_POINTS);
+    return list.filter(
+      (_, index) => index % stride === 0 || index === list.length - 1
+    );
+  }, [displayData?.list]);
+
+  const handleHoverCurve = (event, elements) => {
+    if (elements.length > 0) {
+      const dataIndex = elements[0].index;
+      setHoverCurvePoint(sampledDisplayList[dataIndex]);
+    } else {
+      setHoverCurvePoint(undefined);
+    }
   };
 
   const onSelectActiveKey = useCallback((v: TabKey) => {
@@ -233,171 +257,118 @@ export const TokenCharts = ({ token: _token, className }: TokenChartsProps) => {
     }
   }, []);
 
-  const isEmpty = !data;
+  const isEmpty = !data || !data.list?.length;
 
   const displayItem = useMemo(() => {
     return curveHoverPoint || currentInfo;
   }, [curveHoverPoint, currentInfo]);
 
-  const pl = 'pl-16';
-
   const divRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState(92);
 
-  useEffect(() => {
-    if (divRef.current) {
-      setHeight(divRef.current.clientHeight);
-    }
-  }, []);
+  const chartData = useMemo(() => {
+    if (!sampledDisplayList.length) return { labels: [], datasets: [] };
+    return {
+      labels: sampledDisplayList.map((item) =>
+        getFormatDate(item.timestamp, activeKey)
+      ),
+      datasets: [
+        {
+          label: 'Price',
+          data: sampledDisplayList.map((item) => item.value),
+          borderColor: (context) => {
+            const chart = context.chart;
+            const { ctx, chartArea } = chart;
+            if (!chartArea) {
+              return '#50BE3A';
+            }
+            const gradient = ctx.createLinearGradient(
+              0,
+              chartArea.top,
+              0,
+              chartArea.bottom
+            );
+            gradient.addColorStop(0, '#50BE3A');
+            gradient.addColorStop(1, '#B0D966');
+            return gradient;
+          },
+          backgroundColor: '#ffffff',
+          borderWidth: 2,
+          fill: true,
+          tension: 0,
+          stepped: false,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+        },
+      ],
+    };
+  }, [sampledDisplayList, activeKey]);
+
+  const chartOptions = useMemo(() => {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+        tooltip: {
+          enabled: false,
+        },
+      },
+      scales: {
+        x: {
+          display: false,
+        },
+        y: {
+          display: false,
+        },
+      },
+      onHover: handleHoverCurve,
+      interaction: {
+        intersect: false,
+        mode: 'index' as const,
+      },
+    };
+  }, [handleHoverCurve]);
 
   return (
-    <Wrapper className={className}>
-      {!unHold && (
+    <div className="w-full">
+      <div className={clsx('flex items-center gap-6  mb-1.6 mt-3')}>
+        <div className="text-[24px] font-medium text-r-neutral-title1">
+          {displayItem.netWorth}
+        </div>
         <div
           className={clsx(
-            'flex items-center gap-16 h-32 relative pt-8',
-            'text-r-neutral-foot text-13 font-medium',
-            pl
+            'text-[15px] font-medium',
+            displayItem?.isLoss ? 'text-r-red-default' : 'text-r-green-default'
           )}
         >
-          {tokenLoading && (
-            <Skeleton.Input active style={{ width: 150, height: 32 }} />
-          )}
-
-          {!tokenLoading &&
-            headerTab.map((e) => (
-              <div
-                key={e.key}
-                className={clsx(
-                  'pb-6 cursor-pointer',
-                  'hover:text-r-blue-default',
-                  'border-b-[2px] border-solid ',
-                  priceType === e.key
-                    ? 'text-r-blue-default border-rabby-blue-default'
-                    : 'border-transparent'
-                )}
-                onClick={() => {
-                  setPriceType(e.key);
-                }}
-              >
-                {e.label}
-              </div>
-            ))}
-          <div className="absolute w-full h-[0.5px] -bottom-2 left-0 bg-rabby-neutral-line" />
+          {unHold || !data?.list.length ? '' : displayItem?.isLoss ? '-' : '+'}
+          {displayItem.changePercent}
+          {curveHoverPoint
+            ? ` (${getFormatDate(curveHoverPoint.timestamp, activeKey)})`
+            : ''}
         </div>
-      )}
-
-      <div className={clsx('flex gap-6 items-end mb-6 mt-12', pl)}>
-        {curveLoading ? (
-          <Skeleton.Input active style={{ width: 260, height: 29 }} />
-        ) : (
-          <>
-            <span className="text-24 font-medium text-r-neutral-title1">
-              {displayItem.netWorth}
-            </span>
-            <div
-              className={clsx(
-                'text-[15px] font-medium',
-                displayItem?.isLoss
-                  ? 'text-r-red-default'
-                  : 'text-r-green-default'
-              )}
-            >
-              {unHold || !data?.list.length
-                ? ''
-                : displayItem?.isLoss
-                ? '-'
-                : '+'}
-              {displayItem.changePercent}
-              {curveHoverPoint ? `(${curveHoverPoint?.change})` : ''}
-            </div>
-          </>
-        )}
       </div>
-      <div className="h-80">
+
+      {/* ✅ Chart.js Line Chart Implementation */}
+      <div className="h-[160px] w-full">
         <CurveWrapper ref={divRef}>
-          <CurveGlobalStyle />
           {curveIsLoading ? (
             <Skeleton.Input
               active
-              style={{ width: 328, height: 80, marginLeft: 16 }}
+              style={{ width: '100%', height: 160, marginLeft: 16 }}
             />
           ) : isEmpty ? null : (
-            <AreaChart
-              data={data?.list}
-              width={360}
-              height={80}
-              margin={{
-                top: 0,
-                right: 0,
-                left: 0,
-                bottom: 0,
-              }}
-              onMouseMove={(val) => {
-                if (val?.activePayload) {
-                  handleHoverCurve(val.activePayload[0].payload);
-                }
-              }}
-              onMouseLeave={() => handleHoverCurve(undefined)}
-            >
-              <defs>
-                <linearGradient
-                  id="curveTokenThumbnail"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop offset="0%" stopColor={color} stopOpacity={0.19} />
-                  <stop offset="100%" stopColor={color} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis
-                dataKey="timestamp"
-                hide
-                type="number"
-                domain={['dataMin', 'dataMax']}
-              />
-              <YAxis
-                hide
-                domain={[
-                  (dataMin) => dataMin * 0.98,
-                  (dataMax) => dataMax * 1.005,
-                ]}
-              />
-              {
-                <Tooltip
-                  cursor={{
-                    strokeDasharray: '2 2',
-                    strokeWidth: 0.6,
-                  }}
-                  content={({ label }) => {
-                    return (
-                      <div className="text-r-neutral-foot text-13 font-medium">
-                        {getFormatDate(label, activeKey)}
-                      </div>
-                    );
-                  }}
-                />
-              }
-              <Area
-                type="linear"
-                dataKey="value"
-                stroke={color}
-                strokeOpacity={1}
-                strokeWidth={2}
-                fill="url(#curveTokenThumbnail)"
-                animationDuration={0}
-                fillOpacity={0.8}
-              />
-            </AreaChart>
+            <Line data={chartData} options={chartOptions} />
           )}
         </CurveWrapper>
       </div>
-      <div className="m-16 mt-6">
+
+      <div className="m-4 mt-1.5">
         <TimeTab activeKey={activeKey} onSelect={onSelectActiveKey} />
       </div>
-    </Wrapper>
+    </div>
   );
 };
 

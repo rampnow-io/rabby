@@ -83,7 +83,7 @@ export const BackupSeedPhrase = () => {
           description={t('page.newAddress.seedPhrase.backupTips')}
         />
         <Content>
-          <div className="flex flex-col items-center gap-6 pt-5">
+          <div className="flex flex-col items-center gap-[26px] pt-5">
             {mnemonics && (
               <WordsMatrix
                 focusable={false}
@@ -95,7 +95,7 @@ export const BackupSeedPhrase = () => {
             <div
               className={clsx(
                 'cursor-pointer',
-                'flex justify-center items-center gap-4 mt-2'
+                'flex justify-center items-center gap-4 '
               )}
             >
               {mnemonics && (

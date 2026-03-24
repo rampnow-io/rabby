@@ -110,83 +110,84 @@ export default function BottomArea({
               </TooltipView>
             </div>
           )}
+          <div className="">
+            {/* Network Section */}
+            {chainItem && (
+              <div className=" pt-4">
+                <div className="flex items-center justify-between p-3 bg-r-neutral-bg1 rounded-lg cursor-pointer hover:bg-r-neutral-bg2">
+                  <div className="flex items-center gap-3">
+                    <span className="text-primary-foreground font-medium">
+                      Network
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {chainItem.logo && (
+                      <img
+                        src={chainItem.logo}
+                        alt={chainItem.name}
+                        className="w-5 h-5 rounded-full"
+                      />
+                    )}
+                    <span className="text-primary-foreground font-medium">
+                      {chainItem.name}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-r-neutral-bg1 rounded-lg cursor-pointer hover:bg-r-neutral-bg2">
+                  <div className="flex items-center gap-3">
+                    <span className="text-primary-foreground font-medium">
+                      Token
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {currentToken?.logo_url && (
+                      <img
+                        src={currentToken.logo_url}
+                        alt={currentToken.symbol}
+                        className="w-5 h-5 rounded-full"
+                      />
+                    )}
+                    <span className="text-primary-foreground font-medium">
+                      {currentToken?.symbol}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
 
-          {/* Network Section */}
-          {chainItem && (
-            <div className="border-t border-r-neutral-line pt-4">
-              <div className="flex items-center justify-between p-3 bg-r-neutral-bg1 rounded-lg cursor-pointer hover:bg-r-neutral-bg2">
-                <div className="flex items-center gap-3">
+            {/* Estimated Fee Section */}
+            {estimatedFee && (
+              <div className="flex items-center justify-between p-3 bg-r-neutral-bg1 rounded-lg">
+                <div className="flex items-center gap-2">
                   <span className="text-primary-foreground font-medium">
-                    Network
+                    Estimated fee
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  {chainItem.logo && (
+                  {chainItem && (
                     <img
                       src={chainItem.logo}
                       alt={chainItem.name}
                       className="w-5 h-5 rounded-full"
                     />
                   )}
-                  <span className="text-primary-foreground font-medium">
-                    {chainItem.name}
+                  <span className="text-primary-foreground font-semibold">
+                    ${estimatedFee}
                   </span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-r-neutral-bg1 rounded-lg cursor-pointer hover:bg-r-neutral-bg2">
-                <div className="flex items-center gap-3">
-                  <span className="text-primary-foreground font-medium">
-                    Token
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {currentToken?.logo_url && (
-                    <img
-                      src={currentToken.logo_url}
-                      alt={currentToken.symbol}
-                      className="w-5 h-5 rounded-full"
-                    />
+                  {estimatedTime && (
+                    <span className="text-secondary-foreground text-sm">
+                      ~ {estimatedTime}
+                    </span>
                   )}
-                  <span className="text-primary-foreground font-medium">
-                    {currentToken?.symbol}
-                  </span>
                 </div>
               </div>
-            </div>
-          )}
-
-          {/* Estimated Fee Section */}
-          {estimatedFee && (
-            <div className="flex items-center justify-between p-3 bg-r-neutral-bg1 rounded-lg">
-              <div className="flex items-center gap-2">
-                <span className="text-primary-foreground font-medium">
-                  Estimated fee
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                {chainItem && (
-                  <img
-                    src={chainItem.logo}
-                    alt={chainItem.name}
-                    className="w-5 h-5 rounded-full"
-                  />
-                )}
-                <span className="text-primary-foreground font-semibold">
-                  ${estimatedFee}
-                </span>
-                {estimatedTime && (
-                  <span className="text-secondary-foreground text-sm">
-                    ~ {estimatedTime}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Risks Section */}
           {!!mostImportantRisks.length && (
             <div className="risks-wrapper">
-              <div className="risks-alert bg-r-red-light p-[12px] rounded-[8px]">
+              {/* <div className="risks-alert bg-r-red-light p-[12px] rounded-[8px]">
                 {mostImportantRisks.map((risk) => (
                   <div
                     key={risk.value}
@@ -198,7 +199,7 @@ export default function BottomArea({
                     </span>
                   </div>
                 ))}
-              </div>
+              </div> */}
               <div
                 className={clsx(
                   'risks-checkbox-line flex items-center justify-center mt-[9px]',

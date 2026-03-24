@@ -159,17 +159,6 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
 
               return (
                 <div
-                  onClick={() => {
-                    copyAddress(currentAccount.address);
-                    matomoRequestEvent({
-                      category: 'AccountInfo',
-                      action: 'headCopyAddress',
-                      label: [
-                        getKRCategoryByType(currentAccount.type),
-                        currentAccount.brandName,
-                      ].join('|'),
-                    });
-                  }}
                   className={`h-10 w-10 flex items-center justify-center rounded-full cursor-pointer
                            text-xl font-medium text-white`}
                   style={avatarStyle}
@@ -189,19 +178,21 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
               address={currentAccount.address}
             /> */}
               <div
-                className="text-[13px] text-secondary-foreground font-medium truncate max-w-[86px]"
+                className="text-[13px] text-secondary-foreground font-normal truncate max-w-[86px]"
                 title={displayName}
               >
                 {displayName}
               </div>
-              <AddressViewer
-                address={currentAccount.address}
-                showArrow={false}
-              />
+              <div onClick={(e) => e.stopPropagation()}>
+                <AddressViewer
+                  address={currentAccount.address}
+                  showArrow={false}
+                />
+              </div>
             </div>
           </div>
 
-          <div className="ml-auto flex gap-2">
+          <div className="ml-auto flex gap-3">
             <div className="rounded cursor-pointer ">
               <CurrentConnection />
             </div>
@@ -241,35 +232,16 @@ export const DashboardHeader: React.FC<{ onSettingClick?(): void }> = ({
                 });
                 item.onClick(e);
               }}
-              className="group h-[74px] cursor-pointer rounded-[16px]
-                         border border-[var(--r-neutral-card2,#f2f4f7)]
-                         bg-white hover:bg-[var(--r-neutral-card2,#f2f4f7)]
-                         flex flex-col items-center justify-center relative"
+              className="group h-[74px] px-2 py-3 cursor-pointer rounded-[16px] shadow-[inset_0_-4px_8px_0_rgba(0,0,0,0.01)] border border-[#EFEFEF] bg-white hover:bg-[var(--r-neutral-card2,#f2f4f7)] flex flex-col gap-2 items-center justify-center relative"
             >
-              {item.showAlert && (
-                <ThemeIcon
-                  src={IconAlertRed}
-                  className="absolute right-2 top-2"
-                />
-              )}
-
               <ThemeIcon
                 src={item.icon}
-                className={clsx(
-                  'w-6 h-6 mb-1',
-                  item.iconSpin && 'animate-spin'
-                )}
+                className={clsx('w-5 h-5', item.iconSpin && 'animate-spin')}
               />
 
-              <div className="text-[13px] font-medium leading-4 text-center">
+              <div className="text-[12px]/[18px] font-medium leading-4 text-center">
                 {item.content}
               </div>
-
-              {item.isFullscreen && (
-                <div className="absolute top-1.5 right-1.5 opacity-50 hidden group-hover:block">
-                  <RcIconExternal1CC />
-                </div>
-              )}
             </div>
           );
         })}

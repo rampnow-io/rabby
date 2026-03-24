@@ -1,12 +1,6 @@
-import { useInfiniteScroll } from 'ahooks';
-import {
-  TokenEntityDetail,
-  TokenItem,
-  TxHistoryResult,
-} from 'background/service/openapi';
+import { TokenEntityDetail, TokenItem } from 'background/service/openapi';
 import clsx from 'clsx';
-import { last } from 'lodash';
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
 import IconUnknown from '@/ui/assets/token-default.svg';
@@ -18,8 +12,6 @@ import {
   getUiType,
 } from 'ui/utils';
 import { getChain } from '@/utils';
-import { HistoryItem } from './HistoryItem';
-import { Loading } from './Loading';
 import { ellipsisOverflowedText } from 'ui/utils';
 import { getTokenSymbol } from '@/ui/utils/token';
 import { BlockedButton } from './BlockedButton';
@@ -32,10 +24,40 @@ import { useGetHandleTokenSelectInTokenDetails } from '@/ui/component/TokenSelec
 import { Account } from '@/background/service/preference';
 import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 import { DbkButton } from '@/ui/views/Ecology/dbk-chain/components/DbkButton';
-import { DBK_CHAIN_ID } from '@/constant';
-import { Button, ButtonType } from '@repo/ui/primitives';
+import { DBK_CHAIN_ID, ThemeIconType } from '@/constant';
+import { Button, ButtonType, Separator } from '@repo/ui/primitives';
+import { HistoryList } from '@/ui/views/History/components/HistoryList';
+import { RcIconExternal1CC } from '@/ui/assets/dashboard';
+import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
+import {
+  RcIconSettingCC,
+  RcIconReceiveCC,
+  RcIconSendCC,
+  RcIconSwapCC,
+  RcIconBuyCC,
+} from 'ui/assets/dashboard/panel';
+import IconAlertRed from 'ui/assets/alert-red.svg';
+
 const isDesktop = getUiType().isDesktop;
-const PAGE_COUNT = 10;
+
+type IPanelItem = {
+  icon: ThemeIconType;
+  content: string;
+  onClick: React.MouseEventHandler<HTMLElement>;
+  badge?: number;
+  badgeAlert?: boolean;
+  badgeClassName?: string;
+  iconSpin?: boolean;
+  hideForGnosis?: boolean;
+  showAlert?: boolean;
+  disabled?: boolean;
+  commingSoonBadge?: boolean;
+  disableReason?: string;
+  eventKey: string;
+  iconClassName?: string;
+  subContent?: React.ReactNode;
+  isFullscreen?: boolean;
+};
 
 interface TokenDetailProps {
   onClose?(): void;
@@ -74,8 +96,6 @@ const TokenDetail = ({
   const _currentAccount = useCurrentAccount();
   const currentAccount = account || _currentAccount;
 
-  const ref = useRef<HTMLDivElement | null>(null);
-
   const getTokenAmount = React.useCallback(async () => {
     // if (token.amount !== undefined) return;
     const info = await wallet.openapi.getToken(
@@ -113,41 +133,6 @@ const TokenDetail = ({
     }
   }, [currentAccount, getTokenAmount]);
 
-  const fetchData = async (startTime = 0) => {
-    const res: TxHistoryResult = await wallet.openapi.listTxHisotry({
-      id: currentAccount!.address,
-      chain_id: token.chain,
-      start_time: startTime,
-      page_count: PAGE_COUNT,
-      token_id: token.id,
-    });
-    const { project_dict, cate_dict, token_dict, history_list: list } = res;
-    const displayList = list
-      .map((item) => ({
-        ...item,
-        projectDict: project_dict,
-        cateDict: cate_dict,
-        tokenDict: token_dict,
-      }))
-      .sort((v1, v2) => v2.time_at - v1.time_at);
-    return {
-      last: last(displayList)?.time_at,
-      list: displayList,
-    };
-  };
-
-  const { data, loading, loadingMore } = useInfiniteScroll(
-    (d) => fetchData(d?.last),
-    {
-      target: ref,
-      isNoMore: (d) => {
-        return !d?.last || (d?.list.length || 0) < PAGE_COUNT;
-      },
-    }
-  );
-
-  const isEmpty = (data?.list?.length || 0) <= 0 && !loading;
-
   const { setVisible } = useCommonPopupView();
 
   const history = useHistory();
@@ -156,7 +141,8 @@ const TokenDetail = ({
   const action = new URLSearchParams(location.search).get('action');
 
   const isSwap =
-    location.pathname === '/dex-swap' || (action === 'swap' && isDesktop);
+    location.pathname === '/swap-and-bridge' ||
+    (action === 'swap' && isDesktop);
   const isSend =
     location.pathname === '/send-token' || (action === 'send' && isDesktop);
   const isBridge =
@@ -173,25 +159,19 @@ const TokenDetail = ({
 
   const goToSend = useCallback(() => {
     setVisible(false);
-    onClose?.();
-    if (isSend && handleInTokenSelect) {
-      handleInTokenSelect(token);
+    if (isDesktop) {
+      history.push(
+        `${desktopPathname}?action=send&rbisource=tokendetail&token=${token?.chain}:${token?.id}`
+      );
     } else {
-      if (isDesktop) {
-        history.push(
-          `${desktopPathname}?action=send&rbisource=tokendetail&token=${token?.chain}:${token?.id}`
-        );
-      } else {
-        history.push(
-          `/send-token?rbisource=tokendetail&token=${token?.chain}:${token?.id}`
-        );
-      }
+      history.push(
+        `/send-token?rbisource=tokendetail&token=${token?.chain}:${token?.id}`
+      );
     }
-  }, [history, token, isSend, handleInTokenSelect, desktopPathname]);
+  }, [history, token, isDesktop, desktopPathname]);
 
   const goToReceive = useCallback(() => {
     setVisible(false);
-    onClose?.();
     if (isDesktop) {
       history.push(
         `${desktopPathname}?rbisource=tokendetail&action=receive&chain=${
@@ -209,7 +189,6 @@ const TokenDetail = ({
 
   const gotoBridge = useCallback(() => {
     setVisible(false);
-    onClose?.();
     if (isBridge && handleInTokenSelect) {
       handleInTokenSelect(token);
     } else {
@@ -227,154 +206,79 @@ const TokenDetail = ({
 
   const goToSwap = useCallback(() => {
     setVisible(false);
-    onClose?.();
-    if (isSwap && handleInTokenSelect) {
-      handleInTokenSelect(token);
-    } else {
-      if (isDesktop) {
-        history.push(
-          `${desktopPathname}?rbisource=tokendetail&action=swap&chain=${token?.chain}&payTokenId=${token?.id}`
-        );
-      } else {
-        history.push(
-          `/dex-swap?rbisource=tokendetail&chain=${token?.chain}&payTokenId=${token?.id}`
-        );
-      }
-    }
-  }, [history, token, isSwap, handleInTokenSelect, desktopPathname]);
+    history.push(
+      `/swap-and-bridge?rbisource=tokendetail&fromChainServerId=${token?.chain}&fromTokenId=${token?.id}`
+    );
+  }, [history, token]);
 
   const isCustomizedNotAdded = useMemo(() => {
     return !token.is_core && !isAdded && variant === 'add';
   }, [token, variant, isAdded]);
-
-  const BottomBtn = useMemo(() => {
-    if (hideOperationButtons) {
-      return null;
-    }
-
-    if (isSwap || isSend || isBridge) {
-      return (
-        <div className="flex flex-row justify-between J_buttons_area relative height-[70px] px-20 py-14 ">
-          <TooltipWithMagnetArrow
-            overlayClassName="rectangle w-[max-content]"
-            placement="top"
-            arrowPointAtCenter
-            title={tipsFromTokenSelect || ''}
-            visible={!tipsFromTokenSelect ? false : undefined}
-          >
-            <Button
-              onClick={isBridge ? gotoBridge : isSwap ? goToSwap : goToSend}
-              disabled={Boolean(tipsFromTokenSelect)}
-              className="w-[360px] h-[40px] leading-[18px]"
-              style={{
-                width: 360,
-                height: 40,
-                lineHeight: '18px',
-              }}
-            >
-              {t('global.confirm')}
-            </Button>
-          </TooltipWithMagnetArrow>
-        </div>
-      );
-    }
-
-    if (isCustomizedNotAdded && !isDesktop) {
-      return (
-        <div className="flex flex-row justify-between J_buttons_area relative height-[70px] px-20 py-14 ">
-          <Button
-            onClick={() => addToken(tokenWithAmount)}
-            className="w-[360px] h-[40px] leading-[18px]"
-            style={{
-              width: 360,
-              height: 40,
-              lineHeight: '18px',
-            }}
-          >
-            {t('page.dashboard.tokenDetail.AddToMyTokenList')}
-          </Button>
-        </div>
-      );
-    }
-
-    return (
-      <div className="flex flex-row justify-between J_buttons_area relative height-[70px] px-20 py-14 gap-8">
-        <Button
-          onClick={goToSwap}
-          className="w-[84px] h-[40px] leading-[18px]"
-          style={{
-            height: 40,
-            lineHeight: '18px',
-          }}
-        >
-          {t('page.dashboard.tokenDetail.swap')}
-        </Button>
-        <Button
-          buttonType={ButtonType.GHOST}
-          className="w-[84px] h-[40px] leading-[18px] rabby-btn-ghost"
-          onClick={gotoBridge}
-        >
-          {t('page.dashboard.tokenDetail.bridge')}
-        </Button>
-        <Button
-          buttonType={ButtonType.GHOST}
-          className="w-[84px] h-[40px] leading-[18px] rabby-btn-ghost"
-          onClick={goToSend}
-        >
-          {t('page.dashboard.tokenDetail.send')}
-        </Button>
-        <Button
-          className="w-[84px] h-[40px] leading-[18px] rabby-btn-ghost"
-          onClick={goToReceive}
-        >
-          {t('page.dashboard.tokenDetail.receive')}
-        </Button>
-      </div>
-    );
-  }, [
-    isDesktop,
-    goToReceive,
-    goToSend,
-    goToSwap,
-    hideOperationButtons,
-    isSwap,
-    isBridge,
-    gotoBridge,
-    isSend,
-    tipsFromTokenSelect,
-  ]);
 
   const chain = useMemo(() => getChain(token?.chain), [token?.chain]);
   const isCustomNetworkToken = useMemo(() => {
     return token.id.startsWith('custom');
   }, [token]);
 
+  const panelItems: Record<
+    'receive' | 'send' | 'exchange' | 'buy',
+    IPanelItem
+  > = {
+    receive: {
+      icon: RcIconReceiveCC,
+      eventKey: 'Receive',
+      content: t('page.dashboard.home.panel.receive'),
+      onClick: () => goToReceive(),
+    },
+    send: {
+      icon: RcIconSendCC,
+      eventKey: 'Send',
+      content: t('page.dashboard.home.panel.send'),
+      onClick: () => goToSend(),
+    },
+    exchange: {
+      icon: RcIconSwapCC,
+      eventKey: 'Exchange',
+      content: 'Exchange',
+      onClick: () => goToSwap(),
+    },
+    buy: {
+      icon: RcIconBuyCC,
+      eventKey: 'Buy',
+      content: t('page.dashboard.home.panel.buy'),
+      onClick: () => history.push('/buy'),
+    },
+  };
+
+  const pickedPanelKeys = useMemo(
+    () => ['receive', 'send', 'exchange', 'buy'] as const,
+    []
+  );
+
   return (
     <div className="token-detail">
-      <div className={clsx('token-detail-header', 'border-b-0 pb-24')}>
-        <div className={clsx('flex items-center', 'mb-20')}>
+      <div className={clsx('token-detail-header', 'border-b-0 pb-2')}>
+        <div className={clsx('flex items-center')}>
           <div className="flex items-center mr-8">
-            <div className="relative h-[24px]">
+            <div className="relative h-[44px]">
               <Image
-                className="w-24 h-24 rounded-full"
+                className="w-[44px] h-[44px] rounded-full"
                 src={token.logo_url || IconUnknown}
                 fallback={IconUnknown}
                 preview={false}
               />
               {chain?.logo ? (
-                <TooltipWithMagnetArrow
-                  title={chain?.name || ''}
-                  className="rectangle w-[max-content]"
-                >
-                  <img
-                    className="w-14 h-14 absolute right-[-2px] top-[-2px] rounded-full"
-                    src={chain?.logo}
-                  />
-                </TooltipWithMagnetArrow>
+                <img
+                  className="w-[14px] h-[14px] absolute right-[-2px] top-[-2px] rounded-full"
+                  src={chain?.logo}
+                />
               ) : null}
             </div>
 
-            <div className="token-symbol ml-8" title={getTokenSymbol(token)}>
+            <div
+              className="token-symbol ml-[8px]"
+              title={getTokenSymbol(token)}
+            >
               {ellipsisOverflowedText(getTokenSymbol(token), 16)}
             </div>
           </div>
@@ -382,10 +286,11 @@ const TokenDetail = ({
       </div>
 
       <div
-        ref={ref}
-        className={clsx('token-detail-body flex flex-col gap-12', 'pt-[0px]')}
+        className={clsx(
+          'token-detail-body flex flex-col gap-[12px]',
+          'pt-[0px]'
+        )}
       >
-        <ScamTokenTips token={tokenWithAmount}></ScamTokenTips>
         {variant === 'add' && !isDesktop && (
           <BlockedTopTips
             token={token}
@@ -395,73 +300,88 @@ const TokenDetail = ({
           ></BlockedTopTips>
         )}
         {!isCustomNetworkToken && <TokenCharts token={token}></TokenCharts>}
-        <div className="flex flex-col gap-3 bg-r-neutral-card-1 rounded-[8px]">
-          <div className="balance-content flex flex-col gap-8 px-16 py-12">
-            <div className="flex flex-row justify-between w-full">
-              <div className="balance-title text-r-neutral-body text-13">
-                {t('page.dashboard.tokenDetail.myBalance')}
-              </div>
-              {variant === 'add' && !isDesktop ? (
-                token.is_core ? (
-                  <BlockedButton
-                    selected={isAdded}
-                    onOpen={() => addToken(tokenWithAmount)}
-                    onClose={() => removeToken(tokenWithAmount)}
+        <div className={clsx('relative grid grid-cols-4 gap-2 overflow-auto')}>
+          {pickedPanelKeys.map((key) => {
+            const item = panelItems[key];
+
+            return (
+              <div
+                key={key}
+                onClick={(e) => {
+                  item.onClick(e);
+                }}
+                className="group h-[74px] cursor-pointer rounded-[16px]
+                         border border-[var(--r-neutral-card2,#f2f4f7)]
+                         bg-white hover:bg-[var(--r-neutral-card2,#f2f4f7)]
+                         flex flex-col items-center justify-center relative"
+              >
+                {item.showAlert && (
+                  <ThemeIcon
+                    src={IconAlertRed}
+                    className="absolute right-2 top-2"
                   />
-                ) : // <CustomizedSwitch
-                //   selected={isAdded}
-                //   onOpen={() => addToken(tokenWithAmount)}
-                //   onClose={() => removeToken(tokenWithAmount)}
-                // />
-                null
-              ) : null}
+                )}
+
+                <ThemeIcon
+                  src={item.icon}
+                  className={clsx(
+                    'w-6 h-6 mb-1',
+                    item.iconSpin && 'animate-spin'
+                  )}
+                />
+
+                <div className="text-[13px] font-medium leading-4 text-center">
+                  {item.content}
+                </div>
+
+                {item.isFullscreen && (
+                  <div className="absolute top-1.5 right-1.5 opacity-50 hidden group-hover:block">
+                    <RcIconExternal1CC />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <div className="flex flex-col gap-[3px] bg-r-neutral-card-1 rounded-[8px]">
+          <div className="balance-content flex flex-col gap-[8px]  py-[12px]">
+            <div className="flex flex-row justify-between w-full pb-1">
+              <div className="text-primary-foreground  text-base  font-normal">
+                Your balance
+              </div>
             </div>
-            <div className="flex flex-row justify-between w-full items-center">
-              <div className="flex flex-row gap-8 items-center">
+            <div className="flex flex-row justify-between w-full rounded-[16px] bg-[#FAFAFA] px-4 h-[60px] items-center">
+              <div className="flex flex-row gap-[8px] items-center">
                 <Image
-                  className="w-24 h-24 rounded-full"
+                  className="w-[40px] h-[40px] rounded-full"
                   src={token.logo_url || IconUnknown}
                   fallback={IconUnknown}
                   preview={false}
                 />
                 <div className="relative">
-                  <TooltipWithMagnetArrow
-                    destroyTooltipOnHide
-                    viewportOffset={[50, 0, 0, 0]}
-                    className="rectangle w-[max-content]"
-                    title={(tokenWithAmount.amount || 0).toString()}
-                    placement="bottom"
-                  >
-                    <div className="balance-value truncate">
+                  <div className="flex flex-col gap-1">
+                    <div className="font-normal text-sm text-primary-foreground">
+                      {' '}
+                      {ellipsisOverflowedText(getTokenSymbol(token), 8)}
+                    </div>
+                    <div className=" truncate font-normal text-sm text-secondary-foreground">
                       {splitNumberByStep(
                         (tokenWithAmount.amount || 0)?.toFixed(8)
                       )}{' '}
-                      {ellipsisOverflowedText(getTokenSymbol(token), 8)}
                     </div>
-                  </TooltipWithMagnetArrow>
+                  </div>
                 </div>
               </div>
               {tokenWithAmount.amount ? (
                 <div className="relative">
-                  <TooltipWithMagnetArrow
-                    viewportOffset={[50, 0, 0, 0]}
-                    destroyTooltipOnHide
-                    title={`≈ $${(
-                      tokenWithAmount.amount * token.price || 0
-                    ).toString()}`}
-                    placement="bottom"
-                    className={clsx(
-                      'rectangle w-[max-content]',
-                      !tokenWithAmount.amount && ''
-                    )}
-                  >
+                  <div>
                     <div className="balance-value-usd truncate">
                       ≈ $
                       {splitNumberByStep(
                         (tokenWithAmount.amount * token.price || 0)?.toFixed(2)
                       )}
                     </div>
-                  </TooltipWithMagnetArrow>
+                  </div>
                 </div>
               ) : (
                 <div></div>
@@ -469,9 +389,12 @@ const TokenDetail = ({
             </div>
           </div>
         </div>
+        <div className="py-3">
+          <Separator className="w-full" />
+        </div>
         {token?.chain === 'dbk' ? (
-          <div className="flex flex-col gap-3 bg-r-neutral-card-1 rounded-[8px]">
-            <div className="flex items-center justify-between gap-8 px-16 py-10 ">
+          <div className="flex flex-col gap-1 bg-r-neutral-card-1 rounded-[8px]">
+            <div className="flex items-center justify-between gap-[8px] px-[16px] py-[10px]">
               <div className="text-r-neutral-title1 text-[13px] font-medium leading-[16px]">
                 {t('page.dashboard.tokenDetail.bridgeToEth')}
               </div>
@@ -496,31 +419,21 @@ const TokenDetail = ({
           tokenEntity={tokenEntity}
           popupHeight={popupHeight}
         ></TokenChainAndContract>
-        <div className="token-txs-history flex flex-col">
-          {data?.list.map((item) => (
-            <HistoryItem
-              data={item}
-              projectDict={item.projectDict}
-              cateDict={item.cateDict}
-              tokenDict={item.tokenDict}
-              key={item.id}
-              onClose={onClose}
-              canClickToken={canClickToken}
-              isInDesktopActionModal={isInDesktopActionModal}
-            ></HistoryItem>
-          ))}
-          {(loadingMore || loading) && <Loading count={5} active />}
-          {isEmpty && (
-            <div className="token-txs-history__empty bg-r-neutral-card-1 rounded-[8px] pt-[30px] pb-[30px]">
-              <img className="no-data" src="./images/nodata-tx.png" />
-              <p className="text-14 text-gray-content mt-12">
-                {t('page.dashboard.tokenDetail.noTransactions')}
-              </p>
-            </div>
-          )}
+        <div className="py-3">
+          <Separator className="w-full" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <div className="text-primary-foreground text-base  pb-1 font-normal">
+            Your activity
+          </div>
+          <HistoryList
+            chainId={token.chain}
+            tokenId={token.id}
+            pageCount={10}
+          />
         </div>
       </div>
-      {BottomBtn}
+      {/* {BottomBtn} */}
     </div>
   );
 };

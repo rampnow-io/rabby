@@ -149,7 +149,7 @@ const Receive = () => {
             }
           }}
         >
-          <div className="text-primary-foreground text-xl font-normal">
+          <div className="text-primary-foreground text-xl font-medium">
             Receive
           </div>
         </HeaderNavPage>
@@ -176,7 +176,7 @@ const Receive = () => {
             <div className="flex justify-center py-3">
               <RcChainGroup className="w-[140px]" />
             </div>
-            <p className="text-base text-center text-[#454745] tracking-[-0.25px]">
+            <p className="text-base text-center font-medium text-[#454745] tracking-[-0.25px]">
               You can send and receive tokens on all <br />
               supported ERC 20 networks
             </p>

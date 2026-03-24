@@ -4,7 +4,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { useTranslation, Trans } from 'react-i18next';
 import { useWallet, useWalletRequest, openInTab } from 'ui/utils';
-import UnlockLogo from 'ui/assets/unlock-logo.svg';
 import IconCheck from 'ui/assets/check.svg';
 import clsx from 'clsx';
 import remarkGfm from 'remark-gfm';
@@ -116,10 +115,6 @@ export default function CreatePassword() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="h-full">
           <header className="create-new-header create-password-header h-[234px]">
-            <img
-              src={UnlockLogo}
-              className="unlock-logo w-[100px] h-[100px] mx-auto mb-[16px]"
-            />
             <p className="text-24 mb-8 text-r-neutral-title2 text-center font-bold">
               {t('page.createPassword.title')}
             </p>

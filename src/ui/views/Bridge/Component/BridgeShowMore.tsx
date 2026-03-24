@@ -22,7 +22,7 @@ import styled from 'styled-components';
 import { findChainByServerID } from '@/utils/chain';
 import BigNumber from 'bignumber.js';
 import { CHAINS_ENUM } from '@debank/common';
-import { formatGasHeaderUsdValue } from '@/ui/utils';
+import { formatGasHeaderUsdValue, formatTokenAmount } from '@/ui/utils';
 import { calcGasEstimated } from '@/utils/time';
 import ShowMoreGasSelectModal, {
   useGetGasInfoByUI,
@@ -301,9 +301,60 @@ export const BridgeShowMore = ({
     );
   }, [data, quoteLoading, toToken, fromToken]);
 
+  const TokenImagesDisplay = useMemo(() => {
+    return (
+      <div className="mb-12 flex items-center justify-between">
+        {/* From Token */}
+        <div className="flex flex-col items-center gap-2">
+          <div className="w-14 h-14 rounded-full bg-r-neutral-card-1 flex items-center justify-center border border-r-neutral-line">
+            {fromToken?.logo_url ? (
+              <img
+                src={fromToken.logo_url}
+                alt={fromToken.symbol}
+                className="w-full h-full rounded-full object-cover"
+              />
+            ) : (
+              <span className="text-xs text-r-neutral-foot">-</span>
+            )}
+          </div>
+          <span className="text-xs text-r-neutral-foot font-medium">
+            {fromToken ? getTokenSymbol(fromToken) : '-'}
+          </span>
+        </div>
+
+        {/* Arrow */}
+        <div className="flex flex-col items-center gap-2">
+          <div className="text-r-neutral-line">→</div>
+          <span className="text-xs text-r-neutral-foot">
+            {t('page.bridge.showMore.to')}
+          </span>
+        </div>
+
+        {/* To Token */}
+        <div className="flex flex-col items-center gap-2">
+          <div className="w-14 h-14 rounded-full bg-r-neutral-card-1 flex items-center justify-center border border-r-neutral-line">
+            {toToken?.logo_url ? (
+              <img
+                src={toToken.logo_url}
+                alt={toToken.symbol}
+                className="w-full h-full rounded-full object-cover"
+              />
+            ) : (
+              <span className="text-xs text-r-neutral-foot">-</span>
+            )}
+          </div>
+          <span className="text-xs text-r-neutral-foot font-medium">
+            {toToken ? getTokenSymbol(toToken) : '-'}
+          </span>
+        </div>
+      </div>
+    );
+  }, [fromToken, toToken, t]);
+
   return (
     <div className="mx-16">
       {sourceAlwaysShow && sourceContentRender()}
+      {TokenImagesDisplay}
 
       <div className="flex items-center justify-center gap-8 mb-8">
         <div
@@ -351,6 +402,7 @@ export const BridgeShowMore = ({
             openShowMore={setShowGasFeeError}
             noQuote={!sourceLogo && !sourceName}
             chainServeId={fromToken?.chain}
+            tokenLogoUrl={fromToken.logo_url}
           />
         ) : null}
 
@@ -422,6 +474,7 @@ export const BridgeShowMore = ({
               openShowMore={noop}
               noQuote={!sourceLogo && !sourceName}
               chainServeId={fromToken?.chain}
+              tokenLogoUrl={fromToken.logo_url}
             />
           ) : null}
         </>
@@ -456,18 +509,21 @@ export const DirectSignGasInfo = ({
   openShowMore,
   noQuote,
   chainServeId,
+  tokenLogoUrl,
 }: {
   supportDirectSign: boolean;
   loading: boolean;
   openShowMore: (v: boolean) => void;
   noQuote?: boolean;
   chainServeId: string;
+  tokenLogoUrl?: string;
 }) => {
   const { t } = useTranslation();
 
   const [, setGasModalVisible] = useShowMoreGasSelectModalVisible();
 
   const chainEnum = findChainByServerID(chainServeId)?.enum;
+  const chainInfo = findChainByServerID(chainServeId);
 
   const calcGasAccountUsd = useCallback((n: number | string) => {
     const v = Number(n);
@@ -494,6 +550,19 @@ export const DirectSignGasInfo = ({
             Number(gasAccountCost?.gas_cost || 0)
         )
       : gasCostUsdStr;
+
+  const gasCostUsdDisplay =
+    gasCostUsd ||
+    (ctx?.selectedGasCost?.gasCostUsd
+      ? formatGasHeaderUsdValue(ctx.selectedGasCost.gasCostUsd.toString())
+      : '--');
+
+  const gasTokenAmountDisplay = ctx?.selectedGasCost?.gasCostAmount
+    ? formatTokenAmount(ctx.selectedGasCost.gasCostAmount.toString(), 6, true)
+    : '';
+
+  const gasTokenSymbol = chainInfo?.nativeTokenSymbol || '';
+  const gasTokenLogo = tokenLogoUrl || chainInfo?.nativeTokenLogo || '';
 
   const showGasContent = !!ctx?.txsCalc?.length && !loading && !noQuote;
 
@@ -652,9 +721,21 @@ export const DirectSignGasInfo = ({
             <div className="flex items-center justify-between mb-1">
               {/* Left: Cost + Time */}
               <div className="flex items-center gap-1 text-r-neutral-title-1">
-                <span className="text-base font-semibold">{gasCostUsd}</span>
-                <span className="text-r-neutral-foot">~</span>
-                <span className="text-sm text-r-neutral-foot">
+                {gasTokenLogo ? (
+                  <img
+                    src={gasTokenLogo}
+                    alt="token"
+                    className="w-[18px] h-[18px] rounded-full object-cover"
+                  />
+                ) : null}
+                {gasTokenAmountDisplay ? (
+                  <span className="text-base font-medium text-primary-foreground">
+                    {gasTokenAmountDisplay}
+                    {gasTokenSymbol ? ` ${gasTokenSymbol}` : ''}
+                  </span>
+                ) : null}
+                <span className="text-secondary-foreground">~</span>
+                <span className="text-sm text-secondary-foreground">
                   {estimatedTime}
                 </span>
               </div>

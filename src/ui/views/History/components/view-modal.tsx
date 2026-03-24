@@ -2,7 +2,7 @@ import BottomFloatingSheet from '@/ui/component/BottomFloatingPopup';
 import { sinceTime } from '@/ui/utils';
 import React from 'react';
 import { getTokenSymbol } from '@/ui/utils/token';
-import { Button, ButtonType, TooltipView } from '@repo/ui/primitives';
+import { Button, ButtonType, Copy, TooltipView } from '@repo/ui/primitives';
 import { ActivityReceived, ActivitySent } from '@/ui/assets';
 import { getChain } from '@/utils';
 import { Chain } from '@debank/common';
@@ -65,7 +65,7 @@ const ViewModal = ({
         {/* Header */}
         <div className="flex items-center justify-between mb-3 pb-2 border-r-neutral-line">
           <div className="flex items-center justify-between gap-3">
-            <div className="relative w-10 h-10 mr-[12px]">
+            <div className="relative w-10 h-10 ">
               {cateName?.toLowerCase() === 'authorize' ? (
                 <div />
               ) : isReceive ? (
@@ -88,17 +88,17 @@ const ViewModal = ({
               </TooltipView>
             </div>
             <div>
-              <div className="text-[16px] font-semibold text-r-neutral-title-1">
+              <div className="text-sm font-medium text-primary-foreground">
                 {cateName || (isReceive ? 'Received' : 'Sent')}
               </div>
-              <div className="text-[13px] text-r-neutral-body">
+              <div className="text-xs text-secondary-foreground">
                 {sinceTime(data.time_at)}
               </div>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="bg-gray-100 h-6 w-6 ml-2 rounded-full flex items-center justify-center"
+            className="bg-gray-100 h-6 w-6 ml-2 -mt-1 rounded-full flex items-center justify-center"
           >
             <Ellipsis className="text-primary-foreground" size={12} />
           </button>
@@ -159,46 +159,54 @@ const ViewModal = ({
         {cateName?.toLowerCase() !== 'authorize' && (
           <div className="space-y-4 mb-8">
             <div className="flex items-center justify-between">
-              <span className="text-[14px] font-medium text-r-neutral-title-1">
+              <span className="text-[14px] font-medium text-primary-foreground">
                 From
               </span>
-              <span className="text-[14px] text-r-neutral-body">
-                {data.tx?.from_addr ? ellipsis(data.tx.from_addr) : '-'}
-              </span>
+              <Copy value={data.tx?.from_addr || ''}>
+                <span className="text-[14px] font-normal text-secondary-foreground">
+                  {data.tx?.from_addr ? ellipsis(data.tx.from_addr) : '-'}
+                </span>
+              </Copy>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-[14px] font-medium text-r-neutral-title-1">
+              <span className="text-[14px] font-medium text-primary-foreground">
                 To
               </span>
-              <span className="text-[14px] text-r-neutral-body">
-                {counterpartyLabel}
-              </span>
+              <Copy value={counterpartyLabel || ''}>
+                <span className="text-[14px] font-normal text-secondary-foreground">
+                  {counterpartyLabel}
+                </span>
+              </Copy>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-[14px] font-medium text-r-neutral-title-1">
+              <span className="text-[14px] font-medium text-primary-foreground">
                 Transaction
               </span>
-              <span className="text-[14px] text-r-neutral-body">
-                {ellipsis(data.id)}
-              </span>
+              <Copy value={data.id || ''}>
+                <span className="text-[14px] font-normal text-secondary-foreground">
+                  {ellipsis(data.id)}
+                </span>
+              </Copy>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-[14px] font-medium text-r-neutral-title-1">
+              <span className="text-[14px] font-medium text-primary-foreground">
                 Network
               </span>
-              <span className="text-[14px] text-r-neutral-body">
+
+              <span className="text-[14px] font-normal text-secondary-foreground">
                 {chainItem?.name}
               </span>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-[14px] font-medium text-r-neutral-title-1">
+              <span className="text-[14px] font-medium text-primary-foreground">
                 Network cost
               </span>
-              <span className="text-[14px] text-r-neutral-body">
+
+              <span className="text-[14px] font-normal text-secondary-foreground">
                 {data.tx?.eth_gas_fee
                   ? `${numberWithCommasIsLtOne(data.tx.eth_gas_fee, 7)} ${
                       chainItem?.nativeTokenSymbol
@@ -210,10 +218,11 @@ const ViewModal = ({
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-[14px] font-medium text-r-neutral-title-1">
+              <span className="text-[14px] font-medium text-primary-foreground">
                 Confirmed at
               </span>
-              <span className="text-[14px] text-r-neutral-body">
+
+              <span className="text-[14px] font-normal text-secondary-foreground">
                 {sinceTime(data.time_at)}
               </span>
             </div>

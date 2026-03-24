@@ -111,7 +111,7 @@ export const SelectChainItem = forwardRef(
           onClick={() => !disabled && onChange?.(data.enum)}
         >
           <div className="w-full h-[60px] flex items-center">
-            <div className="flex items-center gap-2 flex-1">
+            <div className="flex items-center gap-[10px] flex-1">
               {data.isTestnet ? (
                 data.logo ? (
                   <img
@@ -164,9 +164,6 @@ export const SelectChainItem = forwardRef(
                 )} */}
               </div>
             </div>
-            {value === data.enum ? (
-              <img className="w-[20px] h-[20px] ml-[8px]" src={IconCheck}></img>
-            ) : null}
           </div>
           {!!shortReason && (
             <div

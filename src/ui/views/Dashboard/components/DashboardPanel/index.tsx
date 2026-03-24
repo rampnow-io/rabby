@@ -19,9 +19,10 @@ import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 import { CHAINS } from 'consts';
 import { getChain } from '@/utils';
 import { getMainnetChainList } from '@/utils/chain';
+import clsx from 'clsx';
 
 const className =
-  '!bg-white text-base data-[state=active]:!bg-white shadow-none data-[state=active]:!hover:bg-white data-[state=active]:shadow-none w-16';
+  '!bg-white !text-[16px]/[24px] not-italic font-medium !data-[state=active]:text-primary-foreground text-[#A1A1AA] data-[state=active]:!bg-white shadow-none data-[state=active]:!hover:bg-white data-[state=active]:shadow-none w-16';
 
 export const DashboardPanel: React.FC<{
   onRefresh?: () => void;
@@ -146,11 +147,11 @@ export const DashboardPanel: React.FC<{
   }, [displayChainBalances, fallbackChains, setData]);
   return (
     <div className="bg-white rounded-t-[24px] px-[16px] pt-[14px] pb-[12px] flex flex-col h-full">
-      <Tabs defaultValue="assets" className="flex flex-col h-full">
-        <div className="flex items-center justify-between mb-2">
-          <TabsList className="bg-white justify-start shrink-0 py-2">
-            <TabsTrigger className={className} value="assets">
-              Assets
+      <Tabs defaultValue="asset" className="flex flex-col h-full">
+        <div className="flex items-center justify-between ">
+          <TabsList className="bg-white justify-start shrink-0 py-1">
+            <TabsTrigger className={className} value="asset">
+              Asset
             </TabsTrigger>
             <TabsTrigger className={className} value="activity">
               Activity
@@ -161,7 +162,10 @@ export const DashboardPanel: React.FC<{
             <div className="relative z-50">
               <button
                 onClick={() => setShowNetworkMenu(!showNetworkMenu)}
-                className="flex items-center gap-[5px] py-1 px-1.5 rounded-full border border-primary-foreground bg-white hover:bg-r-neutral-bg-1 transition-colors"
+                className={clsx(
+                  'flex items-center gap-[5px] py-1 rounded-full border border-primary-foreground bg-white hover:bg-r-neutral-bg-1 transition-colors',
+                  selectedNetworkLogo ? '!px-1.5' : 'px-2.5'
+                )}
               >
                 {selectedNetworkLogo && (
                   <img
@@ -170,12 +174,11 @@ export const DashboardPanel: React.FC<{
                     className="w-4 h-4 rounded-full"
                   />
                 )}
-                <span className="text-xs text-primary-foreground">
+                <span className="text-xs font-medium text-primary-foreground">
                   {selectedNetwork ? selectedNetwork : 'All networks'}
                 </span>
                 <ChevronDown
-                  size={16}
-                  className={`text-r-neutral-foot transition-transform ${
+                  className={`text-primary-foreground h-4 w-4 transition-transform ${
                     showNetworkMenu ? 'rotate-180' : ''
                   }`}
                 />
@@ -185,7 +188,7 @@ export const DashboardPanel: React.FC<{
                 <div className="absolute right-0 top-full mt-2 w-56 bg-white border-2 border-r-neutral-line rounded-lg shadow-lg z-[100] max-h-64 overflow-y-auto">
                   <button
                     onClick={() => handleNetworkSelect(undefined)}
-                    className="w-full text-left px-4 py-2 hover:bg-r-neutral-bg-1 font-medium text-primary-foreground transition-colors text-xs"
+                    className="w-full text-left px-4 py-1.5 hover:bg-r-neutral-bg-1 font-medium not-italic text-primary-foreground transition-colors text-xs"
                   >
                     All networks
                   </button>
@@ -237,7 +240,7 @@ export const DashboardPanel: React.FC<{
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <TabsContent value="assets" className="h-full">
+          <TabsContent value="asset" className="h-full">
             <AssetList
               visible={true}
               onClose={() => {}}
@@ -246,7 +249,7 @@ export const DashboardPanel: React.FC<{
           </TabsContent>
 
           <TabsContent value="activity" className="h-full">
-            <HistoryList selectedChainId={selectedNetworkId} />
+            <HistoryList chainId={selectedNetworkId ?? undefined} />
           </TabsContent>
         </div>
       </Tabs>

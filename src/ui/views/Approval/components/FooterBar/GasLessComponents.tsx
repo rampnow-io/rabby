@@ -3,11 +3,9 @@ import { ReactComponent as RcIconGas } from '@/ui/assets/sign/tx/gas-cc.svg';
 import { ReactComponent as RcIconGasAccountCC } from '@/ui/assets/sign/tx/gas-account-blur-cc.svg';
 
 import GasLessBg from '@/ui/assets/sign/tx/bg.svg';
-import { ReactComponent as RcIconLogo } from '@/ui/assets/dashboard/rabby.svg';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import clsx from 'clsx';
-import LogoImage from 'ui/assets/sign/tx/rabby.svg';
 import { ReactComponent as RcIconCCFreeGasBg } from '@/ui/assets/free-gas/bg.svg';
 
 import { useThemeMode } from '@/ui/hooks/usePreference';
@@ -249,7 +247,7 @@ function FreeGasReady({
       {logo ? (
         <img src={logo} className="w-16 h-16 mr-4" />
       ) : (
-        <RcIconLogo viewBox="0 0 20 20" className="w-16 h-16 mr-4 " />
+        <RcIconGasAccountCC className="w-16 h-16 mr-4" />
       )}
       <span
         className="flex-1"
@@ -365,53 +363,54 @@ export const GasLessAnimatedWrapper = styled.div`
   &.gasLess,
   .gasLess {
     background-color: var(--r-blue-disable);
-    background-image: url(${LogoImage}),
-      linear-gradient(
-        var(--r-blue-default, #7084ff),
-        var(--r-blue-default, #7084ff)
-      );
+    background-image: linear-gradient(
+      var(--r-blue-default, #7084ff),
+      var(--r-blue-default, #7084ff)
+    );
     background-repeat: no-repeat;
-    background-size: 10%, 200%;
-    background-position-x: -12%, 200%;
+    background-size: 200%;
+    background-position-x: 200%;
     background-position-y: center;
     animation: gasLessLoading 0.9s linear 1 forwards,
       gasLessJump 0.3s linear 3 forwards;
 
     &.gasLessConfig {
       background-color: var(--gas-bg-color);
-      background-image: linear-gradient(transparent, transparent),
-        linear-gradient(var(--gas-theme-color), var(--gas-theme-color));
+      background-image: linear-gradient(
+        var(--gas-theme-color),
+        var(--gas-theme-color)
+      );
     }
   }
 
   @keyframes gasLessLoading {
     0% {
-      background-position-x: -12%, 212%;
+      background-position-x: 212%;
     }
 
     50% {
-      background-position-x: 55%, 150%;
+      background-position-x: 150%;
     }
     99% {
-      background-position-x: 100%, 109%;
+      background-position-x: 109%;
     }
 
     100% {
-      background-position-x: 120%, 100%;
+      background-position-x: 100%;
     }
   }
 
   @keyframes gasLessJump {
     0% {
-      background-position-y: 100%, 200%;
+      background-position-y: 200%;
     }
 
     90% {
-      background-position-y: 0%, 100%;
+      background-position-y: 100%;
     }
 
     100% {
-      background-position-y: 50%, 100%;
+      background-position-y: 100%;
     }
   }
 `;

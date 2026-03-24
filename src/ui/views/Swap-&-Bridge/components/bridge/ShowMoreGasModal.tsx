@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import BigNumber from 'bignumber.js';
 import { ReactComponent as IconGasCustomRightArrowCC } from 'ui/assets/approval/edit-arrow-right.svg';
@@ -23,13 +23,32 @@ import {
 } from '@/ui/component/MiniSignV2/state';
 import { Popup } from '@/ui/component';
 import styled, { css } from 'styled-components';
+import { GAS_ACCOUNT_INSUFFICIENT_TIP } from '../../../GasAccount/hooks/checkTxs';
 import { GasLevel } from '@rabby-wallet/rabby-api/dist/types';
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/primitives';
+import { BottomDrawer } from '@repo/ui';
+import {
+  Button,
+  Card,
+  Input,
+  InputSize,
+  Label,
+  RadioGroup,
+  RadioGroupItem,
+} from '@repo/ui/primitives';
+import BottomFloatingSheet from '@/ui/component/BottomFloatingPopup';
+import { findChain } from '@/utils/chain';
 
 export const useShowMoreGasSelectModalVisible = createGlobalState(false);
+export const useShowMoreCustomGasEditorTrigger = createGlobalState(0);
 
 export const useGetShowMoreGasSelectVisible = () =>
   useShowMoreGasSelectModalVisible()[0];
+
+export const useGetShowMoreCustomGasEditorTrigger = () =>
+  useShowMoreCustomGasEditorTrigger()[0];
+
+export const useEmitShowMoreCustomGasEditorTrigger = () =>
+  useShowMoreCustomGasEditorTrigger()[1];
 
 const useGasInfoByUI = createGlobalState<
   | {
@@ -78,165 +97,406 @@ export default function ShowMoreGasSelectModal({
 
   const gasInfoByUI = useGetGasInfoByUI();
   const [open, setOpen] = useShowMoreGasSelectModalVisible();
-  const [internalOpen, setInternalOpen] = React.useState(false);
+  const gasInfoByUIRef = React.useRef(gasInfoByUI);
+  const emitShowMoreCustomEditorTrigger = useEmitShowMoreCustomGasEditorTrigger();
+  const [customEditorVisible, setCustomEditorVisible] = useState(false);
+  const [customGasGwei, setCustomGasGwei] = useState('');
+  const [fallbackSelectedLevel, setFallbackSelectedLevel] = useState<string>(
+    'custom'
+  );
+  const [maxPriorityFeeGwei, setMaxPriorityFeeGwei] = useState('');
+  const [updatingCustomGas, setUpdatingCustomGas] = useState(false);
+  const hasCustomPriorityFee = React.useRef(false);
+  const [customEstimatedSeconds, setCustomEstimatedSeconds] = useState<
+    number | null
+  >(null);
 
-  const {
-    externalPanelSelection,
-    handleClickEdit,
-    gasCostUsdStr,
-    gasUsdList,
-    gasAccountIsNotEnough,
-    gasAccountCost,
-  } = gasInfoByUI || {};
+  const { externalPanelSelection, handleClickEdit } = gasInfoByUI || {};
 
   useEffect(() => {
-    if (['idle', 'prefetching'].includes(status) || !ctx?.txsCalc?.length) {
+    if (!ctx) return;
+    if (fallbackSelectedLevel !== 'custom') return;
+    const customGasPriceGwei = Number(customGasGwei);
+    if (!Number.isFinite(customGasPriceGwei) || customGasPriceGwei <= 0) return;
+
+    const chain = findChain({ id: ctx.chainId });
+    if (!wallet || !chain) return;
+
+    const timer = window.setTimeout(async () => {
+      try {
+        const list = await wallet.gasMarketV2({
+          chain,
+          customGas: Math.round(customGasPriceGwei * 1e9),
+          tx: ctx.txs?.[0],
+        });
+        const customGas = list.find((item) => item.level === 'custom');
+        if (!customGas) return;
+
+        if (!hasCustomPriorityFee.current) {
+          setMaxPriorityFeeGwei(
+            new BigNumber(customGas.priority_price ?? customGas.price)
+              .div(1e9)
+              .toFixed()
+          );
+        }
+        setCustomEstimatedSeconds(customGas.estimated_seconds || 0);
+      } catch (e) {
+        console.error('[ShowMoreGasModal] load custom gas data failed', e);
+      }
+    }, 220);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [ctx, customGasGwei, fallbackSelectedLevel, wallet]);
+
+  useEffect(() => {
+    gasInfoByUIRef.current = gasInfoByUI;
+  }, [gasInfoByUI]);
+
+  useEffect(() => {
+    if (status === 'idle' || !ctx?.txsCalc?.length) {
       useSetGasInfoByUI()(undefined);
     }
   }, [status, ctx?.txsCalc?.length]);
-
-  const hasCustomRpc = !ctx?.noCustomRPC;
-
-  const calcGasAccountUsd = useCallback((n: number) => {
-    if (Number(n) < 0.0001) return `$${n}`;
-    return formatGasHeaderUsdValue(n || '0');
-  }, []);
 
   if (!ctx?.txsCalc?.length) return null;
 
   const handleOpenChange = (nextOpen: boolean) => {
     setOpen(nextOpen);
-    setInternalOpen(nextOpen);
   };
 
-  // Sync external state changes
-  React.useEffect(() => {
-    if (open !== internalOpen) {
-      setInternalOpen(open);
+  const openLocalCustomEditor = useCallback(
+    (forceCustom = false) => {
+      const customGas = ctx.gasList?.find((item) => item.level === 'custom');
+      const selectedLevel = forceCustom
+        ? 'custom'
+        : ctx.selectedGas?.level || 'custom';
+      const selectedGas = ctx.gasList?.find(
+        (item) => item.level === selectedLevel
+      );
+
+      const defaultGwei = customGas
+        ? new BigNumber(customGas.price).div(1e9).toFixed()
+        : '';
+
+      const defaultPriority = selectedGas
+        ? new BigNumber(selectedGas.priority_price ?? selectedGas.price)
+            .div(1e9)
+            .toFixed()
+        : '';
+
+      setFallbackSelectedLevel(selectedLevel);
+      setCustomGasGwei(defaultGwei);
+      setMaxPriorityFeeGwei(defaultPriority);
+      setCustomEstimatedSeconds(customGas?.estimated_seconds || null);
+      hasCustomPriorityFee.current = false;
+      setCustomEditorVisible(true);
+    },
+    [ctx.gasList, ctx.selectedGas?.level]
+  );
+
+  const handleConfirmLocalCustomGas = useCallback(async () => {
+    let pickedGas =
+      ctx.gasList?.find((item) => item.level === fallbackSelectedLevel) ||
+      ctx.gasList?.find((item) => item.level === 'custom');
+
+    if (!pickedGas) {
+      return;
     }
-  }, [open]);
+
+    let nextPrice = pickedGas.price;
+
+    if (pickedGas.level === 'custom') {
+      const customGasPriceGwei = Number(customGasGwei);
+      if (!Number.isFinite(customGasPriceGwei) || customGasPriceGwei <= 0) {
+        console.log('[ShowMoreGasModal] invalid custom gas input', {
+          customGasGwei,
+        });
+        return;
+      }
+      nextPrice = Math.round(customGasPriceGwei * 1e9);
+
+      const chain = findChain({ id: ctx.chainId });
+      if (wallet && chain) {
+        const list = await wallet.gasMarketV2({
+          chain,
+          customGas: nextPrice,
+          tx: ctx.txs?.[0],
+        });
+        pickedGas = list.find((item) => item.level === 'custom') || pickedGas;
+      }
+    }
+
+    const nextGas: GasLevel = {
+      ...pickedGas,
+      price: nextPrice,
+      priority_price:
+        maxPriorityFeeGwei !== ''
+          ? Math.round(Number(maxPriorityFeeGwei) * 1e9)
+          : pickedGas.priority_price,
+    };
+
+    try {
+      setUpdatingCustomGas(true);
+      if (wallet) {
+        await signatureStore.updateGasLevel(nextGas, wallet as any);
+      } else if (externalPanelSelection) {
+        externalPanelSelection(nextGas);
+      }
+      setCustomEditorVisible(false);
+    } catch (err) {
+      console.error('[ShowMoreGasModal] confirm local custom gas failed', err);
+    } finally {
+      setUpdatingCustomGas(false);
+    }
+  }, [
+    ctx.chainId,
+    ctx.gasList,
+    ctx.txs,
+    customGasGwei,
+    externalPanelSelection,
+    fallbackSelectedLevel,
+    maxPriorityFeeGwei,
+    wallet,
+  ]);
+
+  const handleSelectGas = useCallback(
+    async (gasLevel: string) => {
+      console.log('[ShowMoreGasModal] handleSelectGas', {
+        gasLevel,
+        hasGasInfoByUI: !!gasInfoByUIRef.current,
+        hasExternalPanelSelection: !!externalPanelSelection,
+        hasHandleClickEdit: !!gasInfoByUIRef.current?.handleClickEdit,
+      });
+
+      const gas = ctx.gasList?.find((item) => item.level === gasLevel);
+      if (!gas) return;
+
+      if (gas.level === 'custom') {
+        console.log('[ShowMoreGasModal] custom gas selected: start flow');
+
+        // Close drawer first, then open editor to avoid overlay lifecycle races.
+        handleOpenChange(false);
+
+        // Keep the selected level in sync before opening editor when callback exists.
+        if (externalPanelSelection) {
+          console.log(
+            '[ShowMoreGasModal] selecting custom via externalPanelSelection'
+          );
+          externalPanelSelection(gas);
+        } else if (wallet) {
+          console.log(
+            '[ShowMoreGasModal] selecting custom via signatureStore.updateGasLevel'
+          );
+          await signatureStore.updateGasLevel(gas, wallet as any);
+        }
+
+        const triggerCustomEditor = (retry = 0) => {
+          const callback = gasInfoByUIRef.current?.handleClickEdit;
+          if (callback) {
+            console.log('[ShowMoreGasModal] triggerCustomEditor success', {
+              retry,
+            });
+            callback();
+            return;
+          }
+
+          console.log(
+            '[ShowMoreGasModal] triggerCustomEditor missing callback',
+            {
+              retry,
+            }
+          );
+          if (retry < 4) {
+            setTimeout(() => triggerCustomEditor(retry + 1), 120);
+          } else {
+            console.log(
+              '[ShowMoreGasModal] triggerCustomEditor giving up after retries'
+            );
+          }
+        };
+
+        setTimeout(() => {
+          triggerCustomEditor();
+          if (!gasInfoByUIRef.current?.handleClickEdit) {
+            const signal = Date.now();
+            console.log('[ShowMoreGasModal] emit custom editor trigger', {
+              signal,
+            });
+            emitShowMoreCustomEditorTrigger(signal);
+            openLocalCustomEditor(true);
+          }
+        }, 280);
+        return;
+      }
+
+      try {
+        if (externalPanelSelection) {
+          externalPanelSelection(gas);
+        } else if (wallet) {
+          await signatureStore.updateGasLevel(gas, wallet as any);
+        }
+      } catch (err) {
+        console.error('Failed to select gas level', err);
+      }
+
+      setTimeout(() => handleOpenChange(false), 0);
+    },
+    [
+      ctx.gasList,
+      emitShowMoreCustomEditorTrigger,
+      externalPanelSelection,
+      handleClickEdit,
+      openLocalCustomEditor,
+      wallet,
+    ]
+  );
+
+  const chain = ctx.chainId ? findChain({ id: ctx.chainId }) : undefined;
+  const selectedLevelGas = ctx.gasList?.find(
+    (item) => item.level === fallbackSelectedLevel
+  );
+  const maxPriorityFeeLimit =
+    fallbackSelectedLevel === 'custom' && Number(customGasGwei) > 0
+      ? Number(customGasGwei)
+      : selectedLevelGas
+      ? new BigNumber(selectedLevelGas.price).div(1e9).toNumber()
+      : Number.MAX_SAFE_INTEGER;
+  const gasCostUsd = ctx.selectedGasCost?.gasCostUsd
+    ? formatGasHeaderUsdValue(ctx.selectedGasCost.gasCostUsd.toString())
+    : '--';
+  const gasCostAmount = ctx.selectedGasCost?.gasCostAmount
+    ? new BigNumber(ctx.selectedGasCost.gasCostAmount.toString()).toFixed(4)
+    : '--';
+  const medianGwei = ctx.gasPriceMedian
+    ? new BigNumber(ctx.gasPriceMedian).div(1e9).toFixed(5)
+    : '--';
+  const gasBalanceText = chain?.nativeTokenSymbol
+    ? `${new BigNumber(ctx.nativeTokenBalance || '0').div(1e18).toFixed(4)} ${
+        chain.nativeTokenSymbol
+      }`
+    : '--';
 
   return (
-    <Popover open={open || internalOpen} onOpenChange={handleOpenChange}>
-      <PopoverTrigger asChild>{children}</PopoverTrigger>
-
-      <PopoverContent
-        side="top"
-        align="center"
-        sideOffset={8}
-        className="w-[256px] rounded-[8px] border border-rabby-neutral-line bg-r-neutral-bg1 shadow-lg p-0 z-50"
-        onInteractOutside={(e) => {
-          e.preventDefault();
-          handleOpenChange(false);
+    <>
+      <div
+        onClick={(e) => {
+          e.stopPropagation();
+          handleOpenChange(true);
         }}
       >
-        {/* GAS METHOD */}
-        <div className="flex items-center p-2 m-2 rounded-md border border-rabby-neutral-line">
-          <GasMethod
-            active={ctx?.gasMethod === 'native'}
-            onChange={() => signatureStore.setGasMethod('native')}
-            ActiveComponent={RcIconGasActive}
-            BlurComponent={RcIconGasBlurCC}
-            title={t('page.gasAccount.gasToken')}
-          />
+        {children}
+      </div>
 
-          <div
-            className={clsx(hasCustomRpc && 'cursor-not-allowed opacity-50')}
-          >
-            <GasMethod
-              active={ctx?.gasMethod === 'gasAccount'}
-              onChange={() => {
-                if (hasCustomRpc) return;
-                signatureStore.setGasMethod('gasAccount');
-              }}
-              ActiveComponent={RcIconGasAccountActive}
-              BlurComponent={RcIconGasAccountBlurCC}
-              title={t('page.gasAccount.title')}
-            />
+      {open && (
+        <BottomDrawer
+          variant="semi"
+          rootSelector="body"
+          close={() => handleOpenChange(false)}
+        >
+          <div className="custom-popup is-support-darkmode is-new p-4 min-h-[320px]">
+            <div className="text-lg font-medium mb-3 px-1">Select Gas</div>
+            <RadioGroup
+              value={ctx.selectedGas?.level}
+              className="flex flex-col gap-y-3 max-h-[420px] overflow-y-auto"
+            >
+              {ctx.gasList?.map((gas) => {
+                const gwei = new BigNumber(gas.price / 1e9)
+                  .toFixed()
+                  .slice(0, 8);
+
+                const isActive = ctx.selectedGas?.level === gas.level;
+                const isCustom = gas.level === 'custom';
+
+                return (
+                  <div key={gas.level}>
+                    <RadioGroupItem
+                      className="hidden"
+                      value={gas.level}
+                      id={`gas-${gas.level}`}
+                    />
+                    <Label
+                      htmlFor={`gas-${gas.level}`}
+                      className="w-full"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleSelectGas(gas.level);
+                      }}
+                    >
+                      <Card
+                        className={clsx(
+                          'flex min-h-[72px] cursor-pointer items-center justify-between rounded-[16px] px-4 py-4 border shadow-none transition-all',
+                          'bg-card-border border-transparent hover:border-card-hover',
+                          isActive && 'border border-card-selected'
+                        )}
+                      >
+                        <div className="flex flex-col gap-1">
+                          <p className="text-sm font-medium text-r-neutral-title-1">
+                            {t(getGasLevelI18nKey(gas.level))}
+                          </p>
+                          {!isCustom && (
+                            <p className="text-sm text-r-neutral-foot">
+                              {gwei} Gwei
+                            </p>
+                          )}
+                        </div>
+                      </Card>
+                    </Label>
+                  </div>
+                );
+              })}
+            </RadioGroup>
           </div>
-        </div>
+        </BottomDrawer>
+      )}
 
-        {/* GAS LIST */}
-        <div className="space-y-2 px-4 pb-2">
-          {ctx.gasList?.map((gas) => {
-            const gwei = new BigNumber(gas.price / 1e9).toFixed().slice(0, 8);
+      <BottomFloatingSheet
+        open={customEditorVisible}
+        onClose={() => setCustomEditorVisible(false)}
+        header={
+          <div className="text-[20px] font-medium text-r-neutral-title1">
+            Custom Gas
+          </div>
+        }
+        contentClassName="px-4 py-4"
+      >
+        <div className="flex flex-col gap-4">
+          <div className="text-[16px] text-r-neutral-body">
+            My Gas balance:
+            <span className="font-medium text-r-neutral-title1">
+              {' '}
+              {gasBalanceText}
+            </span>
+          </div>
 
-            const isActive = ctx.selectedGas?.level === gas.level;
-            const isCustom = gas.level === 'custom';
-
-            let costUsd =
-              ctx.gasMethod === 'native'
-                ? gasUsdList?.[gas.level]
-                : gasAccountIsNotEnough?.[gas.level]?.[1];
-
-            if (isActive) {
-              costUsd =
-                ctx.gasMethod === 'gasAccount'
-                  ? calcGasAccountUsd(
-                      (gasAccountCost?.estimate_tx_cost || 0) +
-                        (gasAccountCost?.gas_cost || 0)
-                    )
-                  : gasCostUsdStr;
-            }
-
-            return (
-              <div
-                key={gas.level}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                onClick={async (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  try {
-                    if (externalPanelSelection) {
-                      externalPanelSelection(gas);
-                    } else if (wallet) {
-                      await signatureStore.updateGasLevel(gas, wallet as any);
-                    }
-                  } catch (err) {
-                    console.error('Failed to select gas level', err);
-                  }
-                  if (isCustom) handleClickEdit?.();
-                  setTimeout(() => handleOpenChange(false), 0);
-                }}
-                className={clsx(
-                  'flex items-center justify-between h-[48px] px-2 rounded-md cursor-pointer',
-                  'hover:bg-r-blue-light-1',
-                  isActive && 'bg-r-blue-light-1'
-                )}
-                style={{
-                  pointerEvents: 'auto',
-                  userSelect: 'none',
-                  touchAction: 'manipulation',
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <GasLevelIcon level={gas.level} isActive={false} />
-                  <span className="text-sm font-medium">
-                    {t(getGasLevelI18nKey(gas.level))}
-                  </span>
-                  {!isCustom && (
-                    <span className="text-xs text-r-neutral-foot">
-                      {gwei} Gwei
-                    </span>
-                  )}
-                  {isActive && !isCustom && (
-                    <IconGasLevelChecked className="text-r-blue-default" />
-                  )}
-                </div>
-
-                {isCustom ? (
-                  <IconGasCustomRightArrowCC />
-                ) : (
-                  <span className="text-sm font-medium">{costUsd}</span>
-                )}
+          {fallbackSelectedLevel === 'custom' ? (
+            <div className="w-full flex items-center justify-between">
+              {' '}
+              <div className="text-base font-medium text-primary-foreground">
+                Priority Fee (Gwei)
               </div>
-            );
-          })}
+              <Input
+                className="!w-[96px]"
+                value={customGasGwei}
+                sizeVariant={InputSize.SM}
+                onChange={(e) => setCustomGasGwei(e.target.value)}
+              />
+            </div>
+          ) : null}
+
+          <Button
+            disabled={
+              updatingCustomGas ||
+              (fallbackSelectedLevel === 'custom' && Number(customGasGwei) <= 0)
+            }
+            onClick={handleConfirmLocalCustomGas}
+          >
+            {updatingCustomGas ? 'Applying...' : 'Set'}
+          </Button>
         </div>
-      </PopoverContent>
-    </Popover>
+      </BottomFloatingSheet>
+    </>
   );
 }

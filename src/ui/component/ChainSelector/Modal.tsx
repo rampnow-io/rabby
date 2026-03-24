@@ -194,18 +194,14 @@ const ChainSelectorBottomDrawer = ({
     <BottomFloatingSheet
       hideCloseButton
       open={visible}
-      onClose={onCancel}
-      className={clsx(className)}
-      contentClassName="!px-2 !pt-2 !pb-2"
-    >
-      <div className="h-[600px] flex flex-col p-4">
-        <div className="pb-[12px]">
+      header={
+        <div>
           <div className="flex items-center pb-4 justify-between">
-            <h2 className="text-[20px] font-normal text-primary-foreground">
+            <h2 className="text-primary-foreground text-xl font-medium">
               {title || t('page.bridge.select-chain')}
             </h2>
             {showClosableIcon && (
-              <div className="bg-[#EAEAEA] p-0.5 rounded-full">
+              <div className="bg-[#EAEAEA] p-1 rounded-full">
                 <RcIconCloseCC
                   className="w-[15px] h-[15px] cursor-pointer text-[#000000]"
                   onClick={onCancel}
@@ -229,7 +225,12 @@ const ChainSelectorBottomDrawer = ({
             className="h-[42px]"
           />
         </div>
-
+      }
+      onClose={onCancel}
+      className={clsx(className)}
+      contentClassName="!px-2 !pt-2 !pb-2"
+    >
+      <div className="h-[600px] flex flex-col p-4">
         <div className="overflow-y-auto flex-1">
           {isLoading ? (
             <LoadingBalances loading />

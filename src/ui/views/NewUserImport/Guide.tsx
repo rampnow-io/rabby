@@ -36,7 +36,7 @@ export const Guide = () => {
         <Action className="flex flex-col gap-4 items-center">
           <Button
             onClick={gotoCreate}
-            className="w-full text-[16px] font-medium "
+            className="w-full text-[16px] font-medium"
           >
             {t('page.newUserImport.guide.createNewAddress')}
           </Button>

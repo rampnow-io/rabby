@@ -51,7 +51,7 @@ export const TimeTab = ({
   onSelect: (key: TabKey) => void;
 }) => {
   return (
-    <div className="flex items-center">
+    <div className="flex items-center justify-between">
       {TIME_TAB_LIST.map((e) => (
         <div
           key={e.key}
@@ -59,12 +59,12 @@ export const TimeTab = ({
             onSelect(e.key);
           }}
           className={clsx(
-            'flex-1 flex items-center justify-center h-24 rounded-[6px] cursor-pointer',
-            'text-12 font-medium token-detail-time-tab',
-            activeKey === e.key && 'bg-r-neutral-card2',
+            'flex items-center justify-center h-8 w-8 cursor-pointer',
+            'text-sm font-normal token-detail-time-tab',
+            activeKey === e.key && 'bg-primary rounded-full',
             activeKey === e.key
-              ? 'text-r-neutral-title-1'
-              : 'text-r-neutral-foot'
+              ? 'text-primary-foreground'
+              : 'text-secondary-foreground hover:text-primary-foreground'
           )}
         >
           {e.label}

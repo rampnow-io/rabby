@@ -1,10 +1,9 @@
 import React, { useMemo } from 'react';
 import BottomFloatingSheet from '@/ui/component/BottomFloatingPopup';
-import { ReactComponent as RCIconRabbyWhite } from '@/ui/assets/swap/rabby.svg';
 import { useTranslation } from 'react-i18next';
 import ImgMetaMask from '@/ui/assets/swap/metamask.png';
 import ImgPhantom from '@/ui/assets/swap/phantom.png';
-import ImgRabbyWallet from '@/ui/assets/swap/rabby-wallet.png';
+import RampIconOne from '@/ui/assets/ramp-icon-one.png';
 import clsx from 'clsx';
 import { DEX } from '@/constant';
 import { Button } from '@repo/ui/primitives';
@@ -22,7 +21,7 @@ const swapFee = [
   },
   {
     name: 'Rampnow Wallet',
-    logo: ImgRabbyWallet,
+    logo: RampIconOne,
     rate: '0.25%',
   },
 ];
@@ -35,7 +34,7 @@ const bridgeList = [
   },
   {
     name: 'Rampnow Wallet',
-    logo: ImgRabbyWallet,
+    logo: RampIconOne,
     rate: '0.25%',
   },
 ];
@@ -68,7 +67,7 @@ export const RabbyFeePopup = ({
     <BottomFloatingSheet open={visible} onClose={onClose}>
       <div className="px-16 pb-16">
         <div className="w-[52px] h-[52px] flex items-center justify-center rounded-full bg-r-blue-default mx-auto">
-          <RCIconRabbyWhite viewBox="0 0 36 30" width="36" height="30" />
+          <img src={RampIconOne} className="w-[36px] h-[36px] rounded-full" />
         </div>
 
         <div className="text-20 text-center font-medium text-r-neutral-title1 my-12 leading-normal">

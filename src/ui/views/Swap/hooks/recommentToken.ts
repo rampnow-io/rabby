@@ -28,9 +28,8 @@ const findBestStableCoin = ({
   tokenList?: TokenItem[];
 }): [string, string] | null => {
   const coins = StablecoinMapAggregatedByChain[chain];
-  console.log('coins', coins);
+
   if (!coins) {
-    console.log(`No stable coin config for chain: ${chain}`);
     return null;
   }
 

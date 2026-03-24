@@ -5,7 +5,7 @@ import clsx from 'clsx';
 
 import { ReactComponent as RcIconCloseCC } from './icons/close-cc.svg';
 // import { ReactComponent as RcIconCloseCC } from '@/ui/assets/component/close-cc.svg';
-import { ReactComponent as RabbySilhouette } from './icons/rabby-silhouette.svg';
+import RampIconOne from 'ui/assets/ramp-icon-one.png';
 
 import ClickableStar from './ClickableStar';
 import {
@@ -73,7 +73,10 @@ export default function RateModalTriggerOnSettings({
       )}
     >
       <div className="absolute self-center left-0">
-        <RabbySilhouette height={90} />
+        <img
+          src={RampIconOne}
+          className="block h-[90px] w-[90px] rounded-full opacity-50"
+        />
       </div>
       <span className="text-[15px] text-r-neutral-title-1 font-[600]">
         {t('page.dashboard.settings.rateModalTriggerOnHome.description')}

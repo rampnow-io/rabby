@@ -102,11 +102,11 @@ export const NewUserImportPrivateKey = () => {
             history.goBack();
             clearStore();
           }}
-        />
-        <SectionHeader
-          className="text-center"
-          title={t('page.newUserImport.importPrivateKey.title')}
-        />
+        >
+          <div className="text-primary-foreground text-xl font-medium">
+            {t('page.newUserImport.importPrivateKey.title')}
+          </div>
+        </HeaderNavPage>
 
         <Content>
           <Form {...form}>

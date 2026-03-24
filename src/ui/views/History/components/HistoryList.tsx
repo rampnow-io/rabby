@@ -2,7 +2,7 @@ import { get, last } from 'lodash';
 import React, { useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-
+import NoTokenIcon1 from '@/ui/assets/no-tokens-icon-1.svg';
 import { useAccount } from '@/ui/store-hooks';
 import { useInfiniteScroll } from 'ahooks';
 import { Empty, Modal } from 'ui/component';
@@ -17,15 +17,20 @@ import {
 } from '@rabby-wallet/rabby-api/dist/types';
 import { getTxnHistory } from '@/snippets/client';
 import { getMainnetChainList } from '@/utils/chain';
+import { Button } from '@repo/ui/primitives';
 
 const PAGE_COUNT = 10;
 
 export const HistoryList = ({
   isFilterScam = false,
-  selectedChainId,
+  chainId,
+  tokenId,
+  pageCount = 100,
 }: {
   isFilterScam?: boolean;
-  selectedChainId?: string | null;
+  chainId?: string;
+  tokenId?: string;
+  pageCount?: number;
 }) => {
   const wallet = useWallet();
   const { t } = useTranslation();
@@ -69,6 +74,16 @@ export const HistoryList = ({
       return { list: [] };
     }
 
+    // const res = isFilterScam
+    //   ? await getAllTxHistory({ id: address })
+    //   : await wallet.openapi.listTxHisotry({
+    //       id: address,
+    //       chain_id: chainId,
+    //       token_id: tokenId,
+    //       start_time: startTime,
+    //       page_count: pageCount,
+    //     });
+
     const { project_dict, cate_dict, history_list } = res;
 
     const list = history_list
@@ -93,13 +108,13 @@ export const HistoryList = ({
     {
       target: scrollRef,
       isNoMore: (d) =>
-        isFilterScam ? true : !d?.last || (d?.list?.length || 0) < PAGE_COUNT,
+        isFilterScam ? true : !d?.last || (d?.list?.length || 0) < pageCount,
     }
   );
 
   const chainList = data?.list?.filter((item) => {
-    if (!selectedChainId) return true;
-    return item.chain === selectedChainId;
+    if (!chainId) return true;
+    return item.chain === chainId;
   });
 
   const isEmpty = !loading && (chainList?.length || 0) === 0;
@@ -130,8 +145,32 @@ export const HistoryList = ({
 
       {/* Empty */}
       {isEmpty && (
-        <div className="h-full w-full flex justify-center items-center text-primary-foreground font-medium">
-          <span>No transactions found on this wallet.</span>
+        <div className="flex flex-col items-center justify-center gap-6 py-12">
+          <div className="flex items-center justify-center gap-2">
+            <img
+              src={NoTokenIcon1}
+              alt="No tokens icon 1"
+              className="w-full h-full"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <h3 className="text-base font-semibold text-primary-foreground text-center">
+              No transactions found on this wallet.
+            </h3>
+            <p className="text-14 text-secondary-foreground text-center">
+              Buy your first crypto with Rampnow
+            </p>
+          </div>
+
+          <Button
+            className="w-full"
+            onClick={() =>
+              window.open('https://app.rampnow.io/order/quote', '_blank')
+            }
+          >
+            Buy
+          </Button>
         </div>
       )}
 

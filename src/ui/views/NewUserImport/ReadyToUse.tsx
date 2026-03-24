@@ -65,7 +65,7 @@ export const ReadyToUse = () => {
       });
     };
 
-    const handleKeyUp = (event: KeyboardEvent) => {
+    const handleKeyUp = async (event: KeyboardEvent) => {
       const label = keyToLabel(event);
       if (!label) return;
 
@@ -74,6 +74,8 @@ export const ReadyToUse = () => {
         next.delete(label);
         return next;
       });
+
+      await handleOpenWallet();
     };
 
     const handleWindowBlur = () => {
@@ -115,10 +117,8 @@ export const ReadyToUse = () => {
     <ConfettiFireworks>
       <UiProvider>
         <Container>
-          <HeaderNavPage />
-
           <Content>
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-4 pt-[72px]">
               <img
                 src={RoundedLogo}
                 alt="Rampnow logo"

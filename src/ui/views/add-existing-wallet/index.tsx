@@ -42,7 +42,7 @@ const AddExistingWallet = () => {
             }
           }}
         >
-          <div className="text-primary-foreground text-xl font-normal">
+          <div className="text-primary-foreground text-xl font-medium">
             Add Existing Wallet
           </div>
         </HeaderNavPage>
@@ -58,10 +58,10 @@ const AddExistingWallet = () => {
                     {item.icon}
                   </div>
                   <div className="flex flex-col gap-1">
-                    <div className="text-base font-normal text-primary-foreground">
+                    <div className="text-base font-medium text-primary-foreground">
                       {item.title}
                     </div>
-                    <div className="text-sm font-normal text-secondary-foreground">
+                    <div className="text-sm font-medium text-secondary-foreground">
                       {item.desc}
                     </div>
                   </div>

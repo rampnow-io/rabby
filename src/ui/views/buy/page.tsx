@@ -361,7 +361,7 @@ const BuyPage = () => {
             history.goBack();
           }}
         >
-          <div className="text-primary-foreground text-xl font-normal">Buy</div>
+          <div className="text-primary-foreground text-xl font-medium">Buy</div>
         </HeaderNavPage>
         <Content>
           {loadingConfig ? (

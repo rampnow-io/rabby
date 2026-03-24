@@ -534,14 +534,14 @@ class PreferenceService {
   getCurrentAccount = (): Account | undefined | null => {
     const account = cloneDeep(this.store.currentAccount);
     if (!account) return account;
-    
+
     // Load the account color from the accountColors mapping if it exists and not already set
     const key = account.address.toLowerCase();
     const savedColor = this.store.accountColors?.[key];
     if (savedColor && !account.color) {
       account.color = savedColor;
     }
-    
+
     return {
       ...account,
       address: account.address.toLowerCase(),
@@ -971,19 +971,21 @@ class PreferenceService {
       this.store.accountColors = {};
     }
     this.store.accountColors[key] = color;
-    
-    if (process.env.DEBUG) {
-      console.log(`[Preference] Saved color for ${address}: ${color}`);
-    }
 
     // Also update the color on currentAccount if it's the same address
-    if (this.store.currentAccount && isSameAddress(this.store.currentAccount.address, address)) {
+    if (
+      this.store.currentAccount &&
+      isSameAddress(this.store.currentAccount.address, address)
+    ) {
       this.store.currentAccount = {
         ...this.store.currentAccount,
         color,
       };
       // Sync the updated account with color back to UI
-      syncStateToUI(BROADCAST_TO_UI_EVENTS.accountsChanged, this.store.currentAccount);
+      syncStateToUI(
+        BROADCAST_TO_UI_EVENTS.accountsChanged,
+        this.store.currentAccount
+      );
     }
   };
 
@@ -997,9 +999,7 @@ class PreferenceService {
     if (!this.store.currentAccount) {
       return;
     }
-    if (
-      isSameAddress(this.store.currentAccount.address, address)
-    ) {
+    if (isSameAddress(this.store.currentAccount.address, address)) {
       this.store.currentAccount = {
         ...this.store.currentAccount,
         createdAt: timestamp,

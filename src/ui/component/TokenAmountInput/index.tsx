@@ -207,12 +207,12 @@ const TokenAmountInput = ({
                 <TokenWithChain width="35px" height="35px" token={token} />
               )}
               <div className="flex flex-col">
-                <span className="text-sm font-medium">
+                <span className="text-base font-medium text-primary-foreground">
                   {token
                     ? getTokenSymbol(token)
                     : t('page.sendToken.selectToken')}
                 </span>
-                <span className="text-xs text-r-neutral-foot">
+                <span className="text-xs font-medium text-secondary-foreground">
                   {balanceNumText}
                 </span>
               </div>
@@ -255,7 +255,7 @@ const TokenAmountInput = ({
             </div>
 
             <SwapIcon>
-              <RcIconDownCC width={16} height={16} />
+              <RcIconDownCC width={12} height={12} />
             </SwapIcon>
             {!insufficientError && (
               <span className="text-sm font-medium text-r-neutral-title1">

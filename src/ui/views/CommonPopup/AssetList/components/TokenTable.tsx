@@ -2,9 +2,8 @@ import React from 'react';
 import { TBody, THeadCell, THeader, Table } from './Table';
 import { TokenItem, Props as TokenItemProps } from '../TokenItem';
 import { FixedSizeList as VirtualList } from 'react-window';
-import { TokenDetailPopup } from '@/ui/views/Dashboard/components/TokenDetailPopup';
-import { TokenItem as TokenItemType } from '@/background/service/openapi';
 import { useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
 
 export interface Props {
   list?: TokenItemProps['item'][];
@@ -20,22 +19,7 @@ export const TokenTable: React.FC<Props> = ({
   virtual,
   EmptyComponent,
 }) => {
-  const [selected, setSelected] = React.useState<TokenItemProps['item']>();
-  const [visible, setVisible] = React.useState(false);
-  const [token, setToken] = React.useState<TokenItemType>();
-
-  React.useEffect(() => {
-    setVisible(!!selected);
-
-    if (selected) {
-      setToken({
-        ...selected,
-        id: selected._tokenId,
-      });
-    } else {
-      setToken(undefined);
-    }
-  }, [selected]);
+  const history = useHistory();
 
   if (EmptyComponent && !list?.length) {
     return <>{EmptyComponent}</>;
@@ -50,19 +34,19 @@ export const TokenTable: React.FC<Props> = ({
               <TokenItem
                 key={`${item.chain}-${item.id}`}
                 item={item}
-                onClick={() => setSelected(item)}
+                onClick={() => {
+                  const tokenId = item._tokenId || item.id;
+                  history.push(
+                    `/token-portfolio?chain=${encodeURIComponent(
+                      item.chain
+                    )}&tokenId=${encodeURIComponent(tokenId)}`
+                  );
+                }}
               />
             ))}
           </TBody>
         </Table>
       </div>
-
-      <TokenDetailPopup
-        variant="add"
-        token={token}
-        visible={visible}
-        onClose={() => setSelected(undefined)}
-      />
     </>
   );
 };

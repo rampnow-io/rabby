@@ -158,15 +158,15 @@ export const BridgeSlippage = memo((props: BridgeSlippageProps) => {
   if (type === 'swap' && isWrapToken) {
     return (
       <div
-        className="flex justify-between cursor-pointer text-12"
+        className="flex justify-between cursor-pointer text-[14px]"
         onClick={() => {
           setSlippageOpen((e) => !e);
         }}
       >
-        <span className="font-normal text-r-neutral-foot">
+        <span className="text-[14px] font-medium text-secondary-foreground">
           {t('page.swap.slippage-tolerance')}
         </span>
-        <span className="font-medium text-r-neutral-foot">
+        <span className="text-[14px] font-medium text-secondary-foreground">
           {t('page.swap.no-slippage-for-wrap')}
         </span>
       </div>
@@ -176,15 +176,15 @@ export const BridgeSlippage = memo((props: BridgeSlippageProps) => {
   return (
     <div>
       <div
-        className="flex justify-between cursor-pointer text-[12px] mb-3"
+        className="flex justify-between cursor-pointer text-[14px] mb-3"
         onClick={() => {
           setSlippageOpen((e) => !e);
         }}
       >
-        <span className="font-normal text-primary-foreground">
+        <span className="text-[14px] font-medium text-primary-foreground">
           {t('page.swap.slippage-tolerance')}
         </span>
-        <span className="font-normal text-primary-foreground inline-flex items-center gap-1.5">
+        <span className="text-[14px] font-medium text-secondary-foreground inline-flex items-center gap-1.5">
           <span
             className={clsx(
               tips ? 'text-r-red-default' : 'text-secondary-foreground'
@@ -220,7 +220,7 @@ export const BridgeSlippage = memo((props: BridgeSlippageProps) => {
               'border',
               'cursor-pointer',
               'min-w-[50px] h-[36px]',
-              'font-medium text-xs',
+              'font-medium text-[14px]',
               'overflow-hidden',
               'rounded-[8px]',
               'hover:border-primary text-secondary-foreground',
@@ -245,7 +245,7 @@ export const BridgeSlippage = memo((props: BridgeSlippageProps) => {
                 'border',
                 'cursor-pointer',
                 'min-w-[50px] h-[36px]',
-                'font-medium text-xs',
+                'font-medium text-[14px]',
                 'overflow-hidden',
                 'rounded-[8px]',
                 'hover:border-primary text-secondary-foreground',
@@ -268,7 +268,7 @@ export const BridgeSlippage = memo((props: BridgeSlippageProps) => {
               'border',
               'cursor-pointer',
               'min-w-[50px] h-[36px]',
-              'font-medium text-xs',
+              'font-medium text-[14px]',
               'overflow-hidden',
               'flex-1',
               'gap-10',
@@ -283,7 +283,7 @@ export const BridgeSlippage = memo((props: BridgeSlippageProps) => {
             {isCustomSlippage ? (
               <Input
                 className={clsx(
-                  'bg-transparent border-none rounded font-medium text-xs text-center',
+                  'bg-transparent border-none rounded font-medium text-[14px] text-center',
                   tips && 'text-r-red-default'
                 )}
                 value={value}
@@ -295,7 +295,10 @@ export const BridgeSlippage = memo((props: BridgeSlippageProps) => {
                 placeholder="Enter"
                 iconRight={
                   <div
-                    className={clsx('text-12', tips && 'text-r-red-default')}
+                    className={clsx(
+                      'text-[14px]',
+                      tips && 'text-r-red-default'
+                    )}
                   >
                     %
                   </div>
