@@ -19,15 +19,10 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 };
 
 /**
- * GetIpInfo
- */
-export const getIpInfo = <ThrowOnError extends boolean = false>(options?: Options<GetIpInfoData, ThrowOnError>) => (options?.client ?? client).get<GetIpInfoResponses, unknown, ThrowOnError>({ url: '/api/wallet/v1/ip', ...options });
-
-/**
  * GetChainBalanceList
  */
 export const getChainBalanceList = <ThrowOnError extends boolean = false>(options?: Options<GetChainBalanceListData, ThrowOnError>) => (options?.client ?? client).post<GetChainBalanceListResponses, unknown, ThrowOnError>({
-    url: '/api/wallet/v1/portfolio/balances',
+    url: '/v1/balances',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -39,7 +34,7 @@ export const getChainBalanceList = <ThrowOnError extends boolean = false>(option
  * GetTokenListCached
  */
 export const getTokenListCached = <ThrowOnError extends boolean = false>(options?: Options<GetTokenListCachedData, ThrowOnError>) => (options?.client ?? client).post<GetTokenListCachedResponses, unknown, ThrowOnError>({
-    url: '/api/wallet/v1/portfolio/cached_list',
+    url: '/v1/cached_list',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -51,7 +46,7 @@ export const getTokenListCached = <ThrowOnError extends boolean = false>(options
  * GetCustomTokenList
  */
 export const getCustomTokenList = <ThrowOnError extends boolean = false>(options?: Options<GetCustomTokenListData, ThrowOnError>) => (options?.client ?? client).post<GetCustomTokenListResponses, unknown, ThrowOnError>({
-    url: '/api/wallet/v1/portfolio/custom_list',
+    url: '/v1/custom_list',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -60,22 +55,15 @@ export const getCustomTokenList = <ThrowOnError extends boolean = false>(options
 });
 
 /**
- * GetTxnHistory
+ * GetIpInfo
  */
-export const getTxnHistory = <ThrowOnError extends boolean = false>(options?: Options<GetTxnHistoryData, ThrowOnError>) => (options?.client ?? client).post<GetTxnHistoryResponses, unknown, ThrowOnError>({
-    url: '/api/wallet/v1/portfolio/history',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-    }
-});
+export const getIpInfo = <ThrowOnError extends boolean = false>(options?: Options<GetIpInfoData, ThrowOnError>) => (options?.client ?? client).get<GetIpInfoResponses, unknown, ThrowOnError>({ url: '/v1/ip', ...options });
 
 /**
  * GetTokenList
  */
 export const getTokenList = <ThrowOnError extends boolean = false>(options?: Options<GetTokenListData, ThrowOnError>) => (options?.client ?? client).post<GetTokenListResponses, unknown, ThrowOnError>({
-    url: '/api/wallet/v1/portfolio/list',
+    url: '/v1/list',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -86,4 +74,9 @@ export const getTokenList = <ThrowOnError extends boolean = false>(options?: Opt
 /**
  * CheckServiceability
  */
-export const checkServiceability = <ThrowOnError extends boolean = false>(options?: Options<CheckServiceabilityData, ThrowOnError>) => (options?.client ?? client).get<CheckServiceabilityResponses, unknown, ThrowOnError>({ url: '/api/wallet/v1/serviceability', ...options });
+export const checkServiceability = <ThrowOnError extends boolean = false>(options?: Options<CheckServiceabilityData, ThrowOnError>) => (options?.client ?? client).get<CheckServiceabilityResponses, unknown, ThrowOnError>({ url: '/v1/serviceability', ...options });
+
+/**
+ * GetTxnHistory
+ */
+export const getTxnHistory = <ThrowOnError extends boolean = false>(options?: Options<GetTxnHistoryData, ThrowOnError>) => (options?.client ?? client).get<GetTxnHistoryResponses, unknown, ThrowOnError>({ url: '/v1/user/history_list', ...options });

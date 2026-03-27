@@ -158,7 +158,6 @@ import {
   SendTxHistoryItem,
   SwapTxHistoryItem,
 } from '../service/transactionHistory';
-import { getChainBalanceList } from '@/snippets/client';
 
 const stashKeyrings: Record<string | number, any> = {};
 
@@ -1694,22 +1693,6 @@ export class WalletController extends BaseController {
   private getTotalBalanceCached = cached(
     'getTotalBalanceCached',
     async (address: string) => {
-      const fetchhainBalanceList = async (address: string) => {
-        const allSupportedChains = getMainnetChainList().map(
-          (chain) => chain.serverId
-        );
-
-        const chainBalanceResp = await getChainBalanceList({
-          body: {
-            address,
-            chains: allSupportedChains,
-            force_fetch: true,
-          },
-        });
-
-        return (chainBalanceResp.data?.data as unknown) as TotalBalanceResponse;
-      };
-
       const addresses = await keyringService.getAllAdresses();
       const filtered = addresses.filter((item) =>
         isSameAddress(item.address, address)
@@ -1720,15 +1703,7 @@ export class WalletController extends BaseController {
       ) {
         core = true;
       }
-      const data = await fetchhainBalanceList(address);
-      if (!data) {
-        return {
-          total_usd_value: 0,
-          evmUsdValue: 0,
-          appChainIds: [],
-          chain_list: [],
-        };
-      }
+      const data = await openapiService.getTotalBalance(address, core);
       let appChainTotalNetWorth = 0;
       const appChainIds: string[] = [];
       try {

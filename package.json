@@ -26,6 +26,7 @@
     "dev:esbuild": "cross-env MANIFEST_TYPE=chrome-mv3 node build/esbuild-watch.js",
     "dev:esbuild:mv2": "cross-env MANIFEST_TYPE=firefox-mv2 node build/esbuild-watch.js",
     "sync-chain": "node ./scripts/sync-support-chain.js",
+    "open-api": "openapi-ts -f openapi-ts.config.ts",
     "lint:fix": "eslint --fix --ext .js,.jsx,.ts,.tsx ./src",
     "format:views": "prettier --write \"src/ui/**/*.{ts,tsx}\"",
     "test": "jest",

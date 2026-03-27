@@ -42,6 +42,7 @@ const filterDisplayToken = (
     const chain = findChain({
       serverId: token.chain,
     });
+
     const isBlocked = blocked.find(
       (item) =>
         isSameAddress(token._tokenId, item.address) &&
@@ -50,21 +51,8 @@ const filterDisplayToken = (
 
     const shouldInclude = !isBlocked && !!chain;
 
-    // Debug logging for ALL pls tokens
-    if (token.chain === 'pls') {
-      console.log('🔍 [filterDisplayToken] PLS Token:', {
-        symbol: token.symbol,
-        tokenId: token._tokenId,
-        isBlocked: !!isBlocked,
-        chainFound: !!chain,
-        shouldInclude,
-      });
-    }
-
     return shouldInclude;
   });
-
-  const pulseTokensAfter = filtered.filter((t) => t.chain === 'pls');
 
   return filtered;
 };
@@ -169,7 +157,6 @@ export const useTokens = (
     historyLoad.current = false;
 
     setLoading(true);
-    log('======Start-Tokens======', userAddr);
     let _data = produce(walletProject, (draft) => {
       draft.netWorth = 0;
       draft._netWorth = '$0';
@@ -205,13 +192,11 @@ export const useTokens = (
         });
 
     if (!snapshot) {
-      log('--Terminate-tokens-snapshot-', userAddr);
       setLoading(false);
       return;
     }
 
     if (currentAbort.signal.aborted) {
-      log('--Terminate-tokens-snapshot-', userAddr);
       abortedFn();
       return;
     }
@@ -249,12 +234,10 @@ export const useTokens = (
     );
 
     if (!tokenRes) {
-      log('--Terminate-tokens- no tokenRes', userAddr);
       setLoading(false);
     }
 
     if (currentAbort.signal.aborted) {
-      log('--Terminate-tokens-', userAddr);
       abortedFn();
       return;
     }

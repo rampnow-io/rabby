@@ -5,7 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { useAsync, useDebounce } from 'react-use';
 import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 import { ReactComponent as RcIconInfo } from '@/ui/assets/perps/IconInfo.svg';
-import { batchQueryTokens } from '@/ui/utils/portfolio/tokenUtils';
+import {
+  batchQueryTokens,
+  queryTokensCache,
+} from '@/ui/utils/portfolio/tokenUtils';
 import { isSameAddress, useWallet } from '@/ui/utils';
 import { ARB_USDC_TOKEN_ID, ARB_USDC_TOKEN_ITEM } from '../constants';
 import { ARB_USDC_TOKEN_SERVER_CHAIN } from '../constants';

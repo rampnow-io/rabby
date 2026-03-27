@@ -111,7 +111,23 @@ export default function ShowMoreGasSelectModal({
     number | null
   >(null);
 
-  const { externalPanelSelection, handleClickEdit } = gasInfoByUI || {};
+  const {
+    externalPanelSelection,
+    handleClickEdit,
+    gasCostUsdStr,
+    gasUsdList,
+    gasIsNotEnough,
+    gasAccountIsNotEnough,
+    gasAccountCost,
+  } = gasInfoByUI || {};
+
+  const calcGasAccountUsd = useCallback((n) => {
+    const v = Number(n);
+    if (!Number.isNaN(v) && v < 0.0001) {
+      return `$${n}`;
+    }
+    return formatGasHeaderUsdValue(n || '0');
+  }, []);
 
   useEffect(() => {
     if (!ctx) return;
@@ -409,6 +425,34 @@ export default function ShowMoreGasSelectModal({
                 const isActive = ctx.selectedGas?.level === gas.level;
                 const isCustom = gas.level === 'custom';
 
+                let costUsd: string | undefined =
+                  ctx.gasMethod === 'native'
+                    ? gasUsdList?.[gas.level]
+                    : (gasAccountIsNotEnough?.[gas.level]?.[1] as
+                        | string
+                        | undefined);
+
+                const isNotEnough =
+                  ctx.gasMethod === 'native'
+                    ? gasIsNotEnough?.[gas.level]
+                    : gasAccountIsNotEnough?.[gas.level]?.[0];
+
+                const isGasAccountLoading =
+                  !isActive &&
+                  ctx.gasMethod === 'gasAccount' &&
+                  (gasAccountIsNotEnough?.[gas.level]?.[1] === '' ||
+                    gasAccountIsNotEnough?.[gas.level]?.[1] === (0 as any));
+
+                if (isActive) {
+                  costUsd =
+                    ctx.gasMethod === 'gasAccount'
+                      ? calcGasAccountUsd(
+                          (gasAccountCost?.estimate_tx_cost || 0) +
+                            (gasAccountCost?.gas_cost || 0)
+                        )
+                      : gasCostUsdStr || gasCostUsd;
+                }
+
                 return (
                   <div key={gas.level}>
                     <RadioGroupItem
@@ -442,6 +486,24 @@ export default function ShowMoreGasSelectModal({
                             </p>
                           )}
                         </div>
+                        {isCustom ? (
+                          <IconGasCustomRightArrowCC className="text-r-neutral-foot" />
+                        ) : (
+                          <span
+                            className={clsx(
+                              'text-sm font-medium text-r-neutral-title-1'
+                            )}
+                          >
+                            {isGasAccountLoading ? (
+                              <RcIconLoading
+                                className="w-4 h-4 animate-spin"
+                                viewBox="0 0 20 20"
+                              />
+                            ) : (
+                              costUsd
+                            )}
+                          </span>
+                        )}
                       </Card>
                     </Label>
                   </div>

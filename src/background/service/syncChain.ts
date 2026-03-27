@@ -8,6 +8,7 @@ import { SupportedChain } from './openapi';
 import { openapiService } from '.';
 import { createPersistStore } from '../utils';
 import dayjs from 'dayjs';
+import defaultSuppordChain from '@/constant/default-support-chains.json';
 
 interface SyncChainServiceStore {
   updatedAt: number;
@@ -35,21 +36,17 @@ class SyncChainService {
       return;
     }
     try {
-      const chains = process.env.DEBUG
-        ? await openapiService.getSupportedChains()
-        : await http
-            .get('https://static.debank.com/supported_chains.json')
-            .then((res) => {
-              return res.data as SupportedChain[];
-            });
-      const list: Chain[] = chains
+      const list = defaultSuppordChain
         .filter((item) => !item.is_disabled)
         .map((item) => {
-          const chain: Chain = supportedChainToChain(item);
-          return chain;
+          return supportedChainToChain(item);
         });
       updateChainStore({
-        mainnetList: list,
+        mainnetList: defaultSuppordChain
+          .filter((item) => !item.is_disabled)
+          .map((item) => {
+            return supportedChainToChain(item);
+          }),
       });
       browser.storage.local.set({
         rabbyMainnetChainList: list,

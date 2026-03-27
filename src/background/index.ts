@@ -54,7 +54,7 @@ import {
 } from './service';
 import { customTestnetService } from './service/customTestnet';
 import { GasAccountServiceStore } from './service/gasAccount';
-import { testnetOpenapiService } from './service/openapi';
+import { testnetOpenapiService, walletApiService } from './service/openapi';
 import { syncChainService } from './service/syncChain';
 import { userGuideService } from './service/userGuide';
 import { isSameAddress } from './utils';
@@ -127,6 +127,7 @@ async function restoreAppState() {
   keyringService.store.subscribe((value) => storage.set('keyringState', value));
   await openapiService.init();
   await testnetOpenapiService.init();
+  await walletApiService.init();
 
   // Init keyring and openapi first since this two service will not be migrated
   await migrateData();

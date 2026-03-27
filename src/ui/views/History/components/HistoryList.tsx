@@ -1,25 +1,16 @@
-import { get, last } from 'lodash';
+import { last } from 'lodash';
 import React, { useRef, useState } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+
 import NoTokenIcon1 from '@/ui/assets/no-tokens-icon-1.svg';
 import { useAccount } from '@/ui/store-hooks';
 import { useInfiniteScroll } from 'ahooks';
-import { Empty, Modal } from 'ui/component';
+import { Modal } from 'ui/component';
 import { sleep, useWallet } from 'ui/utils';
 
 import { HistoryItem, HistoryItemActionContext } from './HistoryItem';
 import { Loading } from './Loading';
-import { CHAINS } from '@/constant';
-import {
-  TxHistoryItem,
-  TxHistoryResult,
-} from '@rabby-wallet/rabby-api/dist/types';
-import { getTxnHistory } from '@/snippets/client';
-import { getMainnetChainList } from '@/utils/chain';
 import { Button } from '@repo/ui/primitives';
-
-const PAGE_COUNT = 10;
 
 export const HistoryList = ({
   isFilterScam = false,
@@ -43,46 +34,34 @@ export const HistoryList = ({
     setFocusingHistoryItem,
   ] = useState<HistoryItemActionContext | null>(null);
 
-  const listTxHistory = async (
-    address: string,
-    startTime: number,
-    pageCount: number
+  const getAllTxHistory = async (
+    params: Parameters<typeof wallet.openapi.getAllTxHistory>[0]
   ) => {
-    const allSupportedChains = getMainnetChainList().map(
-      (chain) => chain.serverId
-    );
-
-    const tokenHistory = await getTxnHistory({
-      body: {
-        address: address,
-        chains: allSupportedChains,
-        page_size: pageCount,
-        to_timestamp: startTime,
-      },
-    });
-
-    return (tokenHistory.data?.data
-      ?.history_list as unknown) as TxHistoryResult;
+    const res = await wallet.openapi.getAllTxHistory(params);
+    if (res.history_list) {
+      res.history_list = res.history_list.filter((item) => !item.is_scam);
+    }
+    return res;
   };
 
   const fetchData = async (startTime = 0) => {
     const { address } = account!;
     if (startTime) await sleep(500);
 
-    const res = await listTxHistory(address, startTime, 100);
-    if (!res) {
-      return { list: [] };
+    if (isFilterScam) {
+      const apiLevel = await wallet.getAPIConfig([], 'ApiLevel', false);
+      if (apiLevel >= 1) {
+        return { list: [] };
+      }
     }
 
-    // const res = isFilterScam
-    //   ? await getAllTxHistory({ id: address })
-    //   : await wallet.openapi.listTxHisotry({
-    //       id: address,
-    //       chain_id: chainId,
-    //       token_id: tokenId,
-    //       start_time: startTime,
-    //       page_count: pageCount,
-    //     });
+    const res = await wallet.openapi.listTxHisotry({
+      id: address,
+      chain_id: chainId,
+      token_id: tokenId,
+      start_time: startTime,
+      page_count: pageCount,
+    });
 
     const { project_dict, cate_dict, history_list } = res;
 
@@ -112,12 +91,7 @@ export const HistoryList = ({
     }
   );
 
-  const chainList = data?.list?.filter((item) => {
-    if (!chainId) return true;
-    return item.chain === chainId;
-  });
-
-  const isEmpty = !loading && (chainList?.length || 0) === 0;
+  const isEmpty = !loading && (data?.list?.length || 0) === 0;
 
   return (
     <div className="h-full relative">
@@ -180,7 +154,7 @@ export const HistoryList = ({
           ref={scrollRef}
           className="h-full overflow-y-auto overscroll-contain"
         >
-          {chainList?.map((item) => {
+          {data?.list?.map((item) => {
             const isFailed = item.tx?.status === 0;
 
             // if (isFailed) {

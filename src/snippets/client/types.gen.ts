@@ -1025,6 +1025,7 @@ export enum CurrencyCode {
     WMON = 'WMON',
     WMTX = 'WMTX',
     WOO = 'WOO',
+    WPLS = 'WPLS',
     WPLU = 'WPLU',
     WRON = 'WRON',
     WRSETH = 'WRSETH',
@@ -1116,13 +1117,6 @@ export type GetCustomTokenListResponse = {
 
 export type GetIpInfoResponse = {
     country: CountryCode;
-};
-
-export type GetTokenHistoryRequest = {
-    address: string;
-    chains: Array<string>;
-    page_size: number;
-    to_timestamp: number;
 };
 
 export type GetTokenHistoryResponse = {
@@ -1227,35 +1221,11 @@ export type TxDetail = {
     value: string;
 };
 
-export type GetIpInfoData = {
-    body?: never;
-    path?: never;
-    query?: {
-        ipAddress?: string;
-    };
-    url: '/api/wallet/v1/ip';
-};
-
-export type GetIpInfoResponses = {
-    /**
-     * OK
-     */
-    200: {
-        code: number;
-        data: GetIpInfoResponse;
-        displayError?: string;
-        message: string;
-        traceId: string;
-    };
-};
-
-export type GetIpInfoResponse2 = GetIpInfoResponses[keyof GetIpInfoResponses];
-
 export type GetChainBalanceListData = {
     body?: GetChainBalanceListRequest;
     path?: never;
     query?: never;
-    url: '/api/wallet/v1/portfolio/balances';
+    url: '/v1/balances';
 };
 
 export type GetChainBalanceListResponses = {
@@ -1277,7 +1247,7 @@ export type GetTokenListCachedData = {
     body?: GetTokenListCachedRequest;
     path?: never;
     query?: never;
-    url: '/api/wallet/v1/portfolio/cached_list';
+    url: '/v1/cached_list';
 };
 
 export type GetTokenListCachedResponses = {
@@ -1299,7 +1269,7 @@ export type GetCustomTokenListData = {
     body?: GetCustomTokenListRequest;
     path?: never;
     query?: never;
-    url: '/api/wallet/v1/portfolio/custom_list';
+    url: '/v1/custom_list';
 };
 
 export type GetCustomTokenListResponses = {
@@ -1317,33 +1287,35 @@ export type GetCustomTokenListResponses = {
 
 export type GetCustomTokenListResponse2 = GetCustomTokenListResponses[keyof GetCustomTokenListResponses];
 
-export type GetTxnHistoryData = {
-    body?: GetTokenHistoryRequest;
+export type GetIpInfoData = {
+    body?: never;
     path?: never;
-    query?: never;
-    url: '/api/wallet/v1/portfolio/history';
+    query?: {
+        ipAddress?: string;
+    };
+    url: '/v1/ip';
 };
 
-export type GetTxnHistoryResponses = {
+export type GetIpInfoResponses = {
     /**
      * OK
      */
     200: {
         code: number;
-        data: GetTokenHistoryResponse;
+        data: GetIpInfoResponse;
         displayError?: string;
         message: string;
         traceId: string;
     };
 };
 
-export type GetTxnHistoryResponse = GetTxnHistoryResponses[keyof GetTxnHistoryResponses];
+export type GetIpInfoResponse2 = GetIpInfoResponses[keyof GetIpInfoResponses];
 
 export type GetTokenListData = {
     body?: GetTokenListRequest;
     path?: never;
     query?: never;
-    url: '/api/wallet/v1/portfolio/list';
+    url: '/v1/list';
 };
 
 export type GetTokenListResponses = {
@@ -1367,7 +1339,7 @@ export type CheckServiceabilityData = {
     query?: {
         ipAddress?: string;
     };
-    url: '/api/wallet/v1/serviceability';
+    url: '/v1/serviceability';
 };
 
 export type CheckServiceabilityResponses = {
@@ -1384,3 +1356,30 @@ export type CheckServiceabilityResponses = {
 };
 
 export type CheckServiceabilityResponse2 = CheckServiceabilityResponses[keyof CheckServiceabilityResponses];
+
+export type GetTxnHistoryData = {
+    body?: never;
+    path?: never;
+    query?: {
+        address?: string;
+        chains?: Array<string>;
+        page_size?: number;
+        to_timestamp?: number;
+    };
+    url: '/v1/user/history_list';
+};
+
+export type GetTxnHistoryResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetTokenHistoryResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetTxnHistoryResponse = GetTxnHistoryResponses[keyof GetTxnHistoryResponses];

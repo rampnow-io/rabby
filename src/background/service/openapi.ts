@@ -1,4 +1,8 @@
-import { INITIAL_OPENAPI_URL, INITIAL_TESTNET_OPENAPI_URL } from '@/constant';
+import {
+  INITIAL_OPENAPI_URL,
+  INITIAL_TESTNET_OPENAPI_URL,
+  INITIAL_WALLET_API_URL,
+} from '@/constant';
 import { OpenApiService } from '@rabby-wallet/rabby-api';
 import { createPersistStore } from 'background/utils';
 export * from '@rabby-wallet/rabby-api/dist/types';
@@ -14,17 +18,20 @@ class baseStore {
     apiTime: number | null;
   };
 
-  constructor() {
+  constructor(
+    private storeName: string = 'openapi',
+    private defaultHost: string = INITIAL_OPENAPI_URL
+  ) {
     this.store = {
-      host: INITIAL_OPENAPI_URL,
+      host: defaultHost,
       testnetHost: INITIAL_TESTNET_OPENAPI_URL,
       apiKey: null,
       apiTime: null,
     };
     createPersistStore({
-      name: 'openapi',
+      name: storeName,
       template: {
-        host: INITIAL_OPENAPI_URL,
+        host: defaultHost,
         testnetHost: INITIAL_TESTNET_OPENAPI_URL,
         apiKey: null,
         apiTime: null,
@@ -88,25 +95,73 @@ const testnetStore = new (class TestnetStore extends baseStore {
   }
 })();
 
-const proxyStore = new baseStore();
+const openapiStore = new baseStore('openapi', INITIAL_OPENAPI_URL);
+const rampnowWalletApiStore = new baseStore(
+  'wallet-api',
+  INITIAL_WALLET_API_URL
+);
 
 if (!process.env.DEBUG) {
-  proxyStore.host = INITIAL_OPENAPI_URL;
-  proxyStore.testnetHost = INITIAL_TESTNET_OPENAPI_URL;
+  openapiStore.testnetHost = INITIAL_TESTNET_OPENAPI_URL;
+  rampnowWalletApiStore.testnetHost = INITIAL_TESTNET_OPENAPI_URL;
   testnetStore.host = INITIAL_TESTNET_OPENAPI_URL;
   testnetStore.testnetHost = INITIAL_TESTNET_OPENAPI_URL;
 }
 
-const service = new OpenApiService({
+const openapiService = new OpenApiService({
   plugin: WebSignApiPlugin,
   adapter: fetchAdapter,
-  store: proxyStore,
+  store: openapiStore,
 });
+const walletApiService = new OpenApiService({
+  plugin: WebSignApiPlugin,
+  adapter: fetchAdapter,
+  store: rampnowWalletApiStore,
+});
+
+// const service = new OpenApiService({
+//   plugin: WebSignApiPlugin,
+//   adapter: fetchAdapter,
+//   store: proxyStore,
+// });
 
 export const testnetOpenapiService = new OpenApiService({
   plugin: WebSignApiPlugin,
   adapter: fetchAdapter,
   store: testnetStore,
 });
+
+export { walletApiService };
+
+const WALLET_API_METHODS = new Set<keyof OpenApiService>([
+  'listTxHisotry',
+  'getTotalBalance',
+  'getToken',
+  'gasMarketV2',
+]);
+
+const service = new Proxy(openapiService, {
+  get(target, prop: string) {
+    const isWalletApi = WALLET_API_METHODS.has(prop as keyof OpenApiService);
+
+    if (isWalletApi) {
+      const method = (walletApiService as any)[prop];
+      if (typeof method !== 'function') {
+        return method?.bind(walletApiService);
+      }
+      return (...args: any[]) => {
+        return method.apply(walletApiService, args).then(
+          (res: any) => {
+            return res;
+          },
+          (err: any) => {
+            throw err;
+          }
+        );
+      };
+    }
+    return (target as any)[prop].bind(target);
+  },
+}) as OpenApiService;
 
 export default service;
