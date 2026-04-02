@@ -138,6 +138,8 @@ const WALLET_API_METHODS = new Set<keyof OpenApiService>([
   'getTotalBalance',
   'getToken',
   'gasMarketV2',
+  'gasPriceStats',
+  // 'preExecTx',
 ]);
 
 const service = new Proxy(openapiService, {

@@ -543,20 +543,6 @@ export const DirectSignGasInfo = ({
 
   const { gasCostUsdStr, gasAccountCost } = gasInfoByUI || {};
 
-  const gasCostUsd =
-    ctx?.gasMethod === 'gasAccount'
-      ? calcGasAccountUsd(
-          (gasAccountCost?.estimate_tx_cost || 0) +
-            Number(gasAccountCost?.gas_cost || 0)
-        )
-      : gasCostUsdStr;
-
-  const gasCostUsdDisplay =
-    gasCostUsd ||
-    (ctx?.selectedGasCost?.gasCostUsd
-      ? formatGasHeaderUsdValue(ctx.selectedGasCost.gasCostUsd.toString())
-      : '--');
-
   const gasTokenAmountDisplay = ctx?.selectedGasCost?.gasCostAmount
     ? formatTokenAmount(ctx.selectedGasCost.gasCostAmount.toString(), 6, true)
     : '';
