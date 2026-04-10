@@ -1975,6 +1975,8 @@ const SendToken = () => {
     }
   });
 
+  console.log('render send selectedGasLevel token page', { selectedGasLevel });
+
   return (
     <UIContainer>
       <Container>
@@ -2119,7 +2121,7 @@ const SendToken = () => {
           </Form>
         </Content>
         {/* Floating Bottom Area */}
-        <Action className="flex flex-col gap-2">
+        <Action className="flex flex-col gap-3">
           {chainItem?.serverId && canUseDirectSubmitTx ? (
             <ShowMoreOnSend chainServeId={chainItem?.serverId} open />
           ) : null}

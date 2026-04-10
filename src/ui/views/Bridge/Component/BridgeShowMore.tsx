@@ -797,7 +797,7 @@ export const DirectSignGasInfo = ({
               </ShowMoreGasSelectModal>
             </div>
             {/* Second row: Estimated fee label */}
-            <div className="text-xs text-r-neutral-foot">Estimated fee</div>
+            {/* <div className="text-xs text-r-neutral-foot">Estimated fee</div> */}
           </>
         ) : !loading && noQuote ? (
           <div>-</div>

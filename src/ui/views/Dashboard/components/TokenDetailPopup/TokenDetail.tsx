@@ -124,7 +124,7 @@ const TokenDetail = ({
     } finally {
       setEntityLoading(false);
     }
-  }, [token]);
+  }, [token.id, token.chain, wallet]);
 
   React.useEffect(() => {
     if (currentAccount) {
@@ -254,6 +254,7 @@ const TokenDetail = ({
     () => ['receive', 'send', 'exchange', 'buy'] as const,
     []
   );
+  let i = 0;
 
   return (
     <div className="token-detail">
@@ -366,7 +367,7 @@ const TokenDetail = ({
                     </div>
                     <div className=" truncate font-normal text-sm text-secondary-foreground">
                       {splitNumberByStep(
-                        (tokenWithAmount.amount || 0)?.toFixed(8)
+                        (Number(tokenWithAmount.amount) || 0)?.toFixed(8)
                       )}{' '}
                     </div>
                   </div>
@@ -378,7 +379,9 @@ const TokenDetail = ({
                     <div className="balance-value-usd truncate">
                       ≈ $
                       {splitNumberByStep(
-                        (tokenWithAmount.amount * token.price || 0)?.toFixed(2)
+                        (
+                          Number(tokenWithAmount.amount) * token.price || 0
+                        )?.toFixed(2)
                       )}
                     </div>
                   </div>

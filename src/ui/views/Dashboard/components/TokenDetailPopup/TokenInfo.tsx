@@ -226,16 +226,6 @@ const ChainAndName = ({
               {t('page.dashboard.tokenDetail.ContractAddress')}
             </span>
             <div className="flex flex-row items-center gap-1.5">
-              <span className="text-secondary-foreground text-[13px] font-light">
-                {ellipsis(token.id)}
-              </span>
-              <ThemeIcon
-                src={RcIconExternal}
-                className="w-[14px] cursor-pointer text-primary-foreground"
-                onClick={() => {
-                  handleClickLink(token);
-                }}
-              />
               <CopyField
                 value={token.id}
                 group={[4, 4]}

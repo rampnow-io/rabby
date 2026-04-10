@@ -1,10 +1,9 @@
 import { last } from 'lodash';
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import NoTokenIcon1 from '@/ui/assets/no-tokens-icon-1.svg';
 import { useAccount } from '@/ui/store-hooks';
-import { useInfiniteScroll } from 'ahooks';
 import { Modal } from 'ui/component';
 import { sleep, useWallet } from 'ui/utils';
 
@@ -33,16 +32,27 @@ export const HistoryList = ({
     focusingHistoryItem,
     setFocusingHistoryItem,
   ] = useState<HistoryItemActionContext | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<any>(null);
 
-  const getAllTxHistory = async (
-    params: Parameters<typeof wallet.openapi.getAllTxHistory>[0]
-  ) => {
-    const res = await wallet.openapi.getAllTxHistory(params);
-    if (res.history_list) {
-      res.history_list = res.history_list.filter((item) => !item.is_scam);
+  useEffect(() => {
+    const loadHistoryData = async () => {
+      setLoading(true);
+      try {
+        const res = await fetchData(0);
+        setData(res);
+      } catch (error) {
+        console.error('Error loading history:', error);
+        setData({ list: [], last: null });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (account) {
+      loadHistoryData();
     }
-    return res;
-  };
+  }, [account?.address, chainId, tokenId, pageCount]);
 
   const fetchData = async (startTime = 0) => {
     const { address } = account!;
@@ -81,15 +91,6 @@ export const HistoryList = ({
       last: last(list)?.time_at,
     };
   };
-
-  const { data, loading, loadingMore } = useInfiniteScroll(
-    (d) => fetchData(d?.last),
-    {
-      target: scrollRef,
-      isNoMore: (d) =>
-        isFilterScam ? true : !d?.last || (d?.list?.length || 0) < pageCount,
-    }
-  );
 
   const isEmpty = !loading && (data?.list?.length || 0) === 0;
 
@@ -173,8 +174,6 @@ export const HistoryList = ({
               </div>
             );
           })}
-
-          {loadingMore && <Loading count={2} active />}
         </div>
       )}
     </div>

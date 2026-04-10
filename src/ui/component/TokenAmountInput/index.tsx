@@ -192,6 +192,34 @@ const TokenAmountInput = ({
     return '$0.00';
   }, [token?.price, value]);
 
+  const getInputFontSize = (text: string) => {
+    const length = text.length;
+    if (length <= 5) return 'text-[35px]';
+    if (length <= 10) return 'text-[28px]';
+    if (length <= 15) return 'text-[22px]';
+    if (length <= 20) return 'text-[18px]';
+    return 'text-[14px]';
+  };
+
+  const getInputWidth = (t: string) => {
+    const text = t.split('.');
+    const length = text[1]?.length || 0;
+    if (length <= 5) return 'w-[80px]';
+    if (length <= 10) return 'w-[150px]';
+    if (length <= 15) return 'w-[190px]';
+    if (length <= 20) return 'w-[220px]';
+    return 'w-[230px]';
+  };
+
+  const filterDecimalPlaces = (text: string): string => {
+    const parts = text.split('.');
+    if (parts.length > 2) return text; // If more than one decimal point, return as is (regex should prevent this)
+    if (parts.length === 2 && parts[1].length > 18) {
+      return `${parts[0]}.${parts[1].slice(0, 18)}`;
+    }
+    return text;
+  };
+
   return (
     <>
       <Card className={className}>
@@ -242,11 +270,16 @@ const TokenAmountInput = ({
                   const next = e.target.value;
                   if (!INPUT_NUMBER_RE.test(next)) return;
                   const filtered = filterNumber(next);
-                  setLocalAmount(filtered);
-                  onChange?.(filtered);
+                  const withDecimalLimit = filterDecimalPlaces(filtered);
+                  setLocalAmount(withDecimalLimit);
+                  onChange?.(withDecimalLimit);
                 }}
-                className={'border-none p-0 outline-none w-[120px]'}
-                subClassName="text-[35px] text-center text-primary-foreground font-semibold bg-inherit"
+                className={`border-none p-0 outline-none transition-all duration-200 ${getInputWidth(
+                  localAmount
+                )}`}
+                subClassName={`text-center text-primary-foreground font-semibold bg-inherit transition-all duration-200 ${getInputFontSize(
+                  localAmount
+                )}`}
               />
 
               <span className="text-[10px] !mt-3 text-secondary-foreground font-medium">

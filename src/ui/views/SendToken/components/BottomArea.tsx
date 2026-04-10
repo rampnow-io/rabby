@@ -2,20 +2,90 @@ import React, { useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 
-import { getUiType } from 'ui/utils';
+import { formatTokenAmount } from 'ui/utils';
 import { DirectSignToConfirmBtn } from '@/ui/component/ToConfirmButton';
 import type { Account } from '@/background/service/preference';
 import BottomFloatingSheet from '@/ui/component/BottomFloatingPopup';
 import type { TokenItem } from '@/background/service/openapi';
 import type { Chain } from '@debank/common';
-import { ChevronDown } from 'lucide-react';
 
-import { ReactComponent as RcIconRiskAlert } from '@/ui/assets/send-token/risk-alert.svg';
 import { ReactComponent as RcIconCheckboxChecked } from '@/ui/assets/send-token/icon-checkbox-checked.svg';
 import { ReactComponent as RcIconCheckboxUncheck } from '@/ui/assets/send-token/icon-checkbox-uncheck.svg';
-import { Button, TooltipView } from '@repo/ui/primitives';
+import { Badge, Button, TooltipView } from '@repo/ui/primitives';
+import { useSignatureStore } from '@/ui/component/MiniSignV2/state';
+import { calcGasEstimated } from '@/utils/time';
+import { truncate } from '@repo/utils';
 
-const isTab = getUiType().isTab;
+const formatSmallValue = (
+  value: number | string | undefined | null,
+  options?: {
+    minDisplay?: number;
+    decimals?: number;
+    prefix?: string;
+  }
+) => {
+  const { minDisplay = 0.000001, decimals = 6, prefix = '' } = options || {};
+
+  if (value === null || value === undefined) {
+    return { formatted: null, isSmall: false, original: '' };
+  }
+
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+
+  if (isNaN(num)) return { formatted: null, isSmall: false, original: '' };
+  if (num === 0)
+    return { formatted: `${prefix}0`, isSmall: false, original: '' };
+
+  const isSmall = num > 0 && num < minDisplay;
+
+  return {
+    formatted: isSmall
+      ? `<${prefix}${minDisplay}`
+      : `${prefix}${num.toFixed(decimals)}`,
+    isSmall,
+    original: num.toString(),
+  };
+};
+
+const RANDOM_EMOJIS = [
+  '🐵',
+  '🐺',
+  '🦊',
+  '🐈',
+  '🦁',
+  '🐐',
+  '🐪',
+  '🦣',
+  '🦏',
+  '🐭',
+  '🦉',
+  '🦅',
+  '🦋',
+  '🐋',
+  '🐬',
+  '🐟',
+  '🐠',
+  '🐡',
+  '🦈',
+  '🐉',
+  '🐲',
+  '🦩',
+  '🐓',
+  '🦇',
+];
+
+const RANDOM_BG_COLORS = [
+  'bg-red-100',
+  'bg-blue-100',
+  'bg-green-100',
+  'bg-yellow-100',
+  'bg-purple-100',
+  'bg-pink-100',
+  'bg-indigo-100',
+  'bg-cyan-100',
+  'bg-orange-100',
+  'bg-teal-100',
+];
 
 export default function BottomArea({
   mostImportantRisks,
@@ -52,189 +122,225 @@ export default function BottomArea({
 }) {
   const { t } = useTranslation();
   const [showSheet, setShowSheet] = useState(false);
+  const { ctx } = useSignatureStore();
+
+  const randomEmoji = useMemo(
+    () => RANDOM_EMOJIS[Math.floor(Math.random() * RANDOM_EMOJIS.length)],
+    []
+  );
+  const randomBgColor = useMemo(
+    () => RANDOM_BG_COLORS[Math.floor(Math.random() * RANDOM_BG_COLORS.length)],
+    []
+  );
 
   const canSubmit =
     _canSubmit && (!mostImportantRisks.length || agreeRequiredChecked);
 
-  console.log('[BottomArea] canSubmit check:', {
-    _canSubmit,
-    mostImportantRisksLength: mostImportantRisks.length,
-    agreeRequiredChecked,
-    canSubmit,
-  });
+  // may be we can use in future when we want to show estimated fee in more places
+  // const gasTokenAmountDisplay = ctx?.selectedGasCost?.gasCostAmount
+  //   ? formatTokenAmount(ctx.selectedGasCost.gasCostAmount.toString(), 8, true)
+  //   : estimatedFee
+  //   ? formatTokenAmount(estimatedFee?.toString() || '0', 8, true)
+  //   : '0';
+
+  const gasFeeUSD = useMemo(() => {
+    if (!currentToken?.price) return null;
+    const gasFeeAmount = ctx?.selectedGasCost?.gasCostAmount
+      ? parseFloat(ctx.selectedGasCost.gasCostAmount.toString())
+      : parseFloat(estimatedFee?.toString() || '0');
+
+    return gasFeeAmount * currentToken.price;
+  }, [ctx?.selectedGasCost?.gasCostAmount, estimatedFee, currentToken?.price]);
+
+  const displayEstimatedTime = ctx?.selectedGas?.estimated_seconds
+    ? calcGasEstimated(ctx.selectedGas.estimated_seconds)
+    : estimatedTime;
+
+  const formattedAmount = useMemo(() => {
+    return formatSmallValue(amount, {
+      minDisplay: 0.000001,
+      decimals: 4,
+    });
+  }, [amount]);
+
+  const formattedGasUSD = useMemo(() => {
+    return formatSmallValue(gasFeeUSD, {
+      minDisplay: 0.01,
+      decimals: 2,
+      prefix: '$',
+    });
+  }, [gasFeeUSD]);
 
   return (
     <>
       <Button
-        onClick={() => {
-          if (canSubmit) {
-            setShowSheet(true);
-          }
-        }}
+        onClick={() => canSubmit && setShowSheet(true)}
         className="w-full"
         disabled={!canSubmit}
       >
         {t('page.sendToken.sendButton')}
       </Button>
 
-      {/* Bottom Sheet */}
-      <BottomFloatingSheet open={showSheet} onClose={() => setShowSheet(false)}>
+      <BottomFloatingSheet
+        hideCloseButton
+        open={showSheet}
+        onClose={() => setShowSheet(false)}
+      >
         <div className="space-y-5">
-          {/* Header - You're sending */}
-          <div>
-            <h2 className="text-[14px] font-normal text-secondary-foreground">
-              {"You're sending"}
-            </h2>
-          </div>
+          <h2 className="text-[14px] text-secondary-foreground">
+            {"You're sending"}
+          </h2>
 
-          {/* Amount and Token Display */}
           {currentToken && amount && (
-            <div className="flex items-start justify-between">
-              <div>
-                {/* Large Amount */}
-                <p className="text-base font-medium text-primary-foreground leading-tight">
-                  {amount} {currentToken.symbol}
-                </p>
-                {/* USD Value */}
-                {currentToken.price && (
-                  <p className="text-[12px] font-normal text-secondary-foreground mt-1">
-                    ${(parseFloat(amount) * currentToken.price).toFixed(2)}
+            <div className="flex justify-between">
+              <div className="pt-4">
+                {formattedAmount.isSmall ? (
+                  <TooltipView
+                    content={`${parseFloat(formattedAmount.original)} ${
+                      currentToken.symbol
+                    }`}
+                  >
+                    <p className="text-base font-medium text-primary-foreground leading-tight cursor-help border-b border-dashed">
+                      {formattedAmount.formatted} {currentToken.symbol}
+                    </p>
+                  </TooltipView>
+                ) : (
+                  <p className="text-base font-medium text-primary-foreground leading-tight">
+                    {formattedAmount.formatted} {currentToken.symbol}
                   </p>
                 )}
+
+                {currentToken.price &&
+                  (() => {
+                    const usdValue = parseFloat(amount) * currentToken.price;
+
+                    const formatted = formatSmallValue(usdValue, {
+                      minDisplay: 0.01,
+                      decimals: 2,
+                      prefix: '$',
+                    });
+
+                    return (
+                      <p className="text-[12px] text-secondary-foreground mt-1">
+                        {formatted.isSmall ? (
+                          <TooltipView variant="dark" content={`$${usdValue}`}>
+                            <span className="cursor">
+                              {formatted.formatted}
+                            </span>
+                          </TooltipView>
+                        ) : (
+                          formatted.formatted
+                        )}
+                      </p>
+                    );
+                  })()}
               </div>
-              {/* Avatar/Icon placeholder */}
-              <TooltipView content={toAddress || ''} side="top" variant="dark">
-                <div className="w-12 h-12 rounded-full bg-r-neutral-line flex items-center justify-center">
-                  <span className="text-[20px]">🐷</span>
+
+              <div className="flex flex-col items-end gap-2">
+                <div className="relative">
+                  <Badge className="bg-black hover:bg-black hover:text-white text-white rounded-full px-3 py-1">
+                    {truncate(toAddress, [7, 6])}
+                  </Badge>
+
+                  <div className="absolute -bottom-1.5 right-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-black" />
                 </div>
-              </TooltipView>
+
+                <div
+                  className={`w-12 h-12 rounded-full ${randomBgColor} flex items-center justify-center cursor-pointer`}
+                >
+                  <span className="text-base font-medium">{randomEmoji}</span>
+                </div>
+              </div>
             </div>
           )}
-          <div className="">
-            {/* Network Section */}
+          <div className="flex flex-col gap-3 p-3 bg-[#FAFAFA] rounded-[16px]">
             {chainItem && (
-              <div className=" pt-4">
-                <div className="flex items-center justify-between p-3 bg-r-neutral-bg1 rounded-lg cursor-pointer hover:bg-r-neutral-bg2">
-                  <div className="flex items-center gap-3">
-                    <span className="text-primary-foreground font-medium">
-                      Network
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {chainItem.logo && (
-                      <img
-                        src={chainItem.logo}
-                        alt={chainItem.name}
-                        className="w-5 h-5 rounded-full"
-                      />
-                    )}
-                    <span className="text-primary-foreground font-medium">
-                      {chainItem.name}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-r-neutral-bg1 rounded-lg cursor-pointer hover:bg-r-neutral-bg2">
-                  <div className="flex items-center gap-3">
-                    <span className="text-primary-foreground font-medium">
-                      Token
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {currentToken?.logo_url && (
-                      <img
-                        src={currentToken.logo_url}
-                        alt={currentToken.symbol}
-                        className="w-5 h-5 rounded-full"
-                      />
-                    )}
-                    <span className="text-primary-foreground font-medium">
-                      {currentToken?.symbol}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Estimated Fee Section */}
-            {estimatedFee && (
-              <div className="flex items-center justify-between p-3 bg-r-neutral-bg1 rounded-lg">
+              <div className="flex justify-between  rounded-lg">
+                <span>Network</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-primary-foreground font-medium">
-                    Estimated fee
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {chainItem && (
+                  {chainItem.logo && (
                     <img
                       src={chainItem.logo}
                       alt={chainItem.name}
                       className="w-5 h-5 rounded-full"
                     />
                   )}
-                  <span className="text-primary-foreground font-semibold">
-                    ${estimatedFee}
+                  <span className="text-primary-foreground font-medium">
+                    {chainItem.name}
                   </span>
-                  {estimatedTime && (
-                    <span className="text-secondary-foreground text-sm">
-                      ~ {estimatedTime}
+                </div>
+              </div>
+            )}
+            <div className="flex justify-between rounded-lg">
+              <span>Token</span>
+              <div className="flex items-center gap-2">
+                {currentToken?.logo_url && (
+                  <img
+                    src={currentToken.logo_url}
+                    alt={currentToken.symbol}
+                    className="w-5 h-5 rounded-full"
+                  />
+                )}
+                <span className="text-primary-foreground font-medium">
+                  {currentToken?.symbol}
+                </span>
+              </div>
+            </div>
+
+            {(estimatedFee || ctx?.selectedGasCost?.gasCostAmount) && (
+              <div className="flex justify-between  rounded-lg">
+                <span>Network fee</span>
+
+                <div className="flex items-end gap-1">
+                  {formattedGasUSD && (
+                    <p className="text-[12px] text-secondary-foreground">
+                      {formattedGasUSD.isSmall ? (
+                        <TooltipView variant="dark" content={`$${gasFeeUSD}`}>
+                          <span className="cursor">
+                            {formattedGasUSD.formatted}
+                          </span>
+                        </TooltipView>
+                      ) : (
+                        formattedGasUSD.formatted
+                      )}
+                    </p>
+                  )}
+
+                  {displayEstimatedTime && (
+                    <span className="text-sm text-secondary-foreground">
+                      {displayEstimatedTime}
                     </span>
                   )}
                 </div>
               </div>
             )}
           </div>
-
-          {/* Risks Section */}
           {!!mostImportantRisks.length && (
-            <div className="risks-wrapper">
-              {/* <div className="risks-alert bg-r-red-light p-[12px] rounded-[8px]">
-                {mostImportantRisks.map((risk) => (
-                  <div
-                    key={risk.value}
-                    className="flex items-center justify-center"
-                  >
-                    <RcIconRiskAlert width={20} height={20} />
-                    <span className={'risks-text ml-[8px] text-r-red-default'}>
-                      {risk.value}
-                    </span>
-                  </div>
-                ))}
-              </div> */}
-              <div
-                className={clsx(
-                  'risks-checkbox-line flex items-center justify-center mt-[9px]',
-                  !isSubmitLoading ? 'cursor-pointer' : 'cursor-disallow'
-                )}
-                onClick={() => {
-                  if (isSubmitLoading) return;
-                  onCheck(!agreeRequiredChecked);
-                }}
-              >
-                {agreeRequiredChecked ? (
-                  <RcIconCheckboxChecked width={24} height={24} />
-                ) : (
-                  <RcIconCheckboxUncheck width={24} height={24} />
-                )}
-                <span className="ml-[8px] text-r-neutral-foot">
-                  {t('page.sendToken.riskAlert.checkboxText')}
-                </span>
-              </div>
+            <div
+              className="flex items-center justify-center cursor-pointer"
+              onClick={() => !isSubmitLoading && onCheck(!agreeRequiredChecked)}
+            >
+              {agreeRequiredChecked ? (
+                <RcIconCheckboxChecked />
+              ) : (
+                <RcIconCheckboxUncheck />
+              )}
+              <span className="ml-2">
+                {t('page.sendToken.riskAlert.checkboxText')}
+              </span>
             </div>
           )}
 
-          <div>
-            <DirectSignToConfirmBtn
-              buttonClassName="text-[16px]"
-              title="Authorize"
-              onConfirm={() => {
-                onConfirm?.();
-                setShowSheet(false);
-              }}
-              disabled={!canSubmit}
-              accountType={currentAccount?.type}
-              loading={miniSignLoading}
-            />
-          </div>
+          <DirectSignToConfirmBtn
+            title="Authorize"
+            onConfirm={() => {
+              onConfirm?.();
+              setShowSheet(false);
+            }}
+            disabled={!canSubmit}
+            accountType={currentAccount?.type}
+            loading={miniSignLoading}
+          />
         </div>
       </BottomFloatingSheet>
     </>
