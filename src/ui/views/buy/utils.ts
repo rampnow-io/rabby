@@ -35,7 +35,7 @@ export const getPaymentModes = (
   orderTypeConfig: OrderTypeConfig | undefined,
   assetCode: string,
 ) => {
-  if (orderTypeConfig?.orderType === OrderType.SELL) {
+  if (orderTypeConfig && orderTypeConfig.orderType === OrderType.SELL) {
     return (
       Object.values(orderTypeConfig?.dstAssetConfig ?? {}).find(
         (asset) => asset.code === assetCode,
@@ -45,7 +45,7 @@ export const getPaymentModes = (
         (mode) =>
           orderTypeConfig?.paymentModeConfigMap[mode]?.status ===
             SettingStatus.ACTIVE &&
-          orderTypeConfig.paymentModeConfigMap[mode].payoutConfig?.status ===
+          orderTypeConfig?.paymentModeConfigMap[mode]?.payoutConfig?.status ===
             SettingStatus.ACTIVE,
       )
       .sort((a, b) => {
@@ -55,9 +55,10 @@ export const getPaymentModes = (
         )
       })
   } else if (
-    orderTypeConfig?.orderType === OrderType.BUY ||
-    orderTypeConfig?.orderType === OrderType.CROSS_BORDER
-  ) {
+    orderTypeConfig && (
+    orderTypeConfig.orderType === OrderType.BUY ||
+    orderTypeConfig.orderType === OrderType.CROSS_BORDER
+  )) {
     return (
       Object.values(orderTypeConfig?.srcAssetConfig ?? {}).find(
         (asset) => asset.code === assetCode,
@@ -67,11 +68,11 @@ export const getPaymentModes = (
         (mode) =>
           orderTypeConfig?.paymentModeConfigMap[mode]?.status ===
             SettingStatus.ACTIVE &&
-          orderTypeConfig.paymentModeConfigMap[mode].payinConfig?.status ===
+          orderTypeConfig?.paymentModeConfigMap[mode]?.payinConfig?.status ===
             SettingStatus.ACTIVE &&
-          orderTypeConfig.paymentModeConfigMap[
+          orderTypeConfig?.paymentModeConfigMap[
             mode
-          ].payinConfig.orderTypes.includes(orderTypeConfig.orderType),
+          ]?.payinConfig?.orderTypes.includes(orderTypeConfig.orderType),
       )
       .sort((a, b) => {
         return (
@@ -274,10 +275,15 @@ export const validateSrcAmount = (
     return { type: "invalid", message: `Invalid asset config` }
   }
 
-  let payinModeConfig =
-    orderTypeConfig.paymentModeConfigMap[payinMode].payinConfig
-  let payoutModeConfig =
-    orderTypeConfig.paymentModeConfigMap[payoutMode].payoutConfig
+  const payinModeEntry = orderTypeConfig.paymentModeConfigMap[payinMode]
+  const payoutModeEntry = orderTypeConfig.paymentModeConfigMap[payoutMode]
+  
+  if (!payinModeEntry || !payoutModeEntry) {
+    return { type: "invalid", message: `Invalid payment mode configuration` }
+  }
+
+  let payinModeConfig = payinModeEntry.payinConfig
+  let payoutModeConfig = payoutModeEntry.payoutConfig
 
   const orderRange = getOrderRange(
     [
@@ -287,7 +293,7 @@ export const validateSrcAmount = (
       dstAssetConfig,
       payoutModeConfig,
     ],
-    srcAssetConfig.exchangeRate,
+    srcAssetConfig.exchangeRate || "1",
   )
 
   if (Number(amount) < orderRange.minAmount) {
