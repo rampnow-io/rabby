@@ -1217,7 +1217,7 @@ const SwapAndBridgeContainer = () => {
             </>
           )}
           {!selectedBridgeQuote && !recommendFromToken && (
-            <div className="mt-20 mx-20">
+            <div className="mt-4 mx-4">
               {isSwap ? <PendingTxItem type="swap" /> : <BridgePendingTxItem />}
             </div>
           )}

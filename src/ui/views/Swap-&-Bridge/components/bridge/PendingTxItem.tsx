@@ -105,9 +105,9 @@ const TokenWithChain = ({ token, chain }: { token: string; chain: string }) => {
   const chainItem = findChain({ serverId: chain }) || null;
 
   return (
-    <div className="relative w-20 h-20">
+    <div className="relative w-10 h-10">
       <Image
-        className="w-20 h-20 rounded-full"
+        className="w-10 h-10 rounded-full"
         src={token}
         fallback={IconUnknown}
         preview={false}
@@ -117,7 +117,7 @@ const TokenWithChain = ({ token, chain }: { token: string; chain: string }) => {
         className="rectangle w-[max-content]"
       >
         <img
-          className="w-12 h-12 absolute right-[-4px] top-[-4px] rounded-full"
+          className="w-4 h-4 absolute right-[-2px] top-[-2px] rounded-full"
           src={chainItem?.logo || IconUnknown}
           alt={chainItem?.name}
         />
