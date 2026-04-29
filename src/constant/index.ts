@@ -508,8 +508,8 @@ export const INITIAL_OPENAPI_URL = 'https://api.rabby.io';
 
 export const INITIAL_TESTNET_OPENAPI_URL = 'https://api.testnet.rabby.io';
 
-// export const INITIAL_WALLET_API_URL = 'http://localhost:3000';
-export const INITIAL_WALLET_API_URL = 'https://app.dev.rampnow.io';
+export const INITIAL_WALLET_API_URL = 'http://localhost:3000';
+// export const INITIAL_WALLET_API_URL = 'https://app.dev.rampnow.io';
 
 export const EVENTS = {
   broadcastToUI: 'broadcastToUI',

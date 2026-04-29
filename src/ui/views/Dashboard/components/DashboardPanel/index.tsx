@@ -40,6 +40,7 @@ export const DashboardPanel: React.FC<{
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { data, apps, setData } = useCommonPopupView();
   const addTokenEntryRef = React.useRef<AddTokenEntryInst>(null);
+  const networkMenuRef = React.useRef<HTMLDivElement>(null);
 
   // Get chain data from useCurrentBalance hook
   const {
@@ -145,6 +146,29 @@ export const DashboardPanel: React.FC<{
       isEmptyAssets: displayChainBalances?.length === 0,
     });
   }, [displayChainBalances, fallbackChains, setData]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: PointerEvent) => {
+      if (!showNetworkMenu || !networkMenuRef.current) {
+        return;
+      }
+
+      const eventPath = event.composedPath();
+      const isInsideNetworkMenu = eventPath.includes(networkMenuRef.current);
+
+      if (!isInsideNetworkMenu) {
+        setShowNetworkMenu(false);
+      }
+    };
+
+    // Capture phase ensures this runs even when other popovers stop propagation.
+    document.addEventListener('pointerdown', handleClickOutside, true);
+
+    return () => {
+      document.removeEventListener('pointerdown', handleClickOutside, true);
+    };
+  }, [showNetworkMenu]);
+
   return (
     <div className="bg-white rounded-t-[24px] px-[16px] pt-[14px] pb-[12px] flex flex-col h-full">
       <Tabs defaultValue="asset" className="flex flex-col h-full">
@@ -159,7 +183,7 @@ export const DashboardPanel: React.FC<{
           </TabsList>
 
           <div className="flex items-center gap-3">
-            <div className="relative z-50">
+            <div ref={networkMenuRef} className="relative z-50">
               <button
                 onClick={() => setShowNetworkMenu(!showNetworkMenu)}
                 className={clsx(
