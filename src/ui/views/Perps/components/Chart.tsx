@@ -19,19 +19,27 @@ import {
 } from '@rabby-wallet/hyperliquid-sdk';
 import { getPerpsSDK } from '../sdkManager';
 import { useThemeMode } from '@/ui/hooks/usePreference';
-import { CANDLE_MENU_KEY } from '../constants';
+import {
+  CANDLE_MENU_KEY,
+  CANDLE_MENU_KEY_V2,
+  CandlePeriod,
+} from '../constants';
 import clsx from 'clsx';
 import { MarketData } from '@/ui/models/perps';
 import { useTranslation } from 'react-i18next';
-// local formatter to avoid cross-screen import
+import dayjs from 'dayjs';
+import { splitNumberByStep, useWallet } from '@/ui/utils';
+import { obj2query } from '@/ui/utils/url';
+import { useRabbySelector } from '@/ui/store';
+import { ReactComponent as RcIconFullscreen } from '@/ui/assets/perps/Iconfullscreen.svg';
+
 const formatPercent = (value: number, decimals = 8) => {
   return `${(value * 100).toFixed(decimals)}%`;
 };
-import { splitNumberByStep } from '@/ui/utils';
 
 export type ChartProps = {
   coin: string;
-  candleMenuKey: CANDLE_MENU_KEY;
+  candleMenuKey: CANDLE_MENU_KEY_V2;
   lineTagInfo: {
     tpPrice: number;
     slPrice: number;
@@ -60,22 +68,22 @@ const containerStyle: React.CSSProperties = {
   position: 'relative',
 };
 
-const getInterval = (candleMenuKey: CANDLE_MENU_KEY): string => {
+const getInterval = (candleMenuKey: CANDLE_MENU_KEY_V2) => {
   switch (candleMenuKey) {
-    case CANDLE_MENU_KEY.ONE_HOUR:
-      return '1m';
-    case CANDLE_MENU_KEY.ONE_DAY:
-      return '1h';
-    case CANDLE_MENU_KEY.ONE_WEEK:
-      return '4h';
-    case CANDLE_MENU_KEY.ONE_MONTH:
-      return '12h';
-    case CANDLE_MENU_KEY.YTD:
-      return '1d';
-    case CANDLE_MENU_KEY.ALL:
-      return '1d';
+    case CANDLE_MENU_KEY_V2.FIVE_MINUTES:
+      return CandlePeriod.FIVE_MINUTES;
+    case CANDLE_MENU_KEY_V2.FIFTEEN_MINUTES:
+      return CandlePeriod.FIFTEEN_MINUTES;
+    case CANDLE_MENU_KEY_V2.ONE_HOUR:
+      return CandlePeriod.ONE_HOUR;
+    case CANDLE_MENU_KEY_V2.FOUR_HOURS:
+      return CandlePeriod.FOUR_HOURS;
+    case CANDLE_MENU_KEY_V2.ONE_DAY:
+      return CandlePeriod.ONE_DAY;
+    case CANDLE_MENU_KEY_V2.ONE_WEEK:
+      return CandlePeriod.ONE_WEEK;
     default:
-      return '1d';
+      return CandlePeriod.FIVE_MINUTES;
   }
 };
 
@@ -84,6 +92,21 @@ type CandleBar = CandlestickData<UTCTimestamp>;
 const toUtc = (t: number): UTCTimestamp => Math.floor(t) as UTCTimestamp;
 
 const padZero = (value: number) => String(value).padStart(2, '0');
+
+const MONTHS = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
 
 const timeToDate = (time: Time): Date => {
   if (typeof time === 'number') {
@@ -97,19 +120,22 @@ const timeToDate = (time: Time): Date => {
   return new Date(year, (month || 1) - 1, day || 1);
 };
 
-const formatLocalDateTime = (time: Time): string => {
+const formatLocalDateTime = (time: Time, noTime = false): string => {
   const date = timeToDate(time);
-  const year = date.getFullYear();
-  const month = padZero(date.getMonth() + 1);
-  const day = padZero(date.getDate());
-  const hours = padZero(date.getHours());
-  const minutes = padZero(date.getMinutes());
-  return `${year}-${month}-${day} ${hours}:${minutes}`;
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  if (noTime) {
+    return dayjs(date).format('YYYY/MM/DD');
+  }
+
+  return dayjs(date).format('YYYY/MM/DD HH:mm');
 };
 
 const formatTickLabel = (date: Date, tickMarkType: TickMarkType): string => {
-  const year = date.getFullYear();
-  const month = padZero(date.getMonth() + 1);
+  const year = String(date.getFullYear()).slice(-2);
+  const mon = MONTHS[date.getMonth()];
   const day = padZero(date.getDate());
   const hours = padZero(date.getHours());
   const minutes = padZero(date.getMinutes());
@@ -117,25 +143,25 @@ const formatTickLabel = (date: Date, tickMarkType: TickMarkType): string => {
 
   switch (tickMarkType) {
     case TickMarkType.Year:
-      return String(year);
+      return String(date.getFullYear());
     case TickMarkType.Month:
-      return `${year}-${month}`;
+      return `${mon} '${year}`;
     case TickMarkType.DayOfMonth:
-      return `${month}-${day}`;
+      return `${day} ${mon}`;
     case TickMarkType.TimeWithSeconds:
       return `${hours}:${minutes}:${seconds}`;
     case TickMarkType.Time:
       return `${hours}:${minutes}`;
     default:
-      return `${year}-${month}-${day}`;
+      return `${day} ${mon} '${year}`;
   }
 };
 
-const createTimeLocalization = () => {
+const createTimeLocalization = (noTime = false) => {
   const formatTick = (time: Time, tickMarkType: TickMarkType): string =>
     formatTickLabel(timeToDate(time), tickMarkType);
 
-  const formatHover = (time: Time): string => formatLocalDateTime(time);
+  const formatHover = (time: Time): string => formatLocalDateTime(time, noTime);
 
   return {
     locale: 'en-US',
@@ -161,6 +187,45 @@ const parseCandles = (data: CandleSnapshot): CandleBar[] => {
   });
 
   return result;
+};
+
+// Get the Monday 00:00 UTC timestamp for the week containing the given timestamp
+const getMondayUtc = (utcSeconds: number): UTCTimestamp => {
+  const date = new Date(utcSeconds * 1000);
+  const day = date.getUTCDay(); // 0=Sun,1=Mon,...,6=Sat
+  const diffDays = day === 0 ? -6 : 1 - day;
+  date.setUTCDate(date.getUTCDate() + diffDays);
+  date.setUTCHours(0, 0, 0, 0);
+  return Math.floor(date.getTime() / 1000) as UTCTimestamp;
+};
+
+// Aggregate daily candles into Monday-start weekly candles with correct OHLC
+const aggregateDailyToWeekly = (dailyCandles: CandleBar[]): CandleBar[] => {
+  if (dailyCandles.length === 0) return [];
+
+  const weeks = new Map<number, CandleBar>();
+
+  for (const candle of dailyCandles) {
+    const mondayTs = getMondayUtc(candle.time as number);
+    const existing = weeks.get(mondayTs);
+    if (existing) {
+      existing.high = Math.max(existing.high, candle.high);
+      existing.low = Math.min(existing.low, candle.low);
+      existing.close = candle.close;
+    } else {
+      weeks.set(mondayTs, {
+        time: mondayTs,
+        open: candle.open,
+        high: candle.high,
+        low: candle.low,
+        close: candle.close,
+      });
+    }
+  }
+
+  return Array.from(weeks.values()).sort(
+    (a, b) => (a.time as number) - (b.time as number)
+  );
 };
 
 const getThemeColors = (isDark: boolean) =>
@@ -190,7 +255,7 @@ const getThemeColors = (isDark: boolean) =>
 
 const LightweightKlineChart: React.FC<ChartProps> = ({
   coin = 'ETH',
-  candleMenuKey = CANDLE_MENU_KEY.ONE_DAY,
+  candleMenuKey = CANDLE_MENU_KEY_V2.ONE_DAY,
   lineTagInfo,
   pxDecimals,
   onHoverData,
@@ -207,8 +272,12 @@ const LightweightKlineChart: React.FC<ChartProps> = ({
     entry?: IPriceLine;
   }>({});
   const isMountedRef = useRef(true);
+  const currentWeekCandleRef = useRef<CandleBar | null>(null);
   const colors = useMemo(() => getThemeColors(isDarkTheme), [isDarkTheme]);
-  const timeLocalization = useMemo(() => createTimeLocalization(), []);
+  const isWeekly = candleMenuKey === CANDLE_MENU_KEY_V2.ONE_WEEK;
+  const timeLocalization = useMemo(() => createTimeLocalization(isWeekly), [
+    isWeekly,
+  ]);
 
   // Update price lines function
   const updatePriceLines = useCallback(() => {
@@ -412,28 +481,32 @@ const LightweightKlineChart: React.FC<ChartProps> = ({
       const sdk = getPerpsSDK();
       if (!seriesRef.current) return;
 
+      const isWeekly = candleMenuKey === CANDLE_MENU_KEY_V2.ONE_WEEK;
       let start = 0;
       let end = Date.now();
-      const interval = getInterval(candleMenuKey);
+      // For weekly: fetch daily candles and aggregate client-side to start weeks on Monday
+      const interval = isWeekly
+        ? CandlePeriod.ONE_DAY
+        : getInterval(candleMenuKey);
 
       switch (candleMenuKey) {
-        case CANDLE_MENU_KEY.ONE_HOUR:
-          start = end - 1 * 60 * 60 * 1000;
+        case CANDLE_MENU_KEY_V2.FIVE_MINUTES:
+          start = end - 1 * 24 * 60 * 60 * 1000; // 1 day
           break;
-        case CANDLE_MENU_KEY.ONE_DAY:
-          start = end - 1 * 24 * 60 * 60 * 1000;
+        case CANDLE_MENU_KEY_V2.FIFTEEN_MINUTES:
+          start = end - 7 * 24 * 60 * 60 * 1000; // 1 week
           break;
-        case CANDLE_MENU_KEY.ONE_WEEK:
-          start = end - 1 * 7 * 24 * 60 * 60 * 1000;
+        case CANDLE_MENU_KEY_V2.ONE_HOUR:
+          start = end - 1 * 30 * 24 * 60 * 60 * 1000; // 1 month
           break;
-        case CANDLE_MENU_KEY.ONE_MONTH:
-          start = end - 1 * 30 * 24 * 60 * 60 * 1000;
+        case CANDLE_MENU_KEY_V2.FOUR_HOURS:
+          start = end - 4 * 30 * 24 * 60 * 60 * 1000; // 4 months
           break;
-        case CANDLE_MENU_KEY.YTD:
-          start = new Date(new Date().getFullYear(), 0, 1).getTime();
+        case CANDLE_MENU_KEY_V2.ONE_DAY:
+          start = end - 12 * 30 * 24 * 60 * 60 * 1000; // 1 years;
           end = Date.now();
           break;
-        case CANDLE_MENU_KEY.ALL:
+        case CANDLE_MENU_KEY_V2.ONE_WEEK:
           start = 0;
           end = Date.now();
           break;
@@ -447,11 +520,18 @@ const LightweightKlineChart: React.FC<ChartProps> = ({
       );
       if (aborted || !isMountedRef.current) return;
 
-      const candles = parseCandles(snapshot);
+      const dailyCandles = parseCandles(snapshot);
+      const candles = isWeekly
+        ? aggregateDailyToWeekly(dailyCandles)
+        : dailyCandles;
+
       if (candles.length > 0 && seriesRef.current) {
         seriesRef.current.setData(candles);
-        chartRef.current?.timeScale().fitContent();
-        // Update price lines after data is loaded
+        if (isWeekly) {
+          currentWeekCandleRef.current = {
+            ...candles[candles.length - 1],
+          };
+        }
         updatePriceLines();
       }
     },
@@ -472,17 +552,43 @@ const LightweightKlineChart: React.FC<ChartProps> = ({
     const sdk = getPerpsSDK();
     if (!seriesRef.current) return;
 
-    const interval = getInterval(candleMenuKey);
+    const isWeekly = candleMenuKey === CANDLE_MENU_KEY_V2.ONE_WEEK;
+    // Subscribe to daily candles in weekly mode for correct Monday-based aggregation
+    const interval = isWeekly
+      ? CandlePeriod.ONE_DAY
+      : getInterval(candleMenuKey);
     console.log('subscribeCandle', coin, interval);
     const { unsubscribe } = sdk.ws.subscribeToCandles(
       coin,
       interval,
       (snapshot) => {
-        // Check if component is still mounted before updating
         if (!isMountedRef.current || !seriesRef.current) return;
 
         const candles = parseCandles([snapshot]);
-        if (candles.length > 0) {
+        if (candles.length === 0) return;
+
+        if (isWeekly) {
+          const daily = candles[0];
+          const mondayTs = getMondayUtc(daily.time as number);
+          const current = currentWeekCandleRef.current;
+
+          if (current && current.time === mondayTs) {
+            // Same week: merge high/low, update close
+            current.high = Math.max(current.high, daily.high);
+            current.low = Math.min(current.low, daily.low);
+            current.close = daily.close;
+          } else {
+            // New week starts
+            currentWeekCandleRef.current = {
+              time: mondayTs,
+              open: daily.open,
+              high: daily.high,
+              low: daily.low,
+              close: daily.close,
+            };
+          }
+          seriesRef.current?.update(currentWeekCandleRef.current!);
+        } else {
           seriesRef.current?.update(candles[0]);
         }
       }
@@ -545,10 +651,11 @@ export const PerpsChart = ({
   };
 }) => {
   const { t } = useTranslation();
+  const wallet = useWallet();
   const [
     selectedInterval,
     setSelectedInterval,
-  ] = React.useState<CANDLE_MENU_KEY>(CANDLE_MENU_KEY.ONE_DAY);
+  ] = React.useState<CANDLE_MENU_KEY_V2>(CANDLE_MENU_KEY_V2.FIFTEEN_MINUTES);
 
   // 状态用于存储图表的悬停数据
   const [chartHoverData, setChartHoverData] = React.useState<ChartHoverData>({
@@ -557,31 +664,31 @@ export const PerpsChart = ({
   const CANDLE_MENU_ITEM = useMemo(
     () => [
       {
-        label: t('page.perps.candleMenuKey.oneHour'),
-        key: CANDLE_MENU_KEY.ONE_HOUR,
+        label: '5M',
+        key: CANDLE_MENU_KEY_V2.FIVE_MINUTES,
       },
       {
-        label: t('page.perps.candleMenuKey.oneDay'),
-        key: CANDLE_MENU_KEY.ONE_DAY,
+        label: '15M',
+        key: CANDLE_MENU_KEY_V2.FIFTEEN_MINUTES,
       },
       {
-        label: t('page.perps.candleMenuKey.oneWeek'),
-        key: CANDLE_MENU_KEY.ONE_WEEK,
+        label: '1H',
+        key: CANDLE_MENU_KEY_V2.ONE_HOUR,
       },
       {
-        label: t('page.perps.candleMenuKey.oneMonth'),
-        key: CANDLE_MENU_KEY.ONE_MONTH,
+        label: '4H',
+        key: CANDLE_MENU_KEY_V2.FOUR_HOURS,
       },
       {
-        label: t('page.perps.candleMenuKey.ytd'),
-        key: CANDLE_MENU_KEY.YTD,
+        label: '1D',
+        key: CANDLE_MENU_KEY_V2.ONE_DAY,
       },
       {
-        label: t('page.perps.candleMenuKey.all'),
-        key: CANDLE_MENU_KEY.ALL,
+        label: '1W',
+        key: CANDLE_MENU_KEY_V2.ONE_WEEK,
       },
     ],
-    [t]
+    []
   );
 
   const dayDelta = useMemo(() => {
@@ -606,8 +713,32 @@ export const PerpsChart = ({
     return currentAssetCtx?.pxDecimals || 2;
   }, [currentAssetCtx]);
 
+  const currentPerpsAccount = useRabbySelector(
+    (state) => state.perps.currentPerpsAccount
+  );
+
   return (
-    <div className={clsx('bg-r-neutral-card1 rounded-[12px] p-16 mb-20')}>
+    <div
+      className={clsx('bg-r-neutral-card1 rounded-[12px] p-16 mb-20 relative')}
+    >
+      {!chartHoverData.visible && (
+        <div
+          className="absolute top-12 right-12 cursor-pointer text-r-neutral-body p-4 rounded-[4px] hover:bg-r-neutral-bg3"
+          onClick={() => {
+            if (currentPerpsAccount) {
+              wallet.setPerpsCurrentAccount(currentPerpsAccount);
+              wallet.switchDesktopPerpsAccount(currentPerpsAccount);
+            }
+            wallet.openInDesktop(
+              `/desktop/perps?${obj2query({
+                coin: coin,
+              })}`
+            );
+          }}
+        >
+          <RcIconFullscreen className="text-r-neutral-body" />
+        </div>
+      )}
       <div className="text-center mb-8">
         {chartHoverData.visible ? (
           <div>

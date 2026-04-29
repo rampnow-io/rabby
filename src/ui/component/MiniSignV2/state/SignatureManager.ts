@@ -1,12 +1,10 @@
-import { useSyncExternalStore } from 'use-sync-external-store/shim';
-
 import { hasConnectedLedgerDevice } from '@/ui/utils';
 
 import type { WalletControllerType } from '@/ui/utils';
 import type { GasLevel } from '@rabby-wallet/rabby-api/dist/types';
 import type { SignerConfig } from '@/ui/component/MiniSignV2/domain/types';
 import type { SignerCtx } from '@/ui/component/MiniSignV2/domain/ctx';
-import type { Tx } from '@rabby-wallet/rabby-api/dist/types';
+import type { TokenItem, Tx } from '@rabby-wallet/rabby-api/dist/types';
 
 import type {
   SignatureAction,
@@ -23,7 +21,8 @@ import { CHAINS_ENUM, EVENTS, KEYRING_CLASS, KEYRING_TYPE } from '@/constant';
 import eventBus from '@/eventBus';
 import { findChain } from '@/utils/chain';
 import { t } from 'i18next';
-import { ModalProps } from 'antd';
+import { DrawerProps, ModalProps } from 'antd';
+import BigNumber from 'bignumber.js';
 
 const ETH_GAS_USD_LIMIT = 15;
 const OTHER_GAS_USD_LIMIT = 5;
@@ -33,6 +32,7 @@ export const MINI_SIGN_ERROR = {
   PREFETCH_FAILURE: 'prepare failure',
   USER_CANCELLED: 'User cancelled',
   CANT_PROCESS: 'Can not process',
+  GAS_NOT_ENOUGH: 'Gas not enough',
 };
 
 type Subscriber = (state: SignatureFlowState) => void;
@@ -51,7 +51,18 @@ const defaultError = {
 const createErrorMessage = (err: unknown) =>
   err instanceof Error ? err.message : String(err ?? 'Unknown error');
 
-class SignatureManager {
+let nextInstanceId = 0;
+
+export class SignatureManager {
+  public readonly instanceId: string;
+  constructor(
+    private readonly options?: {
+      onReset?: () => void;
+    },
+    instanceId?: string
+  ) {
+    this.instanceId = instanceId ?? `sig-${++nextInstanceId}`;
+  }
   private state: SignatureFlowState = {
     status: 'idle',
   };
@@ -64,6 +75,10 @@ class SignatureManager {
     resolve: (hashes: string[]) => void;
     reject: (reason: any) => void;
   } | null = null;
+  private pauseRequested = false;
+  private signedHashes: string[] = [];
+  private pausedIndex = 0;
+  private pauseAfterThreshold: number | null = null;
 
   private dispatch(action: SignatureAction) {
     const next = signatureReducer(this.state, action);
@@ -101,6 +116,12 @@ class SignatureManager {
     return chainInfo?.enum === CHAINS_ENUM.ETH
       ? ETH_GAS_USD_LIMIT
       : OTHER_GAS_USD_LIMIT;
+  }
+
+  private isPreExecResultFailed() {
+    return this?.state.ctx?.txsCalc.some(
+      (r) => !r?.preExecResult?.pre_exec?.success
+    );
   }
 
   private isGasFeeTooHighFor(
@@ -202,6 +223,7 @@ class SignatureManager {
 
   private createSkeletonCtx(txs: Tx[], fingerprint: string): SignerCtx {
     const chainId = txs[0]?.chainId || 0;
+    const chain = findChain({ id: chainId });
     return {
       fingerprint,
       open: true,
@@ -213,7 +235,15 @@ class SignatureManager {
       selectedGas: null,
       txsCalc: [],
       nativeTokenPrice: 0,
-      nativeTokenBalance: '0x0',
+      nativeTokenBalance: '0',
+      gasToken: chain
+        ? {
+            tokenId: chain.nativeTokenAddress,
+            symbol: chain.nativeTokenSymbol,
+            decimals: chain.nativeTokenDecimals || 18,
+            logoUrl: chain.nativeTokenLogo,
+          }
+        : undefined,
       checkErrors: [],
       gasless: undefined,
       gasAccount: undefined,
@@ -284,16 +314,16 @@ class SignatureManager {
     return !disabledProcess;
   }
 
-  public getState() {
+  public getState = () => {
     return this.state;
-  }
+  };
 
-  public subscribe(fn: Subscriber) {
+  public subscribe = (fn: Subscriber) => {
     this.subscribers.push(fn);
     return () => {
       this.subscribers = this.subscribers.filter((e) => e !== fn);
     };
-  }
+  };
 
   public prefetch(request: SignatureRequest, wallet: WalletControllerType) {
     this.close();
@@ -390,23 +420,67 @@ class SignatureManager {
     return this.updateGas(gas, wallet);
   }
 
+  public replaceTxs(nextTxs: Tx[]) {
+    const { ctx, fingerprint } = this.state;
+    if (!ctx || !fingerprint) return;
+
+    const nextCalc = ctx.txsCalc.map((item, index) => {
+      const nextTx = nextTxs[index];
+      if (!nextTx) {
+        return item;
+      }
+
+      return {
+        ...item,
+        tx: {
+          ...item.tx,
+          nonce: nextTx.nonce ?? item.tx.nonce,
+        },
+      };
+    });
+
+    this.dispatch({
+      type: 'UPDATE_CTX',
+      fingerprint,
+      ctx: {
+        ...ctx,
+        txs: nextTxs,
+        txsCalc: nextCalc,
+      } as SignerCtx,
+    });
+  }
+
   public async send({
     wallet,
     retry,
     getContainer,
+    pauseAfter,
+    isHideErrorUI,
   }: {
     wallet: WalletControllerType;
     retry?: boolean;
-    getContainer?: ModalProps['getContainer'];
+    getContainer?: ModalProps['getContainer'] | DrawerProps['getContainer'];
+    pauseAfter?: number;
+    isHideErrorUI?: boolean;
   }) {
+    this.pauseAfterThreshold =
+      typeof pauseAfter === 'number' ? pauseAfter : this.pauseAfterThreshold;
     const { ctx, config, fingerprint } = this.state;
     if (!ctx || !config || !fingerprint) {
       throw new Error('Signature is not ready');
     }
     if (!this.canProcess()) {
-      this.rejectPending(MINI_SIGN_ERROR.CANT_PROCESS);
-      throw MINI_SIGN_ERROR.CANT_PROCESS;
+      if (ctx.isGasNotEnough) {
+        this.rejectPending(MINI_SIGN_ERROR.GAS_NOT_ENOUGH);
+        throw MINI_SIGN_ERROR.GAS_NOT_ENOUGH;
+      } else {
+        this.rejectPending(MINI_SIGN_ERROR.CANT_PROCESS);
+        throw MINI_SIGN_ERROR.CANT_PROCESS;
+      }
     }
+    this.pauseRequested = false;
+    this.pausedIndex = 0;
+    this.signedHashes = [];
     const opId = this.markRun(fingerprint);
     if (config.account.type === KEYRING_TYPE.HdKeyring) {
       try {
@@ -427,6 +501,11 @@ class SignatureManager {
         ctx,
         config,
         retry,
+        shouldPause: (idx, signedCount) =>
+          this.pauseRequested ||
+          (typeof this.pauseAfterThreshold === 'number' &&
+            this.pauseAfterThreshold >= 0 &&
+            signedCount >= this.pauseAfterThreshold),
         onProgress: (nextCtx) => {
           if (!this.isActive(opId, fingerprint)) return;
           this.dispatch({ type: 'SEND_PROGRESS', fingerprint, ctx: nextCtx });
@@ -439,12 +518,38 @@ class SignatureManager {
         this.resolvePending(hashes);
         return hashes;
       }
-      if (res.error) {
+      if ((res as any).paused) {
+        const paused = res as {
+          paused: true;
+          partial: { txHash: string }[];
+          currentIndex: number;
+        };
+        this.signedHashes = paused.partial.map((p) => p.txHash);
+        this.pausedIndex = paused.currentIndex;
         this.dispatch({
-          type: 'SEND_FAILURE',
+          type: 'SEND_PAUSED',
           fingerprint,
-          error: res.error,
+          ctx: {
+            ...(this.state.ctx || ctx),
+            signInfo: {
+              currentTxIndex: this.pausedIndex,
+              totalTxs: ctx.txs.length,
+              status: 'signing',
+            },
+          } as SignerCtx,
         });
+        return this.signedHashes;
+      }
+      if ((res as any).error) {
+        if (isHideErrorUI) {
+          this.rejectPending((res as any).error.description);
+        } else {
+          this.dispatch({
+            type: 'SEND_FAILURE',
+            fingerprint,
+            error: (res as any).error,
+          });
+        }
         return res;
       }
 
@@ -470,6 +575,10 @@ class SignatureManager {
   // }
 
   public reset() {
+    this.pauseRequested = false;
+    this.signedHashes = [];
+    this.pausedIndex = 0;
+    this.pauseAfterThreshold = null;
     this.clearRunState();
     this.seq++;
     if (this.pendingResult) {
@@ -477,6 +586,7 @@ class SignatureManager {
       this.pendingResult = null;
     }
     this.dispatch({ type: 'RESET' });
+    this.options?.onReset?.();
   }
 
   public updateConfig(config: Partial<SignerConfig>) {
@@ -485,6 +595,25 @@ class SignatureManager {
 
   public close() {
     this.reset();
+  }
+
+  public pause() {
+    this.pauseRequested = true;
+  }
+
+  public async resume({
+    wallet,
+    getContainer,
+  }: {
+    wallet: WalletControllerType;
+    getContainer?: ModalProps['getContainer'];
+  }) {
+    const { ctx, config, fingerprint } = this.state;
+    if (!ctx || !config || !fingerprint) {
+      throw new Error('Signature is not ready');
+    }
+    this.pauseRequested = false;
+    return this.send({ wallet, getContainer });
   }
 
   private async checkHardWareConnected(cb: () => void) {
@@ -515,8 +644,12 @@ class SignatureManager {
 
   public async openDirect(
     request: SignatureRequest,
-    wallet: WalletControllerType
+    wallet: WalletControllerType,
+    opts?: { pauseAfter?: number; isHideErrorUI?: boolean }
   ) {
+    if (opts?.pauseAfter !== undefined) {
+      this.pauseAfterThreshold = opts.pauseAfter;
+    }
     const fingerprint = this.getFingerprint(request.txs);
     const resultPromise = this.createResultPromise();
     if (this.state.status === 'prefetch_failure') {
@@ -536,6 +669,12 @@ class SignatureManager {
         this.pendingCtx.get(fingerprint) ||
         this.ensureContext(request, wallet, this.run?.id);
       await prepared;
+
+      if (this.isPreExecResultFailed()) {
+        this.rejectPending(MINI_SIGN_ERROR.PREFETCH_FAILURE);
+        return resultPromise;
+      }
+
       if (this.isGasFeeTooHighFor(this.state.ctx, this.state.config)) {
         this.rejectPending(MINI_SIGN_ERROR.GAS_FEE_TOO_HIGH);
         return resultPromise;
@@ -550,7 +689,9 @@ class SignatureManager {
       });
 
       await this.checkHardWareConnected(() =>
-        this.send({ wallet }).catch(() => undefined)
+        this.send({ wallet, isHideErrorUI: opts?.isHideErrorUI }).catch(
+          () => undefined
+        )
       );
     } catch (error) {
       const message = createErrorMessage(error);
@@ -581,14 +722,73 @@ class SignatureManager {
     });
   }
 
+  public setTempoFeeToken(
+    token: TokenItem,
+    options?: {
+      applyFeeToken?: boolean;
+      tempoPreferredFeeTokenId?: string;
+    }
+  ) {
+    const { ctx, fingerprint } = this.state;
+    if (!ctx || !fingerprint) return;
+    const shouldApplyFeeToken =
+      ctx.gasMethod !== 'gasAccount' && options?.applyFeeToken !== false;
+    const tokenId = token.id;
+
+    const txs = ctx.txs.map((tx) => {
+      const next = { ...tx } as Tx & { feeToken?: string };
+      if (shouldApplyFeeToken) {
+        next.feeToken = tokenId;
+      }
+      return next as Tx;
+    });
+
+    const txsCalc = ctx.txsCalc.map((item) => {
+      const nextTx = { ...item.tx } as Tx & { feeToken?: string };
+      if (shouldApplyFeeToken) {
+        nextTx.feeToken = tokenId;
+      }
+      return {
+        ...item,
+        tx: nextTx as Tx,
+      };
+    });
+
+    this.dispatch({
+      type: 'UPDATE_CTX',
+      fingerprint,
+      ctx: {
+        ...ctx,
+        txs,
+        txsCalc,
+        gasToken: {
+          tokenId,
+          symbol: token.display_symbol || token.symbol,
+          decimals: token.decimals || 18,
+          logoUrl: token.logo_url,
+        },
+        nativeTokenBalance: new BigNumber(
+          token.raw_amount_hex_str || 0
+        ).toFixed(0),
+        tempoPreferredFeeTokenId:
+          options?.tempoPreferredFeeTokenId ||
+          (shouldApplyFeeToken ? tokenId : ctx.tempoPreferredFeeTokenId),
+      } as SignerCtx,
+    });
+  }
+
   public async retry(params: Parameters<typeof this.send>[0]) {
     return this.send({ ...params, retry: true });
   }
 
   public async startUI(
     request: SignatureRequest,
-    wallet: WalletControllerType
+    wallet: WalletControllerType,
+    opts?: { pauseAfter?: number; isHideErrorUI?: boolean }
   ): Promise<string[]> {
+    if (opts?.pauseAfter !== undefined) {
+      this.pauseAfterThreshold = opts.pauseAfter;
+    }
     const resultPromise = this.createResultPromise();
 
     this.openUI(request, wallet).catch((error) => {
@@ -628,18 +828,3 @@ class SignatureManager {
 }
 
 export const signatureManager = new SignatureManager();
-
-export const useSignatureStore = <T = SignatureFlowState>(
-  selector?: (state: SignatureFlowState) => T
-) =>
-  useSyncExternalStore(
-    signatureManager.subscribe.bind(signatureManager),
-    () => {
-      const snapshot = signatureManager.getState();
-      return (selector ? selector(snapshot) : snapshot) as T;
-    },
-    () => {
-      const snapshot = signatureManager.getState();
-      return (selector ? selector(snapshot) : snapshot) as T;
-    }
-  );

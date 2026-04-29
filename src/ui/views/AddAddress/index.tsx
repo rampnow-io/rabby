@@ -3,7 +3,10 @@ import { AddAddressOptions, BlueHeader } from 'ui/component';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 
-const AddAddress: React.FC<{ isInModal?: boolean }> = ({ isInModal }) => {
+const AddAddress: React.FC<{
+  isInModal?: boolean;
+  onNavigate?(type: string, state?: Record<string, any>): void;
+}> = ({ isInModal, onNavigate }) => {
   const { t } = useTranslation();
 
   return (
@@ -21,7 +24,7 @@ const AddAddress: React.FC<{ isInModal?: boolean }> = ({ isInModal }) => {
       >
         {t('page.newAddress.title')}
       </BlueHeader>
-      <AddAddressOptions />
+      <AddAddressOptions onNavigate={onNavigate} />
     </div>
   );
 };

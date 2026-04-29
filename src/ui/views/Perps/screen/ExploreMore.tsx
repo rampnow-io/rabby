@@ -4,6 +4,7 @@ import { useRabbySelector } from '@/ui/store';
 import { PageHeader } from '@/ui/component';
 import { formatUsdValueKMB } from '@/ui/views/Dashboard/components/TokenDetailPopup/utils';
 import { TokenImg } from '../components/TokenImg';
+import { getHyperliquidCoinLogoUrl } from '../utils';
 
 const Row: React.FC<{
   index: number;
@@ -69,13 +70,13 @@ export const ExploreMore: React.FC = () => {
             <Row
               key={m.name}
               index={i + 1}
-              logoUrl={
-                m.logoUrl || `https://app.hyperliquid.xyz/coins/${m.name}.svg`
-              }
+              logoUrl={m.logoUrl || getHyperliquidCoinLogoUrl(m.name)}
               name={m.name}
               leverage={m.maxLeverage}
               volume={Number(m.dayNtlVlm || 0)}
-              onClick={() => history.push(`/perps/single-coin/${m.name}`)}
+              onClick={() =>
+                history.push(`/perps/single-coin/${m.name}?openPosition=true`)
+              }
             />
           ))}
         </div>

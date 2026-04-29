@@ -272,10 +272,10 @@ export const DbkChainBridge = () => {
                     new BigNumber(payToken?.raw_amount_hex_str || 0)
                       .div(
                         new BigNumber(10).exponentiatedBy(
-                          payToken?.decimals || 18
+                          payToken?.decimals || 0
                         )
                       )
-                      .toString()
+                      .toFixed()
                   );
                 }}
               >

@@ -1,35 +1,31 @@
-import React from 'react';
-import { Props as TokenItemProps } from '@/ui/views/CommonPopup/AssetList/TokenItem';
-import { useExpandList } from '@/ui/utils/portfolio/expandList';
-import BigNumber from 'bignumber.js';
-import { TokenTable } from './TokenTable';
-import { useTranslation } from 'react-i18next';
-import { ReactComponent as RcWalletIconCC } from 'ui/assets/wallet-cc.svg';
-import { Switch } from 'antd';
-import styled from 'styled-components';
-import { ReactComponent as RcIconDropdown } from '@/ui/assets/dashboard/dropdown.svg';
-import clsx from 'clsx';
-import { numberWithCommasIsLtOne } from '@/ui/utils/number';
-import { TokenListEmpty } from './TokenListEmpty';
-import { TOKEN_WALLET_ANCHOR_ID } from './constant';
+import { ReactComponent as RcIconDropdown } from '@/ui/assets/dashboard/dropdown-cc.svg';
 import type { NetSwitchTabsKey } from '@/ui/component/PillsSwitch/NetSwitchTabs';
-import MainnetTestnetSwitchTabs from './components/switchTestTab';
+import { useExpandList } from '@/ui/utils/portfolio/expandList';
+import { Props as TokenItemProps } from '@/ui/views/CommonPopup/AssetList/TokenItem';
+import clsx from 'clsx';
+import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import styled from 'styled-components';
 import { CustomTestnetAssetList } from './TestTokenlist';
+import { TokenListEmpty } from './TokenListEmpty';
+import { TokenTable } from './TokenTable';
+import { TOKEN_WALLET_ANCHOR_ID } from './constant';
+import { useSticky } from '@/ui/hooks/useSticky';
+import { concatAndSort } from '@/ui/utils/portfolio/tokenUtils';
+import { AbstractPortfolioToken } from '@/ui/utils/portfolio/types';
+import { uniqBy } from 'lodash';
+import { useLocation } from 'react-router-dom';
 
 export interface Props {
   list?: TokenItemProps['item'][];
   isNoResults?: boolean;
-  allMode?: boolean;
-  onAllModeChange?: (allMode: boolean) => void;
   totalValue?: number;
   selectedTab?: NetSwitchTabsKey;
-  onTabChange?: (tab: NetSwitchTabsKey) => void;
+  isSearch: boolean;
+  searchList: AbstractPortfolioToken[];
+  search?: string;
+  lpTokenMode?: boolean;
 }
-const AllModeSwitchWrapper = styled.div`
-  .ant-switch-checked {
-    background-color: var(--r-green-default) !important;
-  }
-`;
 
 const ListContainer = styled.div`
   background-color: var(--rb-neutral-bg-3, #f9f9f9);
@@ -41,11 +37,12 @@ const ListContainer = styled.div`
 export const TokenList = ({
   list,
   isNoResults,
-  allMode,
-  onAllModeChange,
   totalValue,
   selectedTab,
-  onTabChange,
+  isSearch,
+  searchList,
+  search,
+  lpTokenMode,
 }: Props) => {
   const {
     result: currentList,
@@ -54,118 +51,153 @@ export const TokenList = ({
     hasExpandSwitch,
   } = useExpandList(list, totalValue);
 
-  const {
-    result: allOverZeroList,
-    isExpanded: allOverZeroExpanded,
-    toggleExpand: allOverZeroToggleExpand,
-    hasExpandSwitch: allOverZeroHasExpandSwitch,
-  } = useExpandList(list, 0, false, true);
   const { t } = useTranslation();
 
+  const { stickyRef, isSticky, observe } = useSticky<HTMLDivElement>(
+    document.querySelector<HTMLDivElement>('.js-scroll-element')
+  );
+
+  const location = useLocation();
+
+  useEffect(() => {
+    if (isExpanded && location.pathname.includes('desktop/profile/tokens')) {
+      requestAnimationFrame(() => {
+        observe();
+      });
+    }
+  }, [location.pathname, currentList, isExpanded, observe]);
+
   return (
-    <div
-      className="mt-[26px] protocol-item-wrapper"
-      id={TOKEN_WALLET_ANCHOR_ID}
-    >
-      <div className="flex items-center justify-between py-[14px] px-[20px]">
-        <div className="flex items-center gap-[16px]">
-          <div className="flex items-center gap-[6px]">
-            <RcWalletIconCC className="w-[20px] h-[20px] text-r-blue-default" />
-            <div className="text-[20px] leading-[24px] font-semibold text-r-neutral-title1">
-              {t('page.desktopProfile.portfolio.headers.wallet')}
-            </div>
-          </div>
-          <AllModeSwitchWrapper className="flex items-center gap-[6px]">
-            <Switch checked={allMode} onChange={onAllModeChange} />
-            <div className="text-[14px] leading-[16px] font-normal text-rb-neutral-body">
-              {t('page.desktopProfile.portfolio.headers.allTokenMode')}
-            </div>
-          </AllModeSwitchWrapper>
-        </div>
-        {allMode ? (
-          <MainnetTestnetSwitchTabs
-            value={selectedTab}
-            onTabChange={onTabChange}
-          />
-        ) : (
-          <div className="text-[20px] text-r-neutral-title1 font-semibold">
-            ${numberWithCommasIsLtOne(totalValue || 0, 0)}
-          </div>
-        )}
-      </div>
+    <div className="protocol-item-wrapper" id={TOKEN_WALLET_ANCHOR_ID}>
       <ListContainer>
-        {selectedTab === 'mainnet' || !allMode ? (
+        {selectedTab === 'mainnet' ? (
           isNoResults ? (
-            <TokenListEmpty text={t('page.dashboard.assets.table.noTokens')} />
+            <TokenListEmpty
+              text={
+                lpTokenMode
+                  ? t('page.dashboard.assets.table.noLpTokens')
+                  : t('page.dashboard.assets.table.noTokens')
+              }
+            />
           ) : (
             <>
               <TokenTable
                 list={
-                  allMode
-                    ? (allOverZeroList as TokenItemProps['item'][])
-                    : (currentList as TokenItemProps['item'][])
+                  isSearch
+                    ? uniqBy(
+                        concatAndSort(searchList, list || [], search || ''),
+                        (token) => {
+                          return `${token.chain}-${token.id}`;
+                        }
+                      )
+                    : currentList
                 }
-                EmptyComponent={<div></div>}
-              />
-              {allMode
-                ? allOverZeroHasExpandSwitch && (
-                    <div
-                      onClick={allOverZeroToggleExpand}
-                      className="flex items-center justify-center gap-4 py-[16px]"
-                    >
-                      <div className="text-rb-neutral-secondary text-13 cursor-pointer">
-                        {allOverZeroExpanded
-                          ? t(
-                              'page.desktopProfile.portfolio.hidden.tokensWithZeroBalance'
-                            )
-                          : t(
-                              'page.desktopProfile.portfolio.hidden.tokensWithZeroBalanceDesc'
-                            )}
-                      </div>
-                      <div className="flex items-center justify-center gap-[2px] cursor-pointer">
-                        {allOverZeroExpanded ? null : (
-                          <div className="text-rb-neutral-secondary text-13 underline">
-                            {t('page.desktopProfile.portfolio.hidden.showAll')}
-                          </div>
-                        )}
-                        <RcIconDropdown
-                          className={clsx('ml-0 text-rb-neutral-secondary', {
-                            'transform rotate-180': allOverZeroExpanded,
-                          })}
-                        />
-                      </div>
-                    </div>
+                EmptyComponent={
+                  isSearch ? (
+                    <TokenListEmpty
+                      // className="mt-[92px]"
+                      text={t('page.dashboard.assets.table.noMatch')}
+                    />
+                  ) : lpTokenMode ? (
+                    <TokenListEmpty
+                      text={t('page.dashboard.assets.table.noLpTokens')}
+                    />
+                  ) : (
+                    <div></div>
                   )
+                }
+              />
+              {isSearch
+                ? null
                 : hasExpandSwitch && (
                     <div
-                      onClick={toggleExpand}
-                      className="flex items-center justify-center gap-4 py-[16px]"
+                      className={clsx(
+                        'mb-[-16px]',
+                        'border-t',
+                        isExpanded && isSticky
+                          ? 'border-transparent'
+                          : 'border-rb-neutral-bg-4'
+                      )}
+                      ref={stickyRef}
+                      style={{
+                        position: isExpanded ? 'sticky' : 'static',
+                        bottom: 32,
+                      }}
                     >
-                      <div className="text-rb-neutral-secondary text-13 cursor-pointer">
-                        {isExpanded
-                          ? t('page.desktopProfile.portfolio.hidden.hideSmall')
-                          : t(
-                              'page.desktopProfile.portfolio.hidden.hideSmallDesc'
+                      {isExpanded && isSticky ? (
+                        <div className="h-[40px] flex items-center justify-center pointer-events-none">
+                          <div
+                            className={clsx(
+                              'flex items-center gap-[4px] rounded-full bg-rb-neutral-bg-1 dark:bg-rb-neutral-bg-4',
+                              'px-[16px] py-[8px] pointer-events-auto cursor-pointer'
                             )}
-                      </div>
-                      <div className="flex items-center justify-center gap-[2px] cursor-pointer">
-                        {isExpanded ? null : (
-                          <div className="text-rb-neutral-secondary text-13 underline">
-                            {t('page.desktopProfile.portfolio.hidden.showAll')}
+                            style={{
+                              boxShadow: '0 2px 8px 0 rgba(0, 0, 0, 0.12)',
+                            }}
+                            onClick={() => {
+                              toggleExpand();
+                              requestAnimationFrame(() => {
+                                observe();
+                              });
+                            }}
+                          >
+                            <div className="text-rb-neutral-foot text-[13px] leading-[16px]">
+                              {t(
+                                'page.desktopProfile.portfolio.hidden.hideSmall'
+                              )}
+                            </div>
+                            <RcIconDropdown
+                              className={clsx(
+                                'ml-0 text-rb-neutral-foot mb-[-2px]',
+                                'transform rotate-180'
+                              )}
+                            />
                           </div>
-                        )}
-                        <RcIconDropdown
-                          className={clsx('ml-0 text-rb-neutral-secondary', {
-                            'transform rotate-180': isExpanded,
-                          })}
-                        />
-                      </div>
+                        </div>
+                      ) : (
+                        <div
+                          className="flex items-center justify-center gap-4 py-[12px] cursor-pointer"
+                          onClick={() => {
+                            toggleExpand();
+                            requestAnimationFrame(() => {
+                              observe();
+                            });
+                          }}
+                        >
+                          <div className="text-rb-neutral-secondary text-[13px] leading-[16px]">
+                            {isExpanded
+                              ? t(
+                                  'page.desktopProfile.portfolio.hidden.hideSmall'
+                                )
+                              : t(
+                                  'page.desktopProfile.portfolio.hidden.hideSmallDesc'
+                                )}
+                          </div>
+                          <div className="flex items-center justify-center gap-[2px] cursor-pointer">
+                            {isExpanded ? null : (
+                              <div className="text-rb-neutral-secondary text-[13px] leading-[16px] underline">
+                                {t(
+                                  'page.desktopProfile.portfolio.hidden.showAll'
+                                )}
+                              </div>
+                            )}
+                            <RcIconDropdown
+                              className={clsx(
+                                'ml-0 text-rb-neutral-secondary',
+                                {
+                                  'transform rotate-180': isExpanded,
+                                }
+                              )}
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
             </>
           )
         ) : (
-          <CustomTestnetAssetList />
+          <CustomTestnetAssetList search={search} />
         )}
       </ListContainer>
     </div>

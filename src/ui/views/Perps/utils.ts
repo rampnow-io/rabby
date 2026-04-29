@@ -1,11 +1,43 @@
-import { MarketData } from '@/ui/models/perps';
+import { Account } from 'background/service/preference';
+import { AccountHistoryItem, MarketData } from '@/ui/models/perps';
 import { Meta, AssetCtx, MarginTable } from '@rabby-wallet/hyperliquid-sdk';
 import { PerpTopToken } from '@rabby-wallet/rabby-api/dist/types';
 import { PERPS_MAX_NTL_VALUE, PERPS_POSITION_RISK_LEVEL } from './constants';
+import { useWallet, WalletController } from '@/ui/utils';
+import { KEYRING_CLASS } from '@/constant';
+import { getPerpsSDK } from './sdkManager';
+import { maxBy } from 'lodash';
+
+const getPxDecimals = (markPx: string) => {
+  const parts = markPx.split('.');
+  if (!parts[1]) return 2;
+  const decimalPart = parts[1];
+  return decimalPart.length;
+};
+
+export const normalizeHyperliquidCoinForLogo = (coin: string) => {
+  if (!coin) {
+    return '';
+  }
+  // Keep km:* untouched, but drop k-prefix for meme perps like kPEPE -> PEPE.
+  if (coin.startsWith('k') && !coin.startsWith('km:')) {
+    return coin.slice(1);
+  }
+  return coin;
+};
+
+export const getHyperliquidCoinLogoUrl = (coin: string) => {
+  const iconKey = normalizeHyperliquidCoinForLogo(coin);
+  if (!iconKey) {
+    return '';
+  }
+  return `https://app.hyperliquid.xyz/coins/${iconKey}.svg`;
+};
 
 export const formatMarkData = (
   marketData: [Meta, AssetCtx[]],
-  topAssets: PerpTopToken[]
+  topAssets: PerpTopToken[],
+  xyzMarketData: [Meta, AssetCtx[]]
 ): MarketData[] => {
   try {
     if (!Array.isArray(marketData) || marketData.length < 2) {
@@ -32,9 +64,24 @@ export const formatMarkData = (
       }
     }
 
+    const xyzMarginTableMap: Record<number, MarginTable> = {};
+    if (
+      xyzMarketData?.[0]?.marginTables &&
+      Array.isArray(xyzMarketData[0].marginTables)
+    ) {
+      for (const entry of xyzMarketData[0].marginTables) {
+        const [id, table] = entry || [];
+        if (id != null) xyzMarginTableMap[id] = table;
+      }
+    }
+
     const result: MarketData[] = topAssets
       .map((topAsset) => {
         const index = topAsset.id;
+        const dexId = topAsset.dex_id;
+        const meta = dexId === 'xyz' ? xyzMarketData[0] : marketData[0];
+        const metrics = dexId === 'xyz' ? xyzMarketData[1] : marketData[1];
+        const tableMap = dexId === 'xyz' ? xyzMarginTableMap : marginTableMap;
         const hlDataAsset = meta.universe[index];
 
         if (!hlDataAsset) return null;
@@ -42,7 +89,7 @@ export const formatMarkData = (
         if (hlDataAsset.isDelisted) return null;
 
         const m = metrics[index] || {};
-        const table = marginTableMap[hlDataAsset?.marginTableId];
+        const table = tableMap[hlDataAsset?.marginTableId];
         const tiers = table?.marginTiers || [];
         const firstTier =
           Array.isArray(tiers) && tiers.length > 0 ? tiers[0] : undefined;
@@ -51,6 +98,7 @@ export const formatMarkData = (
 
         const item: MarketData = {
           index,
+          dexId: topAsset.dex_id,
           name: String(topAsset.name ?? ''),
           // 取保证金表第一档的最大杠杆；若无表则回退 asset.maxLeverage
           maxLeverage: Number(
@@ -61,12 +109,7 @@ export const formatMarkData = (
           maxUsdValueSize: String(nextTier?.lowerBound ?? PERPS_MAX_NTL_VALUE),
           szDecimals: Number(hlDataAsset.szDecimals ?? 0),
           // 根据 markPx 推断价格精度
-          pxDecimals: (() => {
-            const markPx = m?.markPx;
-            if (!markPx) return 2;
-            const parts = markPx.split('.');
-            return parts.length > 1 ? parts[1].length : 2;
-          })(),
+          pxDecimals: getPxDecimals(m?.markPx ?? ''),
           dayBaseVlm: String(m?.dayBaseVlm ?? '0'),
           dayNtlVlm: String(m?.dayNtlVlm ?? '0'),
           funding: String(m?.funding ?? '0'),
@@ -76,9 +119,9 @@ export const formatMarkData = (
           oraclePx: String(m?.oraclePx ?? ''),
           premium: String(m?.premium ?? '0'),
           prevDayPx: String(m?.prevDayPx ?? ''),
+          onlyIsolated: hlDataAsset.onlyIsolated,
           logoUrl:
-            topAsset.full_logo_url ||
-            `https://app.hyperliquid.xyz/coins/${topAsset.name}.svg`,
+            topAsset.full_logo_url || getHyperliquidCoinLogoUrl(topAsset.name),
         };
         return item;
       })
@@ -144,14 +187,15 @@ export const formatPercent = (value: number, decimals = 8) => {
   return `${(value * 100).toFixed(decimals)}%`;
 };
 
+export const formatPerpsPct = (v: number) => `${(v * 100).toFixed(2)}%`;
+
 export const calTransferMarginRequired = (
-  entryPrice: number,
   markPrice: number,
   positionSize: number,
   leverage: number
 ) => {
   const nationalValue = Number(positionSize) * Number(markPrice);
-  const initialNationalValue = Number(positionSize) * Number(entryPrice);
+  const initialNationalValue = Number(positionSize) * Number(markPrice);
   const initialMarginRequired = initialNationalValue * (1 / leverage);
   const transferMarginRequired = Math.max(
     initialMarginRequired,
@@ -166,6 +210,8 @@ export const validatePriceInput = (
   value: string,
   szDecimals: number
 ): boolean => {
+  if (!/^[0-9.]*$/.test(value) || value.split('.').length > 2) return false;
+
   if (!value || value === '0' || value === '0.') return true;
 
   // Check if it's an integer (no decimal point or ends with decimal point)
@@ -189,6 +235,15 @@ export const validatePriceInput = (
   }
 
   return true;
+};
+
+export const validateTradeAmount = (value: string, szDecimals: number) => {
+  if (!value || value === '0' || value === '0.') return true;
+};
+
+export const formatTradeAmount = (value: string, szDecimals: number) => {
+  if (!value || value === '0' || value === '0.') return '0';
+  return value;
 };
 
 /**
@@ -258,20 +313,13 @@ export const formatTpOrSlPrice = (
     return integerPart;
   }
 
-  // Some digits are in decimal part
+  // Calculate remaining digits allowed in decimal part
+  // Note: every digit in decimalPart counts toward allDigits length
   const remainingDigits = 5 - integerPartLength;
 
-  // Keep leading zeros but count significant digits after them
-  const leadingZerosInDecimal = decimalPart.match(/^0*/)?.[0] || '';
-  const sigDigitsInDecimal = decimalPart.slice(leadingZerosInDecimal.length);
-  const desiredSig = Math.min(remainingDigits, sigDigitsInDecimal.length);
-  const takenSig = sigDigitsInDecimal.slice(0, desiredSig);
-
-  // Compose decimal respecting maxDecimals
-  let composedDecimal = (leadingZerosInDecimal + takenSig).slice(
-    0,
-    maxDecimals
-  );
+  // Limit decimal part to the minimum of remainingDigits and maxDecimals
+  const maxDecimalLength = Math.min(remainingDigits, maxDecimals);
+  let composedDecimal = decimalPart.slice(0, maxDecimalLength);
 
   // Remove trailing zeros
   composedDecimal = composedDecimal.replace(/0+$/, '');
@@ -279,4 +327,77 @@ export const formatTpOrSlPrice = (
     return `${integerPart}.${composedDecimal}`;
   }
   return `${integerPart}`;
+};
+
+export const checkPerpsReference = async ({
+  wallet,
+  account,
+  scene = 'invite',
+}: {
+  wallet: ReturnType<typeof useWallet>;
+  account?: Account | null;
+  scene?: 'invite' | 'connect' | 'protocol';
+}) => {
+  try {
+    const address = account?.address;
+    if (!address) {
+      return false;
+    }
+    if (
+      !Object.values(KEYRING_CLASS.HARDWARE)
+        .concat([KEYRING_CLASS.PRIVATE_KEY, KEYRING_CLASS.MNEMONIC])
+        .includes(account.type)
+    ) {
+      return false;
+    }
+    if (scene !== 'protocol') {
+      const inviteConfig = await wallet.getPerpsInviteConfig(address);
+      const lastTime =
+        scene === 'connect'
+          ? inviteConfig?.lastConnectedAt
+          : inviteConfig?.lastInvitedAt;
+      if (lastTime) {
+        const now = Date.now();
+        const diff = now - lastTime;
+        const oneWeek = 7 * 24 * 60 * 60 * 1000;
+        if (diff < oneWeek) {
+          return false;
+        }
+      }
+    }
+    const sdk = getPerpsSDK();
+    const info = await sdk.info.getClearingHouseState(address);
+    const needDepositFirst =
+      Number(info?.marginSummary?.accountValue || 0) === 0 &&
+      Number(info?.withdrawable || 0) === 0;
+    if (needDepositFirst) {
+      return false;
+    }
+    const data = await sdk.info.getReferral(account?.address || '');
+
+    if (data?.referredBy) {
+      return false;
+    }
+
+    return true;
+  } catch (e) {
+    console.error('checkPerpsReference error', e);
+    return false;
+  }
+};
+
+export const getMaxTimeFromAccountHistory = (
+  historyList: AccountHistoryItem[]
+) => {
+  const depositList = historyList.filter((item) => item.type === 'deposit');
+  const withdrawList = historyList.filter((item) => item.type === 'withdraw');
+  const receiveList = historyList.filter((item) => item.type === 'receive');
+  const depositMaxTime = maxBy(depositList, 'time')?.time || 0;
+  const withdrawMaxTime = maxBy(withdrawList, 'time')?.time || 0;
+  const receiveMaxTime = maxBy(receiveList, 'time')?.time || 0;
+  return {
+    depositMaxTime,
+    withdrawMaxTime,
+    receiveMaxTime,
+  };
 };

@@ -1,3 +1,5 @@
+/* eslint "react-hooks/exhaustive-deps": ["error"] */
+/* eslint-enable react-hooks/exhaustive-deps */
 import { CHAINS_ENUM } from '@debank/common';
 import {
   DndContext,
@@ -10,9 +12,10 @@ import { DragEndEvent } from '@dnd-kit/core/dist/types';
 import { SortableContext } from '@dnd-kit/sortable';
 import { Chain } from 'background/service/openapi';
 import clsx from 'clsx';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { SelectChainItemProps, TDisableCheckChainFn } from './SelectChainItem';
 import { SortableSelectChainItem } from './SortableSelectChainItem';
+import { useRabbyDispatch } from '@/ui/store';
 
 export type SelectChainListProps = {
   className?: string;
@@ -45,6 +48,12 @@ export const SelectChainList = (props: SelectChainListProps) => {
     disableChainCheck,
     showRPCStatus = false,
   } = props;
+  const dispatch = useRabbyDispatch();
+
+  useEffect(() => {
+    if (!showRPCStatus) return;
+    dispatch.customRPC.getAllRPC();
+  }, [dispatch, showRPCStatus]);
 
   const items = useMemo(() => {
     return data.map((item, index) => ({

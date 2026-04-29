@@ -15,7 +15,7 @@ import styled, { createGlobalStyle } from 'styled-components';
 
 import { useRabbyDispatch, useRabbySelector } from '@/ui/store';
 import { isSameAddress, useAlias, useWallet } from '@/ui/utils';
-import { padWatchAccount } from '@/ui/views/SendPoly/util';
+import { padWatchAccount } from '@/ui/views/SelectToAddress/util';
 import ThemeIcon from '../ThemeMode/ThemeIcon';
 import { findAccountByPriority, pickKeyringThemeIcon } from '@/utils/account';
 import {
@@ -230,8 +230,11 @@ export const AddressTypeCard = ({
       >
         {loading ? (
           <>
-            <Skeleton.Avatar className="bg-r-neutral-line w-[20px] h-[20px] rounded-full" />
-            <Skeleton.Avatar className="bg-r-neutral-line w-[94px] h-[16px] rounded-[2px]" />
+            <Skeleton.Avatar
+              className="bg-r-neutral-line w-[20px] h-[20px] rounded-full"
+              size={20}
+            />
+            <Skeleton.Input className="bg-r-neutral-line w-[94px] h-[16px] rounded-[2px]" />
           </>
         ) : (
           <>
@@ -267,8 +270,8 @@ export const AddressTypeCard = ({
             <Tooltip overlayClassName="alias-tooltip" title={aliasName}>
               <div
                 className={clsx(
-                  'font-medium text-[13px] text-r-neutral-title1',
-                  showSideDesc ? 'max-w-[100px]  truncate' : ''
+                  'font-medium text-[13px] text-r-neutral-title1 truncate ',
+                  showSideDesc ? 'max-w-[100px]' : 'max-w-[220px]'
                 )}
               >
                 {allowEditAlias ? _alias || aliasName : aliasName}
@@ -349,7 +352,10 @@ export const AddressRiskAlert = ({
   }, [inWhiteList, forWhitelist]);
 
   // disable detect risk when invisible
-  const riskInfos = useAddressRisks(visible ? address : '', { editCex });
+  const riskInfos = useAddressRisks({
+    toAddress: visible ? address : '',
+    editCex,
+  });
   const addressSplit = useMemo(() => {
     if (!address) {
       return [];
@@ -461,7 +467,7 @@ export const AddressRiskAlert = ({
           {riskInfos.loadingAddrDesc ? (
             <Skeleton.Input className="w-full h-[44px] rounded-[8px]" active />
           ) : (
-            <div className="text-[16px] w-full text-center">
+            <div className="text-[16px] w-full text-center break-all">
               <AddressText>{addressSplit[0]}</AddressText>
               <span className="text-r-neutral-foot">{addressSplit[1]}</span>
               <AddressText>{addressSplit[2]}</AddressText>
@@ -533,7 +539,10 @@ export const AddressRiskAlert = ({
         {riskInfos.loadingHasTransfer ? (
           <div className="flex-1">
             <div className="flex gap-[8px] mt-[30px] items-center bg-r-neutral-card1 rounded-[8px] py-[14px] px-[16px]">
-              <Skeleton.Avatar className="w-[16px] h-[16px] rounded-full" />
+              <Skeleton.Avatar
+                size={16}
+                className="w-[16px] h-[16px] rounded-full"
+              />
               <Skeleton.Input className="w-[158px] rounded-[4px]" active />
             </div>
           </div>

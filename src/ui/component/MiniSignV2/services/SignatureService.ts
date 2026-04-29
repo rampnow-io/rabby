@@ -39,6 +39,7 @@ type SendParams = {
   ctx: SignerCtx;
   config: SignerConfig;
   retry?: boolean;
+  shouldPause?: (idx: number, signedCount: number) => boolean;
   onProgress?: (ctx: SignerCtx) => void;
 };
 
@@ -87,7 +88,14 @@ export const signatureService = {
       account,
     }),
 
-  send: async ({ wallet, ctx, config, retry, onProgress }: SendParams) => {
+  send: async ({
+    wallet,
+    ctx,
+    config,
+    retry,
+    shouldPause,
+    onProgress,
+  }: SendParams) => {
     const chainMeta = findChain({ id: ctx.chainId });
     const chainServerId = chainMeta?.serverId || '';
     let currentCtx = ctx;
@@ -97,6 +105,7 @@ export const signatureService = {
       ctx: currentCtx,
       config,
       retry,
+      shouldPause,
       onSendedTx: ({ hash, idx }) => {
         if (!onProgress) return;
         const txsCalc = currentCtx.txsCalc.map((item, index) =>
@@ -123,11 +132,13 @@ export const signatureService = {
     price,
     currentAccount,
     wallet,
+    gasTokenDecimals = 18,
   }: {
     txsCalc: CalcItem[];
     price: string | number;
     currentAccount: Account;
     wallet: WalletControllerType;
+    gasTokenDecimals?: number;
   }) => {
     const res = await Promise.all(
       txsCalc.map((item) =>
@@ -140,6 +151,7 @@ export const signatureService = {
           wallet,
           gasLimit: item.gasLimit,
           account: currentAccount!,
+          gasTokenDecimals,
         })
       )
     );
@@ -149,12 +161,20 @@ export const signatureService = {
         sum.gasCostUsd = sum.gasCostUsd.plus(item.gasCostUsd);
 
         sum.maxGasCostAmount = sum.maxGasCostAmount.plus(item.maxGasCostAmount);
+        sum.gasCostRawAmount = sum.gasCostRawAmount.plus(
+          item.gasCostRawAmount || 0
+        );
+        sum.maxGasCostRawAmount = sum.maxGasCostRawAmount.plus(
+          item.maxGasCostRawAmount || 0
+        );
         return sum;
       },
       {
         gasCostUsd: new BigNumber(0),
         gasCostAmount: new BigNumber(0),
         maxGasCostAmount: new BigNumber(0),
+        gasCostRawAmount: new BigNumber(0),
+        maxGasCostRawAmount: new BigNumber(0),
       }
     );
     return totalCost;

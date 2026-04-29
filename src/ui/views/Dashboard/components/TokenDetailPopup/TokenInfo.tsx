@@ -325,6 +325,7 @@ const ListSiteAndCex = ({
         getContainer={getContainer}
         height={popupHeight}
         push={false}
+        className="token-detail-popup"
         title={
           <div className="text-r-neutral-title-1 text-20 font-medium">
             {/* <ThemeIcon

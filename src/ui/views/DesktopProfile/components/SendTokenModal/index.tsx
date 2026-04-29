@@ -1,13 +1,13 @@
 import { Modal, ModalProps } from 'antd';
 import React, { useMemo } from 'react';
 import SendToken from '../../../SendToken';
-import SendPoly from '../../../SendPoly';
 import WhitelistInput from '../../../WhitelistInput';
 import { useLocation } from 'react-router-dom';
 import { ModalCloseIcon } from '../TokenDetailModal';
 import SelectToAddress from '@/ui/views/SelectToAddress';
 import SendNFT from '@/ui/views/SendNFT';
 import { DesktopSelectAccountList } from '@/ui/component/DesktopSelectAccountList';
+import { PopupContainer } from '@/ui/hooks/usePopupContainer';
 
 export const SendTokenModal: React.FC<ModalProps> = (props) => {
   const location = useLocation();
@@ -24,8 +24,7 @@ export const SendTokenModal: React.FC<ModalProps> = (props) => {
     } else if (sendPageType === 'whitelistInput') {
       return <WhitelistInput />;
     }
-    // 默认返回 SendPoly 组件，避免返回 undefined
-    return <SendPoly />;
+    return <SendToken />;
   }, [sendPageType]);
 
   return (
@@ -47,9 +46,11 @@ export const SendTokenModal: React.FC<ModalProps> = (props) => {
         backgroundColor: 'rgba(0, 0, 0, 0.3)',
       }}
     >
-      <div className="h-full w-full rounded-[20px] overflow-hidden">
-        {SendPage}
-      </div>
+      <PopupContainer>
+        <div className="h-full w-full rounded-[20px] overflow-hidden">
+          {SendPage}
+        </div>
+      </PopupContainer>
     </Modal>
   );
 };

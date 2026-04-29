@@ -7,6 +7,7 @@ import { hasConnectedLedgerDevice } from '@/ui/utils';
 import { HARDWARE_KEYRING_TYPES } from 'consts';
 import { query2obj } from '@/ui/utils/url';
 import { LedgerBanner } from './LedgerBanner';
+import { withHardwareImportSelectAddressSource } from '@/ui/views/SelectAddress/route';
 
 const LedgerConnect = () => {
   const history = useHistory();
@@ -36,7 +37,9 @@ const LedgerConnect = () => {
           isWebHID: false,
           ledgerLive: true,
         },
-        search: `?hd=${HARDWARE_KEYRING_TYPES.Ledger.type}`,
+        search: withHardwareImportSelectAddressSource(
+          `?hd=${HARDWARE_KEYRING_TYPES.Ledger.type}`
+        ),
       });
     } else {
       if (hasConnectedLedger) {
@@ -47,7 +50,9 @@ const LedgerConnect = () => {
             isWebHID: true,
             ledgerLive: false,
           },
-          search: `?hd=${HARDWARE_KEYRING_TYPES.Ledger.type}`,
+          search: withHardwareImportSelectAddressSource(
+            `?hd=${HARDWARE_KEYRING_TYPES.Ledger.type}`
+          ),
         });
       } else {
         history.push({

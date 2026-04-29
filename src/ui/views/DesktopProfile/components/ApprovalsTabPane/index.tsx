@@ -1,6 +1,12 @@
 /* eslint "react-hooks/exhaustive-deps": ["error"] */
 /* eslint-enable react-hooks/exhaustive-deps */
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+} from 'react';
 import { Alert, Tooltip } from 'antd';
 import type { ColumnType, TableProps } from 'antd/lib/table';
 import { InfoCircleOutlined } from '@ant-design/icons';
@@ -69,7 +75,7 @@ import NetSwitchTabs, {
 } from '@/ui/component/PillsSwitch/NetSwitchTabs';
 import { useTranslation } from 'react-i18next';
 import { useReloadPageOnCurrentAccountChanged } from '@/ui/hooks/backgroundState/useAccount';
-import { useTitle } from 'ahooks';
+import { useMemoizedFn, useTitle } from 'ahooks';
 import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
 import { useThemeMode } from '@/ui/hooks/usePreference';
 import { useConfirmRevokeModal } from './components/BatchRevoke/useConfirmRevokeModal';
@@ -1233,9 +1239,11 @@ function TableByEIP7702({
 export const ApprovalsTabPane = ({
   isDesktop = true,
   desktopChain,
+  header,
 }: {
   isDesktop?: boolean;
   desktopChain?: CHAINS_ENUM;
+  header?: React.ReactNode;
 }) => {
   const { t } = useTranslation();
 
@@ -1390,103 +1398,183 @@ export const ApprovalsTabPane = ({
     enableBatchRevoke,
   ]);
 
+  const stickyElRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = useMemoizedFn(() => {
+    if (!stickyElRef.current) {
+      return;
+    }
+    const rect = stickyElRef.current?.getBoundingClientRect();
+    const clientHeight = document.documentElement.clientHeight;
+    if (rect.bottom > clientHeight - 96) {
+      stickyElRef.current.classList.add('is-sticky');
+    } else {
+      stickyElRef.current.classList.remove('is-sticky');
+    }
+  });
+
+  useEffect(() => {
+    if (!isLoading) {
+      setTimeout(() => {
+        handleScroll();
+      }, 500);
+    }
+  }, [handleScroll, isLoading]);
+
+  useEffect(() => {
+    const $scrollContainer = document.querySelector('.js-scroll-element');
+    if (!$scrollContainer) {
+      return;
+    }
+
+    $scrollContainer.addEventListener('scroll', handleScroll);
+
+    return () => {
+      $scrollContainer.removeEventListener('scroll', handleScroll);
+    };
+  }, [handleScroll]);
+
   return (
     <div
       className={clsx(
         {
           'with-switchnet-tabs': isShowTestnet && !isDesktop,
         },
-        'w-full max-w-full'
+        'w-full max-w-full flex'
       )}
     >
       <div
         className={clsx(
-          'desktop-approvals-manager',
-          isDesktop && 'approvals-manager-desktop'
+          isDesktop
+            ? 'desktop-approvals-manager approvals-manager-desktop'
+            : 'approvals-manager'
         )}
       >
-        {!isDesktop && (
-          <header className="approvals-manager__header">
-            {isShowTestnet && (
-              <div className="tabs">
-                <NetSwitchTabs
-                  value={selectedTab}
-                  onTabChange={onTabChange}
-                  isDesktop={isDesktop}
-                />
-              </div>
-            )}
-            <div className="title">
-              {/* Approvals on {ellipsisAddress(account?.address || '')} */}
-              {t('page.approvals.header.title', {
-                address: ellipsisAddress(account?.address || ''),
-              })}
-              {account?.alianName && (
-                <span className="text-r-neutral-foot text-[20px] font-normal">
-                  {' '}
-                  ({account?.alianName})
-                </span>
-              )}
-            </div>
-          </header>
-        )}
+        {header}
 
         {selectedTab === 'mainnet' ? (
           <>
-            <main className="relative w-full max-w-full overflow-hidden">
-              <div className="approvals-manager__table-tools">
-                <PillsSwitch
-                  value={tab}
-                  options={
-                    [
-                      {
-                        key: 'contract',
-                        // 'By Contracts'
-                        label: t('page.approvals.tab-switch.contract'),
-                      },
-                      {
-                        key: 'assets',
-                        // 'By Assets'
-                        label: t('page.approvals.tab-switch.assets'),
-                      },
-                      {
-                        key: 'eip-7702',
-                        // 'By EIP-7702'
-                        label: `${t('page.approvals.tab-switch.eip-7702')} (${
-                          delegationAddresses?.length || 0
-                        })`,
-                      },
-                    ] as const
-                  }
-                  onTabChange={(key) => {
-                    setTab(key);
-                    if (key !== 'eip-7702') {
-                      setFilterType(key);
+            <main className="relative w-full max-w-full">
+              {isDesktop ? (
+                <div className="approvals-manager__table-tools">
+                  <PillsSwitch
+                    value={tab}
+                    options={
+                      [
+                        {
+                          key: 'contract',
+                          // 'By Contracts'
+                          label: t('page.approvals.tab-switch.contract'),
+                        },
+                        {
+                          key: 'assets',
+                          // 'By Assets'
+                          label: t('page.approvals.tab-switch.assets'),
+                        },
+                        {
+                          key: 'eip-7702',
+                          // 'By EIP-7702'
+                          label: `${t('page.approvals.tab-switch.eip-7702')} (${
+                            delegationAddresses?.length || 0
+                          })`,
+                        },
+                      ] as const
                     }
-                  }}
-                  className={clsx(
-                    'bg-rb-neutral-bg-0 rounded-[10px] p-[2px] h-[30px]'
-                  )}
-                  itemClassname="text-[12px] leading-[14px] font-medium px-[12px] py-[6px] w-auto rounded-[8px]"
-                  itemClassnameActive={
-                    'text-rb-neutral-InvertHighlight bg-rb-neutral-foot'
-                  }
-                  itemClassnameInActive={'text-rb-neutral-foot'}
-                />
-
-                <div className="flex items-center gap-x-12">
-                  <SearchInput
-                    value={searchKw}
-                    onChange={(e) => setSearchKw(e.target.value)}
-                    prefix={<img src={IconSearch} />}
-                    className="search-input"
-                    suffix={<span />}
-                    placeholder={t('page.approvals.search.placeholder', {
-                      type: tab !== 'assets' ? 'contract' : 'assets',
-                    })}
+                    onTabChange={(key) => {
+                      setTab(key);
+                      if (key !== 'eip-7702') {
+                        setFilterType(key);
+                      }
+                    }}
+                    className={clsx(
+                      'bg-rb-neutral-bg-0 rounded-[10px] p-[2px] h-[30px]'
+                    )}
+                    itemClassname="text-[12px] leading-[14px] font-medium px-[12px] py-[6px] w-auto rounded-[8px]"
+                    itemClassnameActive={
+                      'text-rb-neutral-InvertHighlight bg-rb-neutral-foot dark:bg-rb-neutral-bg-4'
+                    }
+                    itemClassnameInActive={'text-rb-neutral-foot'}
                   />
+
+                  <div className="flex items-center gap-x-12">
+                    <SearchInput
+                      value={searchKw}
+                      onChange={(e) => setSearchKw(e.target.value)}
+                      prefix={<img src={IconSearch} />}
+                      className="search-input"
+                      suffix={<span />}
+                      placeholder={t('page.approvals.search.placeholder', {
+                        type: tab !== 'assets' ? 'contract' : 'assets',
+                      })}
+                    />
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="approvals-manager__table-tools">
+                  <PillsSwitch
+                    value={tab}
+                    options={
+                      [
+                        {
+                          key: 'contract',
+                          // 'By Contracts'
+                          label: t('page.approvals.tab-switch.contract'),
+                        },
+                        {
+                          key: 'assets',
+                          // 'By Assets'
+                          label: t('page.approvals.tab-switch.assets'),
+                        },
+                        {
+                          key: 'eip-7702',
+                          // 'By EIP-7702'
+                          label: `${t('page.approvals.tab-switch.eip-7702')} (${
+                            delegationAddresses?.length || 0
+                          })`,
+                        },
+                      ] as const
+                    }
+                    onTabChange={(key) => {
+                      setTab(key);
+                      if (key !== 'eip-7702') {
+                        setFilterType(key);
+                      }
+                    }}
+                    className={clsx(
+                      isDesktop &&
+                        'bg-transparent p-2 rounded-[8px] border-[0.5px] border-solid border-rabby-neutral-line'
+                    )}
+                    itemClassname="text-[15px] w-[128px] h-[40px]"
+                    itemClassnameActive={
+                      isDesktop
+                        ? 'bg-r-blue-light1 rounded-[6px]'
+                        : 'bg-r-neutral-bg-1'
+                    }
+                    itemClassnameInActive={
+                      'text-r-neutral-body hover:text-r-blue-default'
+                    }
+                  />
+
+                  <div className="flex items-center gap-x-12">
+                    <SearchInput
+                      value={searchKw}
+                      onChange={(e) => setSearchKw(e.target.value)}
+                      prefix={<img src={IconSearch} />}
+                      className="search-input"
+                      suffix={<span />}
+                      placeholder={t('page.approvals.search.placeholder', {
+                        type: tab !== 'assets' ? 'contract' : 'assets',
+                      })}
+                    />
+
+                    <ChainSelectorButton
+                      large
+                      chain={chain}
+                      setChain={setChain}
+                    />
+                  </div>
+                </div>
+              )}
 
               <div className="approvals-manager__table-wrapper">
                 <TableByContracts
@@ -1584,31 +1672,23 @@ export const ApprovalsTabPane = ({
               ) : null}
               {batchRevokeModal.node}
               {!isLoading && isDesktop && (
-                <div
-                  className="pt-[16px] text-center"
-                  style={{
-                    position: 'fixed',
-                    bottom: 0,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    paddingRight: 280,
-                    paddingBottom: 24,
-                  }}
-                >
-                  {tab === 'eip-7702' ? (
-                    <>
-                      <RevokeEIP7702Button
-                        onRevoke={handleEIP7702Revoke}
-                        selectedCount={eip7702SelectedRows.length || 0}
+                <div className="sticky-footer-container" ref={stickyElRef}>
+                  <div className="sticky-footer-inner py-[16px] text-center">
+                    {tab === 'eip-7702' ? (
+                      <>
+                        <RevokeEIP7702Button
+                          onRevoke={handleEIP7702Revoke}
+                          selectedCount={eip7702SelectedRows.length || 0}
+                        />
+                      </>
+                    ) : (
+                      <RevokeButton
+                        revokeSummary={revokeSummary}
+                        enableBatchRevoke={enableBatchRevoke}
+                        onRevoke={onRevoke}
                       />
-                    </>
-                  ) : (
-                    <RevokeButton
-                      revokeSummary={revokeSummary}
-                      enableBatchRevoke={enableBatchRevoke}
-                      onRevoke={onRevoke}
-                    />
-                  )}
+                    )}
+                  </div>
                 </div>
               )}
             </main>

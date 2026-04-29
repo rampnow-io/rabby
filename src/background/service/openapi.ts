@@ -125,6 +125,10 @@ const walletApiService = new OpenApiService({
 //   store: proxyStore,
 // });
 
+if (typeof window !== 'undefined') {
+  service.initSync();
+}
+
 export const testnetOpenapiService = new OpenApiService({
   plugin: WebSignApiPlugin,
   adapter: fetchAdapter,

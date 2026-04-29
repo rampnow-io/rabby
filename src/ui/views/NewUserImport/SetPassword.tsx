@@ -172,6 +172,7 @@ export const NewUserSetPassword = () => {
         KEYRING_CLASS.HARDWARE.LEDGER,
         KEYRING_CLASS.HARDWARE.KEYSTONE,
         KEYRING_CLASS.HARDWARE.BITBOX02,
+        KEYRING_CLASS.HARDWARE.IMKEY,
       ] as string[]).includes(type)
     ) {
       setStore({
@@ -202,6 +203,7 @@ export const NewUserSetPassword = () => {
       KEYRING_CLASS.HARDWARE.GRIDPLUS,
       KEYRING_CLASS.HARDWARE.LEDGER,
       KEYRING_CLASS.HARDWARE.KEYSTONE,
+      KEYRING_CLASS.HARDWARE.IMKEY,
     ] as string[]).includes(type)
       ? 1
       : 2;

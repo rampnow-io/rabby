@@ -13,24 +13,34 @@ import * as Sentry from '@sentry/browser';
 import fetchAdapter from 'background/utils/fetchAdapter';
 import { WalletController } from 'background/controller/wallet';
 import {
+  APPCHAIN_SYNC_SCENE,
+  BALANCE_SYNC_SCENE,
+  CACHE_VALID_DURATION,
+  DEFI_SYNC_SCENE,
+  TOKEN_SYNC_SCENE,
+} from '@/db/constants';
+import { syncDbService } from '@/db/services/syncDbService';
+import {
   EVENTS,
   EVENTS_IN_BG,
+  INTERNAL_REQUEST_ORIGIN,
   IS_FIREFOX,
   KEYRING_CATEGORY_MAP,
   KEYRING_TYPE,
-  SAFE_API_KEY,
 } from 'consts';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { ethErrors } from 'eth-rpc-errors';
-import { groupBy, isNull } from 'lodash';
+import { groupBy, isNull, omit, pick } from 'lodash';
 import 'reflect-metadata';
 import browser from 'webextension-polyfill';
+import BigNumber from 'bignumber.js';
 import { providerController, walletController } from './controller';
 import createSubscription from './controller/provider/subscriptionManager';
 import {
   bridgeService,
   contactBookService,
+  currencyService,
   gasAccountService,
   HDKeyRingLastAddAddrTimeService,
   keyringService,
@@ -51,13 +61,15 @@ import {
   whitelistService,
   OfflineChainsService,
   perpsService,
+  transactionsService,
+  innerDappFrameService,
 } from './service';
 import { customTestnetService } from './service/customTestnet';
 import { GasAccountServiceStore } from './service/gasAccount';
 import { testnetOpenapiService, walletApiService } from './service/openapi';
 import { syncChainService } from './service/syncChain';
 import { userGuideService } from './service/userGuide';
-import { isSameAddress } from './utils';
+import lendingService from './service/lending';
 import rpcCache from './utils/rpcCache';
 import { storage } from './webapi';
 import { metamaskModeService } from './service/metamaskModeService';
@@ -65,8 +77,10 @@ import { ga4 } from '@/utils/ga4';
 import { ALARMS_SYNC_DEFAULT_RPC, ALARMS_USER_ENABLE } from './utils/alarms';
 import { subscribeTxCompleted } from './subscriptions/rateGuidance';
 
+BigNumber.config({ EXPONENTIAL_AT: [-20, 100] });
+
 Safe.adapter = fetchAdapter as any;
-Safe.apiKey = SAFE_API_KEY;
+Safe.openapiService = openapiService;
 
 dayjs.extend(utc);
 
@@ -117,6 +131,8 @@ Sentry.init({
     /\[From .*\]/, // error from custom rpc
     /AxiosError/,
     /WebSocket connection failed/,
+    /Could not establish connection/,
+    /HttpRequestError/,
   ],
 });
 
@@ -135,6 +151,7 @@ async function restoreAppState() {
   await customTestnetService.init();
   await permissionService.init();
   await preferenceService.init();
+  await currencyService.init();
   await transactionWatchService.init();
   await transactionBroadcastWatchService.init();
   await pageStateCacheService.init();
@@ -154,6 +171,9 @@ async function restoreAppState() {
   await OfflineChainsService.init();
   await syncChainService.init();
   await perpsService.init();
+  await transactionsService.init();
+  await lendingService.init();
+  await innerDappFrameService.init();
 
   await walletController.tryUnlock();
 
@@ -192,6 +212,26 @@ async function restoreAppState() {
 
     walletController.forceExpireInMemoryAddressBalance(address);
     walletController.forceExpireInMemoryNetCurve(address);
+    syncDbService.setUpdatedAtIfExists({
+      address,
+      scene: TOKEN_SYNC_SCENE,
+      updatedAt: Date.now() - CACHE_VALID_DURATION,
+    });
+    syncDbService.setUpdatedAtIfExists({
+      address,
+      scene: DEFI_SYNC_SCENE,
+      updatedAt: Date.now() - CACHE_VALID_DURATION,
+    });
+    syncDbService.setUpdatedAtIfExists({
+      address,
+      scene: APPCHAIN_SYNC_SCENE,
+      updatedAt: Date.now() - CACHE_VALID_DURATION,
+    });
+    syncDbService.setUpdatedAtIfExists({
+      address,
+      scene: BALANCE_SYNC_SCENE,
+      updatedAt: Date.now() - CACHE_VALID_DURATION,
+    });
   });
 
   if (appIsDev) {
@@ -260,18 +300,21 @@ restoreAppState();
         label: chains.join(','),
       });
       const accounts = await walletController.getAccounts();
-      const list = accounts.map((account) => {
-        const category = KEYRING_CATEGORY_MAP[account.type];
-        const action = account.brandName;
-        const label =
-          (walletController.getAddressCacheBalance(account.address)
-            ?.total_usd_value || 0) <= 0;
-        return {
-          category,
-          action,
-          label: label ? 'empty' : 'notEmpty',
-        };
-      });
+      const list = await Promise.all(
+        accounts.map(async (account) => {
+          const category = KEYRING_CATEGORY_MAP[account.type];
+          const action = account.brandName;
+          const balance = await walletController.getAddressCacheBalance(
+            account.address
+          );
+          const label = (balance?.total_usd_value || 0) <= 0;
+          return {
+            category,
+            action,
+            label: label ? 'empty' : 'notEmpty',
+          };
+        })
+      );
       const groups = groupBy(list, (item) => {
         return `${item.category}_${item.action}_${item.label}`;
       });
@@ -303,29 +346,8 @@ restoreAppState();
   keyringService.on(
     'removedAccount',
     async (address: string, type: string, brand?: string) => {
+      await logoutGasAccountOnAddressRemoved(address, type, brand);
       if (type !== KEYRING_TYPE.WatchAddressKeyring) {
-        const restAddresses = await keyringService.getAllAdresses();
-        const gasAccount = gasAccountService.getGasAccountData() as GasAccountServiceStore;
-        if (gasAccount?.account?.address) {
-          // check if there is another type address in wallet
-          const stillHasAddr = restAddresses.some((item) => {
-            return (
-              isSameAddress(item.address, gasAccount.account!.address) &&
-              item.type !== KEYRING_TYPE.WatchAddressKeyring
-            );
-          });
-          if (
-            !stillHasAddr &&
-            isSameAddress(address, gasAccount.account.address)
-          ) {
-            // if there is no another type address then reset signature
-            gasAccountService.setGasAccountSig();
-            eventBus.emit(EVENTS.broadcastToUI, {
-              method: EVENTS.GAS_ACCOUNT.LOG_OUT,
-            });
-          }
-        }
-
         const perpsAccount = await perpsService.getCurrentAccount();
         if (perpsAccount?.address === address && perpsAccount.type === type) {
           eventBus.emit(EVENTS.broadcastToUI, {
@@ -339,6 +361,7 @@ restoreAppState();
 }
 
 keyringService.on('resetPassword', async () => {
+  preferenceService.clearBiometricUnlockStorage();
   const gasAccount = gasAccountService.getGasAccountData() as GasAccountServiceStore;
 
   if (
@@ -471,7 +494,7 @@ browser.runtime.onConnect.addListener((port) => {
     });
   });
 
-  pm.listen(async (data) => {
+  pm.listen(async (_data) => {
     if (!appStoreLoaded) {
       throw ethErrors.provider.disconnected();
     }
@@ -482,7 +505,26 @@ browser.runtime.onConnect.addListener((port) => {
     }
     const origin = getOriginFromUrl(port.sender.url);
     const session = sessionService.getOrCreateSession(sessionId, origin);
-    const req = { data, session, origin };
+
+    let data = _data;
+    if (origin !== INTERNAL_REQUEST_ORIGIN) {
+      if (data?.$ctx?.providers?.length) {
+        data.$ctx = pick(data.$ctx, 'providers');
+      } else {
+        data = omit(data, '$ctx');
+      }
+    }
+
+    const req = {
+      data,
+      session,
+      origin,
+      isFromDesktopDapp:
+        port.sender.id === browser.runtime.id &&
+        port.sender?.tab?.url?.startsWith(
+          `${browser.runtime.getURL('')}desktop.html#/desktop/`
+        ),
+    };
     if (!session?.origin) {
       const tabInfo = await browser.tabs.get(sessionId);
       // prevent tabCheckin not triggered, re-fetch tab info when session have no info at all
@@ -490,6 +532,7 @@ browser.runtime.onConnect.addListener((port) => {
         origin,
         name: tabInfo.title || '',
         icon: tabInfo.favIconUrl || '',
+        isFromDesktopDapp: req.isFromDesktopDapp,
       });
     }
     // for background push to respective page
@@ -526,8 +569,10 @@ function startEnableUser() {
     action: 'enable',
   });
 
-  ga4.fireEvent('User_Enable', {
-    event_category: 'User Enable',
+  browser.action.getUserSettings().then((res) => {
+    ga4.fireEvent(`User_Enable_${res.isOnToolbar ? 'Pin' : 'unPin'}`, {
+      event_category: 'User Enable',
+    });
   });
   preferenceService.updateSendEnableTime(Date.now());
 }
@@ -552,3 +597,14 @@ if (isManifestV3) {
     }
   });
 }
+
+export const logoutGasAccountOnAddressRemoved = async (
+  address: string,
+  type: string,
+  brand?: string
+) => {
+  if (type === KEYRING_TYPE.WatchAddressKeyring) {
+    return;
+  }
+  gasAccountService.handleRemovedAccount(address, type, brand);
+};

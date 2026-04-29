@@ -92,6 +92,7 @@ const BridgeToTokenSelect = ({
         from_token_id: fromTokenId,
         to_chain_id: chainId,
         q: queryConds.keyword,
+        user_addr: currentAccount?.address,
       });
       return list?.token_list;
     }
@@ -135,7 +136,8 @@ const BridgeToTokenSelect = ({
           <TokenSelector
             drawerHeight={drawerHeight}
             visible={tokenSelectorVisible}
-            list={displayTokenList}
+            isHideTitle={true}
+            mainnetTokenList={displayTokenList}
             onConfirm={handleCurrentTokenChange}
             onCancel={handleTokenSelectorClose}
             onSearch={handleSearchTokens}

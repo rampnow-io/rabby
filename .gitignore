@@ -1,11 +1,13 @@
 node_modules
+.yalc
+yalc.lock
 dist
 dist-*
 .yarn
 .DS_Store
 yarn-error
-.claude
-
+.claude/settings.local.json
+.claude/CLAUDE.local.md
 tmp/*.zip
 tmp/inv-batch.json
 tmp/styled-components-id-mappings.*
@@ -14,3 +16,4 @@ tmp/styled-components-id-mappings.*
 flake.nix
 flake.lock
 .envrc
+src/manifest/chrome-mv3/manifest.local.json

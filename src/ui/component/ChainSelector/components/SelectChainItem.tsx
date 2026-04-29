@@ -1,8 +1,10 @@
-import React, { useMemo, forwardRef, HTMLAttributes, useEffect } from 'react';
+/* eslint "react-hooks/exhaustive-deps": ["error"] */
+/* eslint-enable react-hooks/exhaustive-deps */
+import React, { useMemo, forwardRef, HTMLAttributes } from 'react';
 import { CHAINS_ENUM, Chain } from '@debank/common';
 import { Tooltip } from 'antd';
 import clsx from 'clsx';
-import { useRabbyDispatch, useRabbySelector } from '@/ui/store';
+import { useRabbySelector } from '@/ui/store';
 import ChainIcon from '../../ChainIcon';
 import IconCheck from 'ui/assets/check-2.svg';
 import IconPinned, {
@@ -64,11 +66,6 @@ export const SelectChainItem = forwardRef(
         testnet: s.account.testnetMatteredChainBalances,
       },
     }));
-    const dispatch = useRabbyDispatch();
-
-    useEffect(() => {
-      dispatch.customRPC.getAllRPC();
-    }, []);
 
     const finalDisabledTips = useMemo(() => {
       if (typeof disabledTips === 'function') {
@@ -76,14 +73,14 @@ export const SelectChainItem = forwardRef(
       }
 
       return disabledTips;
-    }, [disabledTips]);
+    }, [disabledTips, data]);
 
     const chainBalanceItem = useMemo(() => {
       return (
         cachedChainBalances.mainnet?.[data.serverId] ||
         cachedChainBalances.testnet?.[data.serverId]
       );
-    }, [cachedChainBalances]);
+    }, [cachedChainBalances, data.serverId]);
 
     const { disable: disableFromToAddress, shortReason } = useMemo(() => {
       return (

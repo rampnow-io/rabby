@@ -16,6 +16,7 @@ import {
   DEFAULT_GAS_LIMIT_BUFFER,
   DEFAULT_GAS_LIMIT_RATIO,
   HARDWARE_KEYRING_TYPES,
+  INTERNAL_REQUEST_ORIGIN,
   KEYRING_CATEGORY_MAP,
   KEYRING_CLASS,
   KEYRING_TYPE,
@@ -48,6 +49,7 @@ import {
 } from '@rabby-wallet/rabby-action';
 import * as Sentry from '@sentry/browser';
 import { getCexInfo } from '@/ui/models/exchange';
+import { useSetReportGasLevel } from '@/ui/hooks/useSetReportGasLevel';
 
 const checkGasAndNonce = ({
   recommendGasLimitRatio,
@@ -229,7 +231,7 @@ export const SignTestnetTx = ({
     isViewGnosisSafe,
     reqId,
     safeTxGas,
-  } = normalizeTxParams(params.data[0]);
+  } = normalizeTxParams(params.data[0], origin !== INTERNAL_REQUEST_ORIGIN);
 
   const wallet = useWallet();
   const chainId = +params?.data?.[0]?.chainId;
@@ -386,16 +388,6 @@ export const SignTestnetTx = ({
           (item) => item.type === currentAccount.type
         )
       );
-      wallet.reportStats('createTransaction', {
-        type: currentAccount.brandName,
-        category: KEYRING_CATEGORY_MAP[currentAccount.type],
-        chainId: chain?.serverId || '',
-        createdBy: params?.$ctx?.ga ? 'rabby' : 'dapp',
-        source: params?.$ctx?.ga?.source || '',
-        trigger: params?.$ctx?.ga?.trigger || '',
-        networkType: chain?.isTestnet ? 'Custom Network' : 'Integrated Network',
-        swapUseSlider: params?.$ctx?.ga?.swapUseSlider ?? '',
-      });
 
       matomoRequestEvent({
         category: 'Transaction',
@@ -472,6 +464,19 @@ export const SignTestnetTx = ({
         // no cache, use the fast level in gasMarket
         gas = gasList.find((item) => item.level === 'normal')!;
       }
+
+      wallet.reportStats('createTransaction', {
+        type: currentAccount.brandName,
+        category: KEYRING_CATEGORY_MAP[currentAccount.type],
+        chainId: chain?.serverId || '',
+        createdBy: params?.$ctx?.ga ? 'rabby' : 'dapp',
+        source: params?.$ctx?.ga?.source || '',
+        trigger: params?.$ctx?.ga?.trigger || '',
+        networkType: chain?.isTestnet ? 'Custom Network' : 'Integrated Network',
+        swapUseSlider: params?.$ctx?.ga?.swapUseSlider ?? '',
+        gasLevel: gas?.level || 'normal',
+      });
+
       setSelectedGas(gas);
       setTx({
         ...tx,
@@ -845,6 +850,8 @@ export const SignTestnetTx = ({
     nativeTokenBalance,
     recommendGasLimitRatio: 1.5,
   });
+
+  useSetReportGasLevel(selectedGas?.level);
 
   if (!chain) {
     return null;

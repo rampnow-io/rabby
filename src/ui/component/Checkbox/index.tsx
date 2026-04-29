@@ -17,6 +17,7 @@ interface CheckboxProps {
   children?: ReactNode;
   checkIcon?: ReactNode;
   type?: 'circle' | 'square';
+  disabled?: boolean;
 }
 
 const Checkbox = ({
@@ -32,6 +33,7 @@ const Checkbox = ({
   className,
   children,
   checkIcon,
+  disabled = false,
 }: CheckboxProps) => {
   const [checkState, setCheckState] = useState(defaultChecked);
 
@@ -40,6 +42,7 @@ const Checkbox = ({
   }, [checked]);
 
   const handleValueChange = (e: SyntheticEvent, checked) => {
+    if (disabled) return;
     e.stopPropagation();
     onChange && onChange(checked);
   };
@@ -52,6 +55,10 @@ const Checkbox = ({
         className
       )}
       onClick={(e) => handleValueChange(e, !checkState)}
+      style={{
+        opacity: disabled ? 0.5 : 1,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+      }}
     >
       <div
         className={clsx(

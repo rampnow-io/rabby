@@ -10,7 +10,7 @@ import IconSearch from 'ui/assets/search.svg';
 
 import { Account } from '@/background/service/preference';
 import { useAccounts } from '@/ui/hooks/useAccounts';
-import useDebounceValue from '@/ui/hooks/useDebounceValue';
+import useSyncStaleValue from '@/ui/hooks/useDebounceValue';
 import { IDisplayedAccountWithBalance } from '@/ui/models/accountToDisplay';
 import { isSameAccount } from '@/utils/account';
 import { flatten } from 'lodash';
@@ -107,7 +107,7 @@ export const AccountSelectorModal = ({
   const [searchKeyword, setSearchKeyword] = React.useState(
     addressSortStore?.search || ''
   );
-  const debouncedSearchKeyword = useDebounceValue(searchKeyword, 250);
+  const debouncedSearchKeyword = useSyncStaleValue(searchKeyword, 250);
 
   const {
     accountList,
@@ -209,10 +209,10 @@ export const AccountSelectorModal = ({
   return (
     <>
       <Drawer
-        title={title || t('component.AccountSelectorModal.title')}
+        title={title}
         width="400px"
         height={height}
-        closable={showClosableIcon}
+        closable={showClosableIcon && !!title}
         placement={'bottom'}
         visible={visible}
         onClose={handleCancel}
@@ -272,14 +272,14 @@ export const AccountSelectorModal = ({
                       background: 'var(--r-neutral-card1, #FFF)',
                       ...(isGroupFirst
                         ? {
-                            borderTopLeftRadius: 8,
-                            borderTopRightRadius: 8,
+                            borderTopLeftRadius: 12,
+                            borderTopRightRadius: 12,
                           }
                         : {}),
                       ...(isGroupLast
                         ? {
-                            borderBottomLeftRadius: 8,
-                            borderBottomRightRadius: 8,
+                            borderBottomLeftRadius: 12,
+                            borderBottomRightRadius: 12,
                             marginBottom: 16,
                             borderBottom: 'none',
                           }

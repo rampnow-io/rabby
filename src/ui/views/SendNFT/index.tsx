@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
 import { matomoRequestEvent } from '@/utils/matomo-request';
 import { Form, message, Button } from 'antd';
-import { isValidAddress } from '@ethereumjs/util';
+import { isValidAddress, toChecksumAddress } from '@ethereumjs/util';
 import abiCoderInst, { AbiCoder } from 'web3-eth-abi';
 import { useRequest } from 'ahooks';
 import { CHAINS_ENUM, KEYRING_CLASS, KEYRING_TYPE } from 'consts';
@@ -95,8 +95,7 @@ const SendNFT = () => {
   const chainInfo = useMemo(() => {
     return findChain({ enum: chain });
   }, [chain]);
-
-  const { openDirect, prefetch } = useMiniSigner({
+  const { instance, openDirect, prefetch } = useMiniSigner({
     account: currentAccount!,
     chainServerId: chainInfo?.serverId || '',
     autoResetGasStoreOnChainChange: true,
@@ -152,7 +151,17 @@ const SendNFT = () => {
   const [agreeRequiredChecks, setAgreeRequiredChecks] = useState({
     forToAddress: false,
   });
-  const { loading: loadingRisks, risks } = useAddressRisks(toAddress || '', {
+  const { loading: loadingRisks, risks } = useAddressRisks({
+    toAddress: toAddress || '',
+    fromAddress: currentAccount?.address,
+    // forbiddenCheck: useMemo(() => {
+    //   return {
+    //     user_addr: currentAccount?.address || '',
+    //     to_addr: toAddress || '',
+    //     chain_id: nftItem?.serverId,
+    //     id: toAddress || '',
+    //   };
+    // }, [currentAccount?.address, toAddress, nftItem?.serverId]),
     onLoadFinished: useCallback(() => {
       setAgreeRequiredChecks((prev) => ({ ...prev, forToAddress: false }));
     }, []),
@@ -234,9 +243,10 @@ const SendNFT = () => {
   };
 
   const getNFTTransferParams = useCallback(
-    (amount: number): Record<string, any> => {
+    (amount: number): Record<string, any> | null => {
       if (!nftItem || !chainInfo || !currentAccount) {
-        throw new Error('Missing required data for NFT transfer');
+        // throw new Error('Missing required data for NFT transfer');
+        return null;
       }
       const params: Record<string, any> = {
         chainId: chainInfo.id,
@@ -257,8 +267,8 @@ const SendNFT = () => {
                 ] as any[],
               } as const,
               [
-                currentAccount.address,
-                toAddress,
+                toChecksumAddress(currentAccount.address),
+                toChecksumAddress(toAddress),
                 nftItem.inner_id,
                 amount,
                 '0x',
@@ -274,7 +284,11 @@ const SendNFT = () => {
                   { type: 'uint256', name: 'tokenId' },
                 ] as any[],
               } as const,
-              [currentAccount.address, toAddress, nftItem.inner_id] as any[]
+              [
+                toChecksumAddress(currentAccount.address),
+                toChecksumAddress(toAddress),
+                nftItem.inner_id,
+              ] as any[]
             ),
       };
 
@@ -357,6 +371,9 @@ const SendNFT = () => {
         });
 
         const params = getNFTTransferParams(amount);
+        if (!params) {
+          throw new Error('Missing required data for NFT transfer');
+        }
         let shouldForceSignPage = !!forceSignPage;
         wallet.addCacheHistoryData(
           `${chain}-${params.data || '0x'}`,
@@ -711,13 +728,14 @@ const SendNFT = () => {
                   <ShowMoreOnSend
                     chainServeId={chainInfo?.serverId}
                     open
+                    signatureInstance={instance}
                     // setOpen={setGasFeeOpen}
                   />
                 </div>
               ) : null}
               {!canSubmit && (
                 <div className="mt-16 mb-16">
-                  <PendingTxItem type="sendNft" />
+                  <PendingTxItem type="sendNft" getContainer={getContainer} />
                 </div>
               )}
             </div>
@@ -737,6 +755,7 @@ const SendNFT = () => {
             canSubmit={canSubmit}
             miniSignLoading={miniSignLoading}
             canUseDirectSubmitTx={canUseDirectSubmitTx}
+            signatureInstance={instance}
             onConfirm={() => {
               handleSubmit({
                 amount: form.getFieldValue('amount'),

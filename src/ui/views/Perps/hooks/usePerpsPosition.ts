@@ -24,6 +24,9 @@ export const usePerpsPosition = ({
     hasPermission,
 
     judgeIsUserAgentIsExpired,
+    handleActionApproveStatus,
+    accountNeedApproveAgent,
+    accountNeedApproveBuilderFee,
   } = usePerpsState({});
 
   const logout = useMemoizedFn((address: string) => {
@@ -68,7 +71,8 @@ export const usePerpsPosition = ({
           dispatch.perps.fetchPositionOpenOrders();
         }, 1000);
         message.success({
-          className: 'toast-message-2025-center',
+          // className: 'toast-message-2025-center',
+          duration: 1.5,
           content: tpTriggerPx
             ? t('page.perps.toast.takeProfitSuccess')
             : t('page.perps.toast.stopLossSuccess'),
@@ -82,7 +86,8 @@ export const usePerpsPosition = ({
           ? 'Take profit set error'
           : 'Stop loss set error';
         message.error({
-          className: 'toast-message-2025-center',
+          // className: 'toast-message-2025-center',
+          duration: 1.5,
           content: error?.message || errorText,
         });
         Sentry.captureException(
@@ -115,7 +120,8 @@ export const usePerpsPosition = ({
           )
         ) {
           message.success({
-            className: 'toast-message-2025-center',
+            // className: 'toast-message-2025-center',
+            duration: 1.5,
             content: actionText + ' canceled successfully',
           });
           setTimeout(() => {
@@ -123,7 +129,8 @@ export const usePerpsPosition = ({
           }, 1000);
         } else {
           message.error({
-            className: 'toast-message-2025-center',
+            // className: 'toast-message-2025-center',
+            duration: 1.5,
             content: actionText + ' cancel error',
           });
           Sentry.captureException(
@@ -157,7 +164,8 @@ export const usePerpsPosition = ({
 
         if (res?.status === 'ok') {
           message.success({
-            className: 'toast-message-2025-center',
+            // className: 'toast-message-2025-center',
+            duration: 1.5,
             content: t(
               action === 'add'
                 ? 'page.perpsDetail.PerpsEditMarginPopup.addMarginSuccess'
@@ -168,7 +176,8 @@ export const usePerpsPosition = ({
         } else {
           const msg = res?.response?.data?.statuses[0];
           message.error({
-            className: 'toast-message-2025-center',
+            // className: 'toast-message-2025-center',
+            duration: 1.5,
             content: msg || 'Update margin failed',
           });
           Sentry.captureException(
@@ -181,7 +190,8 @@ export const usePerpsPosition = ({
       } catch (error) {
         console.error('Update margin error:', error);
         message.error({
-          className: 'toast-message-2025-center',
+          // className: 'toast-message-2025-center',
+          duration: 1.5,
           content: error?.message || 'Update margin failed',
         });
         Sentry.captureException(
@@ -219,7 +229,8 @@ export const usePerpsPosition = ({
           dispatch.perps.fetchUserHistoricalOrders();
           const { totalSz, avgPx } = filled;
           message.success({
-            className: 'toast-message-2025-center',
+            // className: 'toast-message-2025-center',
+            duration: 1.5,
             content: t('page.perps.toast.closePositionSuccess', {
               direction,
               coin,
@@ -239,7 +250,8 @@ export const usePerpsPosition = ({
         } else {
           const msg = res?.response?.data?.statuses[0]?.error;
           message.error({
-            className: 'toast-message-2025-center',
+            // className: 'toast-message-2025-center',
+            duration: 1.5,
             content: msg || 'close position error',
           });
           Sentry.captureException(
@@ -260,7 +272,8 @@ export const usePerpsPosition = ({
         }
         console.error('close position error', e);
         message.error({
-          className: 'toast-message-2025-center',
+          // className: 'toast-message-2025-center',
+          duration: 1.5,
           content: e?.message || 'close position error',
         });
         Sentry.captureException(
@@ -286,6 +299,8 @@ export const usePerpsPosition = ({
       midPx: string;
       tpTriggerPx?: string;
       slTriggerPx?: string;
+      marginMode?: 'cross' | 'isolated';
+      isAddPosition?: boolean;
     }) => {
       try {
         const sdk = getPerpsSDK();
@@ -297,12 +312,15 @@ export const usePerpsPosition = ({
           midPx,
           tpTriggerPx,
           slTriggerPx,
+          marginMode = 'isolated',
         } = params;
-        await sdk.exchange?.updateLeverage({
-          coin,
-          leverage,
-          isCross: false,
-        });
+        if (!params.isAddPosition) {
+          await sdk.exchange?.updateLeverage({
+            coin,
+            leverage,
+            isCross: marginMode === 'cross',
+          });
+        }
 
         const promises = [
           sdk.exchange?.marketOrderOpen({
@@ -312,6 +330,7 @@ export const usePerpsPosition = ({
             midPx,
             // tpTriggerPx,
             // slTriggerPx,
+            builder: PERPS_BUILDER_INFO,
           }),
         ];
 
@@ -343,7 +362,8 @@ export const usePerpsPosition = ({
 
           const { totalSz, avgPx } = filled;
           message.success({
-            className: 'toast-message-2025-center',
+            // className: 'toast-message-2025-center',
+            duration: 1.5,
             content: t('page.perps.toast.openPositionSuccess', {
               direction,
               coin,
@@ -363,7 +383,8 @@ export const usePerpsPosition = ({
         } else {
           const msg = res?.response?.data?.statuses[0]?.error;
           message.error({
-            className: 'toast-message-2025-center',
+            // className: 'toast-message-2025-center',
+            duration: 1.5,
             content: msg || 'open position error',
           });
           Sentry.captureException(
@@ -383,7 +404,8 @@ export const usePerpsPosition = ({
         }
         console.error(error);
         message.error({
-          className: 'toast-message-2025-center',
+          // className: 'toast-message-2025-center',
+          duration: 1.5,
           content: error?.message || 'open position error',
         });
         Sentry.captureException(
@@ -409,5 +431,8 @@ export const usePerpsPosition = ({
     isLogin,
     currentPerpsAccount,
     hasPermission,
+    handleActionApproveStatus,
+    accountNeedApproveAgent,
+    accountNeedApproveBuilderFee,
   };
 };

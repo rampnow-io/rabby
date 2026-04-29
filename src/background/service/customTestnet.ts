@@ -740,6 +740,12 @@ class CustomTestnetService {
   // todo
   getTokenWithBalance = this.getTokenList;
 
+  hasCustomTokens = () => {
+    const hasCustomNetwork = Object.values(this.store.customTestnet).length > 0;
+    const hasCustomTokens = this.store.customTokenList.length > 0;
+    return hasCustomNetwork || hasCustomTokens;
+  };
+
   syncChainList = () => {
     const testnetList = this.getList();
     updateChainStore({
@@ -1086,7 +1092,7 @@ class CustomTestnetService {
               decimals: chain.nativeTokenDecimals,
               id: chain.nativeTokenAddress,
               chainId: chain.id,
-              rawAmount: _value.toString(),
+              rawAmount: _value.toFixed(),
               logo: this.store.logos?.[chain.id]?.token_logo_url,
             }),
           },
@@ -1145,7 +1151,7 @@ class CustomTestnetService {
                   decimals: token.decimals,
                   id: token.id,
                   chainId: token.chainId,
-                  rawAmount: _value.toString(),
+                  rawAmount: _value.toFixed(),
                   logo: '',
                 }),
               },
@@ -1169,7 +1175,7 @@ class CustomTestnetService {
                   decimals: token.decimals,
                   id: token.id,
                   chainId: token.chainId,
-                  rawAmount: _value.toString(),
+                  rawAmount: _value.toFixed(),
                   logo: '',
                 }),
               },

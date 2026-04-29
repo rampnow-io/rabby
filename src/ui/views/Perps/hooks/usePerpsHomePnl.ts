@@ -1,44 +1,40 @@
-import { useMemoizedFn } from 'ahooks';
-import { useEffect, useState } from 'react';
-import { getPerpsSDK } from '../sdkManager';
-import { useWallet } from '@/ui/utils';
-import { useRabbyDispatch, useRabbySelector } from '@/ui/store';
+import { useRabbySelector } from '@/ui/store';
+import { usePerpsClearHouseState } from './usePerpsClearingHouseState';
+import { useEffect, useMemo } from 'react';
+import { ga4 } from '@/utils/ga4';
+import { usePerpsAccount } from './usePerpsAccount';
 
 export const usePerpsHomePnl = () => {
-  const wallet = useWallet();
-  const dispatch = useRabbyDispatch();
   const perpsState = useRabbySelector((state) => state.perps);
-  const [isFetching, setIsFetching] = useState(false);
+  const perpsAccount = perpsState.currentPerpsAccount;
 
-  const fetch = useMemoizedFn(async () => {
-    setIsFetching(true);
-    const sdk = getPerpsSDK();
-    const account = await wallet.getPerpsCurrentAccount();
-    if (account?.address) {
-      const res = await sdk.info.getClearingHouseState(account.address);
-
-      const positionAndOpenOrders = res.assetPositions;
-
-      if (!positionAndOpenOrders || positionAndOpenOrders.length === 0) {
-        dispatch.perps.setHomePositionPnl({ pnl: 0, show: false });
-      } else {
-        const pnl = positionAndOpenOrders.reduce((acc, asset) => {
-          return acc + Number(asset.position.unrealizedPnl);
-        }, 0);
-        dispatch.perps.setHomePositionPnl({ pnl, show: true });
-      }
-    } else {
-      dispatch.perps.setHomePositionPnl({ pnl: 0, show: false });
-    }
-    setIsFetching(false);
+  const { data, loading: isFetching } = usePerpsClearHouseState({
+    address: perpsAccount?.address,
   });
+  const { availableBalance } = usePerpsAccount();
+
+  const pnl = useMemo(() => {
+    return data?.assetPositions.reduce((acc, item) => {
+      return acc + Number(item.position.unrealizedPnl);
+    }, 0);
+  }, [data]);
+
+  const existPosition = useMemo(() => {
+    return data?.assetPositions?.length && data.assetPositions.length > 0;
+  }, [data?.assetPositions?.length]);
 
   useEffect(() => {
-    fetch();
-  }, []);
+    if (existPosition) {
+      ga4.fireEvent('Perps_ExistPosition', {
+        event_category: 'Rabby Perps',
+      });
+    }
+  }, [existPosition]);
 
   return {
-    perpsPositionInfo: perpsState.homePositionPnl,
+    perpsPositionInfo: data,
     isFetching,
+    positionPnl: pnl,
+    availableBalance: availableBalance || Number(data?.withdrawable) || 0,
   };
 };

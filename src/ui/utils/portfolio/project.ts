@@ -315,16 +315,18 @@ export class DisplayedToken implements AbstractPortfolioToken {
   price: number;
   decimals: number;
   display_symbol: string | null;
-  is_core: boolean;
+  is_core: boolean | null;
   is_wallet: boolean;
   name: string;
   optimized_symbol: string;
-  is_verified: boolean;
+  is_verified: boolean | null;
+  is_suspicious: boolean | undefined;
   time_at: number;
   price_24h_change?: number | null;
   low_credit_score?: boolean;
   raw_amount_hex_str?: string;
   cex_ids: string[];
+  protocol_id?: string;
   _amountStr?: string;
   _priceStr?: string;
   _amountChange?: number;
@@ -358,6 +360,7 @@ export class DisplayedToken implements AbstractPortfolioToken {
     this.is_core = token.is_core;
     this.display_symbol = token.display_symbol;
     this.is_verified = token.is_verified;
+    this.is_suspicious = token.is_suspicious;
     this.optimized_symbol = token.optimized_symbol;
     this.is_wallet = token.is_wallet;
     this.name = token.name;
@@ -370,6 +373,7 @@ export class DisplayedToken implements AbstractPortfolioToken {
     this.low_credit_score = token.low_credit_score;
     this.raw_amount_hex_str = token.raw_amount_hex_str;
     this.cex_ids = token.cex_ids || [];
+    this.protocol_id = token.protocol_id;
 
     // 默认是它
     this._usdValueChangeStr = '-';
