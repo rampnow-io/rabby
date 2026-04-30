@@ -40,6 +40,21 @@ export const appVersion = createModel<RootModel>()({
 
       const locale = store.preference?.locale || 'en';
       const version = process.env.release || '0';
+
+      // In local/dev builds, release can be missing and points to 0.md, which doesn't exist.
+      if (version === '0') {
+        dispatch.appVersion.setField({
+          isNewUser,
+          version,
+          updateContent,
+          ...(firstOpen &&
+            updateContent && {
+              firstNotice: firstOpen,
+            }),
+        });
+        return;
+      }
+
       const versionMd = `${version.replace(/\./g, '')}.md`;
 
       const path = locale !== 'en' ? `${locale}/${versionMd}` : versionMd;

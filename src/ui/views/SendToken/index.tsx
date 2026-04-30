@@ -761,6 +761,12 @@ const SendToken = () => {
     );
   }, [canSubmitBasic, chainItem, currentAccount?.type, addressDesc]);
 
+  const canShowDirectSignGas = useMemo(
+    () =>
+      supportedDirectSign(currentAccount?.type || '') && !chainItem?.isTestnet,
+    [currentAccount?.type, chainItem?.isTestnet]
+  );
+
   const { runAsync: handleSubmit, loading: isSubmitLoading } = useRequest(
     async ({
       to,
@@ -2122,7 +2128,7 @@ const SendToken = () => {
         </Content>
         {/* Floating Bottom Area */}
         <Action className="flex flex-col gap-3">
-          {chainItem?.serverId && canUseDirectSubmitTx ? (
+          {chainItem?.serverId && canShowDirectSignGas ? (
             <ShowMoreOnSend chainServeId={chainItem?.serverId} open />
           ) : null}
           <BottomArea
