@@ -59,10 +59,8 @@ export const useAddressRisks = (
   const wallet = useWallet();
   const dispatch = useRabbyDispatch();
 
-  const { accountsList, exchanges } = useRabbySelector((s) => ({
-    accountsList: s.accountToDisplay.accountsList,
-    exchanges: s.exchange.exchanges,
-  }));
+  const accountsList = useRabbySelector((s) => s.accountToDisplay.accountsList);
+  const exchanges = useRabbySelector((s) => s.exchange.exchanges);
 
   const riskGetRef = useRef(false);
   const [addressDesc, setAddressDesc] = useState<

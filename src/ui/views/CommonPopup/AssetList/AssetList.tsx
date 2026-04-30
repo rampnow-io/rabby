@@ -71,7 +71,7 @@ export const AssetList = ({
           // className="h-[28px] box-content mt-[20px] mb-[20px]"
         />
       )} */}
-      <div className={clsx(selectedTab === 'mainnet' ? 'block' : 'hidden')}>
+      <div className={clsx(selectedTab === 'testnet' ? 'hidden' : 'block')}>
         {/* <ChainList
           onChange={(id) => {
             handleSelectChainChange(id);

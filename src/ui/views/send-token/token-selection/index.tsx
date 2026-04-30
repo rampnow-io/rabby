@@ -89,8 +89,10 @@ const TokenSelection: React.FC<TokenSelectionProps> = ({
   const { list: searchedTokenByQuery } = useSearchToken(
     currentAccount?.address,
     searchQuery,
-    chainId,
-    true
+    {
+      chainServerId: chainId,
+      withBalance: true,
+    }
   );
 
   const searchedDisplayTokens = useMemo(() => {

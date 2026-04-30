@@ -28,9 +28,7 @@ export const SummaryList: React.FC<Props> = () => {
 };
 
 export const SummaryListTemp: React.FC<Props> = ({ chainId }) => {
-  const { currentAccount } = useRabbySelector((s) => ({
-    currentAccount: s.account.currentAccount,
-  }));
+  const currentAccount = useRabbySelector((s) => s.account.currentAccount);
   const { list, loading } = useSummary(currentAccount!.address, chainId);
   const { t } = useTranslation();
 

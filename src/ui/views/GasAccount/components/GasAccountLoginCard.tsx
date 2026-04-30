@@ -22,10 +22,8 @@ export const GasAccountLoginCard = ({
   const wallet = useWallet();
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useGasAccountMethods();
-  const { giftUsdValue, currentAccount } = useRabbySelector((s) => ({
-    giftUsdValue: s.gift.giftUsdValue,
-    currentAccount: s.account.currentAccount,
-  }));
+  const giftUsdValue = useRabbySelector((s) => s.gift.giftUsdValue);
+  const currentAccount = useRabbySelector((s) => s.account.currentAccount);
 
   const [learnAboutPopupVisible, setLearnAboutPopupVisible] = useState(false);
 

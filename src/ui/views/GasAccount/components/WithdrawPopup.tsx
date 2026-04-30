@@ -382,9 +382,7 @@ const WithdrawContent = ({
     }
   }, [sig, accountId]);
 
-  const { accountsList } = useRabbySelector((s) => ({
-    ...s.accountToDisplay,
-  }));
+  const accountsList = useRabbySelector((s) => s.accountToDisplay.accountsList);
 
   const withdraw = async () => {
     if (

@@ -68,6 +68,7 @@ import { ellipsisAddress } from '@/ui/utils/address';
 import { useInitCheck } from './useInitCheck';
 import { useMiniSigner } from '@/ui/hooks/useSigner';
 import { MINI_SIGN_ERROR } from '@/ui/component/MiniSignV2/state/SignatureManager';
+import { signatureManager } from '@/ui/component/MiniSignV2/state';
 import {
   DirectSubmitProvider,
   supportedDirectSign,
@@ -245,6 +246,7 @@ const SendToken = () => {
     account: currentAccount!,
     chainServerId: chainItem?.serverId,
     autoResetGasStoreOnChainChange: true,
+    instance: signatureManager,
   });
   const [currentToken, setCurrentToken] = useState<TokenItem | null>(null);
 

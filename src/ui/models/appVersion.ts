@@ -45,6 +45,18 @@ export const appVersion = createModel<RootModel>()({
       const path = locale !== 'en' ? `${locale}/${versionMd}` : versionMd;
 
       try {
+        if (version === '0') {
+          dispatch.appVersion.setField({
+            isNewUser,
+            version,
+            updateContent,
+            ...(firstOpen &&
+              updateContent && {
+                firstNotice: firstOpen,
+              }),
+          });
+          return;
+        }
         // https://webpack.js.org/api/module-methods/#magic-comments
         const data = await import(
           /* webpackInclude: /\.md$/ */

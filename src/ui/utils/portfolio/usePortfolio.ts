@@ -31,7 +31,7 @@ export const log = (...args: any) => {
 
 export const usePortfolios = (
   userAddr: string | undefined,
-  timeAt?: Dayjs,
+  timeAt?: Dayjs | number,
   visible = true,
   isTestnet = false
 ) => {
@@ -74,9 +74,17 @@ export const usePortfolios = (
   }, [userAddr, visible]);
 
   useEffect(() => {
-    if (timeAt) {
-      historyTime.current = timeAt.unix();
-
+    if (timeAt && typeof timeAt === 'number') {
+      historyTime.current = timeAt;
+      if (!isLoading) {
+        loadHistory();
+      }
+    } else if (
+      timeAt &&
+      typeof timeAt === 'object' &&
+      typeof (timeAt as Dayjs).unix === 'function'
+    ) {
+      historyTime.current = (timeAt as Dayjs).unix();
       if (!isLoading) {
         loadHistory();
       }

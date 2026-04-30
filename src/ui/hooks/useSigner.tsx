@@ -46,14 +46,17 @@ export const useMiniSigner = ({
   account,
   chainServerId,
   autoResetGasStoreOnChainChange,
+  instance: externalInstance,
 }: {
   account: Account | null | undefined;
   chainServerId?: string;
   autoResetGasStoreOnChainChange?: boolean;
+  /** Provide an existing SignatureManager to share its state (e.g. the global signatureManager so gas UI components reflect the correct store). If omitted a local instance is created. */
+  instance?: SignatureManager;
 }) => {
   const instanceRef = useRef<SignatureManager | null>(null);
   if (!instanceRef.current) {
-    instanceRef.current = new SignatureManager();
+    instanceRef.current = externalInstance ?? new SignatureManager();
   }
   const instance = instanceRef.current;
   const {
@@ -245,11 +248,15 @@ export const useMiniSigner = ({
     instance.close();
   });
 
+  const isExternalInstance = !!externalInstance;
   useEffect(() => {
     registry.add(instance);
     return () => {
-      registry.destroy(instance.instanceId);
+      if (!isExternalInstance) {
+        registry.destroy(instance.instanceId);
+      }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance]);
   return {
     instance,

@@ -59,7 +59,7 @@ const filterDisplayToken = (
 
 export const useTokens = (
   userAddr: string | undefined,
-  timeAt?: Dayjs,
+  timeAt?: Dayjs | number,
   visible = true,
   updateNonce = 0,
   chainServerId?: string,
@@ -76,10 +76,10 @@ export const useTokens = (
   const historyLoad = useRef<boolean>(false);
   const wallet = useWallet();
   const dispatch = useRabbyDispatch();
-  const { mainnetTokens, testnetTokens } = useRabbySelector((store) => ({
-    mainnetTokens: store.account.tokens,
-    testnetTokens: store.account.testnetTokens,
-  }));
+  const mainnetTokens = useRabbySelector((store) => store.account.tokens);
+  const testnetTokens = useRabbySelector(
+    (store) => store.account.testnetTokens
+  );
   const userAddrRef = useRef('');
   const chainIdRef = useRef<string | undefined>(undefined);
   // const setTokenChangeLoading = useSetAtom(tokenChangeLoadingAtom);
@@ -122,9 +122,17 @@ export const useTokens = (
   }, [userAddr, visible, chainServerId]);
 
   useEffect(() => {
-    if (timeAt) {
-      historyTime.current = timeAt.unix();
-
+    if (timeAt && typeof timeAt === 'number') {
+      historyTime.current = timeAt;
+      if (!isLoading) {
+        loadHistory();
+      }
+    } else if (
+      timeAt &&
+      typeof timeAt === 'object' &&
+      typeof (timeAt as Dayjs).unix === 'function'
+    ) {
+      historyTime.current = (timeAt as Dayjs).unix();
       if (!isLoading) {
         loadHistory();
       }

@@ -161,8 +161,10 @@ const TokenAmountInput = ({
   const { list: searchedTokenByQuery } = useSearchToken(
     currentAccount?.address,
     keyword,
-    chainServerId,
-    true
+    {
+      chainServerId,
+      withBalance: true,
+    }
   );
 
   const searchedDisplayTokens = useMemo(() => {

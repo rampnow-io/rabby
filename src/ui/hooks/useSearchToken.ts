@@ -277,7 +277,7 @@ const useSearchToken = (
     chainServerId?: string;
     withBalance?: boolean;
     isTestnet?: boolean;
-  }
+  } = {}
 ) => {
   const wallet = useWallet();
   const [result, setResult] = useState<AbstractPortfolioToken[]>([]);

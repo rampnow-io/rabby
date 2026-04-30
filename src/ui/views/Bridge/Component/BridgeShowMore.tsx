@@ -538,7 +538,7 @@ export const DirectSignGasInfo = ({
   const isGasAccountLogin = !!sig && !!accountId;
 
   const { ctx, config } = useSignatureStore();
-
+  console.log('ctx in DirectSignGasInfo', ctx);
   const gasInfoByUI = useGetGasInfoByUI();
 
   const { gasCostUsdStr, gasAccountCost } = gasInfoByUI || {};

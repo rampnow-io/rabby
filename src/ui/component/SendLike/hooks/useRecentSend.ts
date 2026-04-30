@@ -247,9 +247,7 @@ export function useToAddressPositiveTips({
   toAddress?: string;
   isMyImported?: boolean;
 }): ToAddressPositiveTips {
-  const { whitelist } = useRabbySelector((s) => ({
-    whitelist: s.whitelist.whitelist,
-  }));
+  const whitelist = useRabbySelector((s) => s.whitelist.whitelist);
   const inWhitelist = useMemo(() => {
     return !!toAddress && whitelist?.some((w) => isSameAddress(w, toAddress));
   }, [toAddress, whitelist]);

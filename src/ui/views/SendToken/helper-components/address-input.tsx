@@ -123,13 +123,9 @@ const ToAddress = ({ value, onChange }: Pros) => {
     [onChange]
   );
 
-  const { whitelist } = useRabbySelector((s) => ({
-    whitelist: s.whitelist.whitelist,
-  }));
+  const whitelist = useRabbySelector((s) => s.whitelist.whitelist);
 
-  const { accountsList } = useRabbySelector((s) => ({
-    accountsList: s.accountToDisplay.accountsList,
-  }));
+  const accountsList = useRabbySelector((s) => s.accountToDisplay.accountsList);
 
   const currentAccountAddress = useRabbySelector(
     (s) => s.account.currentAccount?.address

@@ -4,7 +4,7 @@ import {
   TokenItem,
 } from '@rabby-wallet/rabby-api/dist/types';
 import { CHAINS } from 'consts';
-import { DisplayedProject } from './project';
+import { DisplayedProject, encodeProjectTokenId } from './project';
 import { WalletControllerType } from '../WalletContext';
 import { requestOpenApiWithChainId } from '@/ui/utils/openapi';
 import {
@@ -15,6 +15,9 @@ import {
 import { pQueue } from './utils';
 import { flatten } from 'lodash';
 import { getTokenList } from '@/snippets/client';
+import { AbstractPortfolioToken } from './types';
+import { formatAmount, formatPrice, formatUsdValue } from '..';
+import { getTokenSymbol } from '../token';
 
 export const queryTokensCache = async (
   user_id: string,
@@ -152,4 +155,75 @@ export const sortWalletTokens = (wallet: DisplayedProject) => {
     // Within same chain, sort by USD value (highest first)
     return (b._usdValue || 0) - (a._usdValue || 0);
   });
+};
+
+export const concatAndSort = <
+  T extends {
+    symbol: string;
+    is_core?: boolean;
+    price?: number;
+    amount?: number;
+  }
+>(
+  source: T[],
+  appendList: T[],
+  keyword: string
+): T[] => {
+  return source
+    .concat(
+      appendList.filter((token) =>
+        token.symbol.toLowerCase().includes(keyword.toLowerCase())
+      )
+    )
+    .sort((a, b) => {
+      if (a.is_core && !b.is_core) {
+        return -1;
+      }
+      if (!a.is_core && b.is_core) {
+        return 1;
+      }
+      const aValue = (a.price ?? 0) * (a.amount ?? 0);
+      const bValue = (b.price ?? 0) * (b.amount ?? 0);
+      return bValue - aValue;
+    });
+};
+
+export const parseTokenItem = (token: TokenItem): AbstractPortfolioToken => {
+  const formattedPrice = token.price || 0;
+  const formattedAmount = token.amount || 0;
+  const realUsdValue = formattedPrice * formattedAmount;
+  const usdValue = Math.abs(realUsdValue);
+  return {
+    id: encodeProjectTokenId(token),
+    _tokenId: token.id,
+    chain: token.chain,
+    symbol: getTokenSymbol(token),
+    logo_url: token.logo_url,
+    amount: formattedAmount,
+    price: formattedPrice,
+    _realUsdValue: realUsdValue,
+    _usdValue: usdValue,
+    _amountStr: formatAmount(Math.abs(formattedAmount)),
+    _priceStr: formatPrice(formattedPrice),
+    _usdValueStr: formatUsdValue(usdValue),
+
+    decimals: token.decimals,
+    display_symbol: token.display_symbol,
+    name: token.name,
+    optimized_symbol: token.optimized_symbol,
+    is_core: token.is_core,
+    is_wallet: token.is_wallet,
+    is_verified: token.is_verified,
+    is_suspicious: token.is_suspicious,
+    time_at: token.time_at,
+    price_24h_change: token.price_24h_change,
+    low_credit_score: token.low_credit_score,
+    raw_amount_hex_str: token.raw_amount_hex_str,
+    cex_ids: token.cex_ids || [],
+    protocol_id: token.protocol_id,
+
+    _amountChangeStr: '',
+    _usdValueChangeStr: '-',
+    _amountChangeUsdValueStr: '',
+  };
 };

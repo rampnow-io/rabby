@@ -5,7 +5,7 @@ import {
   OffscreenCommunicationEvents,
   BitBox02Action,
 } from '@/constant/offscreen-communication';
-import * as HDKey from 'hdkey';
+import HDKey from 'hdkey';
 
 export default class BitBox02OffscreenBridge
   implements BitBox02BridgeInterface {

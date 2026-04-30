@@ -205,7 +205,7 @@ import LogoZerion, {
 import browser from 'webextension-polyfill';
 
 import Logo0X from 'ui/assets/swap/0xswap.png';
-import Logo1inch from 'ui/assets/swap/1inch.png';
+import Logo1inch from 'ui/assets/swap/1inch.svg';
 import LogoOdos from 'ui/assets/swap/odos.png';
 import LogoParaswap from 'ui/assets/swap/paraswap.png';
 import LogoMagpie from 'ui/assets/swap/magpie.png';
@@ -545,6 +545,7 @@ export const EVENTS = {
     REQUEST_PERMISSION_WEBUSB: 'ONEKEY_REQUEST_PERMISSION_WEBUI',
   },
   LOCK_WALLET: 'LOCK_WALLET',
+  UNLOCK_WALLET: 'UNLOCK_WALLET',
   RELOAD_TX: 'RELOAD_TX',
   SIGN_BEGIN: 'SIGN_BEGIN',
   SIGN_WAITING_AMOUNTED: 'SIGN_WAITING_AMOUNTED',
@@ -554,9 +555,13 @@ export const EVENTS = {
     LOG_IN: 'LOG_IN',
     LOG_OUT: 'LOG_OUT',
     CLOSE_WINDOW: 'CLOSE_WINDOW',
+    DISCOVERY_UPDATED: 'DISCOVERY_UPDATED',
   },
   PERPS: {
     LOG_OUT: 'PERPS_LOG_OUT',
+    HANDLE_CLICK_PRICE: 'PERPS_HANDLE_CLICK_PRICE',
+    SWITCH_LIMIT_FILL_PRICE: 'SWITCH_LIMIT_FILL_PRICE',
+    USER_INFO_HISTORY_TAB_CHANGED: 'PERPS_USER_INFO_HISTORY_TAB_CHANGED',
   },
   INNER_HISTORY_ITEM_PENDING: 'INNER_HISTORY_ITEM_PENDING',
   INNER_HISTORY_ITEM_COMPLETE: 'INNER_HISTORY_ITEM_COMPLETE',
@@ -566,6 +571,13 @@ export const EVENTS = {
 
   DESKTOP: {
     FOCUSED: 'DESKTOP_FOCUSED',
+    SWITCH_PERPS_ACCOUNT: 'DESKTOP_SWITCH_PERPS_ACCOUNT',
+  },
+
+  RELOAD_APPROVAL: 'RELOAD_APPROVAL',
+  INNER_DAPP_CHANGE: {
+    ACCOUNT_CHANGED: 'INNER_DAPP_ACCOUNT_CHANGED',
+    DAPP_CHANGED: 'INNER_DAPP_DAPP_CHANGED',
   },
 };
 

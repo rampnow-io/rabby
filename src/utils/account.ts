@@ -225,6 +225,11 @@ export const isFullVersionAccountType = (account: Account) => {
   ].includes(account.type as any);
 };
 
+export const isSupportDBAccount = (account?: Account | null) => {
+  if (!account?.type) return false;
+  return isFullVersionAccountType(account);
+};
+
 export const filterMyAccounts = (account: Account) => {
   const isMyImported =
     account.type !== KEYRING_CLASS.WATCH &&

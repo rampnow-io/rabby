@@ -113,15 +113,26 @@ export const useGasAccountHistoryRefresh = () => {
 };
 
 export const useGasAccountSign = () => {
-  return useRabbySelector((s) => ({
-    sig: s.gasAccount.sig,
-    accountId: s.gasAccount.accountId,
-    account: s.gasAccount.account,
-    pendingHardwareAccount: s.gasAccount.pendingHardwareAccount,
-    autoLoginAccount: s.gasAccount.autoLoginAccount,
-    accountsWithGasAccountBalance:
-      s.gasAccount.accountsWithGasAccountBalance || [],
-  }));
+  const sig = useRabbySelector((s) => s.gasAccount.sig);
+  const accountId = useRabbySelector((s) => s.gasAccount.accountId);
+  const account = useRabbySelector((s) => s.gasAccount.account);
+  const pendingHardwareAccount = useRabbySelector(
+    (s) => s.gasAccount.pendingHardwareAccount
+  );
+  const autoLoginAccount = useRabbySelector(
+    (s) => s.gasAccount.autoLoginAccount
+  );
+  const accountsWithGasAccountBalance = useRabbySelector(
+    (s) => s.gasAccount.accountsWithGasAccountBalance || []
+  );
+  return {
+    sig,
+    accountId,
+    account,
+    pendingHardwareAccount,
+    autoLoginAccount,
+    accountsWithGasAccountBalance,
+  };
 };
 
 export const useGasAccountInfo = ({
@@ -398,12 +409,20 @@ export const useGasAccountDiscovery = ({
   autoRefresh?: boolean;
 } = {}) => {
   const dispatch = useRabbyDispatch();
-  const discovery = useRabbySelector((s) => ({
-    pendingHardwareAccount: s.gasAccount.pendingHardwareAccount,
-    autoLoginAccount: s.gasAccount.autoLoginAccount,
-    accountsWithGasAccountBalance:
-      s.gasAccount.accountsWithGasAccountBalance || [],
-  }));
+  const pendingHardwareAccount = useRabbySelector(
+    (s) => s.gasAccount.pendingHardwareAccount
+  );
+  const autoLoginAccount = useRabbySelector(
+    (s) => s.gasAccount.autoLoginAccount
+  );
+  const accountsWithGasAccountBalance = useRabbySelector(
+    (s) => s.gasAccount.accountsWithGasAccountBalance || []
+  );
+  const discovery = {
+    pendingHardwareAccount,
+    autoLoginAccount,
+    accountsWithGasAccountBalance,
+  };
   const autoLoginInFlight = useRef(false);
   const { login } = useGasAccountMethods();
 
@@ -721,11 +740,13 @@ export const useGasAccountHistory = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const requestVersionRef = useRef(0);
   const pendingPollCountRef = useRef(0);
-  const txListRef = useRef<HistoryTxList>();
-  const historyAccountIdRef = useRef<string>();
+  const txListRef = useRef<HistoryTxList | null>(undefined);
+  const historyAccountIdRef = useRef<string | null>(undefined);
 
   useEffect(() => {
-    txListRef.current = txList;
+    if (txListRef.current != null) {
+      txListRef.current = txList;
+    }
   }, [txList]);
 
   const buildTxList = useCallback(

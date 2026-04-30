@@ -38,9 +38,7 @@ export const AssetListContainer: React.FC<Props> = ({
     setSearch(value);
   }, []);
   const [isFocus, setIsFocus] = React.useState<boolean>(false);
-  const { currentAccount } = useRabbySelector((s) => ({
-    currentAccount: s.account.currentAccount,
-  }));
+  const currentAccount = useRabbySelector((s) => s.account.currentAccount);
   const { setApps } = useCommonPopupView();
   const {
     isTokensLoading,
@@ -61,9 +59,11 @@ export const AssetListContainer: React.FC<Props> = ({
   const { isLoading: isSearching, list } = useSearchToken(
     currentAccount?.address,
     search,
-    selectChainId ? selectChainId : undefined,
-    true,
-    isTestnet
+    {
+      chainServerId: selectChainId ? selectChainId : undefined,
+      withBalance: true,
+      isTestnet,
+    }
   );
   const displayTokenList = useMemo(() => {
     const result = search ? list : tokenList;

@@ -24,10 +24,8 @@ export const useAddressInfo = (
   const wallet = useWallet();
   const dispatch = useRabbyDispatch();
   const [alias] = useAlias(address);
-  const { accountsList, exchanges } = useRabbySelector((s) => ({
-    accountsList: s.accountToDisplay.accountsList,
-    exchanges: s.exchange.exchanges,
-  }));
+  const accountsList = useRabbySelector((s) => s.accountToDisplay.accountsList);
+  const exchanges = useRabbySelector((s) => s.exchange.exchanges);
 
   const [addressDesc, setAddressDesc] = useState<
     AddrDescResponse['desc'] | undefined

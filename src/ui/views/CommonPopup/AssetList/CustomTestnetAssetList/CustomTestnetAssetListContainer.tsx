@@ -36,9 +36,7 @@ export const CustomTestnetAssetListContainer: React.FC<Props> = ({
   const handleOnSearch = React.useCallback((value: string) => {
     setSearch(value);
   }, []);
-  const { currentAccount } = useRabbySelector((s) => ({
-    currentAccount: s.account.currentAccount,
-  }));
+  const currentAccount = useRabbySelector((s) => s.account.currentAccount);
   const [isShowAddModal, setIsShowAddModal] = React.useState<boolean>(false);
   const [
     isShowAddTestnetModal,

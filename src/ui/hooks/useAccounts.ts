@@ -14,14 +14,13 @@ export const useAccounts = () => {
   );
 
   // todo: store redesign
-  const {
-    accountsList,
-    highlightedAddresses = [],
-    loadingAccounts,
-  } = useRabbySelector((s) => ({
-    ...s.accountToDisplay,
-    highlightedAddresses: s.addressManagement.highlightedAddresses,
-  }));
+  const accountsList = useRabbySelector((s) => s.accountToDisplay.accountsList);
+  const loadingAccounts = useRabbySelector(
+    (s) => s.accountToDisplay.loadingAccounts
+  );
+  const highlightedAddresses = useRabbySelector(
+    (s) => s.addressManagement.highlightedAddresses ?? []
+  );
 
   const [sortedAccountsList, watchSortedAccountsList] = React.useMemo(() => {
     const restAccounts = [...accountsList];

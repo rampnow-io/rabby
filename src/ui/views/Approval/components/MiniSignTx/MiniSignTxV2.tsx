@@ -66,10 +66,8 @@ const MiniSignTxV2 = ({ isDesktop }: { isDesktop?: boolean }) => {
   const { t } = useTranslation();
   const wallet = useWallet();
   const { isDarkTheme } = useThemeMode();
-  const { tokenDetail, cachedTokenList } = useRabbySelector((s) => ({
-    tokenDetail: s.sign.tokenDetail,
-    cachedTokenList: s.account.tokens.list,
-  }));
+  const tokenDetail = useRabbySelector((s) => s.sign.tokenDetail);
+  const cachedTokenList = useRabbySelector((s) => s.account.tokens.list);
   const cachedTokenItems = React.useMemo(
     () => (cachedTokenList || []).map(abstractTokenToTokenItem),
     [cachedTokenList]

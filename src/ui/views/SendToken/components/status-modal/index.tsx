@@ -107,9 +107,9 @@ export const StatusTxItem = forwardRef<
   const wallet = useWallet();
   const history = useHistory();
   const [data, setData] = useState<PendingTxData | null>(null);
-  const { userAddress } = useRabbySelector((state) => ({
-    userAddress: state.account.currentAccount?.address || '',
-  }));
+  const userAddress = useRabbySelector(
+    (state) => state.account.currentAccount?.address || ''
+  );
   const preFulfilledRef = useRef<boolean>(true);
 
   const fetchHistory = useCallback(async () => {

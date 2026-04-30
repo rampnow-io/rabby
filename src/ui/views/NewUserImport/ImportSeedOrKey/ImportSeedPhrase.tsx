@@ -19,7 +19,7 @@ import WordsMatrix from '@/ui/component/WordsMatrix';
 import { useWallet, getUiType } from '@/ui/utils';
 import { clearClipboard } from '@/ui/utils/clipboard';
 import { KEYRING_CLASS } from '@/constant';
-import { connectStore, useRabbyDispatch } from '../../store';
+import { connectStore, useRabbyDispatch } from '../../../store';
 import { UiProvider } from '@/ui/component/NewUserImport';
 import SectionHeader from '@/ui/component/section-header/section-header';
 import { Container, Content, Action } from '@repo/ui';

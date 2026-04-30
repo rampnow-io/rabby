@@ -2,14 +2,14 @@
 
 /**
  * ESBuild Watch Script - Ultra-fast incremental builds
- * 
+ *
  * Refactored to match Webpack architecture:
  * - CSS injection into bundles (like style-loader)
  * - Proper HTML generation with dynamic script/css injection
  * - SVG-to-React transformation
  * - Node.js polyfills
  * - Path aliases matching tsconfig
- * 
+ *
  * Usage:
  *   yarn dev:esbuild         # MV3 watch
  *   yarn dev:esbuild:mv2     # MV2 watch
@@ -20,8 +20,12 @@ const path = require('path');
 const fs = require('fs');
 const esbuild = require('esbuild');
 const alias = require('esbuild-plugin-alias');
-const { NodeGlobalsPolyfillPlugin } = require('@esbuild-plugins/node-globals-polyfill');
-const { NodeModulesPolyfillPlugin } = require('@esbuild-plugins/node-modules-polyfill');
+const {
+  NodeGlobalsPolyfillPlugin,
+} = require('@esbuild-plugins/node-globals-polyfill');
+const {
+  NodeModulesPolyfillPlugin,
+} = require('@esbuild-plugins/node-modules-polyfill');
 const svgrDualExport = require('./plugins/svgr-dual-export');
 const postCssPlugin = require('esbuild-postcss');
 
@@ -44,7 +48,7 @@ function copyDir(src, dest) {
     fs.mkdirSync(dest, { recursive: true });
   }
   const files = fs.readdirSync(src);
-  files.forEach(file => {
+  files.forEach((file) => {
     const srcPath = path.join(src, file);
     const destPath = path.join(dest, file);
     if (fs.statSync(srcPath).isDirectory()) {
@@ -88,15 +92,35 @@ fs.mkdirSync(trezorDir, { recursive: true });
 
 try {
   if (IS_MANIFEST_MV3) {
-    const trezorContentScript = require.resolve('@trezor/connect-webextension/build/content-script.js');
-    const trezorConnect = require.resolve('@trezor/connect-webextension/build/trezor-connect-webextension.js');
-    fs.copyFileSync(trezorContentScript, path.join(trezorDir, 'trezor-content-script.js'));
-    fs.copyFileSync(trezorConnect, path.join(trezorDir, 'trezor-connect-webextension.js'));
+    const trezorContentScript = require.resolve(
+      '@trezor/connect-webextension/build/content-script.js'
+    );
+    const trezorConnect = require.resolve(
+      '@trezor/connect-webextension/build/trezor-connect-webextension.js'
+    );
+    fs.copyFileSync(
+      trezorContentScript,
+      path.join(trezorDir, 'trezor-content-script.js')
+    );
+    fs.copyFileSync(
+      trezorConnect,
+      path.join(trezorDir, 'trezor-connect-webextension.js')
+    );
   } else {
-    const trezorContentScript = require.resolve('@trezor/connect-web/lib/webextension/trezor-content-script.js');
-    const trezorUsb = require.resolve('@trezor/connect-web/lib/webextension/trezor-usb-permissions.js');
-    fs.copyFileSync(trezorContentScript, path.join(trezorDir, 'trezor-content-script.js'));
-    fs.copyFileSync(trezorUsb, path.join(trezorDir, 'trezor-usb-permissions.js'));
+    const trezorContentScript = require.resolve(
+      '@trezor/connect-web/lib/webextension/trezor-content-script.js'
+    );
+    const trezorUsb = require.resolve(
+      '@trezor/connect-web/lib/webextension/trezor-usb-permissions.js'
+    );
+    fs.copyFileSync(
+      trezorContentScript,
+      path.join(trezorDir, 'trezor-content-script.js')
+    );
+    fs.copyFileSync(
+      trezorUsb,
+      path.join(trezorDir, 'trezor-usb-permissions.js')
+    );
   }
   console.log('[Build] ✓ Copied Trezor vendor files');
 } catch (error) {
@@ -105,28 +129,36 @@ try {
 
 // Copy webextension-polyfill
 try {
-  const polyfillPath = require.resolve('webextension-polyfill/dist/browser-polyfill.js');
-  fs.copyFileSync(polyfillPath, path.join(DIST_DIR, 'webextension-polyfill.js'));
+  const polyfillPath = require.resolve(
+    'webextension-polyfill/dist/browser-polyfill.js'
+  );
+  fs.copyFileSync(
+    polyfillPath,
+    path.join(DIST_DIR, 'webextension-polyfill.js')
+  );
   console.log('[Build] ✓ Copied webextension-polyfill.js');
 } catch (error) {
-  console.warn('[Build] ⚠ Failed to copy webextension-polyfill:', error.message);
+  console.warn(
+    '[Build] ⚠ Failed to copy webextension-polyfill:',
+    error.message
+  );
 }
 
 // Copy CSS files (like webpack's style-loader would inline these)
 try {
   const cssDir = path.join(DIST_DIR, 'css');
   fs.mkdirSync(cssDir, { recursive: true });
-  
+
   const uiCssPath = 'src/packages/ui/dist/index.css';
   if (fs.existsSync(uiCssPath)) {
     fs.copyFileSync(uiCssPath, path.join(cssDir, 'ui-package.css'));
   }
-  
+
   const mainCssPath = 'src/ui/style/index.css';
   if (fs.existsSync(mainCssPath)) {
     fs.copyFileSync(mainCssPath, path.join(cssDir, 'main.css'));
   }
-  
+
   console.log('[Build] ✓ Copied CSS files');
 } catch (error) {
   console.warn('[Build] ⚠ Failed to copy CSS files:', error.message);
@@ -148,26 +180,28 @@ const htmlFiles = {
 function injectCssLinks(htmlContent) {
   const cssLinks = [
     '    <link href="/css/ui-package.css" rel="stylesheet" />',
-    '    <link href="/css/main.css" rel="stylesheet" />'
+    '    <link href="/css/main.css" rel="stylesheet" />',
   ].join('\n');
-  
+
   return htmlContent.replace('</head>', `${cssLinks}\n  </head>`);
 }
 
 function injectScripts(htmlContent, scriptFiles) {
   // Webpack uses defer, but ESM modules need type="module"
-  const scriptTags = scriptFiles.map(script => {
-    const isESM = script === 'ui.js' || script === 'offscreen.js';
-    const attrs = isESM ? ' type="module"' : ' defer';
-    return `<script${attrs} src="/${script}"></script>`;
-  }).join('');
+  const scriptTags = scriptFiles
+    .map((script) => {
+      const isESM = script === 'ui.js' || script === 'offscreen.js';
+      const attrs = isESM ? ' type="module"' : ' defer';
+      return `<script${attrs} src="/${script}"></script>`;
+    })
+    .join('');
   return htmlContent.replace('</head>', `${scriptTags}</head>`);
 }
 
 console.log('[Build] Copying HTML files...');
 for (const [destName, sourcePath] of Object.entries(htmlFiles)) {
   let html = fs.readFileSync(sourcePath, 'utf8');
-  
+
   // Determine which scripts to inject based on HTML type
   // Webpack injects webextension-polyfill.js in all UI pages
   let scripts = [];
@@ -176,17 +210,23 @@ for (const [destName, sourcePath] of Object.entries(htmlFiles)) {
   } else if (destName === 'offscreen.html') {
     scripts = ['webextension-polyfill.js', 'offscreen.js'];
     // Inject CSS for offscreen (generated by esbuild)
-    html = html.replace('</head>', '    <link href="/offscreen.css" rel="stylesheet" />\n  </head>');
+    html = html.replace(
+      '</head>',
+      '    <link href="/offscreen.css" rel="stylesheet" />\n  </head>'
+    );
   } else {
     // UI pages: inject webextension-polyfill + ui.js (matching webpack)
     scripts = ['webextension-polyfill.js', 'ui.js'];
     // Inject CSS for UI (generated by esbuild)
-    html = html.replace('</head>', '    <link href="/ui.css" rel="stylesheet" />\n  </head>');
+    html = html.replace(
+      '</head>',
+      '    <link href="/ui.css" rel="stylesheet" />\n  </head>'
+    );
   }
-  
+
   // Inject scripts
   html = injectScripts(html, scripts);
-  
+
   fs.writeFileSync(path.join(DIST_DIR, destName), html);
 }
 console.log('[Build] ✓ Copied and configured HTML files');
@@ -222,20 +262,33 @@ const commonConfig = {
     alias({
       '@': path.resolve(__dirname, '../src'),
       '@repo/ui': path.resolve(__dirname, '../src/packages/ui/src/index.tsx'),
-      '@repo/utils': path.resolve(__dirname, '../src/packages/utils/src/index.ts'),
-      'ui': path.resolve(__dirname, '../src/ui'),
-      'background': path.resolve(__dirname, '../src/background'),
-      'consts': path.resolve(__dirname, '../src/constant/index.ts'),
-      'assets': path.resolve(__dirname, '../src/ui/assets'),
-      'changeLogs': path.resolve(__dirname, '../changeLogs'),
-      'react-window': path.resolve(__dirname, '../src/utils/react-window-shim.ts'),
-      '@debank/common': path.resolve(__dirname, '../node_modules/@debank/common/dist/index.js'),
+      '@repo/utils': path.resolve(
+        __dirname,
+        '../src/packages/utils/src/index.ts'
+      ),
+      ui: path.resolve(__dirname, '../src/ui'),
+      background: path.resolve(__dirname, '../src/background'),
+      consts: path.resolve(__dirname, '../src/constant/index.ts'),
+      assets: path.resolve(__dirname, '../src/ui/assets'),
+      changeLogs: path.resolve(__dirname, '../changeLogs'),
+      'react-window': path.resolve(
+        __dirname,
+        '../src/utils/react-window-shim.ts'
+      ),
+      '@debank/common': path.resolve(
+        __dirname,
+        '../node_modules/@debank/common/dist/index.js'
+      ),
       // Webpack compatibility aliases
-      'moment': require.resolve('dayjs'),
-      '@repo/ui/styles.css': path.resolve(__dirname, '../src/packages/ui/dist/index.css'),
+      moment: require.resolve('dayjs'),
+      '@repo/ui/styles.css': path.resolve(
+        __dirname,
+        '../src/packages/ui/dist/index.css'
+      ),
     }),
   ],
   loader: {
+    '.less': 'empty',
     '.png': 'file',
     '.jpg': 'file',
     '.jpeg': 'file',
@@ -292,7 +345,7 @@ const buildConfigs = [
 async function buildAll() {
   try {
     console.log('[Build] 🔨 Building all bundles with ESBuild...\n');
-    
+
     const startTime = Date.now();
 
     // Build each bundle sequentially to avoid memory issues and see specific errors
@@ -303,7 +356,7 @@ async function buildAll() {
         const context = await esbuild.context(config);
         await context.rebuild();
         contexts.push(context);
-        
+
         // Log build status immediately
         const filename = path.basename(config.outfile);
         const fullPath = config.outfile;
@@ -312,12 +365,17 @@ async function buildAll() {
           console.log(`[Build] ✓ Built ${filename} (${size}MB)\n`);
         }
       } catch (error) {
-        console.error(`[Build] ❌ Failed to build ${path.basename(config.outfile)}:`, error.message);
+        console.error(
+          `[Build] ❌ Failed to build ${path.basename(config.outfile)}:`,
+          error.message
+        );
         if (error.errors && error.errors.length > 0) {
-          error.errors.forEach(err => {
+          error.errors.forEach((err) => {
             console.error(`  - ${err.text}`);
             if (err.location) {
-              console.error(`    at ${err.location.file}:${err.location.line}:${err.location.column}`);
+              console.error(
+                `    at ${err.location.file}:${err.location.line}:${err.location.column}`
+              );
             }
           });
         }
@@ -330,15 +388,14 @@ async function buildAll() {
     console.log('[Build] 👀 Watching for changes...\n');
 
     // Watch mode
-    await Promise.all(contexts.map(ctx => ctx.watch()));
+    await Promise.all(contexts.map((ctx) => ctx.watch()));
 
     // Cleanup on exit
     process.on('SIGINT', async () => {
       console.log('\n[Build] Stopping watch mode...');
-      await Promise.all(contexts.map(ctx => ctx.dispose()));
+      await Promise.all(contexts.map((ctx) => ctx.dispose()));
       process.exit(0);
     });
-
   } catch (error) {
     console.error('[Build] ❌ Build failed:', error.message);
     process.exit(1);

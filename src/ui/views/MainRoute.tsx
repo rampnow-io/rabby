@@ -92,7 +92,7 @@ import WhitelistInput from './WhitelistInput';
 import { PortalHost } from '../component/PortalHost';
 import { GlobalSignerPortal } from '../component/MiniSignV2/components/GlobalSignerPortal';
 import SelectToAddress from './SelectToAddress';
-import ImportSeedPhrase from './NewUserImport/ImportSeedPhrase';
+import ImportSeedPhrase from './NewUserImport/ImportSeedOrKey/ImportSeedPhrase';
 import SwitchAddress from '../component/address-management/switch-address-modal';
 // import AddWalletPage from '../component/address-management/add-wallet';
 // import AddWallet from '../component/address-management/add-wallet';
