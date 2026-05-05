@@ -80,7 +80,7 @@ import { subscribeTxCompleted } from './subscriptions/rateGuidance';
 BigNumber.config({ EXPONENTIAL_AT: [-20, 100] });
 
 Safe.adapter = fetchAdapter as any;
-Safe.openapiService = openapiService;
+Reflect.set(Safe, 'openapiService', openapiService);
 
 dayjs.extend(utc);
 
@@ -361,7 +361,6 @@ restoreAppState();
 }
 
 keyringService.on('resetPassword', async () => {
-  preferenceService.clearBiometricUnlockStorage();
   const gasAccount = gasAccountService.getGasAccountData() as GasAccountServiceStore;
 
   if (
