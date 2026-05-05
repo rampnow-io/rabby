@@ -134,8 +134,8 @@ class RPCService {
         ? await fetchDefaultRpc()
         : (await openapiService.getDefaultRPCs())?.rpcs;
 
-      if (data.length) {
-        const defaultRPC: Record<string, RPCDefaultItem> = data?.reduce(
+      if (Array.isArray(data) && data.length) {
+        const defaultRPC: Record<string, RPCDefaultItem> = data.reduce(
           (acc, item) => {
             acc[item.chainId] = item;
 
