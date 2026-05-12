@@ -221,13 +221,15 @@ export const useTokens = (
       });
 
       setData(_data);
-      _tokens = sortWalletTokens(_data);
+      _tokens = sortWalletTokens(_data) as AbstractPortfolioToken[];
       if (isTestnet) {
         dispatch.account.setTestnetTokenList(
-          filterDisplayToken(_tokens, blocked)
+          filterDisplayToken(_tokens as AbstractPortfolioToken[], blocked)
         );
       } else {
-        dispatch.account.setTokenList(filterDisplayToken(_tokens, blocked));
+        dispatch.account.setTokenList(
+          filterDisplayToken(_tokens as AbstractPortfolioToken[], blocked)
+        );
       }
       setLoading(false);
       // setTokens(filterDisplayToken(_tokens, blocked));
@@ -353,15 +355,15 @@ export const useTokens = (
     });
 
     setData(_data);
-    _tokens = sortWalletTokens(_data);
+    _tokens = sortWalletTokens(_data) as AbstractPortfolioToken[];
     if (isTestnet) {
       dispatch.account.setTestnetTokenList([
-        ...filterDisplayToken(_tokens, blocked),
+        ...filterDisplayToken(_tokens as AbstractPortfolioToken[], blocked),
         ...formattedCustomTokenList,
       ]);
     } else {
       dispatch.account.setTokenList([
-        ...filterDisplayToken(_tokens, blocked),
+        ...filterDisplayToken(_tokens as AbstractPortfolioToken[], blocked),
         ...formattedCustomTokenList,
       ]);
     }
@@ -437,9 +439,11 @@ export const useTokens = (
 
     const tokenList = sortWalletTokens(_data);
     if (isTestnet) {
-      dispatch.account.setTestnetTokenList(tokenList);
+      dispatch.account.setTestnetTokenList(
+        tokenList as AbstractPortfolioToken[]
+      );
     } else {
-      dispatch.account.setTokenList(tokenList);
+      dispatch.account.setTokenList(tokenList as AbstractPortfolioToken[]);
     }
     setData(_data);
 
@@ -484,9 +488,13 @@ export const useTokens = (
 
     setData(_data);
     if (isTestnet) {
-      dispatch.account.setTestnetTokenList(sortWalletTokens(_data));
+      dispatch.account.setTestnetTokenList(
+        sortWalletTokens(_data) as AbstractPortfolioToken[]
+      );
     } else {
-      dispatch.account.setTokenList(sortWalletTokens(_data));
+      dispatch.account.setTokenList(
+        sortWalletTokens(_data) as AbstractPortfolioToken[]
+      );
     }
   };
 

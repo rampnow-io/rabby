@@ -134,18 +134,32 @@ export const testnetOpenapiService = new OpenApiService({
 export { walletApiService };
 
 const WALLET_API_METHODS = new Set<keyof OpenApiService>([
+  // User / wallet
   'listTxHisotry',
   'getTotalBalance',
   'getToken',
+  'listToken',
+
+  // Gas & execution
   'gasMarketV2',
   'gasPriceStats',
   'preExecTx',
+  'submitTxV2',
   'getDefaultRPCs',
   'ethRpc',
   'gasLessTxsCheck',
   'checkGasAccountTxs',
   'parseTx',
-  'submitTxV2',
+
+  // Swap (same-chain)
+  'getSwapQuote',
+  'suggestSlippage',
+  'getBridgeQuoteV2',
+  'buildBridgeTx',
+  'getBridgeHistoryList',
+  'getRecommendBridgeToChain',
+  'getRecommendFromToken',
+  'isSameBridgeToken',
 ]);
 
 const service = new Proxy(openapiService, {

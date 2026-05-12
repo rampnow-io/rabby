@@ -24,15 +24,9 @@ export const useQueryProjects = (
   const {
     tokens,
     isLoading: isTokensLoading,
-    isAllTokenLoading,
     hasValue: hasTokens,
     updateData: updateTokens,
-  } = useTokens(userAddr, {
-    visible: shouldAutoLoad,
-    lpTokensOnly: lpTokenMode,
-    searchMode,
-    disableRecommended: true,
-  });
+  } = useTokens(userAddr, undefined, shouldAutoLoad);
 
   const {
     data: portfolios,
@@ -41,7 +35,7 @@ export const useQueryProjects = (
     netWorth: portfolioNetWorth,
     updateData: updatePortfolio,
     removeProtocol,
-  } = usePortfolios(userAddr, shouldAutoLoad);
+  } = usePortfolios(userAddr, undefined, shouldAutoLoad);
 
   const refreshPositions = useCallback(() => {
     if (!autoLoad || (!isTokensLoading && !isPortfoliosLoading)) {
@@ -62,7 +56,6 @@ export const useQueryProjects = (
     refreshTokens: updateTokens,
     refreshPortfolios: updatePortfolio,
     isTokensLoading,
-    isAllTokenLoading,
     isPortfoliosLoading,
     hasTokens,
     hasPortfolios,

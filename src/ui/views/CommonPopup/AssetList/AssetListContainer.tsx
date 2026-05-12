@@ -41,19 +41,25 @@ export const AssetListContainer: React.FC<Props> = ({
   const currentAccount = useRabbySelector((s) => s.account.currentAccount);
   const { setApps } = useCommonPopupView();
   const {
+    customize: customizeTokens,
+    blocked: blockedTokens,
+  } = useRabbySelector((s) => s.account.tokens);
+
+  const {
     isTokensLoading,
     isPortfoliosLoading,
     portfolios,
     tokens: tokenList,
     hasTokens,
-    blockedTokens,
-    customizeTokens,
     removeProtocol,
-  } = useQueryProjects(currentAccount?.address, false, visible, isTestnet);
+  } = useQueryProjects(currentAccount?.address, {
+    visible,
+    autoLoad: true,
+  });
   const {
     data: appPortfolios,
     isLoading: isAppPortfoliosLoading,
-  } = useAppChain(currentAccount?.address, visible, isTestnet);
+  } = useAppChain(currentAccount?.address, visible);
 
   const inputRef = React.useRef<InputRef>(null);
   const { isLoading: isSearching, list } = useSearchToken(
