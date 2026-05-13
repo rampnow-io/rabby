@@ -150,16 +150,6 @@ const WALLET_API_METHODS = new Set<keyof OpenApiService>([
   'gasLessTxsCheck',
   'checkGasAccountTxs',
   'parseTx',
-
-  // Swap (same-chain)
-  'getSwapQuote',
-  'suggestSlippage',
-  'getBridgeQuoteV2',
-  'buildBridgeTx',
-  'getBridgeHistoryList',
-  'getRecommendBridgeToChain',
-  'getRecommendFromToken',
-  'isSameBridgeToken',
 ]);
 
 const service = new Proxy(openapiService, {
