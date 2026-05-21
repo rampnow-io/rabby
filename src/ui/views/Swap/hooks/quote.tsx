@@ -17,6 +17,9 @@ import stats from '@/stats';
 import { ChainGas } from '@/background/service/preference';
 import { verifySdk } from './verify';
 import { findChainByEnum } from '@/utils/chain';
+// Route swap API calls through our own backend (INITIAL_WALLET_API_URL)
+import { walletApiService as swapBackendApi } from '@/background/service/openapi';
+import { dexSwapQuoteAdapter as swapQuoteApiAdapter } from '../../Swap-&-Bridge/api';
 
 export interface validSlippageParams {
   chain: CHAINS_ENUM;
@@ -27,7 +30,6 @@ export interface validSlippageParams {
 
 export const useQuoteMethods = () => {
   const walletController = useWallet();
-  const walletOpenapi = walletController.openapi;
 
   const nativeTokenPriceRef = useRef<Promise<TokenItem> | null>(null);
 
@@ -45,14 +47,14 @@ export const useQuoteMethods = () => {
         to_token_id: receiveTokenId,
       };
 
-      return walletOpenapi.checkSlippage(p);
+      return swapBackendApi.checkSlippage(p);
     },
-    [walletOpenapi]
+    []
   );
 
   const getSwapList = React.useCallback(
     async (addr: string, start = 0, limit = 5) => {
-      const data = await walletOpenapi.getSwapTradeList({
+      const data = await swapBackendApi.getSwapTradeList({
         user_addr: addr,
         start: `${start}`,
         limit: `${limit}`,
@@ -63,7 +65,7 @@ export const useQuoteMethods = () => {
         totalCount: data?.total_cnt,
       };
     },
-    [walletOpenapi]
+    []
   );
   const postSwap = React.useCallback(
     async ({
@@ -77,7 +79,7 @@ export const useQuoteMethods = () => {
       quote,
       tx,
     }: postSwapParams) =>
-      walletOpenapi.postSwap({
+      swapBackendApi.postSwap({
         quote: {
           pay_token_id: payToken.id,
           pay_token_amount: Number(payAmount),
@@ -91,18 +93,18 @@ export const useQuoteMethods = () => {
         tx_id: txId,
         tx,
       }),
-    [walletOpenapi]
+    []
   );
 
   const getToken = React.useCallback(
     async ({ addr, chain, tokenId }: getTokenParams) => {
-      return walletOpenapi.getToken(
+      return swapBackendApi.getToken(
         addr,
         findChainByEnum(chain)!.serverId,
         tokenId
       );
     },
-    [walletOpenapi]
+    []
   );
 
   const getTokenApproveStatus = React.useCallback(
@@ -165,7 +167,7 @@ export const useQuoteMethods = () => {
 
       const getGasUsed = async () => {
         if (isSwapWrapToken(payToken.id, receiveToken.id, chain)) {
-          const data = await walletOpenapi.estimateGasUsd({
+          const data = await swapBackendApi.estimateGasUsd({
             tx: {
               ...quote.tx,
               nonce: nonce,
@@ -257,7 +259,6 @@ export const useQuoteMethods = () => {
       };
     },
     [
-      walletOpenapi,
       getTokenApproveStatus,
       walletController.getRecommendNonce,
       walletController.generateApproveTokenTx,
@@ -322,7 +323,7 @@ export const useQuoteMethods = () => {
               nativeTokenAddress: findChainByEnum(chain)!.nativeTokenAddress,
               insufficient: inSufficient,
             },
-            walletOpenapi
+            swapQuoteApiAdapter as any
           );
 
         const data = await getData();
@@ -431,7 +432,7 @@ export const useQuoteMethods = () => {
         return quote;
       }
     },
-    [walletOpenapi, pRetry, getPreEstimateGasUsed]
+    [pRetry, getPreEstimateGasUsed]
   );
 
   const supportedDEXList = useRabbySelector((s) => s.swap.supportedDEXList);
@@ -446,7 +447,7 @@ export const useQuoteMethods = () => {
 
       nativeTokenPriceRef.current = pRetry(
         () =>
-          walletOpenapi.getToken(
+          swapBackendApi.getToken(
             params.userAddress,
             chainObj.serverId,
             chainObj.nativeTokenAddress

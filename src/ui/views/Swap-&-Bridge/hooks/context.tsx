@@ -1,4 +1,3 @@
-import { BridgeAggregator } from '@/background/service/openapi';
 import { createContextState } from '@/ui/hooks/contextState';
 
 const [

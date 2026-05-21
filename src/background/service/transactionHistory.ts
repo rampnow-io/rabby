@@ -478,6 +478,22 @@ class TxHistory {
     }
   }
 
+  getLatestTxHistory(
+    address: string,
+    type: keyof InnerTxHistoryMap,
+    withinMs = 5 * 60 * 1000
+  ) {
+    const cutoff = Date.now() - withinMs;
+    return (
+      (this.store[`${type}TxHistory`] as { address: string; createdAt: number }[])
+        .filter(
+          (item) =>
+            isSameAddress(address, item.address) && item.createdAt >= cutoff
+        )
+        .sort((a, b) => b.createdAt - a.createdAt)[0] ?? null
+    );
+  }
+
   getRecentTxHistory(
     address: string,
     hash: string,

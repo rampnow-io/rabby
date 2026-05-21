@@ -4,6 +4,11 @@ export type ClientOptions = {
     baseUrl: 'https://api.rampnow.io' | 'https://api.sandbox.rampnow.io' | (string & {});
 };
 
+export type AbiInfo = {
+    func: string;
+    params: Array<unknown>;
+};
+
 export type ApproveItem = {
     price: string;
     spender: string;
@@ -11,9 +16,43 @@ export type ApproveItem = {
     value: string;
 };
 
+export type BackendPushRequire = {
+    gas_type: unknown;
+};
+
+export type BalanceChange = {
+    error?: string;
+    receive_nft_list: Array<unknown>;
+    receive_token_list: Array<Token>;
+    send_nft_list: Array<unknown>;
+    send_token_list: Array<Token>;
+    success: boolean;
+    usd_value_change: number;
+};
+
+export type BlockChainTxn = {
+    chainId: number;
+    data: string;
+    from: string;
+    gas: string;
+    gasPrice: string;
+    maxFeePerGas: string;
+    maxPriorityFeePerGas: string;
+    nonce: string;
+    to: string;
+    value: string;
+};
+
 export type Category = {
     id: string;
     name: string;
+};
+
+export type CexItem = {
+    id: string;
+    logo_url: string;
+    name: string;
+    site_url: string;
 };
 
 export type ChainBalance = {
@@ -303,6 +342,7 @@ export enum CurrencyCode {
     AI16Z = 'AI16Z',
     AIOT = 'AIOT',
     AIXBT = 'AIXBT',
+    ALEO = 'ALEO',
     ALGO = 'ALGO',
     ALI = 'ALI',
     ALKIMI = 'ALKIMI',
@@ -1093,10 +1133,56 @@ export enum CurrencyCode {
     ZWL = 'ZWL'
 }
 
-export type GetChainBalanceListRequest = {
-    address: string;
-    chains: Array<string>;
-    force_fetch: boolean;
+export type ExecuteSwapRequest = {
+    from_address: string;
+    route_id: string;
+    tx_hash: string;
+};
+
+export type ExecuteSwapResponse = {
+    status: string;
+    transaction_hash: string;
+};
+
+/**
+ * FeeCost represents fee cost breakdownGetSwapQuoteResponse represents the swap quote response
+ */
+export type FeeCost = {
+    amount: string;
+    amount_usd: string;
+    name: string;
+    percentage: string;
+};
+
+export type GasAccountCost = {
+    estimate_tx_cost: number;
+    gas_cost: number;
+    total_cost: number;
+    tx_cost: number;
+};
+
+/**
+ * GasCost represents gas cost breakdownFeeCost represents fee cost breakdown
+ */
+export type GasCost = {
+    amount: string;
+    amount_usd: string;
+};
+
+export type GasInfo = {
+    error?: string;
+    gas_limit: number;
+    gas_ratio: number;
+    gas_used: number;
+    success: boolean;
+};
+
+export type GasLevel = {
+    estimated_seconds: number;
+    front_tx_count: number;
+    level: string;
+    price?: string;
+    priority_price?: string;
 };
 
 export type GetChainBalanceListResponse = {
@@ -1104,6 +1190,25 @@ export type GetChainBalanceListResponse = {
     error_code: number;
     evm_usd_value: string;
     total_usd_value: string;
+};
+
+export type GetChainRpcResponse = {
+    message: string;
+    rpcs: Array<RpcDefaultItem>;
+    status: string;
+};
+
+export type GetCheckTxsRequest = {
+    account_id: string;
+    tx_list: Array<Transaction>;
+};
+
+export type GetCheckTxsResponse = {
+    balance_is_enough: boolean;
+    chain_not_support: boolean;
+    err_msg: string;
+    gas_account_cost?: GasAccountCost;
+    is_gas_account: boolean;
 };
 
 export type GetCustomTokenListRequest = {
@@ -1115,8 +1220,191 @@ export type GetCustomTokenListResponse = {
     list: Array<Token>;
 };
 
+export type GetDepositStatusResponse = {
+    deposit_id: string;
+    status: string;
+    tx_hash: string;
+};
+
+export type GetDexSwapQuoteResponse = {
+    /**
+     * Address to approve token to
+     */
+    dex_approve_to: string;
+    /**
+     * Fee description
+     */
+    dex_fee_desc?: string;
+    /**
+     * Encoded calldata for the swap
+     */
+    dex_swap_calldata: string;
+    /**
+     * Address to send swap to
+     */
+    dex_swap_to: string;
+    /**
+     * Execution duration in seconds
+     */
+    execution_duration: number;
+    /**
+     * Fee costs breakdown
+     */
+    fee_costs: Array<FeeCost>;
+    /**
+     * Gas costs breakdown
+     */
+    gas_costs: Array<GasCost>;
+    /**
+     * Gas used for the transaction
+     */
+    gas_used: number;
+    /**
+     * Whether swap is successful
+     */
+    is_success: boolean;
+    /**
+     * Whether token needs wrapping
+     */
+    is_wrapped: boolean;
+    /**
+     * Token being paid
+     */
+    pay_token?: TokenType2;
+    /**
+     * Token being received
+     */
+    receive_token?: TokenType2;
+    /**
+     * Raw amount received (in wei/smallest unit)
+     */
+    receive_token_raw_amount: number;
+};
+
+export type GetEthRpcRequest = {
+    chain_id: string;
+    method: string;
+    origin: string;
+    params: Array<unknown>;
+};
+
+export type GetEthRpcResponse = {
+    error?: RpcError;
+    id: unknown;
+    jsonrpc: string;
+    result: unknown;
+};
+
+export type GetGasFeeRequest = {
+    chain_id: string;
+    custom_gas: string;
+    tx?: BlockChainTxn;
+};
+
+export type GetGasFeeResponse = {
+    gas_levels: Array<GasLevel>;
+};
+
+export type GetGasPriceStatsResponse = {
+    median?: string;
+};
+
 export type GetIpInfoResponse = {
     country: CountryCode;
+};
+
+export type GetParseTxRequest = {
+    chain_id: string;
+    origin: string;
+    tx: Transaction;
+    user_addr: string;
+};
+
+export type GetParseTxResponse = {
+    action?: ParseTxActionType;
+    contract_call?: ParseTxContractCallType;
+    log_id: number;
+};
+
+export type GetPreExecTxnRequest = {
+    origin: string;
+    pending_tx_list: Array<BlockChainTxn>;
+    tx: BlockChainTxn;
+    update_nonce: boolean;
+    user_addr: string;
+};
+
+export type GetPreExecTxnResponse = {
+    abi?: AbiInfo;
+    abi_str?: string;
+    balance_change?: BalanceChange;
+    gas?: GasInfo;
+    is_gnosis: boolean;
+    native_token?: Token;
+    pre_exec?: PreExecStatus;
+    pre_exec_version: string;
+    trace_id?: string;
+    type_call?: TypeCallInfo;
+    type_cancel_tx?: TypeCancelTx;
+    type_send?: TypeSendInfo;
+    type_token_approval?: TypeTokenApprovalInfo;
+};
+
+export type GetSubmitTxRequest = {
+    backend_push_require?: BackendPushRequire;
+    context: TxContext;
+    mev_share_model: string;
+};
+
+export type GetSubmitTxResponse = {
+    access_token: unknown;
+    err: string;
+    tx_id: string;
+};
+
+export type GetSwapBalancesResponse = {
+    balances: Array<SwapBalanceItem>;
+};
+
+export type GetSwapChainsResponse = {
+    chains: Array<SwapChain>;
+};
+
+export type GetSwapConnectionsResponse = {
+    connections: Array<SwapConnection>;
+};
+
+export type GetSwapGasPricesResponse = {
+    gas_prices: {
+        [key: string]: SwapChainGasPrice;
+    };
+};
+
+export type GetSwapQuoteResponse = {
+    quote: unknown;
+};
+
+export type GetSwapRoutesResponse = {
+    routes: unknown;
+};
+
+export type GetSwapStatusResponse = {
+    receiving?: SwapStatusSide;
+    sending?: SwapStatusSide;
+    status: string;
+    sub_status: string;
+    transaction_id: string;
+};
+
+export type GetSwapTokensResponse = {
+    tokens: {
+        [key: string]: Array<SwapTokenItem>;
+    };
+};
+
+export type GetSwapToolsResponse = {
+    bridges: Array<SwapToolItem>;
+    exchanges: Array<SwapToolItem>;
 };
 
 export type GetTokenHistoryResponse = {
@@ -1139,6 +1427,59 @@ export type GetTokenListRequest = {
 
 export type GetTokenListResponse = {
     list: Array<Array<Token>>;
+};
+
+export type GetTokenResponse = {
+    amount: string;
+    asset: string;
+    cex_ids: Array<string>;
+    chain: string;
+    credit_score?: string;
+    decimals: number;
+    display_symbol: string;
+    fdv?: string;
+    id: string;
+    identity?: TokenIdentity;
+    is_core: boolean;
+    is_infinity: boolean;
+    is_scam: boolean;
+    is_suspicious: boolean;
+    is_verified: boolean;
+    is_wallet: boolean;
+    logo_url: string;
+    low_credit_score: boolean;
+    name: string;
+    optimized_symbol: CurrencyCode;
+    price: number;
+    price_24h_change: string;
+    protocol_id?: string;
+    raw_amount: string;
+    raw_amount_hex_str: string;
+    symbol: CurrencyCode;
+    time_at: number;
+    total_supply?: string;
+    usd_value: string;
+};
+
+export type GetTxsIsGaslessRequest = {
+    tx_list: Array<Transaction>;
+};
+
+export type GetTxsIsGaslessResponse = {
+    is_gasless: boolean;
+    promotion: unknown;
+};
+
+export type GetUserTokenListResponse = {
+    list: Array<Array<Token>>;
+};
+
+export type GetWalletStatusRequest = {
+    address: string;
+};
+
+export type GetWalletStatusResponse = {
+    is_blocked: boolean;
 };
 
 export type HistoryItem = {
@@ -1167,11 +1508,61 @@ export type HistoryList = {
     };
 };
 
+export type ListedSite = {
+    id: string;
+    logo_url: string;
+    name: string;
+    url: string;
+};
+
+export type ParseTxActionType = {
+    data: unknown;
+    type: string;
+};
+
+export type ParseTxContractCallType = {
+    contract?: ParseTxContractInfo;
+    func: string;
+};
+
+export type ParseTxContractInfo = {
+    id: string;
+    protocol: unknown;
+};
+
+export type PreExecStatus = {
+    error?: string;
+    success: boolean;
+};
+
+export type RpcDefaultItem = {
+    chainId: string;
+    rpcUrl: Array<string>;
+    txPushToRPC: boolean;
+};
+
 export type ReceiveItem = {
     amount: string;
     from_addr: string;
     price: string;
     token_id: string;
+};
+
+export type RegisterInboundReceiverRequest = {
+    address: string;
+    chain_id: string;
+    token_address: string;
+};
+
+export type RegisterInboundReceiverResponse = {
+    receiver_id: string;
+    status: string;
+};
+
+export type RpcError = {
+    code: number;
+    data: unknown;
+    message: string;
 };
 
 export type SendItem = {
@@ -1181,8 +1572,59 @@ export type SendItem = {
     token_id: string;
 };
 
+export type SubmitDepositRequest = {
+    chain_id: string;
+    tx_hash: string;
+};
+
+export type SubmitDepositResponse = {
+    deposit_id: string;
+    status: string;
+};
+
+export type SwapBalanceItem = {
+    balance: string;
+    balance_formatted: string;
+    chain_id: string;
+    decimals: number;
+    logo_uri: string;
+    name: string;
+    native_token: boolean;
+    symbol: string;
+    token_address: string;
+    usd_value: string;
+};
+
+export type SwapChainGasPrice = {
+    fast: number;
+    fastest: number;
+    last_updated: number;
+    standard: number;
+};
+
+export type SwapConnection = {
+    from_chain_id: number;
+    from_tokens: Array<SwapTokenItem>;
+    to_chain_id: number;
+    to_tokens: Array<SwapTokenItem>;
+};
+
+export type SwapStatusSide = {
+    chain_id: number;
+    status: string;
+    tx_hash: string;
+};
+
+export type SwapToolItem = {
+    key: string;
+    logo_uri: string;
+    name: string;
+    supported_chains: Array<number>;
+};
+
 export type Token = {
     amount: string;
+    asset: string;
     cex_ids: Array<string>;
     chain: string;
     credit_score?: string;
@@ -1190,20 +1632,106 @@ export type Token = {
     display_symbol: string;
     fdv?: string;
     id: string;
+    identity?: TokenIdentity;
     is_core: boolean;
+    is_infinity: boolean;
+    is_scam: boolean;
     is_suspicious: boolean;
     is_verified: boolean;
+    is_wallet: boolean;
     logo_url: string;
+    low_credit_score: boolean;
     name: string;
     optimized_symbol: CurrencyCode;
-    price: string;
+    price: number;
     price_24h_change: string;
     protocol_id?: string;
     raw_amount: string;
-    raw_amount_hex_str?: string;
+    raw_amount_hex_str: string;
     symbol: CurrencyCode;
     time_at: number;
     total_supply?: string;
+    usd_value: string;
+};
+
+export type TokenIdentity = {
+    bridge_ids: Array<string>;
+    cex_list: Array<CexItem>;
+    chain: string;
+    cmc_id: string;
+    coingecko_id: string;
+    description: string;
+    domain_id: string;
+    fdv: string;
+    id: string;
+    is_domain_verified: boolean;
+    launchpad_id?: string;
+    listed_sites: Array<ListedSite>;
+    origin_token?: string;
+    relate_domain_ids: Array<string>;
+    symbol: string;
+    tag_ids: Array<string>;
+    token_id: string;
+    twitter_id: string;
+};
+
+/**
+ * Token represents token information in the responseGasCost represents gas cost breakdown
+ */
+export type TokenType2 = {
+    chain: string;
+    credit_score: string;
+    decimals: number;
+    display_symbol?: string;
+    id: string;
+    is_core: boolean;
+    is_suspicious: boolean;
+    is_verified: boolean;
+    is_wallet: boolean;
+    logo_url: string;
+    name: string;
+    optimized_symbol: string;
+    price: string;
+    price_24h_change: string;
+    protocol_id: string;
+    symbol: string;
+    time_at?: number;
+    total_supply: string;
+};
+
+export type Transaction = {
+    chainId: number;
+    data: string;
+    from: string;
+    gas: string;
+    gasPrice: string;
+    maxFeePerGas: string;
+    maxPriorityFeePerGas: string;
+    nonce: string;
+    to: string;
+    value: string;
+};
+
+export type TransactionData = {
+    chainId: number;
+    data: string;
+    from: string;
+    gas: string;
+    gasPrice: string;
+    maxFeePerGas: string;
+    maxPriorityFeePerGas: string;
+    nonce: string;
+    r: string;
+    s: string;
+    to: string;
+    v: string;
+    value: string;
+};
+
+export type TxContext = {
+    log_id: string;
+    origin: string;
+    tx: TransactionData;
 };
 
 export type TxDetail = {
@@ -1221,27 +1749,60 @@ export type TxDetail = {
     value: string;
 };
 
-export type GetChainBalanceListData = {
-    body?: GetChainBalanceListRequest;
-    path?: never;
-    query?: never;
-    url: '/v1/balances';
+export type TypeCallInfo = {
+    action: string;
+    contract: string;
+    contract_protocol_logo_url: string;
+    contract_protocol_name: string;
 };
 
-export type GetChainBalanceListResponses = {
-    /**
-     * OK
-     */
-    200: {
-        code: number;
-        data: GetChainBalanceListResponse;
-        displayError?: string;
-        message: string;
-        traceId: string;
-    };
+export type TypeCancelTx = {
+    [key: string]: unknown;
 };
 
-export type GetChainBalanceListResponse2 = GetChainBalanceListResponses[keyof GetChainBalanceListResponses];
+export type TypeSendInfo = {
+    to_addr: string;
+    token?: Token;
+    token_amount: number;
+    token_symbol: string;
+};
+
+export type TypeTokenApprovalInfo = {
+    is_infinity: boolean;
+    is_nft: boolean;
+    nft: unknown;
+    spender: string;
+    spender_protocol_logo_url: string;
+    spender_protocol_name: string;
+    token?: Token;
+    token_amount: number;
+    token_symbol: string;
+};
+
+export type SwapChain = {
+    blockExplorerUrl: string;
+    id: number;
+    name: string;
+    nativeToken?: SwapToken;
+    rpcUrl: string;
+    type: string;
+};
+
+export type SwapToken = {
+    address: string;
+    decimals: number;
+    priceUSD: string;
+    symbol: string;
+};
+
+export type SwapTokenItem = {
+    address: string;
+    decimals: number;
+    logoURI: string;
+    name: string;
+    priceUSD: string;
+    symbol: string;
+};
 
 export type GetTokenListCachedData = {
     body?: GetTokenListCachedRequest;
@@ -1265,6 +1826,28 @@ export type GetTokenListCachedResponses = {
 
 export type GetTokenListCachedResponse2 = GetTokenListCachedResponses[keyof GetTokenListCachedResponses];
 
+export type GetChainRpcData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/v1/chainrpc';
+};
+
+export type GetChainRpcResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetChainRpcResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetChainRpcResponse2 = GetChainRpcResponses[keyof GetChainRpcResponses];
+
 export type GetCustomTokenListData = {
     body?: GetCustomTokenListRequest;
     path?: never;
@@ -1286,6 +1869,50 @@ export type GetCustomTokenListResponses = {
 };
 
 export type GetCustomTokenListResponse2 = GetCustomTokenListResponses[keyof GetCustomTokenListResponses];
+
+export type GetParseTxData = {
+    body?: GetParseTxRequest;
+    path?: never;
+    query?: never;
+    url: '/v1/engine/action/parse_tx';
+};
+
+export type GetParseTxResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetParseTxResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetParseTxResponse2 = GetParseTxResponses[keyof GetParseTxResponses];
+
+export type GetCheckTxsData = {
+    body?: GetCheckTxsRequest;
+    path?: never;
+    query?: never;
+    url: '/v1/gas_account/check_txs';
+};
+
+export type GetCheckTxsResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetCheckTxsResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetCheckTxsResponse2 = GetCheckTxsResponses[keyof GetCheckTxsResponses];
 
 export type GetIpInfoData = {
     body?: never;
@@ -1357,14 +1984,374 @@ export type CheckServiceabilityResponses = {
 
 export type CheckServiceabilityResponse2 = CheckServiceabilityResponses[keyof CheckServiceabilityResponses];
 
-export type GetTxnHistoryData = {
+export type GetSwapBalancesData = {
     body?: never;
     path?: never;
     query?: {
         address?: string;
-        chains?: Array<string>;
-        page_size?: number;
-        to_timestamp?: number;
+        /**
+         * comma-separated chain IDs, e.g. "1,137,42161"
+         */
+        chain_ids?: string;
+    };
+    url: '/v1/swap/balances';
+};
+
+export type GetSwapBalancesResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetSwapBalancesResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetSwapBalancesResponse2 = GetSwapBalancesResponses[keyof GetSwapBalancesResponses];
+
+export type GetSwapChainsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/v1/swap/chains';
+};
+
+export type GetSwapChainsResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetSwapChainsResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetSwapChainsResponse2 = GetSwapChainsResponses[keyof GetSwapChainsResponses];
+
+export type GetSwapConnectionsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        from_chain_id?: string;
+        to_chain_id?: string;
+        from_token_id?: string;
+        to_token_id?: string;
+    };
+    url: '/v1/swap/connections';
+};
+
+export type GetSwapConnectionsResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetSwapConnectionsResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetSwapConnectionsResponse2 = GetSwapConnectionsResponses[keyof GetSwapConnectionsResponses];
+
+export type GetDepositStatusData = {
+    body?: never;
+    path?: never;
+    query?: {
+        deposit_id?: string;
+    };
+    url: '/v1/swap/deposit/status';
+};
+
+export type GetDepositStatusResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetDepositStatusResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetDepositStatusResponse2 = GetDepositStatusResponses[keyof GetDepositStatusResponses];
+
+export type SubmitDepositData = {
+    body?: SubmitDepositRequest;
+    path?: never;
+    query?: never;
+    url: '/v1/swap/deposit/submit';
+};
+
+export type SubmitDepositResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: SubmitDepositResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type SubmitDepositResponse2 = SubmitDepositResponses[keyof SubmitDepositResponses];
+
+export type GetDexSwapQuoteData = {
+    body?: never;
+    path?: never;
+    query?: {
+        id?: string;
+        chain_id?: string;
+        dex_id?: string;
+        pay_token_id?: string;
+        pay_token_raw_amount?: string;
+        receive_token_id?: string;
+        slippage?: string;
+        fee?: boolean;
+    };
+    url: '/v1/swap/dex_quote';
+};
+
+export type GetDexSwapQuoteResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetDexSwapQuoteResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetDexSwapQuoteResponse2 = GetDexSwapQuoteResponses[keyof GetDexSwapQuoteResponses];
+
+export type ExecuteSwapData = {
+    body?: ExecuteSwapRequest;
+    path?: never;
+    query?: never;
+    url: '/v1/swap/execute';
+};
+
+export type ExecuteSwapResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: ExecuteSwapResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type ExecuteSwapResponse2 = ExecuteSwapResponses[keyof ExecuteSwapResponses];
+
+export type GetSwapGasPricesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        chains?: string;
+    };
+    url: '/v1/swap/gas_prices';
+};
+
+export type GetSwapGasPricesResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetSwapGasPricesResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetSwapGasPricesResponse2 = GetSwapGasPricesResponses[keyof GetSwapGasPricesResponses];
+
+export type RegisterInboundReceiverData = {
+    body?: RegisterInboundReceiverRequest;
+    path?: never;
+    query?: never;
+    url: '/v1/swap/inbound/receiver';
+};
+
+export type RegisterInboundReceiverResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: RegisterInboundReceiverResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type RegisterInboundReceiverResponse2 = RegisterInboundReceiverResponses[keyof RegisterInboundReceiverResponses];
+
+export type GetSwapQuoteData = {
+    body?: never;
+    path?: never;
+    query?: {
+        fromChain?: string;
+        toChain?: string;
+        fromToken?: string;
+        toToken?: string;
+        fromAmount?: string;
+        fromAddress?: string;
+        toAddress?: string;
+        slippage?: string;
+    };
+    url: '/v1/swap/quote';
+};
+
+export type GetSwapQuoteResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetSwapQuoteResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetSwapQuoteResponse2 = GetSwapQuoteResponses[keyof GetSwapQuoteResponses];
+
+export type GetSwapRoutesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        fromChain?: string;
+        toChain?: string;
+        fromToken?: string;
+        toToken?: string;
+        fromAmount?: string;
+        fromAddress?: string;
+        toAddress?: string;
+        slippage?: string;
+        order?: string;
+    };
+    url: '/v1/swap/routes';
+};
+
+export type GetSwapRoutesResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetSwapRoutesResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetSwapRoutesResponse2 = GetSwapRoutesResponses[keyof GetSwapRoutesResponses];
+
+export type GetSwapStatusData = {
+    body?: never;
+    path?: never;
+    query?: {
+        txHash?: string;
+        fromChain?: string;
+        toChain?: string;
+    };
+    url: '/v1/swap/status';
+};
+
+export type GetSwapStatusResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetSwapStatusResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetSwapStatusResponse2 = GetSwapStatusResponses[keyof GetSwapStatusResponses];
+
+export type GetSwapTokensData = {
+    body?: never;
+    path?: never;
+    query?: {
+        chain?: string;
+    };
+    url: '/v1/swap/tokens';
+};
+
+export type GetSwapTokensResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetSwapTokensResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetSwapTokensResponse2 = GetSwapTokensResponses[keyof GetSwapTokensResponses];
+
+export type GetSwapToolsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        chains?: string;
+    };
+    url: '/v1/swap/tools';
+};
+
+export type GetSwapToolsResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetSwapToolsResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetSwapToolsResponse2 = GetSwapToolsResponses[keyof GetSwapToolsResponses];
+
+export type GetTxnHistoryData = {
+    body?: never;
+    path?: never;
+    query?: {
+        id?: string;
+        chain_id?: string;
+        token_id?: string;
+        page_count?: number;
+        start_time?: number;
     };
     url: '/v1/user/history_list';
 };
@@ -1383,3 +2370,240 @@ export type GetTxnHistoryResponses = {
 };
 
 export type GetTxnHistoryResponse = GetTxnHistoryResponses[keyof GetTxnHistoryResponses];
+
+export type GetTokenData = {
+    body?: never;
+    path?: never;
+    query?: {
+        id?: string;
+        token_id?: string;
+        chain_id?: string;
+    };
+    url: '/v1/user/token';
+};
+
+export type GetTokenResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetTokenResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetTokenResponse2 = GetTokenResponses[keyof GetTokenResponses];
+
+export type GetUserTokenListData = {
+    body?: never;
+    path?: never;
+    query?: {
+        id?: string;
+        chain_id?: string;
+        is_all?: boolean;
+    };
+    url: '/v1/user/token_list';
+};
+
+export type GetUserTokenListResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetUserTokenListResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetUserTokenListResponse2 = GetUserTokenListResponses[keyof GetUserTokenListResponses];
+
+export type GetChainBalanceListData = {
+    body?: never;
+    path?: never;
+    query?: {
+        force_fetch?: boolean;
+        id?: string;
+    };
+    url: '/v1/user/total_balance';
+};
+
+export type GetChainBalanceListResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetChainBalanceListResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetChainBalanceListResponse2 = GetChainBalanceListResponses[keyof GetChainBalanceListResponses];
+
+export type GetEthRpcData = {
+    body?: GetEthRpcRequest;
+    path?: never;
+    query?: {
+        origin?: string;
+        method?: string;
+        chain_id?: string;
+    };
+    url: '/v1/wallet/eth_rpc';
+};
+
+export type GetEthRpcResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetEthRpcResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetEthRpcResponse2 = GetEthRpcResponses[keyof GetEthRpcResponses];
+
+export type GetGasPriceStatsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        chain_id?: string;
+    };
+    url: '/v1/wallet/gas_price_stats';
+};
+
+export type GetGasPriceStatsResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetGasPriceStatsResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetGasPriceStatsResponse2 = GetGasPriceStatsResponses[keyof GetGasPriceStatsResponses];
+
+export type GetPreExecTxnData = {
+    body?: GetPreExecTxnRequest;
+    path?: never;
+    query?: never;
+    url: '/v1/wallet/pre_exec_tx';
+};
+
+export type GetPreExecTxnResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetPreExecTxnResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetPreExecTxnResponse2 = GetPreExecTxnResponses[keyof GetPreExecTxnResponses];
+
+export type GetTxsIsGaslessData = {
+    body?: GetTxsIsGaslessRequest;
+    path?: never;
+    query?: never;
+    url: '/v1/wallet/txs_is_gasless';
+};
+
+export type GetTxsIsGaslessResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetTxsIsGaslessResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetTxsIsGaslessResponse2 = GetTxsIsGaslessResponses[keyof GetTxsIsGaslessResponses];
+
+export type GetWalletStatusData = {
+    body?: GetWalletStatusRequest;
+    path?: never;
+    query?: never;
+    url: '/v1/wallet_status';
+};
+
+export type GetWalletStatusResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetWalletStatusResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetWalletStatusResponse2 = GetWalletStatusResponses[keyof GetWalletStatusResponses];
+
+export type GetGasFeeData = {
+    body?: GetGasFeeRequest;
+    path?: never;
+    query?: never;
+    url: '/v2/wallet/gas_market';
+};
+
+export type GetGasFeeResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetGasFeeResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetGasFeeResponse2 = GetGasFeeResponses[keyof GetGasFeeResponses];
+
+export type GetSubmitTxData = {
+    body?: GetSubmitTxRequest;
+    path?: never;
+    query?: never;
+    url: '/v2/wallet/submit_tx';
+};
+
+export type GetSubmitTxResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetSubmitTxResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetSubmitTxResponse2 = GetSubmitTxResponses[keyof GetSubmitTxResponses];

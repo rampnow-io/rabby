@@ -2,81 +2,557 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CheckServiceabilityData, CheckServiceabilityResponses, GetChainBalanceListData, GetChainBalanceListResponses, GetCustomTokenListData, GetCustomTokenListResponses, GetIpInfoData, GetIpInfoResponses, GetTokenListCachedData, GetTokenListCachedResponses, GetTokenListData, GetTokenListResponses, GetTxnHistoryData, GetTxnHistoryResponses } from './types.gen';
+import type {
+  CheckServiceabilityData,
+  CheckServiceabilityResponses,
+  ExecuteSwapData,
+  ExecuteSwapResponses,
+  GetChainBalanceListData,
+  GetChainBalanceListResponses,
+  GetChainRpcData,
+  GetChainRpcResponses,
+  GetCheckTxsData,
+  GetCheckTxsResponses,
+  GetCustomTokenListData,
+  GetCustomTokenListResponses,
+  GetDepositStatusData,
+  GetDepositStatusResponses,
+  GetDexSwapQuoteData,
+  GetDexSwapQuoteResponses,
+  GetEthRpcData,
+  GetEthRpcResponses,
+  GetGasFeeData,
+  GetGasFeeResponses,
+  GetGasPriceStatsData,
+  GetGasPriceStatsResponses,
+  GetIpInfoData,
+  GetIpInfoResponses,
+  GetParseTxData,
+  GetParseTxResponses,
+  GetPreExecTxnData,
+  GetPreExecTxnResponses,
+  GetSubmitTxData,
+  GetSubmitTxResponses,
+  GetSwapBalancesData,
+  GetSwapBalancesResponses,
+  GetSwapChainsData,
+  GetSwapChainsResponses,
+  GetSwapConnectionsData,
+  GetSwapConnectionsResponses,
+  GetSwapGasPricesData,
+  GetSwapGasPricesResponses,
+  GetSwapQuoteData,
+  GetSwapQuoteResponses,
+  GetSwapRoutesData,
+  GetSwapRoutesResponses,
+  GetSwapStatusData,
+  GetSwapStatusResponses,
+  GetSwapTokensData,
+  GetSwapTokensResponses,
+  GetSwapToolsData,
+  GetSwapToolsResponses,
+  GetTokenData,
+  GetTokenListCachedData,
+  GetTokenListCachedResponses,
+  GetTokenListData,
+  GetTokenListResponses,
+  GetTokenResponses,
+  GetTxnHistoryData,
+  GetTxnHistoryResponses,
+  GetTxsIsGaslessData,
+  GetTxsIsGaslessResponses,
+  GetUserTokenListData,
+  GetUserTokenListResponses,
+  GetWalletStatusData,
+  GetWalletStatusResponses,
+  RegisterInboundReceiverData,
+  RegisterInboundReceiverResponses,
+  SubmitDepositData,
+  SubmitDepositResponses,
+} from './types.gen';
 
-export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
-    /**
-     * You can provide a client instance returned by `createClient()` instead of
-     * individual options. This might be also useful if you want to implement a
-     * custom client.
-     */
-    client?: Client;
-    /**
-     * You can pass arbitrary values through the `meta` object. This can be
-     * used to access values that aren't defined as part of the SDK function.
-     */
-    meta?: Record<string, unknown>;
+export type Options<
+  TData extends TDataShape = TDataShape,
+  ThrowOnError extends boolean = boolean
+> = Options2<TData, ThrowOnError> & {
+  /**
+   * You can provide a client instance returned by `createClient()` instead of
+   * individual options. This might be also useful if you want to implement a
+   * custom client.
+   */
+  client?: Client;
+  /**
+   * You can pass arbitrary values through the `meta` object. This can be
+   * used to access values that aren't defined as part of the SDK function.
+   */
+  meta?: Record<string, unknown>;
 };
-
-/**
- * GetChainBalanceList
- */
-export const getChainBalanceList = <ThrowOnError extends boolean = false>(options?: Options<GetChainBalanceListData, ThrowOnError>) => (options?.client ?? client).post<GetChainBalanceListResponses, unknown, ThrowOnError>({
-    url: '/v1/balances',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-    }
-});
 
 /**
  * GetTokenListCached
  */
-export const getTokenListCached = <ThrowOnError extends boolean = false>(options?: Options<GetTokenListCachedData, ThrowOnError>) => (options?.client ?? client).post<GetTokenListCachedResponses, unknown, ThrowOnError>({
+export const getTokenListCached = <ThrowOnError extends boolean = false>(
+  options?: Options<GetTokenListCachedData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    GetTokenListCachedResponses,
+    unknown,
+    ThrowOnError
+  >({
     url: '/v1/cached_list',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * GetChainRpc
+ */
+export const getChainRpc = <ThrowOnError extends boolean = false>(
+  options?: Options<GetChainRpcData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<GetChainRpcResponses, unknown, ThrowOnError>({
+    url: '/v1/chainrpc',
+    ...options,
+  });
 
 /**
  * GetCustomTokenList
  */
-export const getCustomTokenList = <ThrowOnError extends boolean = false>(options?: Options<GetCustomTokenListData, ThrowOnError>) => (options?.client ?? client).post<GetCustomTokenListResponses, unknown, ThrowOnError>({
+export const getCustomTokenList = <ThrowOnError extends boolean = false>(
+  options?: Options<GetCustomTokenListData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    GetCustomTokenListResponses,
+    unknown,
+    ThrowOnError
+  >({
     url: '/v1/custom_list',
     ...options,
     headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * GetParseTx
+ */
+export const getParseTx = <ThrowOnError extends boolean = false>(
+  options?: Options<GetParseTxData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<GetParseTxResponses, unknown, ThrowOnError>({
+    url: '/v1/engine/action/parse_tx',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * GetCheckTxs
+ */
+export const getCheckTxs = <ThrowOnError extends boolean = false>(
+  options?: Options<GetCheckTxsData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<GetCheckTxsResponses, unknown, ThrowOnError>(
+    {
+      url: '/v1/gas_account/check_txs',
+      ...options,
+      headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options?.headers,
+      },
     }
-});
+  );
 
 /**
  * GetIpInfo
  */
-export const getIpInfo = <ThrowOnError extends boolean = false>(options?: Options<GetIpInfoData, ThrowOnError>) => (options?.client ?? client).get<GetIpInfoResponses, unknown, ThrowOnError>({ url: '/v1/ip', ...options });
+export const getIpInfo = <ThrowOnError extends boolean = false>(
+  options?: Options<GetIpInfoData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<GetIpInfoResponses, unknown, ThrowOnError>({
+    url: '/v1/ip',
+    ...options,
+  });
 
 /**
  * GetTokenList
  */
-export const getTokenList = <ThrowOnError extends boolean = false>(options?: Options<GetTokenListData, ThrowOnError>) => (options?.client ?? client).post<GetTokenListResponses, unknown, ThrowOnError>({
+export const getTokenList = <ThrowOnError extends boolean = false>(
+  options?: Options<GetTokenListData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    GetTokenListResponses,
+    unknown,
+    ThrowOnError
+  >({
     url: '/v1/list',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
 
 /**
  * CheckServiceability
  */
-export const checkServiceability = <ThrowOnError extends boolean = false>(options?: Options<CheckServiceabilityData, ThrowOnError>) => (options?.client ?? client).get<CheckServiceabilityResponses, unknown, ThrowOnError>({ url: '/v1/serviceability', ...options });
+export const checkServiceability = <ThrowOnError extends boolean = false>(
+  options?: Options<CheckServiceabilityData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    CheckServiceabilityResponses,
+    unknown,
+    ThrowOnError
+  >({ url: '/v1/serviceability', ...options });
+
+/**
+ * GetSwapBalances
+ */
+export const getSwapBalances = <ThrowOnError extends boolean = false>(
+  options?: Options<GetSwapBalancesData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetSwapBalancesResponses,
+    unknown,
+    ThrowOnError
+  >({ url: '/v1/swap/balances', ...options });
+
+/**
+ * GetSwapChains
+ */
+export const getSwapChains = <ThrowOnError extends boolean = false>(
+  options?: Options<GetSwapChainsData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetSwapChainsResponses,
+    unknown,
+    ThrowOnError
+  >({ url: '/v1/swap/chains', ...options });
+
+/**
+ * GetSwapConnections
+ */
+export const getSwapConnections = <ThrowOnError extends boolean = false>(
+  options?: Options<GetSwapConnectionsData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetSwapConnectionsResponses,
+    unknown,
+    ThrowOnError
+  >({ url: '/v1/swap/connections', ...options });
+
+/**
+ * GetDepositStatus
+ */
+export const getDepositStatus = <ThrowOnError extends boolean = false>(
+  options?: Options<GetDepositStatusData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetDepositStatusResponses,
+    unknown,
+    ThrowOnError
+  >({ url: '/v1/swap/deposit/status', ...options });
+
+/**
+ * SubmitDeposit
+ */
+export const submitDeposit = <ThrowOnError extends boolean = false>(
+  options?: Options<SubmitDepositData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    SubmitDepositResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: '/v1/swap/deposit/submit',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * GetDexSwapQuote
+ */
+export const getDexSwapQuote = <ThrowOnError extends boolean = false>(
+  options?: Options<GetDexSwapQuoteData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetDexSwapQuoteResponses,
+    unknown,
+    ThrowOnError
+  >({ url: '/v1/swap/dex_quote', ...options });
+
+/**
+ * ExecuteSwap
+ */
+export const executeSwap = <ThrowOnError extends boolean = false>(
+  options?: Options<ExecuteSwapData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<ExecuteSwapResponses, unknown, ThrowOnError>(
+    {
+      url: '/v1/swap/execute',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers,
+      },
+    }
+  );
+
+/**
+ * GetSwapGasPrices
+ */
+export const getSwapGasPrices = <ThrowOnError extends boolean = false>(
+  options?: Options<GetSwapGasPricesData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetSwapGasPricesResponses,
+    unknown,
+    ThrowOnError
+  >({ url: '/v1/swap/gas_prices', ...options });
+
+/**
+ * RegisterInboundReceiver
+ */
+export const registerInboundReceiver = <ThrowOnError extends boolean = false>(
+  options?: Options<RegisterInboundReceiverData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    RegisterInboundReceiverResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: '/v1/swap/inbound/receiver',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * GetSwapQuote
+ */
+export const getSwapQuote = <ThrowOnError extends boolean = false>(
+  options?: Options<GetSwapQuoteData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<GetSwapQuoteResponses, unknown, ThrowOnError>(
+    { url: '/v1/swap/quote', ...options }
+  );
+
+/**
+ * GetSwapRoutes
+ */
+export const getSwapRoutes = <ThrowOnError extends boolean = false>(
+  options?: Options<GetSwapRoutesData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetSwapRoutesResponses,
+    unknown,
+    ThrowOnError
+  >({ url: '/v1/swap/routes', ...options });
+
+/**
+ * GetSwapStatus
+ */
+export const getSwapStatus = <ThrowOnError extends boolean = false>(
+  options?: Options<GetSwapStatusData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetSwapStatusResponses,
+    unknown,
+    ThrowOnError
+  >({ url: '/v1/swap/status', ...options });
+
+/**
+ * GetSwapTokens
+ */
+export const getSwapTokens = <ThrowOnError extends boolean = false>(
+  options?: Options<GetSwapTokensData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetSwapTokensResponses,
+    unknown,
+    ThrowOnError
+  >({ url: '/v1/swap/tokens', ...options });
+
+/**
+ * GetSwapTools
+ */
+export const getSwapTools = <ThrowOnError extends boolean = false>(
+  options?: Options<GetSwapToolsData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<GetSwapToolsResponses, unknown, ThrowOnError>(
+    { url: '/v1/swap/tools', ...options }
+  );
 
 /**
  * GetTxnHistory
  */
-export const getTxnHistory = <ThrowOnError extends boolean = false>(options?: Options<GetTxnHistoryData, ThrowOnError>) => (options?.client ?? client).get<GetTxnHistoryResponses, unknown, ThrowOnError>({ url: '/v1/user/history_list', ...options });
+export const getTxnHistory = <ThrowOnError extends boolean = false>(
+  options?: Options<GetTxnHistoryData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetTxnHistoryResponses,
+    unknown,
+    ThrowOnError
+  >({ url: '/v1/user/history_list', ...options });
+
+/**
+ * GetToken
+ */
+export const getToken = <ThrowOnError extends boolean = false>(
+  options?: Options<GetTokenData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<GetTokenResponses, unknown, ThrowOnError>({
+    url: '/v1/user/token',
+    ...options,
+  });
+
+/**
+ * GetUserTokenList
+ */
+export const getUserTokenList = <ThrowOnError extends boolean = false>(
+  options?: Options<GetUserTokenListData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetUserTokenListResponses,
+    unknown,
+    ThrowOnError
+  >({ url: '/v1/user/token_list', ...options });
+
+/**
+ * GetChainBalanceList
+ */
+export const getChainBalanceList = <ThrowOnError extends boolean = false>(
+  options?: Options<GetChainBalanceListData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetChainBalanceListResponses,
+    unknown,
+    ThrowOnError
+  >({ url: '/v1/user/total_balance', ...options });
+
+/**
+ * GetEthRpc
+ */
+export const getEthRpc = <ThrowOnError extends boolean = false>(
+  options?: Options<GetEthRpcData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<GetEthRpcResponses, unknown, ThrowOnError>({
+    url: '/v1/wallet/eth_rpc',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * GetGasPriceStats
+ */
+export const getGasPriceStats = <ThrowOnError extends boolean = false>(
+  options?: Options<GetGasPriceStatsData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetGasPriceStatsResponses,
+    unknown,
+    ThrowOnError
+  >({ url: '/v1/wallet/gas_price_stats', ...options });
+
+/**
+ * GetPreExecTxn
+ */
+export const getPreExecTxn = <ThrowOnError extends boolean = false>(
+  options?: Options<GetPreExecTxnData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    GetPreExecTxnResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: '/v1/wallet/pre_exec_tx',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * GetTxsIsGasless
+ */
+export const getTxsIsGasless = <ThrowOnError extends boolean = false>(
+  options?: Options<GetTxsIsGaslessData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    GetTxsIsGaslessResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: '/v1/wallet/txs_is_gasless',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * GetWalletStatus
+ */
+export const getWalletStatus = <ThrowOnError extends boolean = false>(
+  options?: Options<GetWalletStatusData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    GetWalletStatusResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: '/v1/wallet_status',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * GetGasFee
+ */
+export const getGasFee = <ThrowOnError extends boolean = false>(
+  options?: Options<GetGasFeeData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<GetGasFeeResponses, unknown, ThrowOnError>({
+    url: '/v2/wallet/gas_market',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * GetSubmitTx
+ */
+export const getSubmitTx = <ThrowOnError extends boolean = false>(
+  options?: Options<GetSubmitTxData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<GetSubmitTxResponses, unknown, ThrowOnError>(
+    {
+      url: '/v2/wallet/submit_tx',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers,
+      },
+    }
+  );

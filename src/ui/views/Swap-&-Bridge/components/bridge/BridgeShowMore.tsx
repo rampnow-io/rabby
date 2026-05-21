@@ -3,7 +3,7 @@ import { getTokenSymbol } from '@/ui/utils/token';
 import { TokenItem } from '@rabby-wallet/rabby-api/dist/types';
 import { Switch, Tooltip } from 'antd';
 import clsx from 'clsx';
-import { Info } from 'lucide-react';
+import { ChevronRight, Info } from 'lucide-react';
 import React, {
   Dispatch,
   PropsWithChildren,
@@ -13,6 +13,8 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { BottomDrawer } from '@repo/ui';
+import { Card, Label, RadioGroup, RadioGroupItem } from '@repo/ui/primitives';
 import { Trans, useTranslation } from 'react-i18next';
 import { ReactComponent as IconArrowDownCC } from 'ui/assets/bridge/tiny-down-arrow-cc.svg';
 import { ReactComponent as RcIconInfo } from 'ui/assets/info-cc.svg';
@@ -28,6 +30,7 @@ import {
   formatGasHeaderUsdValue,
   formatTokenAmount,
   formatUsdValue,
+  useWallet,
 } from '@/ui/utils';
 import { calcGasEstimated } from '@/utils/time';
 import ShowMoreGasSelectModal, {
@@ -409,11 +412,37 @@ export const DirectSignGasInfo = ({
   chainServeId: string;
 }) => {
   const { t } = useTranslation();
+  const [gasSheetOpen, setGasSheetOpen] = useState(false);
+  const wallet = useWallet();
 
   const [, setGasModalVisible] = useShowMoreGasSelectModalVisible();
 
   const chainEnum = findChainByServerID(chainServeId)?.enum;
   const chainInfo = findChainByServerID(chainServeId);
+
+  // Independent gas list — populated as soon as the chain is known, no quote needed
+  const [earlyGasList, setEarlyGasList] = useState<
+    import('@rabby-wallet/rabby-api/dist/types').GasLevel[]
+  >([]);
+  const [earlySelectedLevel, setEarlySelectedLevel] = useState<string>(
+    'normal'
+  );
+  useEffect(() => {
+    if (!chainServeId || !wallet) return;
+    let cancelled = false;
+    wallet
+      .gasMarketV2({ chainId: chainServeId })
+      .then((list) => {
+        if (cancelled || !list?.length) return;
+        setEarlyGasList(list);
+      })
+      .catch(() => {
+        /* non-critical */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [chainServeId, wallet]);
 
   const calcGasAccountUsd = useCallback((n: number | string) => {
     const v = Number(n);
@@ -455,6 +484,9 @@ export const DirectSignGasInfo = ({
   const gasTokenLogo = chainInfo?.nativeTokenLogo || '';
 
   const showGasContent = !!ctx?.txsCalc?.length && !loading && !noQuote;
+  // Show the pill row as soon as we have either the full ctx or early gas prices
+  const showEarlyGasPill =
+    !showGasContent && !noQuote && earlyGasList.length > 0;
 
   const isReady = (ctx?.txsCalc?.length || 0) > 0;
   const isGasNotEnough = !!ctx?.isGasNotEnough;
@@ -534,6 +566,7 @@ export const DirectSignGasInfo = ({
     if (loading || noQuote) {
       return;
     }
+
     const showGasLevelPopup = !!showGasContent && !!disabledProcess;
     const gasTooHigh =
       !!showGasContent &&
@@ -541,6 +574,7 @@ export const DirectSignGasInfo = ({
       new BigNumber(gasCostUsdStr?.replace(/\$/g, '')).gt(
         chainEnum === CHAINS_ENUM.ETH ? 10 : 1
       );
+
     if (showGasLevelPopup || gasTooHigh) {
       openShowMore(true);
     } else {
@@ -557,9 +591,6 @@ export const DirectSignGasInfo = ({
     noQuote,
   ]);
 
-  if (!supportDirectSign) {
-    return null;
-  }
   const gasTipsComponent = () => (
     <GasTipsWrapper>
       {showGasLessToSign ? (
@@ -603,6 +634,151 @@ export const DirectSignGasInfo = ({
     ? calcGasEstimated(ctx.selectedGas.estimated_seconds)
     : '~15 sec';
 
+  const handleSelectGasLevel = useCallback(
+    async (gasLevel: string) => {
+      // Use ctx list when available (has exact tx cost), else fall back to early list
+      const list = ctx?.gasList?.length ? ctx.gasList : earlyGasList;
+
+      const gas = list.find((g) => g.level === gasLevel);
+      if (!gas) {
+        return;
+      }
+
+      // Always update local selection immediately for instant UI feedback
+      setEarlySelectedLevel(gasLevel);
+      setGasSheetOpen(false);
+
+      if (gas.level === 'custom') {
+        setGasModalVisible(true);
+        const clickEdit = gasInfoByUI?.handleClickEdit;
+        setTimeout(() => {
+          if (clickEdit) clickEdit();
+        }, 100);
+        return;
+      }
+
+      if (ctx?.gasList?.length) {
+        try {
+          const { externalPanelSelection } = gasInfoByUI || {};
+          if (externalPanelSelection) {
+            externalPanelSelection(gas);
+          } else {
+            await signatureStore.updateGasLevel(gas, wallet as any);
+          }
+        } catch (err) {
+          console.error('[DirectSignGasInfo] gas selection failed', err);
+        }
+      }
+    },
+    [ctx?.gasList, earlyGasList, gasInfoByUI, wallet]
+  );
+
+  // Once the signature store has a context, apply any pending early gas selection
+  const appliedEarlyLevel = React.useRef<string | null>(null);
+  useEffect(() => {
+    if (!ctx?.gasList?.length || !earlySelectedLevel) {
+      return;
+    }
+    if (earlySelectedLevel === ctx.selectedGas?.level) {
+      return;
+    }
+    if (appliedEarlyLevel.current === earlySelectedLevel) {
+      return;
+    }
+
+    const gas = ctx.gasList.find((g) => g.level === earlySelectedLevel);
+
+    if (!gas || gas.level === 'custom') {
+      return;
+    }
+
+    appliedEarlyLevel.current = earlySelectedLevel;
+
+    const { externalPanelSelection } = gasInfoByUI || {};
+    if (externalPanelSelection) {
+      externalPanelSelection(gas);
+    } else {
+      signatureStore.updateGasLevel(gas, wallet as any).catch((err) => {
+        console.error(
+          '[DirectSignGasInfo] Failed to apply early selection:',
+          err
+        );
+      });
+    }
+  }, [
+    ctx?.gasList,
+    ctx?.selectedGas?.level,
+    earlySelectedLevel,
+    gasInfoByUI,
+    wallet,
+  ]);
+
+  // The gas pill label: prefer ctx level once prefetch is done, else the early selection
+  const displayGasLevel =
+    ctx?.selectedGas?.level || earlySelectedLevel || 'normal';
+
+  // The gas list for the selector sheet: prefer ctx (has exact tx cost) else early fetch
+  const displayGasList = ctx?.gasList?.length ? ctx.gasList : earlyGasList;
+
+  const GasPill = (
+    <button
+      type="button"
+      className={clsx(
+        'rounded-full border px-3 py-1 text-sm font-medium',
+        'flex items-center gap-1.5 cursor-pointer',
+        'border-r-neutral-line bg-r-neutral-card-1',
+        showGasContent && disabledProcess
+          ? 'text-r-red-default'
+          : 'text-r-neutral-title-1'
+      )}
+      onClick={(e) => {
+        e.stopPropagation();
+        setGasSheetOpen(true);
+      }}
+    >
+      <span>{t(getGasLevelI18nKey(displayGasLevel))}</span>
+      <IconArrowDownCC
+        viewBox="0 0 14 14"
+        width={12}
+        height={12}
+        className="opacity-60"
+      />
+      {showGasContent && ctx?.gasMethod === 'gasAccount' ? (
+        <Tooltip
+          align={{ offset: [10, 0] }}
+          placement="topRight"
+          overlayClassName="rectangle w-[max-content]"
+          title={
+            <div onClick={(e) => e.stopPropagation()}>
+              <div>{t('page.signTx.gasAccount.description')}</div>
+              <div>
+                {t('page.signTx.gasAccount.estimatedGas')}{' '}
+                {calcGasAccountUsd(gasAccountCost?.estimate_tx_cost || 0)}
+              </div>
+              <div>
+                {t('page.signTx.gasAccount.maxGas')}{' '}
+                {calcGasAccountUsd(gasAccountCost?.total_cost || '0')}
+              </div>
+              <div>
+                {t('page.signTx.gasAccount.sendGas')}{' '}
+                {calcGasAccountUsd(gasAccountCost?.total_cost || '0')}
+              </div>
+              <div>
+                {t('page.signTx.gasAccount.gasCost')}{' '}
+                {calcGasAccountUsd(gasAccountCost?.gas_cost || '0')}
+              </div>
+            </div>
+          }
+        >
+          <IconInfoSVG
+            className="text-r-neutral-foot -top-1"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </Tooltip>
+      ) : null}
+    </button>
+  );
+
   return (
     <>
       <div className="mt-12">
@@ -633,93 +809,99 @@ export const DirectSignGasInfo = ({
                   {estimatedTime}
                 </span>
               </div>
-
-              {/* Right: Gas Level Dropdown Pill */}
-              <ShowMoreGasSelectModal>
-                <button
-                  className={clsx(
-                    'rounded-full border px-3 py-1 text-sm font-medium',
-                    'flex items-center gap-1.5 cursor-pointer',
-                    'border-r-neutral-line bg-r-neutral-card-1',
-                    disabledProcess
-                      ? 'text-r-red-default'
-                      : 'text-r-neutral-title-1'
-                  )}
-                  onClick={() => {
-                    setGasModalVisible(true);
-                  }}
-                >
-                  <span>
-                    {ctx?.selectedGas?.level
-                      ? t(getGasLevelI18nKey(ctx.selectedGas.level))
-                      : t(getGasLevelI18nKey('normal'))}
-                  </span>
-                  <IconArrowDownCC
-                    viewBox="0 0 14 14"
-                    width={12}
-                    height={12}
-                    className="opacity-60"
-                  />
-                  {ctx.gasMethod === 'gasAccount' ? (
-                    <Tooltip
-                      align={{
-                        offset: [10, 0],
-                      }}
-                      placement={'topRight'}
-                      overlayClassName="rectangle w-[max-content]"
-                      title={
-                        <div onClick={(e) => e.stopPropagation()}>
-                          <div>{t('page.signTx.gasAccount.description')}</div>
-                          <div>
-                            {t('page.signTx.gasAccount.estimatedGas')}{' '}
-                            {calcGasAccountUsd(
-                              gasAccountCost?.estimate_tx_cost || 0
-                            )}
-                          </div>
-                          <div>
-                            {t('page.signTx.gasAccount.maxGas')}{' '}
-                            {calcGasAccountUsd(
-                              gasAccountCost?.total_cost || '0'
-                            )}
-                          </div>
-                          <div>
-                            {t('page.signTx.gasAccount.sendGas')}{' '}
-                            {calcGasAccountUsd(
-                              gasAccountCost?.total_cost || '0'
-                            )}
-                          </div>
-                          <div>
-                            {t('page.signTx.gasAccount.gasCost')}{' '}
-                            {calcGasAccountUsd(gasAccountCost?.gas_cost || '0')}
-                          </div>
-                        </div>
-                      }
-                    >
-                      <IconInfoSVG
-                        className="text-r-neutral-foot -top-1"
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </Tooltip>
-                  ) : null}
-                </button>
-              </ShowMoreGasSelectModal>
+              {GasPill}
             </div>
-            {/* Second row: Estimated fee label */}
             <div className="text-xs text-r-neutral-foot">Estimated fee</div>
           </>
+        ) : showEarlyGasPill ? (
+          /* Quote loading — show pill immediately so user can pre-select gas level */
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-1">
+              {gasTokenLogo ? (
+                <img
+                  src={gasTokenLogo}
+                  alt="token"
+                  className="w-[18px] h-[18px] rounded-full object-cover"
+                />
+              ) : null}
+              <span className="text-sm text-r-neutral-foot">
+                Calculating...
+              </span>
+            </div>
+            {GasPill}
+          </div>
         ) : !loading && noQuote ? (
           <div>-</div>
         ) : (
-          <Skeleton
-            className="rounded"
-            style={{
-              width: 52,
-              height: 12,
-            }}
-          />
+          <Skeleton className="rounded" style={{ width: 52, height: 12 }} />
         )}
       </div>
       {showGasContent && <>{gasTipsComponent()}</>}
+
+      {/* Gas Level Selector Sheet */}
+      {gasSheetOpen && (
+        <BottomDrawer
+          variant="semi"
+          rootSelector="body"
+          close={() => setGasSheetOpen(false)}
+        >
+          <div className="custom-popup is-support-darkmode is-new p-4 min-h-[320px]">
+            <div className="text-lg font-medium mb-3 px-1">Select Gas</div>
+            <RadioGroup
+              value={earlySelectedLevel || ctx?.selectedGas?.level}
+              className="flex flex-col gap-y-3 max-h-[420px] overflow-y-auto"
+            >
+              {displayGasList.map((gas) => {
+                const gwei = new BigNumber(gas.price / 1e9)
+                  .toFixed()
+                  .slice(0, 8);
+
+                const isActive =
+                  (earlySelectedLevel || ctx?.selectedGas?.level) === gas.level;
+                const isCustom = gas.level === 'custom';
+
+                return (
+                  <div key={gas.level}>
+                    <RadioGroupItem
+                      className="hidden"
+                      value={gas.level}
+                      id={`gas-${gas.level}`}
+                    />
+                    <Label
+                      htmlFor={`gas-${gas.level}`}
+                      className="w-full"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleSelectGasLevel(gas.level);
+                      }}
+                    >
+                      <Card
+                        className={clsx(
+                          'flex min-h-[72px] cursor-pointer items-center justify-between rounded-[16px] px-4 py-4 border shadow-none transition-all',
+                          'bg-card-border border-transparent hover:border-card-hover',
+                          isActive && 'border border-card-selected'
+                        )}
+                      >
+                        <div className="flex flex-col gap-1">
+                          <p className="text-sm font-medium text-r-neutral-title-1">
+                            {t(getGasLevelI18nKey(gas.level))}
+                          </p>
+                          {!isCustom && (
+                            <p className="text-sm text-r-neutral-foot">
+                              {gwei} Gwei
+                            </p>
+                          )}
+                        </div>
+                      </Card>
+                    </Label>
+                  </div>
+                );
+              })}
+            </RadioGroup>
+          </div>
+        </BottomDrawer>
+      )}
     </>
   );
 };
@@ -837,10 +1019,26 @@ export const BridgeInfoSummary = ({
 
   return (
     <div
-      className="mx-4 flex items-center gap-1 justify-end cursor-pointer"
-      onClick={onOpenInfo}
+      className={`mx-4 flex items-center gap-1 justify-end ${
+        !quoteLoading && exchangeRate
+          ? 'cursor-pointer'
+          : 'cursor-not-allowed opacity-50'
+      }`}
+      onClick={() => {
+        if (quoteLoading || !exchangeRate) {
+          console.log(
+            '[Bridge] BridgeInfoSummary info icon DISABLED - quoteLoading:',
+            quoteLoading,
+            'exchangeRate:',
+            exchangeRate
+          );
+          return;
+        }
+        console.log('[Bridge] BridgeInfoSummary info icon CLICKED');
+        onOpenInfo?.();
+      }}
     >
-      <div>{exchangeRate || ''}</div>
+      <div>{exchangeRate || 'Loading...'}</div>
       <Info size={16} />
     </div>
   );

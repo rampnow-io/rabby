@@ -5,11 +5,12 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { fetchBuildBridgeTx } from './api';
 import { UIContainer } from '@/ui/provider';
 import { Action, Container, Content, useEventRef } from '@repo/ui';
 import { HeaderNavPage } from '@/ui/component';
 import { getUiType } from 'ui/utils';
-import { Button } from '@repo/ui/primitives';
+import { Button, TooltipView } from '@repo/ui/primitives';
 import TokenSelect from '@/ui/component/TokenSelect';
 import { ReactComponent as RcIconWarningCC } from '@/ui/assets/warning-cc.svg';
 import {
@@ -44,6 +45,7 @@ import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 import { supportedDirectSign } from '@/ui/hooks/useMiniApprovalDirectSign';
 import { useMiniSigner } from '@/ui/hooks/useSigner';
 import { MINI_SIGN_ERROR } from '@/ui/component/MiniSignV2/state/SignatureManager';
+import { useSignatureStore } from '@/ui/component/MiniSignV2/state';
 import BigNumber from 'bignumber.js';
 import AssetInput from './components/asset-input';
 import { tokenAmountBn } from '@/ui/utils/token';
@@ -62,7 +64,9 @@ import {
   RecommendFromToken,
 } from './components/bridge/BridgeShowMore';
 import { BridgePendingTxItem } from './components/bridge/PendingTxItem';
+import { SubmitDepositStatus } from './components/bridge/SubmitDepositStatus';
 import { QuoteList } from './components/bridge/BridgeQuotes';
+import { usePollBridgePendingNumber } from './hooks/history';
 
 import { PendingTxItem } from './components/swap/PendingTxItem';
 import ReviewSwapBridge from './components/ReviewSwapBridge';
@@ -78,6 +82,47 @@ const getContainer = isTab
   : isDesktop
   ? '.js-rabby-desktop-swap-container'
   : undefined;
+
+const formatSmallValue = (
+  value: number | string | undefined | null,
+  options?: { minDisplay?: number; decimals?: number; prefix?: string }
+) => {
+  const { minDisplay = 0.000001, decimals = 2, prefix = '' } = options || {};
+  if (value === null || value === undefined)
+    return { formatted: null, isSmall: false, original: '' };
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(num)) return { formatted: null, isSmall: false, original: '' };
+  if (num === 0) return { formatted: `${prefix}0`, isSmall: false, original: '' };
+  const isSmall = num > 0 && num < minDisplay;
+  return {
+    formatted: isSmall ? `<${prefix}${minDisplay}` : `${prefix}${num.toFixed(decimals)}`,
+    isSmall,
+    original: num.toString(),
+  };
+};
+
+const BridgeNetworkFeeRow = ({ usdValue }: { usdValue: number }) => {
+  const formatted = formatSmallValue(usdValue, {
+    minDisplay: 0.01,
+    decimals: 2,
+    prefix: '$',
+  });
+  if (!formatted.formatted) return null;
+  return (
+    <div className="flex justify-between items-center px-1 mb-1 text-sm text-secondary-foreground">
+      <span>Network fee</span>
+      {formatted.isSmall ? (
+        <TooltipView variant="dark" content={`$${usdValue}`}>
+          <span className="cursor-help border-b border-dashed border-secondary-foreground">
+            {formatted.formatted}
+          </span>
+        </TooltipView>
+      ) : (
+        <span>{formatted.formatted}</span>
+      )}
+    </div>
+  );
+};
 
 const SwapAndBridgeContainer = () => {
   const wallet = useWallet();
@@ -132,8 +177,19 @@ const SwapAndBridgeContainer = () => {
   } = useBridge();
 
   const [historyVisible, setHistoryVisible] = useState(false);
+  // Info sheet shows full transaction details (source, price impact, slippage, rabby fee, etc)
   const [infoSheetOpen, setInfoSheetOpen] = useState(false);
+  // Gas fee popup shows ONLY gas fee estimation and related options (separate from full info sheet)
+  const [gasFeePopupOpen, setGasFeePopupOpen] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviewModalSnapshot, setReviewModalSnapshot] = useState<{
+    quote: typeof selectedBridgeQuote;
+    fromToken: typeof fromToken;
+    toToken: typeof toToken;
+  } | null>(null);
+  // Track pending transaction hash for status display
+  const [pendingTxHash, setPendingTxHash] = useState<string | null>(null);
+  const [statusDrawerOpen, setStatusDrawerOpen] = useState(false);
   const isSettingMaxRef = useRef(false);
 
   const currentAccount = useCurrentAccount();
@@ -227,10 +283,7 @@ const SwapAndBridgeContainer = () => {
 
   const rbiSource = useRbiSource();
 
-  // const {
-  //   pendingNumber,
-  //   historyList,
-  // } = usePollBridgePendingNumber();
+  const { historyList } = usePollBridgePendingNumber();
 
   const [fetchingBridgeQuote, setFetchingBridgeQuote] = useState(false);
 
@@ -415,12 +468,23 @@ const SwapAndBridgeContainer = () => {
   );
 
   const gotoBridge = useCallback(async () => {
+    console.log('[gotoBridge] Submit button clicked', {
+      inSufficient,
+      fromToken: fromToken?.symbol,
+      toToken: toToken?.symbol,
+      selectedBridgeQuote: selectedBridgeQuote?.type,
+      reviewModalOpen,
+      timestamp: new Date().toISOString(),
+    });
+
     if (!inSufficient && fromToken && toToken && selectedBridgeQuote) {
       try {
+        console.log('[gotoBridge] Starting transaction - type:', selectedBridgeQuote.type);
         setFetchingBridgeQuote(true);
 
         // Branch: Execute DEX swap for same-chain transactions
         if (selectedBridgeQuote.type === 'swap') {
+          console.log('[gotoBridge] Processing SWAP transaction');
           const swapQuote = selectedBridgeQuote;
           const dexQuote = swapQuote.dexQuote;
 
@@ -481,12 +545,27 @@ const SwapAndBridgeContainer = () => {
             }
           );
 
-          if (!(isTab || isDesktop)) {
-            window.close();
-          } else {
-            await promise;
-            handleAmountChange('');
+          try {
+            console.log('[gotoBridge] Executing SWAP promise');
+            const swapResult = await promise;
+            console.log('[gotoBridge] SWAP completed successfully', { result: swapResult });
+            // Note: Transaction hash is handled by wallet.dexSwap internally
+            // Only clear amount for tab/desktop mode to keep selectedBridgeQuote alive for popup
+            if (isTab || isDesktop) {
+              handleAmountChange('');
+            }
             setFetchingBridgeQuote(false);
+            // Close modal after swap completes
+            console.log('[gotoBridge] Closing review modal after swap');
+            setReviewModalOpen(false);
+            setReviewModalSnapshot(null);
+            console.log('[gotoBridge] Modal should be closed now');
+          } catch (error) {
+            console.error('[gotoBridge] Swap error:', error);
+            setFetchingBridgeQuote(false);
+            console.log('[gotoBridge] Closing modal due to swap error');
+            setReviewModalOpen(false);
+            setReviewModalSnapshot(null);
           }
           return;
         }
@@ -496,12 +575,12 @@ const SwapAndBridgeContainer = () => {
           selectedBridgeQuote.type === 'bridge' &&
           selectedBridgeQuote.bridge_id
         ) {
+          console.log('[gotoBridge] Processing BRIDGE transaction');
           const bridgeQuote = selectedBridgeQuote;
 
           const tx = await pRetry(
             () =>
-              wallet.openapi
-                .buildBridgeTx({
+              fetchBuildBridgeTx({
                   aggregator_id: bridgeQuote.aggregator.id,
                   bridge_id: bridgeQuote.bridge_id,
                   from_token_id: fromToken.id,
@@ -515,12 +594,18 @@ const SwapAndBridgeContainer = () => {
                   to_token_id: toToken.id,
                   slippage: new BigNumber(slippageState).div(100).toString(10),
                   quote_key: JSON.stringify(bridgeQuote.quote_key || {}),
+                  should_approve: bridgeQuote.shouldApproveToken || false,
+                  approve_contract_id: bridgeQuote.approve_contract_id,
+                  should_two_step_approve: bridgeQuote.shouldTwoStepApprove || false,
                 })
                 .catch((e) => {
+                  console.log('[gotoBridge] fetchBuildBridgeTx error, retrying:', e?.message);
                   throw new AbortError(e?.message || String(e));
                 }),
             { retries: 1 }
           );
+
+          console.log('[gotoBridge] fetchBuildBridgeTx completed');
 
           stats.report('bridgeQuoteResult', {
             aggregatorIds: bridgeQuote.aggregator.id,
@@ -584,18 +669,48 @@ const SwapAndBridgeContainer = () => {
             }
           );
 
-          if (!(isTab || isDesktop)) {
-            window.close();
-          } else {
-            await promise;
-            handleAmountChange('');
+          try {
+            console.log('[gotoBridge] Executing BRIDGE promise');
+            const bridgeResult = await promise;
+            console.log('[gotoBridge] BRIDGE completed successfully', { result: bridgeResult });
+            // Note: Transaction hash is handled by wallet.bridgeToken internally
+            // Only clear amount for tab/desktop mode to keep selectedBridgeQuote alive for popup
+            if (isTab || isDesktop) {
+              handleAmountChange('');
+            }
             setFetchingBridgeQuote(false);
+            // Close modal after bridge completes
+            console.log('[gotoBridge] Closing review modal after bridge');
+            setReviewModalOpen(false);
+            setReviewModalSnapshot(null);
+            console.log('[gotoBridge] Modal should be closed now');
+          } catch (error) {
+            console.error('[gotoBridge] Bridge error:', error);
+            setFetchingBridgeQuote(false);
+            console.log('[gotoBridge] Closing modal due to bridge error');
+            setReviewModalOpen(false);
+            setReviewModalSnapshot(null);
           }
         }
       } catch (error) {
+        console.error('[gotoBridge] Outer catch error:', error);
         setFetchingBridgeQuote(false);
+        console.log('[gotoBridge] Closing modal due to outer error');
+        setReviewModalOpen(false);
+        setReviewModalSnapshot(null);
         console.error(error);
+        // Show error message to user
+        if (error?.message) {
+          console.warn('Bridge error:', error.message);
+        }
       }
+    } else {
+      console.log('[gotoBridge] Preconditions not met - not executing', {
+        inSufficient,
+        hasFromToken: !!fromToken,
+        hasToToken: !!toToken,
+        hasSelectedBridgeQuote: !!selectedBridgeQuote,
+      });
     }
   }, [
     inSufficient,
@@ -615,24 +730,29 @@ const SwapAndBridgeContainer = () => {
     handleAmountChange,
   ]);
 
+
+
   const buildTxs = useMemoizedFn(async () => {
-    // Handle swap type (same-chain swap via DEX)
-    if (
-      selectedBridgeQuote &&
-      selectedBridgeQuote.type === 'swap' &&
-      !inSufficient &&
-      fromToken &&
-      toToken
-    ) {
-      const swapQuote = selectedBridgeQuote;
-      const dexQuote = swapQuote.dexQuote;
+    try {
+      console.log('[buildTxs] starting - quote type:', selectedBridgeQuote?.type, 'inSufficient:', inSufficient);
+      // Handle swap type (same-chain swap via DEX)
+      if (
+        selectedBridgeQuote &&
+        selectedBridgeQuote.type === 'swap' &&
+        !inSufficient &&
+        fromToken &&
+        toToken
+      ) {
+        console.log('[buildTxs] building DEX swap');
+        const swapQuote = selectedBridgeQuote;
+        const dexQuote = swapQuote.dexQuote;
 
-      if (!dexQuote?.data || !fromChain) {
-        throw new Error('Invalid swap quote data');
-      }
+        if (!dexQuote?.data || !fromChain) {
+          throw new Error('Invalid swap quote data');
+        }
 
-      try {
-        return await wallet.buildDexSwap(
+        try {
+          const result = await wallet.buildDexSwap(
           {
             swapPreferMEVGuarded: false,
             chain: fromChain,
@@ -679,130 +799,153 @@ const SwapAndBridgeContainer = () => {
               trigger: rbiSource,
             },
           }
-        );
-      } catch (error) {
-        console.error('Error building dex swap:', error);
-        throw error;
+          );
+          // Wrap in array if it's a single transaction object
+          console.log('[buildTxs] DEX swap result:', { isArray: Array.isArray(result), length: result?.length });
+          return Array.isArray(result) ? result : [result];
+        } catch (error) {
+          console.error('Error building dex swap:', error);
+          throw error;
+        }
       }
-    }
 
-    // Handle bridge type (cross-chain bridge)
-    if (
-      !inSufficient &&
-      fromToken &&
-      toToken &&
-      selectedBridgeQuote &&
-      selectedBridgeQuote.type === 'bridge' &&
-      selectedBridgeQuote.bridge_id
-    ) {
-      const bridgeQuote = selectedBridgeQuote;
-      try {
-        const tx = await pRetry(
-          () =>
-            wallet.openapi
-              .buildBridgeTx({
+      // Handle bridge type (cross-chain bridge)
+      if (
+        !inSufficient &&
+        fromToken &&
+        toToken &&
+        selectedBridgeQuote &&
+        selectedBridgeQuote.type === 'bridge' &&
+        selectedBridgeQuote.bridge_id
+      ) {
+        console.log('[buildTxs] building bridge transaction');
+        const bridgeQuote = selectedBridgeQuote;
+        try {
+          const tx = await pRetry(
+            () =>
+              fetchBuildBridgeTx({
+                  aggregator_id: bridgeQuote.aggregator.id,
+                  bridge_id: bridgeQuote.bridge_id,
+                  from_chain_id: fromToken.chain,
+                  from_token_id: fromToken.id,
+                  user_addr: userAddress,
+                  from_token_raw_amount: new BigNumber(amount)
+                    .times(10 ** fromToken.decimals)
+                    .toFixed(0, 1)
+                    .toString(),
+                  to_chain_id: toToken.chain,
+                  to_token_id: toToken.id,
+                  slippage: new BigNumber(slippageState).div(100).toString(10),
+                  quote_key: JSON.stringify(bridgeQuote.quote_key || {}),
+                  should_approve: bridgeQuote.shouldApproveToken || false,
+                  approve_contract_id: bridgeQuote.approve_contract_id,
+                  should_two_step_approve: bridgeQuote.shouldTwoStepApprove || false,
+                })
+                .catch((e) => {
+                  throw new AbortError(e?.message || String(e));
+                }),
+            { retries: 1 }
+          );
+          stats.report('bridgeQuoteResult', {
+            aggregatorIds: bridgeQuote.aggregator.id,
+            bridgeId: bridgeQuote.bridge_id,
+            fromChainId: fromToken.chain,
+            fromTokenId: fromToken.id,
+            toTokenId: toToken.id,
+            toChainId: toToken.chain,
+            status: tx ? 'success' : 'fail',
+          });
+          const result = await wallet.buildBridgeToken(
+            {
+              to: tx.to,
+              value: tx.value,
+              data: tx.data,
+              payTokenRawAmount: new BigNumber(amount)
+                .times(10 ** fromToken.decimals)
+                .toFixed(0, 1)
+                .toString(),
+              chainId: tx.chainId,
+              shouldApprove: !!bridgeQuote.shouldApproveToken,
+              shouldTwoStepApprove: !!bridgeQuote.shouldTwoStepApprove,
+              payTokenId: fromToken.id,
+              payTokenChainServerId: fromToken.chain,
+              gasPrice: maxNativeTokenGasPrice,
+              info: {
                 aggregator_id: bridgeQuote.aggregator.id,
                 bridge_id: bridgeQuote.bridge_id,
                 from_chain_id: fromToken.chain,
                 from_token_id: fromToken.id,
-                user_addr: userAddress,
-                from_token_raw_amount: new BigNumber(amount)
-                  .times(10 ** fromToken.decimals)
-                  .toFixed(0, 1)
-                  .toString(),
+                from_token_amount: amount,
                 to_chain_id: toToken.chain,
                 to_token_id: toToken.id,
-                slippage: new BigNumber(slippageState).div(100).toString(10),
-                quote_key: JSON.stringify(bridgeQuote.quote_key || {}),
-              })
-              .catch((e) => {
-                throw new AbortError(e?.message || String(e));
-              }),
-          { retries: 1 }
-        );
-        stats.report('bridgeQuoteResult', {
-          aggregatorIds: bridgeQuote.aggregator.id,
-          bridgeId: bridgeQuote.bridge_id,
-          fromChainId: fromToken.chain,
-          fromTokenId: fromToken.id,
-          toTokenId: toToken.id,
-          toChainId: toToken.chain,
-          status: tx ? 'success' : 'fail',
-        });
-        return wallet.buildBridgeToken(
-          {
-            to: tx.to,
-            value: tx.value,
-            data: tx.data,
-            payTokenRawAmount: new BigNumber(amount)
-              .times(10 ** fromToken.decimals)
-              .toFixed(0, 1)
-              .toString(),
-            chainId: tx.chainId,
-            shouldApprove: !!bridgeQuote.shouldApproveToken,
-            shouldTwoStepApprove: !!bridgeQuote.shouldTwoStepApprove,
-            payTokenId: fromToken.id,
-            payTokenChainServerId: fromToken.chain,
-            gasPrice: maxNativeTokenGasPrice,
-            info: {
-              aggregator_id: bridgeQuote.aggregator.id,
-              bridge_id: bridgeQuote.bridge_id,
-              from_chain_id: fromToken.chain,
-              from_token_id: fromToken.id,
-              from_token_amount: amount,
-              to_chain_id: toToken.chain,
-              to_token_id: toToken.id,
-              to_token_amount: bridgeQuote.to_token_amount,
-              tx: tx,
-              rabby_fee: bridgeQuote.rabby_fee.usd_value,
-              slippage: new BigNumber(slippage).div(100).toNumber(),
+                to_token_amount: bridgeQuote.to_token_amount,
+                tx: tx,
+                rabby_fee: bridgeQuote.rabby_fee.usd_value,
+                slippage: new BigNumber(slippage).div(100).toNumber(),
+              },
+              addHistoryData: {
+                address: userAddress,
+                fromChainId: findChain({ serverId: fromToken.chain })?.id || 0,
+                toChainId: findChain({ serverId: toToken.chain })?.id || 0,
+                fromToken: fromToken,
+                toToken: toToken,
+                estimatedDuration: bridgeQuote.duration,
+                fromAmount: Number(amount),
+                toAmount: Number(bridgeQuote.to_token_amount),
+                slippage: new BigNumber(slippage).div(100).toNumber(),
+                dexId: bridgeQuote.aggregator.id,
+                status: 'pending',
+                createdAt: Date.now(),
+              },
             },
-            addHistoryData: {
-              address: userAddress,
-              fromChainId: findChain({ serverId: fromToken.chain })?.id || 0,
-              toChainId: findChain({ serverId: toToken.chain })?.id || 0,
-              fromToken: fromToken,
-              toToken: toToken,
-              estimatedDuration: bridgeQuote.duration,
-              fromAmount: Number(amount),
-              toAmount: Number(bridgeQuote.to_token_amount),
-              slippage: new BigNumber(slippage).div(100).toNumber(),
-              dexId: bridgeQuote.aggregator.id,
-              status: 'pending',
-              createdAt: Date.now(),
-            },
-          },
-          {
-            ga: {
-              category: 'Bridge',
-              source: 'bridge',
-              trigger: rbiSource,
-            },
-          }
-        );
-      } catch (error) {
-        setQuotesList((pre) =>
-          pre?.filter(
-            (item) =>
-              !(
-                item.type === 'bridge' &&
-                item.aggregator?.id === bridgeQuote.aggregator?.id &&
-                item.bridge_id === bridgeQuote.bridge_id
-              )
-          )
-        );
-        stats.report('bridgeQuoteResult', {
-          aggregatorIds: bridgeQuote.aggregator.id,
-          bridgeId: bridgeQuote.bridge_id,
-          fromChainId: fromToken.chain,
-          fromTokenId: fromToken.id,
-          toTokenId: toToken.id,
-          toChainId: toToken.chain,
-          status: 'fail',
-        });
-        console.error(error);
-        throw error;
+            {
+              ga: {
+                category: 'Bridge',
+                source: 'bridge',
+                trigger: rbiSource,
+              },
+            }
+          );
+          // Wrap in array if it's a single transaction object
+          console.log('[buildTxs] Bridge result:', { isArray: Array.isArray(result), length: result?.length });
+          return Array.isArray(result) ? result : [result];
+        } catch (error) {
+          setQuotesList((pre) =>
+            pre?.filter(
+              (item) =>
+                !(
+                  item.type === 'bridge' &&
+                  item.aggregator?.id === bridgeQuote.aggregator?.id &&
+                  item.bridge_id === bridgeQuote.bridge_id
+                )
+            )
+          );
+          stats.report('bridgeQuoteResult', {
+            aggregatorIds: bridgeQuote.aggregator.id,
+            bridgeId: bridgeQuote.bridge_id,
+            fromChainId: fromToken.chain,
+            fromTokenId: fromToken.id,
+            toTokenId: toToken.id,
+            toChainId: toToken.chain,
+            status: 'fail',
+          });
+          console.error(error);
+          throw error;
+        }
       }
+      
+      // Fallback: return empty array if no valid quote found
+      console.warn('[buildTxs] No valid swap or bridge quote found, returning empty array', {
+        selectedBridgeQuote: !!selectedBridgeQuote,
+        type: selectedBridgeQuote?.type,
+        inSufficient,
+        fromToken: !!fromToken,
+        toToken: !!toToken,
+      });
+      return [];
+    } catch (error) {
+      console.error('[buildTxs] error:', error);
+      throw error;
     }
   });
 
@@ -858,9 +1001,17 @@ const SwapAndBridgeContainer = () => {
     !quoteList?.length;
 
   const canUseDirectSubmitTx = useMemo(
-    () => isSupportedChain && supportedDirectSign(currentAccount?.type || ''),
-
-    [isSupportedChain, currentAccount?.type]
+    () => {
+      const result = !!selectedBridgeQuote && supportedDirectSign(currentAccount?.type || '');
+      console.log('[Swap-Bridge] canUseDirectSubmitTx calculation:', {
+        hasQuote: !!selectedBridgeQuote,
+        accountType: currentAccount?.type,
+        supportsDirect: supportedDirectSign(currentAccount?.type || ''),
+        result,
+      });
+      return result;
+    },
+    [selectedBridgeQuote, currentAccount?.type]
   );
 
   const noRiskSign =
@@ -875,6 +1026,8 @@ const SwapAndBridgeContainer = () => {
 
   const [miniSignLoading, setMiniSignLoading] = useState(false);
 
+  const { ctx: signCtx } = useSignatureStore();
+
   const { openDirect, prefetch, close: closeSign } = useMiniSigner({
     account: currentAccount!,
     chainServerId: findChainByEnum(fromChain)?.serverId || '',
@@ -882,19 +1035,30 @@ const SwapAndBridgeContainer = () => {
   });
 
   const handleBridge = useMemoizedFn(async () => {
+    console.log('[handleBridge] Called, canUseDirectSubmitTx:', canUseDirectSubmitTx);
     if (canUseDirectSubmitTx) {
       setMiniSignLoading(true);
       setFetchingBridgeQuote(true);
       try {
-        const buildPromise = runBuildSwapTxsRef.current || runBuildSwapTxs();
-        runBuildSwapTxsRef.current = buildPromise;
+        console.log('[handleBridge] Starting direct submit flow');
+        // Reuse any in-flight build promise, but skip cached empty/failed ones
+        const existingPromise = runBuildSwapTxsRef.current;
+        const buildPromise = existingPromise || runBuildSwapTxs();
+        if (!existingPromise) {
+          runBuildSwapTxsRef.current = buildPromise;
+        }
         const builtTxs = await buildPromise;
+        console.log('[handleBridge] Built txs:', builtTxs?.length, 'transactions');
         setFetchingBridgeQuote(false);
         if (!builtTxs?.length) {
+          // Clear cached empty result so next attempt rebuilds
+          runBuildSwapTxsRef.current = undefined;
+          console.log('[handleBridge] No built txs, throwing error');
           throw MINI_SIGN_ERROR.PREFETCH_FAILURE;
         }
         clearExpiredTimer();
-        await openDirect({
+        console.log('[handleBridge] Opening direct signing flow');
+        const directResult = await openDirect({
           txs: builtTxs,
           getContainer,
           ga: {
@@ -903,22 +1067,61 @@ const SwapAndBridgeContainer = () => {
             trigger: rbiSource,
           },
           onPreExecError: () => {
+            console.log('[handleBridge] onPreExecError triggered, calling gotoBridge');
             gotoBridge();
           },
         });
+        console.log('[handleBridge] Direct signing result:', directResult);
+        // directResult is an array of tx hashes - capture the first one
+        if (directResult && Array.isArray(directResult) && directResult[0]) {
+          console.log('[handleBridge] Setting pending tx hash from direct signing:', directResult[0]);
+          setPendingTxHash(directResult[0]);
+        }
+        console.log('[handleBridge] Direct signing completed');
+        // Close the review modal after successful direct signing
+        console.log('[handleBridge] Closing review modal after successful direct signing');
+        setReviewModalOpen(false);
+        setReviewModalSnapshot(null);
+        setMiniSignLoading(false);
+        setFetchingBridgeQuote(false);
         mutateTxs([]);
         handleAmountChange('');
       } catch (error) {
+        console.error('[handleBridge] Error in direct flow:', error);
+        // Clear cached build promise so next click triggers a fresh build
+        runBuildSwapTxsRef.current = undefined;
         setFetchingBridgeQuote(false);
+        setMiniSignLoading(false);
         if (error == MINI_SIGN_ERROR.USER_CANCELLED) {
+          // User cancelled inline signing: close modal and reset
+          console.log('[handleBridge] User cancelled, closing modal');
+          setReviewModalOpen(false);
+          setReviewModalSnapshot(null);
           refresh((e) => e + 1);
           mutateTxs([]);
         } else if (error === MINI_SIGN_ERROR.CANT_PROCESS) {
+          // Inline signing can't process: retry after delay
+          console.log('[handleBridge] Cant process, closing modal and retrying');
+          setReviewModalOpen(false);
+          setReviewModalSnapshot(null);
           setTimeout(() => {
             refresh((e) => e + 1);
           }, 10 * 1000);
+        } else if (
+          error === MINI_SIGN_ERROR.PREFETCH_FAILURE ||
+          (error instanceof Error && error.message?.includes('prepare failure'))
+        ) {
+          // Prefetch/gas-estimation failed: fall back to traditional approval flow
+          console.log('[handleBridge] Prefetch failed, closing modal and calling gotoBridge');
+          setReviewModalOpen(false);
+          setReviewModalSnapshot(null);
+          await gotoBridge();
         } else {
-          gotoBridge();
+          // Other error: fall back to traditional approval flow
+          console.log('[handleBridge] Other error, closing modal and calling gotoBridge');
+          setReviewModalOpen(false);
+          setReviewModalSnapshot(null);
+          await gotoBridge();
         }
         console.error('bridge direct sign error', error);
       } finally {
@@ -933,16 +1136,26 @@ const SwapAndBridgeContainer = () => {
 
   useEffect(() => {
     if (!btnDisabled && selectedBridgeQuote) {
+      console.log('[Swap-Bridge] buildTxs: starting - btnDisabled:', btnDisabled, 'quote type:', selectedBridgeQuote?.type);
       mutateTxs([]);
       runBuildSwapTxsRef.current = runBuildSwapTxs();
     }
   }, [canUseDirectSubmitTx, btnDisabled, selectedBridgeQuote]);
 
   useEffect(() => {
-    if (!canUseDirectSubmitTx) return;
+    if (!canUseDirectSubmitTx) {
+      console.log('[Swap-Bridge] prefetch: canUseDirectSubmitTx is false');
+      return;
+    }
+    // Only prefetch when we have real txs — calling with empty txs resets SignatureManager state
+    if (!txs?.length) {
+      console.log('[Swap-Bridge] prefetch: no txs available yet', { txs, length: txs?.length });
+      return;
+    }
+    console.log('[Swap-Bridge] prefetch: calling with', txs?.length, 'txs');
     closeSign();
     prefetch({
-      txs: txs || [],
+      txs,
       getContainer,
       ga: {
         category: 'Bridge',
@@ -951,6 +1164,33 @@ const SwapAndBridgeContainer = () => {
       },
     });
   }, [closeSign, prefetch, txs, canUseDirectSubmitTx, rbiSource]);
+
+  // Auto-calculate network fee when the review modal opens
+  // Debug: Monitor reviewModalOpen state changes
+  useEffect(() => {
+    console.log('[ReviewModal] State changed:', {
+      reviewModalOpen,
+      hasSnapshot: !!reviewModalSnapshot,
+      timestamp: new Date().toISOString(),
+      quote: reviewModalSnapshot?.quote?.type,
+    });
+  }, [reviewModalOpen, reviewModalSnapshot]);
+
+  useEffect(() => {
+    if (!reviewModalOpen || !fromChain) return;
+    if (maxNativeTokenGasPrice !== undefined) return; // Already have a value
+    const chainInfo = findChainByEnum(fromChain);
+    if (!chainInfo?.serverId) return;
+    wallet
+      .gasMarketV2({ chainId: chainInfo.serverId })
+      .then((gasList) => {
+        const normalPrice = gasList?.find((e) => e.level === 'normal')?.price;
+        if (normalPrice) {
+          setMaxNativeTokenGasPrice(normalPrice);
+        }
+      })
+      .catch(() => {/* non-critical — just leaves "calculating..." */});
+  }, [reviewModalOpen, fromChain, maxNativeTokenGasPrice, wallet]);
 
   const feePopupVisible = useSettingVisible();
   const switchFeePopup = useSetSettingVisible();
@@ -963,6 +1203,7 @@ const SwapAndBridgeContainer = () => {
     switchFeePopup(false);
   }, [switchFeePopup]);
 
+  // Info sheet handler - opens full transaction details panel
   const openInfoSheet = useCallback(() => {
     setInfoSheetOpen(true);
   }, []);
@@ -970,6 +1211,33 @@ const SwapAndBridgeContainer = () => {
   const closeInfoSheet = useCallback(() => {
     setInfoSheetOpen(false);
   }, []);
+
+  // Gas fee popup handlers - opens popup showing ONLY gas fee information
+  const openGasFeePopup = useCallback(() => {
+    console.log('[Swap-Bridge] openGasFeePopup CALLED - Setting gasFeePopupOpen to true');
+    console.trace('[Swap-Bridge] openGasFeePopup call stack');
+    setGasFeePopupOpen(true);
+  }, []);
+
+  const closeGasFeePopup = useCallback(() => {
+    console.log('[Swap-Bridge] closeGasFeePopup CALLED - Setting gasFeePopupOpen to false');
+    setGasFeePopupOpen(false);
+  }, []);
+
+  // Debug: Log gasFeePopupOpen state changes
+  useEffect(() => {
+    console.log('[Swap-Bridge] gasFeePopupOpen state changed:', gasFeePopupOpen);
+  }, [gasFeePopupOpen]);
+
+  // Debug: Log pendingTxHash state changes
+  useEffect(() => {
+    console.log('[Swap-Bridge] pendingTxHash state changed:', pendingTxHash);
+    // Open status drawer when transaction hash is set
+    if (pendingTxHash) {
+      console.log('[Swap-Bridge] Opening status drawer with tx hash:', pendingTxHash);
+      setStatusDrawerOpen(true);
+    }
+  }, [pendingTxHash]);
 
   const isFromNativeToken = useMemo(() => {
     if (!fromToken || !fromChain) return false;
@@ -1098,15 +1366,7 @@ const SwapAndBridgeContainer = () => {
               readOnly
               value={{
                 amount:
-                  toToken && selectedBridgeQuote?.to_token_amount
-                    ? selectedBridgeQuote.type === 'swap'
-                      ? // For swap quotes: toTokenAmount is RAW, needs decimal division
-                        new BigNumber(selectedBridgeQuote.to_token_amount)
-                          .div(10 ** toToken.decimals)
-                          .toString(10)
-                      : // For bridge quotes: to_token_amount is already decimal-adjusted
-                        String(selectedBridgeQuote.to_token_amount)
-                    : String(selectedBridgeQuote?.to_token_amount || ''),
+                  String(selectedBridgeQuote?.to_token_amount || ''),
                 currency: toToken,
                 chain: toChain,
               }}
@@ -1145,15 +1405,7 @@ const SwapAndBridgeContainer = () => {
                 onChange={handleSelectRoute}
                 disabled={routes.length <= 1}
                 toToken={toToken}
-                toAmount={
-                  toToken && selectedBridgeQuote?.to_token_amount
-                    ? selectedBridgeQuote.type === 'swap'
-                      ? new BigNumber(selectedBridgeQuote.to_token_amount)
-                          .div(10 ** toToken.decimals)
-                          .toString(10)
-                      : String(selectedBridgeQuote.to_token_amount)
-                    : '0'
-                }
+                toAmount={String(selectedBridgeQuote?.to_token_amount || '0')}
               />
             </div>
           ) : null}
@@ -1184,20 +1436,18 @@ const SwapAndBridgeContainer = () => {
                       ? selectedBridgeQuote.duration || 0
                       : 0
                   }
-                  type={selectedBridgeQuote.type === 'swap' ? 'swap' : 'bridge'}
+                  type={isSwap ? 'swap' : 'bridge'}
                   isBestQuote={
                     !!bestQuoteId &&
                     !!selectedBridgeQuote &&
                     bestQuoteId?.aggregatorId ===
                       selectedBridgeQuote.aggregator.id &&
-                    (selectedBridgeQuote.type === 'bridge'
-                      ? bestQuoteId?.bridgeId === selectedBridgeQuote.bridge_id
-                      : bestQuoteId?.bridgeId ===
-                        selectedBridgeQuote.dexQuote.name)
+                    bestQuoteId?.bridgeId ===
+                      (selectedBridgeQuote as any).bridge_id
                   }
                   quoteLoading={quoteLoading}
                   openQuotesList={openQuote}
-                  onOpenInfo={openInfoSheet}
+                  onOpenInfo={openGasFeePopup}
                   fromToken={fromToken}
                   toToken={toToken}
                   amount={amount || 0}
@@ -1212,13 +1462,36 @@ const SwapAndBridgeContainer = () => {
                 quoteLoading={quoteLoading}
                 slippageError={isSlippageHigh || isSlippageLow}
                 supportDirectSign={canUseDirectSubmitTx}
-                chainServeId={fromToken?.chain}
+                chainServeId={fromToken?.chain || ''}
               />
             </>
           )}
           {!selectedBridgeQuote && !recommendFromToken && (
             <div className="mt-4 mx-4">
-              {isSwap ? <PendingTxItem type="swap" /> : <BridgePendingTxItem />}
+              {pendingTxHash ? (
+                isSwap ? (
+                  <PendingTxItem type="swap" />
+                ) : (
+                  <BridgePendingTxItem historyList={historyList} />
+                )
+              ) : (
+                isSwap ? (
+                  <PendingTxItem type="swap" />
+                ) : (
+                  <BridgePendingTxItem historyList={historyList} />
+                )
+              )}
+            </div>
+          )}
+
+          {/* Show pending tx status if tx hash is available */}
+          {pendingTxHash && (
+            <div className="mt-4 mx-4">
+              {isSwap ? (
+                <PendingTxItem type="swap" />
+              ) : (
+                <BridgePendingTxItem historyList={historyList} pendingTxHash={pendingTxHash} />
+              )}
             </div>
           )}
 
@@ -1235,31 +1508,37 @@ const SwapAndBridgeContainer = () => {
 
         {/* Action Buttons */}
         <Action className='flex flex-col gap-2'>
-          {fromToken && canUseDirectSubmitTx ? (
-            <DirectSignGasInfo
-              supportDirectSign={canUseDirectSubmitTx}
-              loading={!!quoteLoading}
-              openShowMore={() => {}}
-              noQuote={noQuote}
-              chainServeId={fromToken.chain}
-            />
+          {fromToken && supportedDirectSign(currentAccount?.type || '') && canUseDirectSubmitTx ? (
+              <DirectSignGasInfo
+                supportDirectSign={!!canUseDirectSubmitTx}
+                loading={!!quoteLoading}
+                openShowMore={(show: boolean) => {
+                  if (show) {
+                    setGasFeePopupOpen(true);
+                  }
+                }}
+                noQuote={noQuote}
+                chainServeId={fromToken.chain}
+              />
           ) : null}
           
           {selectedBridgeQuote && (fromChain as string) !== 'DBK' && (
             <Button
               onClick={() => {
+                console.log('[ReviewButton] Click detected, fetchingBridgeQuote:', fetchingBridgeQuote);
                 if (fetchingBridgeQuote) return;
                 if (!selectedBridgeQuote) {
+                  console.log('[ReviewButton] No quote, refreshing');
                   refresh((e) => e + 1);
                   return;
                 }
+                console.log('[ReviewButton] Opening review modal');
+                setReviewModalSnapshot({ quote: selectedBridgeQuote, fromToken, toToken });
                 setReviewModalOpen(true);
               }}
               disabled={btnDisabled}
             >
-              {selectedBridgeQuote.type === 'swap'
-                ? 'Review & Swap'
-                : 'Review & Bridge'}
+              {isSwap ? 'Review & Swap' : 'Review & Bridge'}
             </Button>
           )}
           {(fromChain as string) === 'DBK' && (
@@ -1271,7 +1550,7 @@ const SwapAndBridgeContainer = () => {
                 );
               }}
             >
-          {selectedBridgeQuote?.type === 'swap'? 'Review & Swap' : 'Review & Bridge'}
+              {isSwap ? 'Review & Swap' : 'Review & Bridge'}
             </DbkButton>
           )}
         </Action>
@@ -1298,6 +1577,26 @@ const SwapAndBridgeContainer = () => {
         setSelectedBridgeQuote={setSelectedBridgeQuote}
       />
 
+      {/* Submit Deposit Status Drawer */}
+      <SubmitDepositStatus
+        isOpen={statusDrawerOpen}
+        onClose={() => {
+          setStatusDrawerOpen(false);
+          history.push('/dashboard');
+        }}
+        txHash={pendingTxHash || ''}
+        chainId={findChainByEnum(fromChain)?.serverId || ''}
+        fromTokenSymbol={fromToken?.symbol}
+        toTokenSymbol={toToken?.symbol}
+        fromAmount={amount}
+        toAmount={selectedBridgeQuote?.to_token_amount?.toString()}
+        title={isSwap ? 'Swap Status' : 'Bridge Status'}
+        fromChainName={findChainByEnum(fromChain)?.name}
+        toChainName={findChainByEnum(toChain)?.name}
+        fromTokenLogo={fromToken?.logo_url}
+        toTokenLogo={toToken?.logo_url}
+      />
+
       <BottomFloatingSheet
         contentClassName="px-4 py-4"
         open={infoSheetOpen}
@@ -1307,23 +1606,17 @@ const SwapAndBridgeContainer = () => {
                     <div className="font-medium text-primary-foreground text-base leading-7 text-center">
                     Your Order
                     </div>
-                    <button
-                      type="button"
-                      className="flex items-center justify-end cursor-pointer"
-                      onClick={() => closeInfoSheet()}
-                      aria-label="Close rename wallet modal"
-                    >
-                      <X size={16} />
-                    </button>
+                    <X size={16}   onClick={() => closeInfoSheet()} />
                   </div>} >
         {selectedBridgeQuote && (
           <BridgeShowMore
             supportDirectSign={canUseDirectSubmitTx}
             openFeePopup={openFeePopup}
-            open
+            open={true}
             setOpen={() => {}}
             showHeader={false}
             selectedQuote={selectedBridgeQuote}
+            onOpenInfo={openInfoSheet}
             sourceName={
               selectedBridgeQuote.type === 'bridge'
                 ? selectedBridgeQuote.aggregator.name || ''
@@ -1378,10 +1671,18 @@ const SwapAndBridgeContainer = () => {
         )}
       </BottomFloatingSheet>
 
+
+
+      
+
       {/* Review Swap/Bridge Modal */}
       <BottomFloatingSheet
         open={reviewModalOpen}
-        onClose={() => setReviewModalOpen(false)}
+        onClose={() => { 
+          console.log('[ReviewModal] onClose called, closing modal');
+          setReviewModalOpen(false); 
+          setReviewModalSnapshot(null); 
+        }}
         hideCloseButton
         header={<div className="flex justify-between items-center w-full min-h-7">
                     <div className="font-medium text-primary-foreground text-base leading-7 text-center">
@@ -1390,7 +1691,11 @@ const SwapAndBridgeContainer = () => {
                     <button
                       type="button"
                       className="flex items-center justify-end cursor-pointer"
-                      onClick={() => setReviewModalOpen(false)}
+                      onClick={() => { 
+                        console.log('[ReviewModal] X button clicked, closing modal');
+                        setReviewModalOpen(false); 
+                        setReviewModalSnapshot(null); 
+                      }}
                       aria-label="Close review modal"
                     >
                       <X size={16} />
@@ -1398,32 +1703,23 @@ const SwapAndBridgeContainer = () => {
                   </div>}
 
       >
-        {selectedBridgeQuote && fromToken && toToken && (
+        {reviewModalSnapshot?.quote && reviewModalSnapshot?.fromToken && reviewModalSnapshot?.toToken ? (
           <ReviewSwapBridge
-
-            fromToken={fromToken}
-            toToken={toToken}
+            fromToken={reviewModalSnapshot.fromToken}
+            toToken={reviewModalSnapshot.toToken}
             fromAmount={amount}
-            toAmount={
-              selectedBridgeQuote.type === 'swap'
-                ? new BigNumber(selectedBridgeQuote.to_token_amount)
-                    .div(10 ** toToken.decimals)
-                    .toString(10)
-                : String(selectedBridgeQuote.to_token_amount)
-            }
-            fromPrice={fromToken.price}
-            toPrice={toToken.price}
-            selectedQuote={selectedBridgeQuote}
+            toAmount={String(reviewModalSnapshot.quote.to_token_amount)}
+            fromPrice={reviewModalSnapshot.fromToken.price}
+            toPrice={reviewModalSnapshot.toToken.price}
+            selectedQuote={reviewModalSnapshot.quote}
             loading={fetchingBridgeQuote || miniSignLoading}
             onConfirm={() => {
-              if (!canUseDirectSubmitTx) {
-                setReviewModalOpen(false);
-              }
+              console.log('[ReviewModal] Submit button clicked in modal');
               handleBridge();
             }}
-            type={selectedBridgeQuote.type === 'swap' ? 'swap' : 'bridge'}
-            btnText={btnText}
-            btnDisabled={btnDisabled}
+            type={isSwap ? 'swap' : 'bridge'}
+            btnText={miniSignLoading ? 'Signing...' : btnText}
+            btnDisabled={btnDisabled || miniSignLoading || fetchingBridgeQuote}
             showRiskTips={showRiskTips && !btnDisabled}
             accountType={currentAccount?.type}
             riskReset={btnDisabled}
@@ -1432,27 +1728,33 @@ const SwapAndBridgeContainer = () => {
             fromChain={fromChain}
             toChain={toChain}
             rabbyFeeDisplay={
-              selectedBridgeQuote.type === 'bridge' &&
-              (selectedBridgeQuote as any).rabby_fee
+              reviewModalSnapshot.quote.type === 'bridge' &&
+              (reviewModalSnapshot.quote as any).rabby_fee
                 ? formatUsdValue(
                     new BigNumber(
-                      (selectedBridgeQuote as any).rabby_fee.usd_value || 0
+                      (reviewModalSnapshot.quote as any).rabby_fee.usd_value || 0
                     ).toNumber()
                   )
                 : '$0'
             }
             networkFeeDisplay={
-              maxNativeTokenGasPrice
-                ? '$' + maxNativeTokenGasPrice
+              (reviewModalSnapshot.quote as any).gas_fee?.usd_value != null
+                ? formatUsdValue((reviewModalSnapshot.quote as any).gas_fee.usd_value)
+                : maxNativeTokenGasPrice != null
+                ? formatUsdValue(maxNativeTokenGasPrice)
                 : 'calculating...'
             }
             estimatedTimeDisplay={
-              selectedBridgeQuote.type === 'bridge' &&
-              (selectedBridgeQuote as any).duration
-                ? String((selectedBridgeQuote as any).duration)
+              reviewModalSnapshot.quote.type === 'bridge' &&
+              (reviewModalSnapshot.quote as any).duration
+                ? String((reviewModalSnapshot.quote as any).duration)
                 : undefined
             }
           />
+        ) : (
+          <div className="py-8 text-center text-sm text-gray-500">
+            Loading order details...
+          </div>
         )}
       </BottomFloatingSheet>
     </UIContainer>

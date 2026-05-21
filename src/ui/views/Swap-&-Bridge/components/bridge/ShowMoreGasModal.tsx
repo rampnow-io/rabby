@@ -160,14 +160,13 @@ export default function ShowMoreGasSelectModal({
     }
   }, [status, ctx?.txsCalc?.length]);
 
-  if (!ctx?.txsCalc?.length) return null;
-
   const handleOpenChange = (nextOpen: boolean) => {
     setOpen(nextOpen);
   };
 
   const openLocalCustomEditor = useCallback(
     (forceCustom = false) => {
+      if (!ctx) return;
       const customGas = ctx.gasList?.find((item) => item.level === 'custom');
       const selectedLevel = forceCustom
         ? 'custom'
@@ -193,10 +192,11 @@ export default function ShowMoreGasSelectModal({
       hasCustomPriorityFee.current = false;
       setCustomEditorVisible(true);
     },
-    [ctx.gasList, ctx.selectedGas?.level]
+    [ctx?.gasList, ctx?.selectedGas?.level]
   );
 
   const handleConfirmLocalCustomGas = useCallback(async () => {
+    if (!ctx) return;
     let pickedGas =
       ctx.gasList?.find((item) => item.level === fallbackSelectedLevel) ||
       ctx.gasList?.find((item) => item.level === 'custom');
@@ -251,9 +251,9 @@ export default function ShowMoreGasSelectModal({
       setUpdatingCustomGas(false);
     }
   }, [
-    ctx.chainId,
-    ctx.gasList,
-    ctx.txs,
+    ctx?.chainId,
+    ctx?.gasList,
+    ctx?.txs,
     customGasGwei,
     externalPanelSelection,
     fallbackSelectedLevel,
@@ -263,6 +263,7 @@ export default function ShowMoreGasSelectModal({
 
   const handleSelectGas = useCallback(
     async (gasLevel: string) => {
+      if (!ctx) return;
       console.log('[ShowMoreGasModal] handleSelectGas', {
         gasLevel,
         hasGasInfoByUI: !!gasInfoByUIRef.current,
@@ -344,7 +345,7 @@ export default function ShowMoreGasSelectModal({
       setTimeout(() => handleOpenChange(false), 0);
     },
     [
-      ctx.gasList,
+      ctx?.gasList,
       emitShowMoreCustomEditorTrigger,
       externalPanelSelection,
       handleClickEdit,
@@ -353,8 +354,8 @@ export default function ShowMoreGasSelectModal({
     ]
   );
 
-  const chain = ctx.chainId ? findChain({ id: ctx.chainId }) : undefined;
-  const selectedLevelGas = ctx.gasList?.find(
+  const chain = ctx?.chainId ? findChain({ id: ctx.chainId }) : undefined;
+  const selectedLevelGas = ctx?.gasList?.find(
     (item) => item.level === fallbackSelectedLevel
   );
   const maxPriorityFeeLimit =
@@ -363,20 +364,21 @@ export default function ShowMoreGasSelectModal({
       : selectedLevelGas
       ? new BigNumber(selectedLevelGas.price).div(1e9).toNumber()
       : Number.MAX_SAFE_INTEGER;
-  const gasCostUsd = ctx.selectedGasCost?.gasCostUsd
+  const gasCostUsd = ctx?.selectedGasCost?.gasCostUsd
     ? formatGasHeaderUsdValue(ctx.selectedGasCost.gasCostUsd.toString())
     : '--';
-  const gasCostAmount = ctx.selectedGasCost?.gasCostAmount
+  const gasCostAmount = ctx?.selectedGasCost?.gasCostAmount
     ? new BigNumber(ctx.selectedGasCost.gasCostAmount.toString()).toFixed(4)
     : '--';
-  const medianGwei = ctx.gasPriceMedian
+  const medianGwei = ctx?.gasPriceMedian
     ? new BigNumber(ctx.gasPriceMedian).div(1e9).toFixed(5)
     : '--';
-  const gasBalanceText = chain?.nativeTokenSymbol
-    ? `${new BigNumber(ctx.nativeTokenBalance || '0').div(1e18).toFixed(4)} ${
-        chain.nativeTokenSymbol
-      }`
-    : '--';
+  const gasBalanceText =
+    chain?.nativeTokenSymbol && ctx
+      ? `${new BigNumber(ctx.nativeTokenBalance || '0').div(1e18).toFixed(4)} ${
+          chain.nativeTokenSymbol
+        }`
+      : '--';
 
   return (
     <>
@@ -389,7 +391,7 @@ export default function ShowMoreGasSelectModal({
         {children}
       </div>
 
-      {open && (
+      {open && ctx && (
         <BottomDrawer
           variant="semi"
           rootSelector="body"
@@ -453,7 +455,7 @@ export default function ShowMoreGasSelectModal({
       )}
 
       <BottomFloatingSheet
-        open={customEditorVisible}
+        open={customEditorVisible && !!ctx}
         onClose={() => setCustomEditorVisible(false)}
         header={
           <div className="text-[20px] font-medium text-r-neutral-title1">
@@ -462,40 +464,43 @@ export default function ShowMoreGasSelectModal({
         }
         contentClassName="px-4 py-4"
       >
-        <div className="flex flex-col gap-4">
-          <div className="text-[16px] text-r-neutral-body">
-            My Gas balance:
-            <span className="font-medium text-r-neutral-title1">
-              {' '}
-              {gasBalanceText}
-            </span>
-          </div>
-
-          {fallbackSelectedLevel === 'custom' ? (
-            <div className="w-full flex items-center justify-between">
-              {' '}
-              <div className="text-base font-medium text-primary-foreground">
-                Priority Fee (Gwei)
-              </div>
-              <Input
-                className="!w-[96px]"
-                value={customGasGwei}
-                sizeVariant={InputSize.SM}
-                onChange={(e) => setCustomGasGwei(e.target.value)}
-              />
+        {ctx && (
+          <div className="flex flex-col gap-4">
+            <div className="text-[16px] text-r-neutral-body">
+              My Gas balance:
+              <span className="font-medium text-r-neutral-title1">
+                {' '}
+                {gasBalanceText}
+              </span>
             </div>
-          ) : null}
 
-          <Button
-            disabled={
-              updatingCustomGas ||
-              (fallbackSelectedLevel === 'custom' && Number(customGasGwei) <= 0)
-            }
-            onClick={handleConfirmLocalCustomGas}
-          >
-            {updatingCustomGas ? 'Applying...' : 'Set'}
-          </Button>
-        </div>
+            {fallbackSelectedLevel === 'custom' ? (
+              <div className="w-full flex items-center justify-between">
+                {' '}
+                <div className="text-base font-medium text-primary-foreground">
+                  Priority Fee (Gwei)
+                </div>
+                <Input
+                  className="!w-[96px]"
+                  value={customGasGwei}
+                  sizeVariant={InputSize.SM}
+                  onChange={(e) => setCustomGasGwei(e.target.value)}
+                />
+              </div>
+            ) : null}
+
+            <Button
+              disabled={
+                updatingCustomGas ||
+                (fallbackSelectedLevel === 'custom' &&
+                  Number(customGasGwei) <= 0)
+              }
+              onClick={handleConfirmLocalCustomGas}
+            >
+              {updatingCustomGas ? 'Applying...' : 'Set'}
+            </Button>
+          </div>
+        )}
       </BottomFloatingSheet>
     </>
   );

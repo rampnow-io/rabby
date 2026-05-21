@@ -1,4 +1,5 @@
 import { useInViewport, useInfiniteScroll } from 'ahooks';
+import { fetchBridgeHistoryList } from '../api';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRabbySelector } from '@/ui/store';
 import { useAsync } from 'react-use';
@@ -46,7 +47,7 @@ export const useCheckBridgePendingItem = (timer = 5000) => {
       return;
     }
 
-    const data = await wallet.openapi.getBridgeHistoryList({
+    const data = await fetchBridgeHistoryList({
       user_addr: userAddress,
       start: 0,
       limit: 10,
@@ -67,8 +68,7 @@ export const useCheckBridgePendingItem = (timer = 5000) => {
         wallet.completeBridgeTxHistory(
           historyData.hash,
           historyData.fromChainId,
-          status,
-          findTx
+          status
         );
       }
     } else {
@@ -107,7 +107,7 @@ export const usePollBridgePendingNumber = (timer = 5000) => {
       };
     }
 
-    const data = await wallet.openapi.getBridgeHistoryList({
+    const data = await fetchBridgeHistoryList({
       user_addr: account!.address,
       start: 0,
       limit: 10,
@@ -171,7 +171,7 @@ export const useBridgeHistory = () => {
   const wallet = useWallet();
   const getBridgeHistoryList = React.useCallback(
     async (addr: string, start = 0, limit = 5) => {
-      const data = await wallet.openapi.getBridgeHistoryList({
+      const data = await fetchBridgeHistoryList({
         user_addr: addr,
         start: start,
         limit: limit,
@@ -183,7 +183,7 @@ export const useBridgeHistory = () => {
         totalCount: data?.total_cnt,
       };
     },
-    [wallet?.openapi?.getBridgeHistoryList]
+    []
   );
 
   const {

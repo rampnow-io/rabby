@@ -1,12 +1,6 @@
-import React, {
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useState,
-  forwardRef,
-  useRef,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import type { HypermidBridgeHistoryItem } from '../../api';
+import { fetchBridgeHistoryList, fetchDepositStatus } from '../../api';
 import { useTranslation } from 'react-i18next';
 import { useInterval, useMemoizedFn } from 'ahooks';
 import clsx from 'clsx';
@@ -33,7 +27,6 @@ import type {
 } from '@/background/service/transactionHistory';
 import { TooltipWithMagnetArrow } from '@/ui/component/Tooltip/TooltipWithMagnetArrow';
 import { Image } from 'antd';
-import { TokenItem } from '@rabby-wallet/rabby-api/dist/types';
 import { getUiType } from '@/ui/utils';
 import { UI_TYPE } from '@/constant/ui';
 import { getChain } from '@/utils';
@@ -487,7 +480,13 @@ const PendingStatusDetail = ({
   );
 };
 
-export const BridgePendingTxItem = () => {
+export const BridgePendingTxItem = ({
+  historyList,
+  pendingTxHash,
+}: {
+  historyList?: HypermidBridgeHistoryItem[];
+  pendingTxHash?: string;
+}) => {
   const type = 'bridge';
   const { t } = useTranslation();
   const wallet = useWallet();
@@ -498,12 +497,86 @@ export const BridgePendingTxItem = () => {
     userAddress: state.account.currentAccount?.address || '',
   }));
 
+  const applyHistoryList = useMemoizedFn(
+    (currentData: BridgeTxHistoryItem, list: HypermidBridgeHistoryItem[]) => {
+      const findTx = list.find(
+        (item) => item.from_tx?.tx_id === currentData.hash
+      );
+      if (!findTx) {
+        if (Date.now() - currentData.createdAt > ONE_HOUR_MS) {
+          wallet.completeBridgeTxHistory(
+            currentData.hash,
+            currentData.fromChainId!,
+            'failed'
+          );
+          setData(null);
+        }
+      } else if (findTx.status === 'completed' || findTx.status === 'failed') {
+        const status = findTx.status === 'completed' ? 'allSuccess' : 'failed';
+        setData({
+          ...currentData,
+          status,
+          completedAt: Date.now(),
+        } as BridgeTxHistoryItem);
+        wallet.completeBridgeTxHistory(
+          currentData.hash,
+          currentData.fromChainId!,
+          status
+        );
+      }
+    }
+  );
+
+  const applyDepositStatus = useMemoizedFn(
+    (currentData: BridgeTxHistoryItem, status: string) => {
+      const s = status?.toLowerCase();
+      if (s === 'done' || s === 'completed') {
+        setData({
+          ...currentData,
+          status: 'allSuccess',
+          completedAt: Date.now(),
+        } as BridgeTxHistoryItem);
+        wallet.completeBridgeTxHistory(
+          currentData.hash,
+          currentData.fromChainId!,
+          'allSuccess'
+        );
+      } else if (s === 'failed') {
+        setData({
+          ...currentData,
+          status: 'failed',
+          completedAt: Date.now(),
+        } as BridgeTxHistoryItem);
+        wallet.completeBridgeTxHistory(
+          currentData.hash,
+          currentData.fromChainId!,
+          'failed'
+        );
+      } else if (s === 'fromsuccess') {
+        setData({
+          ...currentData,
+          status: 'fromSuccess',
+        } as BridgeTxHistoryItem);
+      }
+    }
+  );
+
   const fetchHistory = useCallback(async () => {
     if (!userAddress) return;
+    console.log(
+      '[BridgePendingTxItem] fetchHistory called with pendingTxHash:',
+      pendingTxHash
+    );
     const historyData = (await wallet.getRecentPendingTxHistory(
       userAddress,
       'bridge'
     )) as BridgeTxHistoryItem;
+    console.log(
+      '[BridgePendingTxItem] Got history data:',
+      historyData?.hash,
+      'pendingTxHash:',
+      pendingTxHash
+    );
 
     // tx create time is more than one day, set this tx failed and no show in loading pendingTxItem
     if (
@@ -520,65 +593,74 @@ export const BridgePendingTxItem = () => {
 
     setData(historyData);
     if (
-      historyData.hash &&
+      historyData?.hash &&
       (historyData.status === 'pending' || historyData.status === 'fromSuccess')
     ) {
-      const res = await wallet.openapi.getBridgeHistoryList({
-        user_addr: userAddress,
-        start: 0,
-        limit: 10,
-        is_all: true,
-      });
-      const bridgeHistoryList = res.history_list;
-      if (bridgeHistoryList && bridgeHistoryList?.length > 0) {
-        const findTx = bridgeHistoryList.find(
-          (item) => item.from_tx?.tx_id === historyData.hash
-        );
-        if (!findTx) {
-          const currentTime = Date.now();
-          const txCreateTime = historyData.createdAt;
-          if (currentTime - txCreateTime > ONE_HOUR_MS) {
-            // tx create time is more than 60 minutes, set this tx failed
-            wallet.completeBridgeTxHistory(
-              historyData.hash,
-              historyData.fromChainId!,
-              'failed'
-            );
-            setData(null);
-          }
-        } else {
-          if (findTx.status === 'completed' || findTx.status === 'failed') {
-            const status =
-              findTx.status === 'completed' ? 'allSuccess' : 'failed';
-            const updateData = {
-              ...historyData,
-              status,
-              actualToToken: findTx.to_actual_token,
-              actualToAmount: findTx.actual.receive_token_amount,
-              completedAt: Date.now(),
-            };
-            setData(updateData as BridgeTxHistoryItem);
-            wallet.completeBridgeTxHistory(
-              historyData.hash,
-              historyData.fromChainId!,
-              status,
-              findTx
-            );
-          } else {
-            setData(historyData);
-          }
+      const fromChain = String(
+        findChain({ serverId: historyData.fromToken?.chain || '' })?.id || ''
+      );
+      const toChain = String(
+        findChain({ serverId: historyData.toToken?.chain || '' })?.id || ''
+      );
+      try {
+        const statusRes = await fetchDepositStatus({
+          txHash: historyData.hash,
+          fromChain: fromChain || undefined,
+          toChain: toChain || undefined,
+        });
+        applyDepositStatus(historyData, statusRes.status);
+      } catch {
+        // fall back to history list if status endpoint fails
+        const res = await fetchBridgeHistoryList({
+          user_addr: userAddress,
+          start: 0,
+          limit: 10,
+          is_all: true,
+        });
+        if (res.history_list?.length > 0) {
+          applyHistoryList(historyData, res.history_list);
         }
       }
     }
-  }, [type, userAddress]);
+  }, [userAddress, applyHistoryList, applyDepositStatus]);
 
   useEffect(() => {
+    console.log('[BridgePendingTxItem] useEffect running, fetching history');
     fetchHistory();
-  }, [fetchHistory]);
+  }, [fetchHistory, pendingTxHash]);
+
+  // When pendingTxHash is provided directly, create a minimal data object immediately
+  // This ensures the status component shows up even if wallet history hasn't updated yet
+  useEffect(() => {
+    if (pendingTxHash && !data) {
+      console.log(
+        '[BridgePendingTxItem] Creating minimal tx data for pendingTxHash:',
+        pendingTxHash
+      );
+      // Create a minimal transaction object to display status while polling updates it
+      const minimalData: Partial<BridgeTxHistoryItem> = {
+        hash: pendingTxHash,
+        status: 'pending',
+        createdAt: Date.now(),
+        fromTxCompleteTs: undefined,
+        estimatedDuration: 300, // Default 5 minute estimate
+      };
+      setData(minimalData as BridgeTxHistoryItem);
+    }
+  }, [pendingTxHash, data]);
+
+  // React to historyList prop changes (parent-level polling) to update status
+  useEffect(() => {
+    if (!historyList?.length || !data) return;
+    const bridgeData = data as BridgeTxHistoryItem;
+    if (bridgeData.status !== 'pending' && bridgeData.status !== 'fromSuccess')
+      return;
+    applyHistoryList(bridgeData, historyList);
+  }, [historyList, data, applyHistoryList]);
 
   const fetchRefreshLocalData = useMemoizedFn(async (data: PendingTxData) => {
-    if (data.status !== 'pending') {
-      // has done
+    if (!data || data.status !== 'pending') {
+      // has done or no data
       return;
     }
 
@@ -597,63 +679,43 @@ export const BridgePendingTxItem = () => {
     }
   });
 
-  useInterval(async () => {
-    const recentlyTxHash = data?.hash;
-    if (
-      recentlyTxHash &&
-      (data.status === 'pending' || data.status === 'fromSuccess')
-    ) {
-      const res = await wallet.openapi.getBridgeHistoryList({
-        user_addr: userAddress,
-        start: 0,
-        limit: 10,
-        is_all: true,
-      });
-      const bridgeHistoryList = res.history_list;
-      if (bridgeHistoryList && bridgeHistoryList?.length > 0) {
-        const recentlyTxHash = data?.hash;
-        const findTx = bridgeHistoryList.find(
-          (item) => item.from_tx?.tx_id === recentlyTxHash
-        );
-        if (!findTx) {
-          const currentTime = Date.now();
-          const txCreateTime = data?.createdAt;
-          if (currentTime - txCreateTime > ONE_HOUR_MS) {
-            // tx create time is more than 60 minutes, set this tx failed
-            wallet.completeBridgeTxHistory(
-              recentlyTxHash,
-              data?.fromChainId,
-              'failed'
-            );
-            setData(null);
-            return;
-          }
-        }
-        if (
-          findTx &&
-          (findTx.status === 'completed' || findTx.status === 'failed') &&
-          data
-        ) {
-          const status =
-            findTx.status === 'completed' ? 'allSuccess' : 'failed';
-          const updateData = {
-            ...data,
-            status,
-            actualToToken: findTx.to_actual_token,
-            actualToAmount: findTx.actual.receive_token_amount,
-            completedAt: Date.now(),
-          };
-          setData(updateData as BridgeTxHistoryItem);
-          wallet.completeBridgeTxHistory(
-            recentlyTxHash,
-            data.fromChainId,
-            status,
-            findTx
-          );
+  // Only self-poll the API when historyList is not provided by the parent
+  useInterval(
+    async () => {
+      if (!data) return;
+      const bridgeData = data as BridgeTxHistoryItem;
+      if (
+        bridgeData.status !== 'pending' &&
+        bridgeData.status !== 'fromSuccess'
+      )
+        return;
+      const fromChain = String(
+        findChain({ serverId: bridgeData.fromToken?.chain || '' })?.id || ''
+      );
+      const toChain = String(
+        findChain({ serverId: bridgeData.toToken?.chain || '' })?.id || ''
+      );
+      try {
+        const statusRes = await fetchDepositStatus({
+          txHash: bridgeData.hash,
+          fromChain: fromChain || undefined,
+          toChain: toChain || undefined,
+        });
+        applyDepositStatus(bridgeData, statusRes.status);
+      } catch {
+        const res = await fetchBridgeHistoryList({
+          user_addr: userAddress,
+          start: 0,
+          limit: 10,
+          is_all: true,
+        });
+        if (res.history_list?.length > 0) {
+          applyHistoryList(bridgeData, res.history_list);
         }
       }
-    }
-  }, 10 * 1000);
+    },
+    historyList ? undefined : 10 * 1000
+  );
 
   useInterval(async () => {
     if (data?.status === 'pending' || data?.status === 'fromSuccess') {

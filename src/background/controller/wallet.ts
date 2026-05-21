@@ -4125,6 +4125,11 @@ export class WalletController extends BaseController {
     address,
     type
   ) => transactionHistoryService.getRecentPendingTxHistory(address, type);
+  getLatestTxHistory: typeof transactionHistoryService.getLatestTxHistory = (
+    address,
+    type,
+    withinMs
+  ) => transactionHistoryService.getLatestTxHistory(address, type, withinMs);
   addCacheHistoryData: typeof transactionHistoryService.addCacheHistoryData = (
     key,
     data,

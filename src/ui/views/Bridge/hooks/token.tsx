@@ -372,6 +372,7 @@ export const useBridge = () => {
       toToken &&
       fromChain &&
       toChain &&
+      amount &&
       Number(amount) > 0 &&
       aggregatorsList.length > 0
     ) {
@@ -583,7 +584,6 @@ export const useBridge = () => {
     toToken?.id,
     fromChain,
     toChain,
-    amount,
     slippageObj.slippage,
   ]);
 
@@ -614,7 +614,6 @@ export const useBridge = () => {
     toToken,
     fromChain,
     toChain,
-    Number(amount),
     aggregatorsList.length,
     refreshId,
   ]);

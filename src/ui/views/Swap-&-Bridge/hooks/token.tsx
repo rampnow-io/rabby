@@ -1,9 +1,19 @@
 import { CHAINS_ENUM, ETH_USDT_CONTRACT, EVENTS } from '@/constant';
+import {
+  type HypermidBridgeQuoteBase,
+  type HypermidBridgeTokenItem,
+  fetchBridgeRoutes,
+  fetchRecommendBridgeToChain,
+  fetchBridgeHistoryList,
+  fetchIsSameBridgeToken,
+  fetchSuggestSlippage,
+  fetchRecommendFromToken,
+} from '../api';
 import { useAsyncInitializeChainList } from '@/ui/hooks/useChain';
 import { useRabbyDispatch, useRabbySelector } from '@/ui/store';
 import { formatUsdValue, isSameAddress, useWallet } from '@/ui/utils';
 import { findChain, findChainByEnum, findChainByServerID } from '@/utils/chain';
-import { BridgeQuote, TokenItem } from '@rabby-wallet/rabby-api/dist/types';
+import { TokenItem } from '@rabby-wallet/rabby-api/dist/types';
 import { WrapTokenAddressMap } from '@rabby-wallet/rabby-swap';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAsyncFn, useDebounce } from 'react-use';
@@ -27,11 +37,10 @@ import { getSwapAutoSlippageValue } from '../../Swap/hooks/slippage';
 export const enableInsufficientQuote = true;
 
 // Bridge quote type
-export interface SelectedBridgeQuote extends Omit<BridgeQuote, 'tx'> {
+export interface SelectedBridgeQuote extends HypermidBridgeQuoteBase {
   shouldApproveToken?: boolean;
   shouldTwoStepApprove?: boolean;
   loading?: boolean;
-  tx?: BridgeQuote['tx'];
   manualClick?: boolean;
   type: 'bridge';
 }
@@ -292,13 +301,13 @@ export const useBridge = () => {
 
   const getRecommendToChain = async (chain: CHAINS_ENUM) => {
     const useRemoteRecommendChain = async () => {
-      const data = await wallet.openapi.getRecommendBridgeToChain({
+      const data = await fetchRecommendBridgeToChain({
         from_chain_id: findChainByEnum(chain)!.serverId,
       });
       switchToChain(findChainByServerID(data.to_chain_id)?.enum);
     };
     if (userAddress) {
-      const latestTx = await wallet.openapi.getBridgeHistoryList({
+      const latestTx = await fetchBridgeHistoryList({
         user_addr: userAddress,
         start: 0,
         limit: 1,
@@ -309,7 +318,7 @@ export const useBridge = () => {
         const lastBridgeChain = findChainByServerID(latestToToken.chain);
         if (lastBridgeChain && lastBridgeChain.enum !== chain) {
           switchToChain(lastBridgeChain.enum);
-          setToToken(latestToToken);
+          setToToken((latestToToken as unknown) as TokenItem);
         } else {
           await useRemoteRecommendChain();
         }
@@ -325,7 +334,7 @@ export const useBridge = () => {
   } = useAsync(async () => {
     if (fromChain && fromToken?.id && toChain && toToken?.id) {
       try {
-        const data = await wallet.openapi.isSameBridgeToken({
+        const data = await fetchIsSameBridgeToken({
           from_chain_id: findChainByEnum(fromChain)!.serverId,
           from_token_id: fromToken?.id,
           to_chain_id: findChainByEnum(toChain)!.serverId,
@@ -435,9 +444,9 @@ export const useBridge = () => {
     (s) => s.bridge.aggregatorsList || []
   );
 
-  // Import Swap quote methods for same-chain swaps
-  const { getAllQuotes: getSwapQuotes } = useQuoteMethods();
-  const supportedDEXList = useRabbySelector((s) => s.swap.supportedDEXList);
+  // useQuoteMethods kept for potential future use; currently same-chain swaps
+  // use the bridge routes endpoint for reliability.
+  const { getAllQuotes: _getSwapQuotes } = useQuoteMethods();
 
   const [pending, setPending] = useState(false);
   const fetchIdRef = useRef(0);
@@ -488,90 +497,131 @@ export const useBridge = () => {
         return e?.map((e) => ({ ...e, loading: true }));
       });
 
-      // Branch: Fetch DEX quotes for same-chain swaps
+      // Branch: Fetch same-chain swap quotes via bridge routes endpoint.
+      // The /v1/swap/dex_quote endpoint is not yet reliable; LI.FI-based
+      // /v1/swap/routes supports same-chain DEX routes with fromChain === toChain
+      // and goes through the existing, working bridge tx-build flow.
       if (isSwap) {
         setPending(true);
 
-        const setQuote = (currentFetchId: number) => (quote: TDexQuoteData) => {
-          if (currentFetchId !== fetchIdRef.current) return;
-
-          const dexId = quote.name;
-          const swapQuote: SelectedSwapQuote = {
-            type: 'swap',
-            dexQuote: quote,
-            shouldApproveToken:
-              quote.preExecResult?.shouldApproveToken ?? false,
-            shouldTwoStepApprove:
-              quote.preExecResult?.shouldTwoStepApprove ?? false,
-            loading: false,
-            aggregator: {
-              id: dexId,
-              logo: '', // Will be populated from DEX constant
-            },
-            to_token_amount: quote.data?.toTokenAmount || '0',
-          };
-
-          setQuotesList((prev) => {
-            const existingIndex = prev.findIndex(
-              (q) =>
-                q.type === 'swap' &&
-                (q as SelectedSwapQuote).dexQuote.name === dexId
-            );
-            if (existingIndex >= 0) {
-              const updated = [...prev];
-              updated[existingIndex] = swapQuote;
-              return updated;
-            }
-            return [...prev, swapQuote];
-          });
-        };
-
         try {
-          // Get suggested slippage if auto slippage is enabled (same as old Swap)
-          let slippage = swapSlippageObj.slippageState;
-          if (swapSlippageObj.autoSlippage) {
-            try {
-              const suggestSlippageResult = await wallet.openapi.suggestSlippage(
-                {
-                  chain_id: findChainByEnum(_fromChain)!.serverId,
-                  slippage: new BigNumber(
-                    swapSlippageObj.slippageState || '0.1'
-                  )
-                    .div(100)
-                    .toFixed(),
-                  from_token_id: _fromToken.id,
-                  to_token_id: _toToken.id,
-                  from_token_amount: amount,
-                }
-              );
+          const rawAmount = new BigNumber(amount)
+            .times(10 ** _fromToken.decimals)
+            .toFixed(0, 1)
+            .toString();
 
-              slippage = suggestSlippageResult.suggest_slippage
-                ? new BigNumber(suggestSlippageResult.suggest_slippage)
-                    .times(100)
-                    .toFixed()
-                : swapSlippageObj.slippageState || '0.1';
+          const slippageFraction = new BigNumber(
+            swapSlippageObj.slippageState || '0.5'
+          )
+            .div(100)
+            .toString(10);
 
-              if (currentFetchId === fetchIdRef.current) {
-                swapSlippageObj.setSlippage(slippage);
-              }
-            } catch (error) {
-              console.log('suggest_slippage error', error);
-            }
+          const routes = await fetchBridgeRoutes({
+            user_addr: _userAddress,
+            from_chain_id: _fromToken.chain,
+            from_token_id: _fromToken.id,
+            from_token_raw_amount: rawAmount,
+            to_chain_id: _toToken.chain, // same chain for same-chain swaps
+            to_token_id: _toToken.id,
+            slippage: slippageFraction,
+          }).catch(() => [] as HypermidBridgeQuoteBase[]);
+
+          if (currentFetchId !== fetchIdRef.current) {
+            setPending(false);
+            return;
           }
 
-          await getSwapQuotes({
-            userAddress: _userAddress,
-            payToken: _fromToken,
-            receiveToken: _toToken,
-            slippage: slippage,
-            chain: _fromChain,
-            payAmount: amount,
-            fee: feeRate,
-            setQuote: setQuote(currentFetchId),
-            inSufficient: inSufficient,
-          });
+          // Convert raw token amount to decimal-adjusted for display
+          const toDecimals = _toToken.decimals || 18;
+          const swapRoutes = routes.map(
+            (q): HypermidBridgeQuoteBase => ({
+              ...q,
+              to_token_amount: q.to_token_raw_amount
+                ? new BigNumber(q.to_token_raw_amount)
+                    .div(10 ** toDecimals)
+                    .toString(10)
+                : '0',
+            })
+          );
+
+          const validRoutes = swapRoutes.filter(
+            (q) => q.bridge?.id && q.bridge?.name
+          );
+
+          if (validRoutes.length === 0) {
+            setSelectedBridgeQuote(undefined);
+            setPending(false);
+            return;
+          }
+
+          if (!isEmpty) {
+            setQuotesList(
+              validRoutes.map((e) => ({
+                ...e,
+                type: 'bridge' as const,
+                loading: true,
+              }))
+            );
+          }
+
+          await Promise.allSettled(
+            validRoutes.map(async (quote) => {
+              if (currentFetchId !== fetchIdRef.current) return;
+
+              let tokenApproved = false;
+              let allowance = '0';
+              const fromChainObj = findChain({ serverId: _fromToken?.chain });
+              if (_fromToken?.id === fromChainObj?.nativeTokenAddress) {
+                tokenApproved = true;
+              } else {
+                allowance = await wallet.getERC20Allowance(
+                  _fromToken.chain,
+                  _fromToken.id,
+                  quote.approve_contract_id
+                );
+                tokenApproved = new BigNumber(allowance).gte(
+                  new BigNumber(amount).times(10 ** _fromToken.decimals)
+                );
+              }
+
+              const shouldTwoStepApprove =
+                fromChainObj?.enum === CHAINS_ENUM.ETH &&
+                isSameAddress(_fromToken.id, ETH_USDT_CONTRACT) &&
+                Number(allowance) !== 0 &&
+                !tokenApproved;
+
+              const finalQuote = {
+                ...quote,
+                type: 'bridge' as const,
+                loading: false,
+                shouldTwoStepApprove,
+                shouldApproveToken: !tokenApproved,
+              };
+
+              if (isEmpty) {
+                result.push(finalQuote);
+              } else {
+                if (currentFetchId === fetchIdRef.current) {
+                  setQuotesList((e) => {
+                    const filtered = e.filter(
+                      (item) =>
+                        item.type === 'swap' ||
+                        (item.type === 'bridge' &&
+                          (item.aggregator.id !== quote.aggregator.id ||
+                            item.bridge.id !== quote.bridge.id))
+                    );
+                    return [...filtered, finalQuote];
+                  });
+                }
+              }
+            })
+          );
+
+          if (isEmpty && currentFetchId === fetchIdRef.current) {
+            setQuotesList(result);
+          }
         } catch (error) {
-          console.error('Failed to fetch DEX quotes:', error);
+          console.error('Failed to fetch same-chain swap routes:', error);
         } finally {
           setPending(false);
         }
@@ -580,81 +630,73 @@ export const useBridge = () => {
       }
 
       // Branch: Fetch bridge quotes for cross-chain
-      const originData: Omit<BridgeQuote, 'tx'>[] = [];
+      const originData: HypermidBridgeQuoteBase[] = [];
 
-      const getQUoteV2 = async (alternativeToken?: TokenItem) =>
-        await Promise.allSettled(
-          aggregatorsList.map(async (bridgeAggregator) => {
-            const data = await wallet.openapi
-              .getBridgeQuoteV2({
-                aggregator_id: bridgeAggregator.id,
-                user_addr: _userAddress,
-                from_chain_id: alternativeToken?.chain || _fromToken.chain,
-                from_token_id: alternativeToken?.id || _fromToken.id,
-                from_token_raw_amount: alternativeToken
-                  ? new BigNumber(amount)
-                      .times(_fromToken.price)
-                      .div(alternativeToken.price)
-                      .times(10 ** alternativeToken.decimals)
-                      .toFixed(0, 1)
-                      .toString()
-                  : new BigNumber(amount)
-                      .times(10 ** _fromToken.decimals)
-                      .toFixed(0, 1)
-                      .toString(),
-                to_chain_id: _toToken.chain,
-                to_token_id: _toToken.id,
-                slippage: new BigNumber(bridgeSlippageObj.slippageState)
-                  .div(100)
-                  .toString(10),
-              })
-              .catch((e) => {
-                if (
-                  currentFetchId === fetchIdRef.current &&
-                  !alternativeToken
-                ) {
-                  stats.report('bridgeQuoteResult', {
-                    aggregatorIds: bridgeAggregator.id,
-                    fromChainId: _fromToken.chain,
-                    fromTokenId: _fromToken.id,
-                    toTokenId: _toToken.id,
-                    toChainId: _toToken.chain,
-                    status: 'fail',
-                  });
-                }
-              });
+      const getQUoteV2 = async (alternativeToken?: TokenItem) => {
+        const fromChainId = alternativeToken?.chain || _fromToken.chain;
+        const fromTokenId = alternativeToken?.id || _fromToken.id;
+        const fromTokenRawAmount = alternativeToken
+          ? new BigNumber(amount)
+              .times(_fromToken.price)
+              .div(alternativeToken.price)
+              .times(10 ** alternativeToken.decimals)
+              .toFixed(0, 1)
+              .toString()
+          : new BigNumber(amount)
+              .times(10 ** _fromToken.decimals)
+              .toFixed(0, 1)
+              .toString();
 
-            if (alternativeToken) {
-              if (data?.length && currentFetchId === fetchIdRef.current) {
-                setRecommendFromToken(alternativeToken);
-                return;
-              }
-            }
-            if (data?.length && currentFetchId === fetchIdRef.current) {
-              originData.push(...data);
-            }
-            if (currentFetchId === fetchIdRef.current) {
+        const data = await fetchBridgeRoutes({
+          user_addr: _userAddress,
+          from_chain_id: fromChainId,
+          from_token_id: fromTokenId,
+          from_token_raw_amount: fromTokenRawAmount,
+          to_chain_id: _toToken.chain,
+          to_token_id: _toToken.id,
+          slippage: new BigNumber(bridgeSlippageObj.slippageState)
+            .div(100)
+            .toString(10),
+        })
+          .catch(() => {
+            if (currentFetchId === fetchIdRef.current && !alternativeToken) {
               stats.report('bridgeQuoteResult', {
-                aggregatorIds: bridgeAggregator.id,
+                aggregatorIds: '',
                 fromChainId: _fromToken.chain,
                 fromTokenId: _fromToken.id,
                 toTokenId: _toToken.id,
                 toChainId: _toToken.chain,
-                status: data?.length ? 'success' : 'none',
+                status: 'fail',
               });
             }
-            return data;
-          })
-        );
+            return undefined;
+          });
+
+        if (alternativeToken) {
+          if (data?.length && currentFetchId === fetchIdRef.current) {
+            setRecommendFromToken(alternativeToken);
+            return;
+          }
+        }
+        if (data?.length && currentFetchId === fetchIdRef.current) {
+          originData.push(...data);
+        }
+        if (currentFetchId === fetchIdRef.current) {
+          stats.report('bridgeQuoteResult', {
+            aggregatorIds: data?.map((q) => q.aggregator?.id).filter(Boolean).join(',') || '',
+            fromChainId: _fromToken.chain,
+            fromTokenId: _fromToken.id,
+            toTokenId: _toToken.id,
+            toChainId: _toToken.chain,
+            status: data?.length ? 'success' : 'none',
+          });
+        }
+      };
 
       await getQUoteV2();
 
       const data = originData?.filter(
-        (quote) =>
-          !!quote?.bridge &&
-          !!quote?.bridge?.id &&
-          !!quote?.bridge?.logo_url &&
-          !!quote.bridge.name
+        (quote) => !!quote?.bridge && !!quote?.bridge?.id && !!quote.bridge.name
       );
 
       if (currentFetchId === fetchIdRef.current) {
@@ -662,21 +704,21 @@ export const useBridge = () => {
 
         if (data.length < 1) {
           try {
-            const recommendFromToken = await wallet.openapi.getRecommendFromToken(
-              {
-                user_addr: _userAddress,
-                from_chain_id: _fromToken.chain,
-                from_token_id: _fromToken.id,
-                from_token_amount: new BigNumber(amount)
-                  .times(10 ** _fromToken.decimals)
-                  .toFixed(0, 1)
-                  .toString(),
-                to_chain_id: _toToken.chain,
-                to_token_id: _toToken.id,
-              }
-            );
+            const recommendFromToken = await fetchRecommendFromToken({
+              user_addr: _userAddress,
+              from_chain_id: _fromToken.chain,
+              from_token_id: _fromToken.id,
+              from_token_amount: new BigNumber(amount)
+                .times(10 ** _fromToken.decimals)
+                .toFixed(0, 1)
+                .toString(),
+              to_chain_id: _toToken.chain,
+              to_token_id: _toToken.id,
+            });
             if (recommendFromToken?.token_list?.[0]) {
-              await getQUoteV2(recommendFromToken?.token_list?.[0]);
+              await getQUoteV2(
+                (recommendFromToken.token_list[0] as unknown) as TokenItem
+              );
             } else {
               setRecommendFromToken(undefined);
             }
@@ -688,7 +730,7 @@ export const useBridge = () => {
         }
 
         stats.report('bridgeQuoteResult', {
-          aggregatorIds: aggregatorsList.map((e) => e.id).join(','),
+          aggregatorIds: data?.map((q) => q?.aggregator?.id).filter(Boolean).join(',') || '',
           fromChainId: _fromToken.chain,
           fromTokenId: _fromToken.id,
           toTokenId: _toToken.id,
@@ -811,7 +853,6 @@ export const useBridge = () => {
     toToken,
     fromChain,
     toChain,
-    Number(amount),
     aggregatorsList.length,
     refreshId,
   ]);

@@ -4,7 +4,7 @@ import { CHAINS, CHAINS_ENUM } from 'consts';
 import { TokenItem } from '@rabby-wallet/rabby-api/dist/types';
 import { ALL_SUPPORTED_BRIDGE_CHAINS } from '@rabby-wallet/rabby-bridge';
 import { BridgeServiceStore } from '@/background/service/bridge';
-import { BridgeAggregator } from '@/background/service/openapi';
+import { BridgeAggregator, hypermidApiService } from '@/background/service/walletApiService';
 import { DEFAULT_BRIDGE_AGGREGATOR } from '@/constant/bridge';
 import { ensureChainListValid, findChainByServerID } from '@/utils/chain';
 
@@ -106,7 +106,7 @@ export const bridge = createModel<RootModel>()({
     },
 
     async fetchAggregatorsList(_: void, store) {
-      const aggregatorsList = await store.app.wallet.openapi.getBridgeAggregatorList();
+      const aggregatorsList = await hypermidApiService.getBridgeAggregatorList();
       if (aggregatorsList.length) {
         this.setField({
           aggregatorsListInit: true,
@@ -116,7 +116,7 @@ export const bridge = createModel<RootModel>()({
     },
 
     async fetchSupportedChains(_: void, store) {
-      const chains = await store.app.wallet.openapi.getBridgeSupportChainV2();
+      const chains = await hypermidApiService.getBridgeSupportChainV2();
       if (chains.length) {
         const mappings = Object.values(CHAINS).reduce((acc, chain) => {
           acc[chain.serverId] = chain.enum;

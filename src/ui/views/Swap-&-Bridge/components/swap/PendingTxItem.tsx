@@ -1,4 +1,4 @@
-import React, {
+import {
   useCallback,
   useEffect,
   useImperativeHandle,
@@ -16,14 +16,7 @@ import { getTokenSymbol } from '@/ui/utils/token';
 import { useWallet } from '@/ui/utils';
 import IconUnknown from '@/ui/assets/token-default.svg';
 import { useHistory } from 'react-router-dom';
-import { transactionHistoryService } from '@/background/service';
 import { useRabbySelector } from '@/ui/store';
-import {
-  SvgPendingSpin,
-  SvgIcPending,
-  SvgIcSuccess,
-  SvgIcWarning,
-} from 'ui/assets';
 import BottomFloatingSheet from '@/ui/component/BottomFloatingPopup';
 
 import type {
@@ -35,10 +28,10 @@ import type {
 } from '@/background/service/transactionHistory';
 import { TooltipWithMagnetArrow } from '@/ui/component/Tooltip/TooltipWithMagnetArrow';
 import { Image } from 'antd';
-import { BridgeHistory, TokenItem } from '@rabby-wallet/rabby-api/dist/types';
+import { TokenItem } from '@rabby-wallet/rabby-api/dist/types';
+import type { HypermidBridgeHistoryItem } from '../../api';
 import { getUiType } from '@/ui/utils';
 
-import { UI_TYPE } from '@/constant/ui';
 import { Button, Copy } from '@repo/ui/primitives';
 import { FailedIcon, ProcessingIcon, SuccessIcon } from '@repo/ui';
 import { truncate } from '@repo/utils';
@@ -97,7 +90,7 @@ export const PendingTxItem = forwardRef<
       | 'sendNft'
       | 'approveSwap'
       | 'approveBridge';
-    bridgeHistoryList?: BridgeHistory[];
+    bridgeHistoryList?: HypermidBridgeHistoryItem[];
     openBridgeHistory?: () => void;
     onFulfilled?: () => void;
   }
@@ -113,11 +106,12 @@ export const PendingTxItem = forwardRef<
 
   const fetchHistory = useCallback(async () => {
     if (!userAddress) return;
-    const historyData = await wallet.getRecentPendingTxHistory(
-      userAddress,
-      type
-    );
-    setData(historyData);
+    // Try pending first; fall back to any tx created in the last 5 min so we
+    // can show "Succeeded / Failed" even when the tx completed before this component mounted.
+    const historyData =
+      (await wallet.getRecentPendingTxHistory(userAddress, type)) ??
+      (await wallet.getLatestTxHistory(userAddress, type));
+    setData(historyData as PendingTxData | null);
   }, [type, userAddress]);
 
   useEffect(() => {
@@ -167,64 +161,15 @@ export const PendingTxItem = forwardRef<
       if (refreshTx) {
         setData(refreshTx);
       }
+    } else {
+      // Re-check for a newly submitted tx in case it was recorded after mount
+      await fetchHistory();
     }
   }, 1000);
-
-  // not use in bridge, so no need
-  // useEffect(() => {
-  //   if (
-  //     bridgeHistoryList &&
-  //     bridgeHistoryList?.length > 0 &&
-  //     type === 'bridge'
-  //   ) {
-  //     const recentlyTxHash = data?.hash;
-  //     if (
-  //       recentlyTxHash &&
-  //       'fromChainId' in data && // only bridge logic
-  //       data.status !== 'allSuccess'
-  //     ) {
-  //       const findTx = bridgeHistoryList.find(
-  //         (item) => item.from_tx?.tx_id === recentlyTxHash
-  //       );
-  //       if (!findTx) {
-  //         const currentTime = Date.now();
-  //         const txCreateTime = data?.createdAt;
-  //         if (currentTime - txCreateTime > 1000 * 60 * 60) {
-  //           // tx create time is more than 60 minutes, set this tx failed
-  //           wallet.completeBridgeTxHistory(
-  //             recentlyTxHash,
-  //             data?.fromChainId,
-  //             'failed'
-  //           );
-  //           return;
-  //         }
-  //       }
-  //       if (
-  //         findTx &&
-  //         (findTx.status === 'completed' || findTx.status === 'failed') &&
-  //         data
-  //       ) {
-  //         const status =
-  //           findTx.status === 'completed' ? 'allSuccess' : 'failed';
-  //         setData({
-  //           ...data,
-  //           status,
-  //           completedAt: Date.now(),
-  //         });
-  //         wallet.completeBridgeTxHistory(
-  //           recentlyTxHash,
-  //           data.fromChainId,
-  //           status
-  //         );
-  //       }
-  //     }
-  //   }
-  // }, [bridgeHistoryList, data, type, wallet]);
 
   const isPending =
     data?.status === 'pending' || data?.status === 'fromSuccess';
   const isFailed = data?.status === 'failed';
-  const isSuccess = data?.status === 'success' || data?.status === 'allSuccess';
 
   useEffect(() => {
     const isCurrentFulfilled = !isPending;
@@ -235,10 +180,12 @@ export const PendingTxItem = forwardRef<
   }, [isPending, onFulfilled]);
 
   const [sheetOpen, setSheetOpen] = useState(false);
+  const hasAutoOpenedRef = useRef(false);
 
   useEffect(() => {
-    if (data) {
+    if (data && !hasAutoOpenedRef.current) {
       setSheetOpen(true);
+      hasAutoOpenedRef.current = true;
     }
   }, [data]);
 
@@ -266,19 +213,6 @@ export const PendingTxItem = forwardRef<
       }
     }
   });
-
-  const sendTitleTextStr = useMemo(() => {
-    if ((type === 'send' || type === 'sendNft') && data) {
-      const sendData = data as SendTxHistoryItem;
-      const sendAmount = formatTokenAmount(sendData?.amount);
-      if (type === 'sendNft') {
-        return `-${sendAmount} NFT`;
-      } else {
-        return `-${sendAmount} ${getTokenSymbol(sendData?.token as TokenItem)}`;
-      }
-    }
-    return '';
-  }, [type, data]);
 
   const statusText = useMemo(() => {
     if (isPending) {
@@ -310,134 +244,121 @@ export const PendingTxItem = forwardRef<
     return null;
   }
 
+  const fromToken =
+    type === 'swap'
+      ? (data as SwapTxHistoryItem)?.fromToken
+      : type === 'bridge'
+      ? (data as BridgeTxHistoryItem)?.fromToken
+      : null;
+
+  const toToken =
+    type === 'swap'
+      ? (data as SwapTxHistoryItem)?.toToken
+      : type === 'bridge'
+      ? (data as BridgeTxHistoryItem)?.toToken
+      : null;
+
   return (
     <>
+      {/* Inline status card — keeps the page from looking empty */}
+      <div
+        className={clsx(
+          'flex items-center justify-between cursor-pointer rounded-[8px] px-[16px] py-[14px]',
+          'hover:bg-blue-light hover:bg-opacity-[0.1] hover:border-rabby-blue-default border border-transparent',
+          'bg-r-neutral-card-1'
+        )}
+        onClick={() => setSheetOpen(true)}
+      >
+        <div className="flex items-center gap-6">
+          {fromToken && toToken ? (
+            <>
+              <TokenWithChain
+                token={fromToken.logo_url}
+                chain={fromToken.chain || ''}
+              />
+              <span className="text-15 font-medium text-r-neutral-title-1">
+                {getTokenSymbol(fromToken)}
+              </span>
+              <span className="text-15 font-medium text-r-neutral-foot mx-2">
+                →
+              </span>
+              <TokenWithChain
+                token={toToken.logo_url}
+                chain={toToken.chain || ''}
+              />
+              <span className="text-15 font-medium text-r-neutral-title-1">
+                {getTokenSymbol(toToken)}
+              </span>
+            </>
+          ) : null}
+        </div>
+        <StatusIcon status={data.status} />
+      </div>
+
       <BottomFloatingSheet
         hideCloseButton
         open={sheetOpen}
         onClose={handleSheetClose}
       >
         <div className="flex flex-col gap-6">
-          {/* Header */}
-          <div className="pb-4">
-            <h2 className="text-base font-semibold text-r-neutral-title-1">
-              Transaction Status
+          {/* Status header */}
+          <div className="flex flex-col items-center gap-3 pt-2">
+            <StatusIcon status={data.status} />
+            <h2 className={clsx('text-lg font-semibold', statusClassName)}>
+              {isPending
+                ? 'Transaction Processing…'
+                : isFailed
+                ? 'Transaction Failed'
+                : 'Transaction Complete'}
             </h2>
           </div>
 
-          {/* Content Area */}
-          <div className="space-y-6">
-            {/* Token Display */}
-            <div className="flex items-center justify-between px-2 py-3 bg-r-neutral-card-1 rounded-lg">
-              {type === 'swap' ? (
-                <div className="flex items-center justify-between gap-3 w-full">
-                  <div className="flex items-center gap-3">
-                    <TokenWithChain
-                      token={(data as SwapTxHistoryItem)?.fromToken?.logo_url}
-                      chain={
-                        (data as SwapTxHistoryItem)?.fromToken?.chain || ''
-                      }
-                    />
-                    <div className="text-sm font-medium text-r-neutral-title-1">
-                      {getTokenSymbol((data as SwapTxHistoryItem)?.fromToken)}
-                    </div>
-                  </div>
-                  <span className="text-sm font-medium text-r-neutral-foot">
-                    →
-                  </span>
-                  <div className="flex items-center gap-3">
-                    <TokenWithChain
-                      token={(data as SwapTxHistoryItem)?.toToken?.logo_url}
-                      chain={(data as SwapTxHistoryItem)?.toToken?.chain || ''}
-                    />
-                    <div className="text-sm font-medium text-r-neutral-title-1">
-                      {getTokenSymbol((data as SwapTxHistoryItem)?.toToken)}
-                    </div>
-                  </div>
-                </div>
-              ) : type === 'bridge' ? (
-                <div className="flex items-center justify-between gap-3 w-full">
-                  <div className="flex items-center gap-3">
-                    <TokenWithChain
-                      token={(data as BridgeTxHistoryItem)?.fromToken?.logo_url}
-                      chain={
-                        (data as BridgeTxHistoryItem)?.fromToken?.chain || ''
-                      }
-                    />
-                    <div className="text-sm font-medium text-r-neutral-title-1">
-                      {getTokenSymbol((data as BridgeTxHistoryItem)?.fromToken)}
-                    </div>
-                  </div>
-                  <span className="text-sm font-medium text-r-neutral-foot">
-                    →
-                  </span>
-                  <div className="flex items-center gap-3">
-                    <TokenWithChain
-                      token={(data as BridgeTxHistoryItem)?.toToken?.logo_url}
-                      chain={
-                        (data as BridgeTxHistoryItem)?.toToken?.chain || ''
-                      }
-                    />
-                    <div className="text-sm font-medium text-r-neutral-title-1">
-                      {getTokenSymbol((data as BridgeTxHistoryItem)?.toToken)}
-                    </div>
-                  </div>
-                </div>
-              ) : ['approveBridge', 'approveSwap'].includes(type) ? (
-                <div className="flex items-center gap-3">
-                  <TokenWithChain
-                    token={(data as ApproveTokenTxHistoryItem)?.token?.logo_url}
-                    chain={
-                      (data as ApproveTokenTxHistoryItem)?.token?.chain || ''
-                    }
-                  />
-                  <div className="text-sm font-medium text-r-neutral-title-1">
-                    {t('page.swap.approve-x-symbol', {
-                      symbol: `${
-                        (data as ApproveTokenTxHistoryItem).amount
-                      } ${getTokenSymbol(
-                        (data as ApproveTokenTxHistoryItem)?.token
-                      )}`,
-                    })}
-                  </div>
-                </div>
-              ) : null}
-            </div>
-
-            {/* Status Text */}
-            <div className="flex flex-col items-center gap-2 text-center py-2">
-              <StatusIcon status={data.status} />
-              <div className={clsx('text-base font-semibold', statusClassName)}>
-                {statusText}
+          {/* Token route */}
+          {fromToken && toToken ? (
+            <div className="flex items-center justify-between px-4 py-3 bg-r-neutral-card-1 rounded-lg">
+              <div className="flex items-center gap-2">
+                <TokenWithChain
+                  token={fromToken.logo_url}
+                  chain={fromToken.chain || ''}
+                />
+                <span className="text-sm font-medium text-r-neutral-title-1">
+                  {getTokenSymbol(fromToken)}
+                </span>
+              </div>
+              <span className="text-sm text-r-neutral-foot">→</span>
+              <div className="flex items-center gap-2">
+                <TokenWithChain
+                  token={toToken.logo_url}
+                  chain={toToken.chain || ''}
+                />
+                <span className="text-sm font-medium text-r-neutral-title-1">
+                  {getTokenSymbol(toToken)}
+                </span>
               </div>
             </div>
+          ) : null}
 
-            {/* Transaction Hash (if available) */}
-            {data.hash && (
-              <div className="px-4 py-3 flex items-center justify-between bg-r-neutral-card-1 rounded-lg">
-                <div className="text-xs text-primary-foreground mb-1">
-                  Transaction Hash
-                </div>
-                <div className="text-xs text-primary-foreground break-all">
-                  <Copy
-                    key="txHash"
-                    value={`${data.hash}`}
-                    className="text-sm text-primary-foreground"
-                  >
-                    {truncate(data.hash, [4, 4])}
-                  </Copy>
-                </div>
-              </div>
-            )}
-          </div>
+          {/* Transaction hash */}
+          {data.hash && (
+            <div className="px-4 py-3 flex items-center justify-between bg-r-neutral-card-1 rounded-lg">
+              <span className="text-xs text-r-neutral-foot">Tx Hash</span>
+              <Copy
+                key="txHash"
+                value={`${data.hash}`}
+                className="text-xs text-r-neutral-title-1"
+              >
+                {truncate(data.hash, [6, 6])}
+              </Copy>
+            </div>
+          )}
 
-          {/* Action Button */}
+          {/* Action */}
           <Button
             disabled={isPending}
             onClick={handleSheetPress}
             className="w-full"
           >
-            Done
+            {isPending ? 'Processing…' : 'Go to Dashboard'}
           </Button>
         </div>
       </BottomFloatingSheet>

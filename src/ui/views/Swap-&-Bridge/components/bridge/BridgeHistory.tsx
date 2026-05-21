@@ -1,7 +1,6 @@
 import BottomDrawer from '@repo/ui/components/bottom-drawer';
 import React, { forwardRef, useMemo } from 'react';
 import { useBridgeHistory } from '../../hooks';
-import { TokenItem } from '@rabby-wallet/rabby-api/dist/types';
 import {
   formatAmount,
   formatUsdValue,
@@ -22,17 +21,15 @@ import SkeletonInput from 'antd/lib/skeleton/Input';
 import { ellipsis } from '@/ui/utils/address';
 import { useTranslation } from 'react-i18next';
 import { findChain } from '@/utils/chain';
-import { BridgeHistory } from '@/background/service/openapi';
+import type { HypermidBridgeHistoryItem, HypermidBridgeTokenItem } from '../../api';
+
 const isTab = getUiType().isTab;
 
-const BridgeTokenIcon = (props: { token: TokenItem }) => {
+const BridgeTokenIcon = (props: { token: HypermidBridgeTokenItem }) => {
   const { token } = props;
   const chain = React.useMemo(() => {
-    const chainServerId = token.chain;
-    return findChain({
-      serverId: chainServerId,
-    });
-  }, [token]);
+    return findChain({ serverId: token.chain });
+  }, [token.chain]);
 
   return (
     <div className="w-16 h-16 relative">
@@ -51,14 +48,12 @@ const TokenCost = ({
   payTokenAmount,
   receiveTokenAmount,
   loading = false,
-  actual = false,
 }: {
-  payToken: TokenItem;
-  receiveToken: TokenItem;
+  payToken: HypermidBridgeTokenItem;
+  receiveToken: HypermidBridgeTokenItem;
   payTokenAmount?: number;
   receiveTokenAmount?: number;
   loading?: boolean;
-  actual?: boolean;
 }) => {
   if (loading) {
     return (
@@ -84,32 +79,21 @@ const TokenCost = ({
 };
 
 interface TransactionProps {
-  data: BridgeHistory;
+  data: HypermidBridgeHistoryItem;
 }
 const Transaction = forwardRef<HTMLDivElement, TransactionProps>(
   ({ data }, ref) => {
     const isPending = data.status === 'pending';
     const isFailed = data.status === 'failed';
-    const time =
-      // data?.finished_at ||
-      data?.create_at;
+    const time = data?.create_at;
 
     const txId = data?.detail_url?.split('/').pop() || '';
-
-    const gasUsed = useMemo(() => {
-      if (data?.from_gas) {
-        return `${formatAmount(data.from_gas.gas_amount)} ${getTokenSymbol(
-          data?.from_gas.native_token
-        )} (${formatUsdValue(data.from_gas.usd_gas_fee)})`;
-      }
-      return '';
-    }, [data?.from_gas]);
 
     const gotoScan = React.useCallback(() => {
       if (data?.detail_url) {
         openInTab(data?.detail_url, !isTab);
       }
-    }, []);
+    }, [data?.detail_url]);
 
     const { t } = useTranslation();
 
@@ -174,45 +158,19 @@ const Transaction = forwardRef<HTMLDivElement, TransactionProps>(
             <TokenCost
               payToken={data?.from_token}
               receiveToken={data.to_token}
-              payTokenAmount={data.quote.pay_token_amount}
-              receiveTokenAmount={data.quote.receive_token_amount}
+              payTokenAmount={data.from_token?.amount}
+              receiveTokenAmount={data.to_token?.amount}
             />
           </div>
         </div>
 
-        <div className="flex items-center py-[15px]">
-          <span className="w-[68px]">{t('page.bridge.actual')}</span>
-          <div>
-            <TokenCost
-              payToken={data?.from_token}
-              receiveToken={data?.to_actual_token || data?.to_token}
-              payTokenAmount={data.actual.pay_token_amount}
-              receiveTokenAmount={data.actual.receive_token_amount}
-              loading={isPending}
-              actual
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center text-12 text-r-neutral-foot pt-10 border-t-[0.5px] border-solid border-rabby-neutral-line">
+        <div className="flex items-center text-12 text-r-neutral-foot pt-10 border-t-[0.5px] border-solid border-rabby-neutral-line mt-12">
           <span className="cursor-pointer" onClick={gotoScan}>
             {t('page.bridge.detail-tx')}:{' '}
             <span className="underline underline-r-neutral-foot">
               {txId ? ellipsis(txId) : ''}
             </span>
           </span>
-
-          {!isPending ? (
-            <span className="ml-auto">
-              {t('page.bridge.gas-fee', { gasUsed })}
-            </span>
-          ) : (
-            <span className="ml-auto">
-              {t('page.bridge.gas-x-price', {
-                price: data?.from_gas?.gas_price || '',
-              })}
-            </span>
-          )}
         </div>
       </div>
     );

@@ -158,14 +158,16 @@ const ReviewSwapBridge: React.FC<ReviewSwapBridgeProps> = ({
     );
   }, [toToken, selectedQuote, type]);
 
-  const protocolFeeAmount = useMemo(() => {
-    if (type === 'bridge' && selectedQuote?.gas_fee) {
-      return new BigNumber(selectedQuote.gas_fee.amount || 0)
-        .div(10 ** 18)
-        .toFixed(10)
-        .toString();
+  const protocolFeeDisplay = useMemo(() => {
+    if (type === 'bridge') {
+      const usdValue =
+        selectedQuote?.protocol_fee?.usd_value ??
+        selectedQuote?.gas_fee?.usd_value;
+      if (usdValue != null) {
+        return formatUsdValue(usdValue);
+      }
     }
-    return '0';
+    return '$0';
   }, [selectedQuote, type]);
 
   const gasSpeedMenu = (
@@ -344,13 +346,13 @@ const ReviewSwapBridge: React.FC<ReviewSwapBridgeProps> = ({
         )}
 
         {/* Protocol Fee */}
-        {type === 'bridge' && selectedQuote?.gas_fee && (
+        {type === 'bridge' && sourceName && (
           <div className="flex justify-between items-center gap-4 py-1 rounded-lg text-sm">
             <span className="text-primary-foreground text-sm font-medium">
               {sourceName} fee
             </span>
             <span className="text-secondary-foreground text-sm font-normal text-right">
-              {protocolFeeAmount} {selectedQuote.gas_fee.symbol || 'ETH'}
+              {protocolFeeDisplay}
             </span>
           </div>
         )}
