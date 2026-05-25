@@ -127,7 +127,7 @@ export const NewUserImportKeystone = () => {
     await wallet.unlockHardwareAccount(KEYSTONE_TYPE, [0], keyringId);
 
     history.push({
-      pathname: '/new-user/success',
+      pathname: '/new-user/ready',
       search: qs.stringify({
         hd: KEYSTONE_TYPE,
         brand,
@@ -188,7 +188,7 @@ export const NewUserImportKeystone = () => {
       await wallet.unlockHardwareAccount(KEYSTONE_TYPE, [0], stashKeyringId);
 
       history.push({
-        pathname: '/new-user/success',
+        pathname: '/new-user/ready',
         search: qs.stringify({
           hd: KEYSTONE_TYPE,
           brand,

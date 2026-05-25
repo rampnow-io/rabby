@@ -62,7 +62,7 @@ const DisplayMnemonic = () => {
     await dispatch.importMnemonics.confirmAllImportingAccountsAsync();
 
     history.push({
-      pathname: '/new-user/success',
+      pathname: '/new-user/ready',
       search: `?hd=${
         KEYRING_CLASS.MNEMONIC
       }&keyringId=${keyringId}&isCreated=${true}`,

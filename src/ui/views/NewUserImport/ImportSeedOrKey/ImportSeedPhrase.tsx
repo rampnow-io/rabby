@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import clsx from 'clsx';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -18,11 +17,12 @@ import * as z from 'zod';
 import WordsMatrix from '@/ui/component/WordsMatrix';
 import { useWallet, getUiType } from '@/ui/utils';
 import { clearClipboard } from '@/ui/utils/clipboard';
-import { KEYRING_CLASS } from '@/constant';
-import { connectStore, useRabbyDispatch } from '../../../store';
+import { connectStore } from '../../../store';
 import { UiProvider } from '@/ui/component/NewUserImport';
 import SectionHeader from '@/ui/component/section-header/section-header';
 import { Container, Content, Action } from '@repo/ui';
+import { useNewUserGuideStore } from '../hooks/useNewUserGuideStore';
+import { HeaderNavPage } from '@/ui/component';
 
 const importMnemonicSchema = z.object({
   mnemonics: z.string().min(1, 'Seed phrase is required'),
@@ -34,7 +34,7 @@ type ImportMnemonicForm = z.infer<typeof importMnemonicSchema>;
 const ImportMnemonics = () => {
   const history = useHistory();
   const wallet = useWallet();
-  const dispatch = useRabbyDispatch();
+  const { setStore } = useNewUserGuideStore();
   const { t } = useTranslation();
 
   const [needPassphrase, setNeedPassphrase] = useState(false);
@@ -42,9 +42,6 @@ const ImportMnemonics = () => {
   const [slip39GroupNumber, setSlip39GroupNumber] = useState(1);
   const [slip39ErrorIndex, setSlip39ErrorIndex] = useState<number>(-1);
   const [secretShares, setSecretShares] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  let keyringId: number | null;
 
   const form = useForm<ImportMnemonicForm>({
     resolver: zodResolver(importMnemonicSchema),
@@ -70,7 +67,6 @@ const ImportMnemonics = () => {
       try {
         const threshold = await wallet.slip39GetThreshold(shares);
         setSlip39GroupNumber(threshold);
-
         form.setValue('mnemonics', shares.slice(0, threshold).join('\n'));
       } catch (e) {
         console.log('slip39 error', e);
@@ -81,8 +77,6 @@ const ImportMnemonics = () => {
 
   const onSubmit = async (values: ImportMnemonicForm) => {
     try {
-      setLoading(true);
-
       const { mnemonics, passphrase } = values;
 
       if (isSlip39) {
@@ -97,40 +91,18 @@ const ImportMnemonics = () => {
         }
       }
 
-      const {
-        keyringId: stashKeyringId,
-        isExistedKR,
-      } = await wallet.generateKeyringWithMnemonic(mnemonics, passphrase || '');
-
-      dispatch.importMnemonics.switchKeyring({
-        finalMnemonics: mnemonics,
-        passphrase,
-        isExistedKeyring: isExistedKR,
-        stashKeyringId,
+      setStore({
+        seedPhrase: mnemonics,
+        passphrase: passphrase || '',
       });
-
-      const accounts = await dispatch.importMnemonics.getAccounts({
-        start: 0,
-        end: 1,
-      });
-      await dispatch.importMnemonics.setSelectedAccounts([accounts[0].address]);
-      await dispatch.importMnemonics.confirmAllImportingAccountsAsync();
-
-      keyringId = stashKeyringId;
       clearClipboard();
-
-      history.push({
-        pathname: '/new-user/success',
-        search: `?hd=${KEYRING_CLASS.MNEMONIC}&keyringId=${keyringId}&isCreated=false`,
-      });
+      history.push('/new-user/import/seed-phrase/set-password');
     } catch (err: any) {
       form.setError('mnemonics', {
         message:
           err?.message ||
           t('page.newAddress.theSeedPhraseIsInvalidPleaseCheck'),
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -139,10 +111,15 @@ const ImportMnemonics = () => {
   return (
     <UiProvider>
       <Container>
-        <SectionHeader
-          className="text-center"
-          title={t('page.newUserImport.importSeedPhrase.title')}
-        />
+        <HeaderNavPage
+          handleBack={() => {
+            history.goBack();
+          }}
+        >
+          <div className="text-primary-foreground text-xl font-medium">
+            {t('page.newUserImport.importSeedPhrase.title')}
+          </div>
+        </HeaderNavPage>
 
         <Content>
           <Form {...form}>
@@ -155,11 +132,15 @@ const ImportMnemonics = () => {
                     <WordsMatrix.MnemonicsInputs
                       {...field}
                       newUserImport
+                      className="grid grid-cols-3 sm:grid sm:grid-cols-2 gap-4 "
                       isSlip39={isSlip39}
                       slip39GroupNumber={slip39GroupNumber}
                       onSlip39Change={setIsSlip39}
                       onPassphrase={setNeedPassphrase}
-                      onChange={checkSlip39Mnemonics}
+                      onChange={(mnemonics) => {
+                        field.onChange(mnemonics);
+                        checkSlip39Mnemonics(mnemonics);
+                      }}
                       setSlip39GroupNumber={setSlip39GroupNumber}
                       errorIndexes={[slip39ErrorIndex]}
                     />
@@ -193,7 +174,6 @@ const ImportMnemonics = () => {
           <Button
             onSubmit={form.handleSubmit(onSubmit)}
             disabled={disabledButton}
-            className="mt-auto h-[56px] w-full rounded-[8px]"
           >
             {t('global.confirm')}
           </Button>

@@ -69,7 +69,7 @@ export const NewUserImportLedger = () => {
       );
 
       history.push({
-        pathname: '/new-user/success',
+        pathname: '/new-user/ready',
         search: `?hd=${HARDWARE_KEYRING_TYPES.Ledger.type}&keyringId=${keyringId}`,
       });
     } catch (e: any) {

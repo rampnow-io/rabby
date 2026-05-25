@@ -168,7 +168,7 @@ export const HDManager: React.FC<StateProviderProps> = ({
         finalBrand = hardwareKeyring.brandName;
       }
       history.push(
-        `/new-user/success?hd=${keyring}&keyringId=${keyringId}&brand=${finalBrand}`
+        `/new-user/ready?hd=${keyring}&keyringId=${keyringId}&brand=${finalBrand}`
       );
       return;
     }

@@ -1,4 +1,3 @@
-import { Card } from '@/ui/component/NewUserImport';
 import { useMemoizedFn, useRequest } from 'ahooks';
 import { Button, Form, Input, message } from 'antd';
 import clsx from 'clsx';

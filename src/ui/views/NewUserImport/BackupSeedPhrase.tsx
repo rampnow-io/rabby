@@ -56,7 +56,7 @@ export const BackupSeedPhrase = () => {
   }, [mnemonics, t]);
 
   const handleNext = () => {
-    history.push('/new-user/select-color');
+    history.push('/new-user/ready');
   };
 
   return (

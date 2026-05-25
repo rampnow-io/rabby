@@ -1,52 +1,26 @@
 import { UiProvider } from '@/ui/component/NewUserImport';
-import { zodResolver } from '@hookform/resolvers/zod';
-import clsx from 'clsx';
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { useNewUserGuideStore } from './hooks/useNewUserGuideStore';
 import { clearClipboard } from '@/ui/utils/clipboard';
 import IconSuccess from 'ui/assets/success.svg';
-import styled from 'styled-components';
 import { useWallet } from '@/ui/utils';
+import { useRequest } from 'ahooks';
+import { message } from 'antd';
+import { useForm } from 'react-hook-form';
 import {
   Button,
+  Input,
   Form,
-  FormControl,
   FormField,
   FormItem,
+  FormControl,
   FormMessage,
-  Input,
+  InputSize,
 } from '@repo/ui/primitives';
-
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { message } from 'antd';
-import { Action, Content } from '@repo/ui';
+import { Action, Container, Content } from '@repo/ui';
 import { HeaderNavPage } from '@/ui/component';
-import SectionHeader from '@/ui/component/section-header/section-header';
-
-const Container = styled.div`
-  input {
-    border-radius: 8px;
-    border: 1px solid var(--r-neutral-line, #e0e5ec);
-    font-size: 16px;
-
-    &:not(:placeholder-shown) {
-      font-size: 24px;
-    }
-
-    &::placeholder {
-      color: var(--r-neutral-foot, #6a7587);
-      font-weight: 400;
-    }
-
-    &:focus {
-      border-color: var(--r-blue-default, #7084ff);
-      border-width: 1.5px;
-    }
-  }
-`;
 
 export const NewUserImportPrivateKey = () => {
   const { t } = useTranslation();
@@ -54,24 +28,8 @@ export const NewUserImportPrivateKey = () => {
   const wallet = useWallet();
   const { setStore, clearStore } = useNewUserGuideStore();
 
-  /* ---------------- schema ---------------- */
-  const formSchema = z.object({
-    privateKey: z
-      .string()
-      .min(1, 'Please input Private key')
-      .refine(
-        async (value) => {
-          return wallet.validatePrivateKey(value);
-        },
-        {
-          message: 'Invalid private key',
-        }
-      ),
-  });
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    mode: 'onChange',
+  const form = useForm<{ privateKey: string }>({
+    mode: 'onBlur',
     defaultValues: {
       privateKey: '',
     },
@@ -79,19 +37,37 @@ export const NewUserImportPrivateKey = () => {
 
   const {
     handleSubmit,
-    watch,
-    formState: { isSubmitting, isValid },
+    control,
+    formState: { errors },
   } = form;
 
-  const privateKeyValue = watch('privateKey');
+  /* ---------- Async validation using useRequest ---------- */
+  const { runAsync: validateKey, loading } = useRequest(
+    async (value: string) => {
+      if (!value) {
+        throw new Error('Please input Private key');
+      }
+      await wallet.validatePrivateKey(value);
+      return true;
+    },
+    {
+      manual: true,
+    }
+  );
 
-  /* ---------------- submit ---------------- */
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    setStore({
-      privateKey: values.privateKey,
-    });
-
-    history.push('/new-user/import/private-key/set-password');
+  /* ---------- Handle submit ---------- */
+  const onSubmit = async (values: { privateKey: string }) => {
+    try {
+      await validateKey(values.privateKey);
+      setStore({
+        privateKey: values.privateKey,
+      });
+      history.push('/new-user/import/private-key/set-password');
+    } catch (err: any) {
+      form.setError('privateKey', {
+        message: err.message,
+      });
+    }
   };
 
   return (
@@ -110,34 +86,35 @@ export const NewUserImportPrivateKey = () => {
 
         <Content>
           <Form {...form}>
-            <form className="mt-[20px]">
+            <form onSubmit={handleSubmit(onSubmit)} className="mt-[20px]">
               <FormField
-                control={form.control}
+                control={control}
                 name="privateKey"
+                rules={{
+                  validate: async (value) => {
+                    if (!value) {
+                      return 'Please input Private key';
+                    }
+                    try {
+                      await validateKey(value);
+                      return true;
+                    } catch (err: any) {
+                      return err.message;
+                    }
+                  },
+                }}
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
                       <Input
                         {...field}
-                        className="h-[52px]"
+                        sizeVariant={InputSize.LG}
                         type="password"
                         autoFocus
                         spellCheck={false}
                         placeholder="Input private key"
                         onPaste={() => {
                           clearClipboard();
-                          message.success({
-                            icon: (
-                              <img
-                                src={IconSuccess}
-                                className="icon icon-success"
-                              />
-                            ),
-                            content: t(
-                              'page.newUserImport.importPrivateKey.pasteCleared'
-                            ),
-                            duration: 2,
-                          });
                         }}
                       />
                     </FormControl>
@@ -148,11 +125,11 @@ export const NewUserImportPrivateKey = () => {
             </form>
           </Form>
         </Content>
+
         <Action>
           <Button
             onClick={handleSubmit(onSubmit)}
-            disabled={!isValid || isSubmitting || !privateKeyValue}
-            className="mt-auto text-[17px] font-medium"
+            disabled={!!errors.privateKey}
           >
             {t('global.Confirm')}
           </Button>

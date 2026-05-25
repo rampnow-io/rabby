@@ -57,7 +57,7 @@ export const useHDWalletUnlockAndRedirect = (
         });
 
         history.push({
-          pathname: '/new-user/success',
+          pathname: '/new-user/ready',
           search: `?hd=${encodeURIComponent(type)}&keyringId=${idRef.current}`,
         });
       }

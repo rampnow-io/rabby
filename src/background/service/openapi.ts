@@ -139,7 +139,7 @@ const WALLET_API_METHODS = new Set<keyof OpenApiService>([
   'getTotalBalance',
   'getToken',
   'listToken',
-
+  'searchToken',
   // Gas & execution
   'gasMarketV2',
   'gasPriceStats',

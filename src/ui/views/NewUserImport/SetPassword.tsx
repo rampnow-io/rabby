@@ -32,7 +32,7 @@ export const NewUserSetPassword = () => {
       }
       await wallet.boot(password);
       await wallet.importPrivateKey(store.privateKey);
-      history.push('/new-user/success');
+      history.push('/new-user/ready');
     } catch (e) {
       console.error(e);
       message.error(e.message);
@@ -83,7 +83,7 @@ export const NewUserSetPassword = () => {
         });
 
         history.push({
-          pathname: '/new-user/success',
+          pathname: '/new-user/ready',
           search: `?hd=${KEYRING_CLASS.MNEMONIC}&keyringId=${String(
             stashKeyringId || ''
           )}&isCreated=${false}`,
@@ -118,7 +118,7 @@ export const NewUserSetPassword = () => {
           history.push('/new-user/backup-seed-phrase');
         } else {
           history.push({
-            pathname: '/new-user/success',
+            pathname: '/new-user/ready',
             search: `?hd=${KEYRING_CLASS.MNEMONIC}&keyringId=${stashKeyringId}&isCreated=${isCreated}`,
           });
         }
@@ -140,7 +140,7 @@ export const NewUserSetPassword = () => {
         store.gnosis.chainList.map((item) => item.network)
       );
       history.push({
-        pathname: '/new-user/success',
+        pathname: '/new-user/ready',
         search: qs.stringify({
           brand: KEYRING_TYPE.GnosisKeyring,
         }),

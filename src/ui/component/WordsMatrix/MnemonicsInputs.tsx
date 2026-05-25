@@ -292,8 +292,8 @@ function MnemonicsInputs({
                 'box-border text-center font-medium text-[15px] text-r-neutral-title-1 relative',
                 newUserImport
                   ? [
-                      'w-full h-12 flex items-stretch rounded-lg border border-r-neutral-line bg-transparent overflow-hidden',
-                      'hover:border-r-neutral-body focus-within:border-r-blue-default',
+                      'w-full h-10 flex items-stretch rounded-lg border border-r-neutral-line bg-transparent overflow-hidden',
+                      'hover:border-r-neutral-body hover:border-[1.5px]',
                       isInvalid && 'border-r-red-default',
                     ]
                   : [
@@ -339,66 +339,76 @@ function MnemonicsInputs({
               >
                 {number}
               </div>
-              <TooltipView variant="dark" content={word}>
-                <div
+
+              <div
+                className={clsx(
+                  newUserImport ? 'flex-1 flex items-center' : 'h-14 p-1'
+                )}
+              >
+                <Input
                   className={clsx(
-                    newUserImport ? 'flex-1 flex items-center' : 'h-14 p-1'
+                    'mnemonics-input',
+                    newUserImport
+                      ? [
+                          'bg-transparent border-0 text-left px-3 text-[15px] font-normal text-r-neutral-title-1 h-full w-full',
+                          'focus:shadow-none focus:border-0 focus:outline-none',
+                          isInvalid && 'text-r-red-default',
+                        ]
+                      : [
+                          'bg-transparent text-r-neutral-title-1 h-full inline-block leading-10 border-transparent rounded-md',
+                          'focus:border-r-blue-default focus:border-[1.5px] focus:bg-r-neutral-bg-1 focus:shadow-[0px_4px_8px_0px_rgba(0,0,0,0.24)]',
+                          isInvalid &&
+                            'opacity-100 border-[1.5px] border-r-red-default',
+                        ]
                   )}
-                >
-                  <Input
-                    className={clsx(
-                      'mnemonics-input',
-                      newUserImport
-                        ? [
-                            'bg-transparent border-0 text-left px-3 text-[15px] font-normal text-r-neutral-title-1 h-full w-full',
-                            'focus:shadow-none focus:border-0 focus:outline-none',
-                            isInvalid && 'text-r-red-default',
-                          ]
-                        : [
-                            'bg-transparent text-r-neutral-title-1 h-full inline-block leading-10 border-transparent rounded-md',
-                            'focus:border-r-blue-default focus:border-[1.5px] focus:bg-r-neutral-bg-1 focus:shadow-[0px_4px_8px_0px_rgba(0,0,0,0.24)]',
-                            isInvalid &&
-                              'opacity-100 border-[1.5px] border-r-red-default',
-                          ]
-                    )}
-                    key={`word-input-${ver}-${idx}`}
-                    type={isCurrentVisible ? 'text' : 'password'}
-                    sizeVariant={InputSize.SM}
-                    value={word}
-                    autoFocus={isCurrentFocusing}
-                    onFocus={() => {
-                      setFocusing({ index: idx, visible: isCurrentVisible });
-                    }}
-                    onBlur={() => {
-                      setFocusing(DFLT_FOCUSING);
-                      validateWords();
-                    }}
-                    onPaste={(e) => {
-                      clearClipboardToast();
-                      const input = e.target as HTMLInputElement;
-                      input.select();
-                    }}
-                    onContextMenu={(e) => {
-                      const input = e.target as HTMLInputElement;
-                      input.select();
-                    }}
-                    onChange={(text) => {
-                      const newVal = text.target.value.trim();
-                      if (newVal === word) return;
-                      onWordUpdated(idx, newVal);
-                    }}
-                  />
-                </div>
-              </TooltipView>
+                  key={`word-input-${ver}-${idx}`}
+                  type={isCurrentVisible ? 'text' : 'password'}
+                  sizeVariant={InputSize.SM}
+                  value={word}
+                  autoFocus={isCurrentFocusing}
+                  onFocus={() => {
+                    setFocusing({ index: idx, visible: isCurrentVisible });
+                  }}
+                  onBlur={() => {
+                    setFocusing(DFLT_FOCUSING);
+                    validateWords();
+                  }}
+                  onPaste={(e) => {
+                    clearClipboardToast();
+                    const input = e.target as HTMLInputElement;
+                    input.select();
+                  }}
+                  onContextMenu={(e) => {
+                    const input = e.target as HTMLInputElement;
+                    input.select();
+                  }}
+                  onChange={(text) => {
+                    const newVal = text.target.value.trim();
+                    if (newVal === word) return;
+                    onWordUpdated(idx, newVal);
+                  }}
+                />
+              </div>
             </div>
           );
         })}
       </div>
       <Select
-        value={isSlip39 ? 'slip39' : mnemonicsCount.toString()}
+        value={
+          isSlip39
+            ? 'slip39'
+            : needPassphrase
+            ? `${mnemonicsCount}-passphrase`
+            : mnemonicsCount.toString()
+        }
         onValueChange={(value) => {
           if (value === 'slip39') {
             onSlip39Change(true);
+          } else if (value.endsWith('-passphrase')) {
+            const count = parseInt(value) as IMnemonicsCount;
+            setMnemonicsCount(count);
+            setNeedPassphrase(true);
+            onSlip39Change(false);
           } else {
             setMnemonicsCount(parseInt(value) as IMnemonicsCount);
             setNeedPassphrase(false);
@@ -471,12 +481,7 @@ function MnemonicsInputs({
           {NEED_PASSPHRASE_MNEMONICS_COUNTS.map((count) => (
             <SelectItem
               key={`count-passphrase-${count}`}
-              value={count.toString()}
-              onSelect={() => {
-                setMnemonicsCount(count);
-                setNeedPassphrase(true);
-                onSlip39Change(false);
-              }}
+              value={`${count}-passphrase`}
             >
               <Trans
                 t={t}
