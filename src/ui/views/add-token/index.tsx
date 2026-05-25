@@ -41,6 +41,7 @@ import {
 } from '@/ui/hooks/useSearchToken';
 import clsx from 'clsx';
 import ThemeIcon from '@/ui/component/ThemeMode/ThemeIcon';
+import { addUserToken } from '@/snippets/client';
 
 const formSchema = z.object({
   address: z.string().min(1, 'Token address is required'),
@@ -121,7 +122,14 @@ const AddToken = () => {
         );
       }
 
-      const portofolioToken = (await addToken(token)) || null;
+      const portofolioToken =
+        (await addUserToken({
+          body: {
+            chain_id: chain.id.toString(),
+            contract_address: tokenId,
+            wallet_address: (await wallet.getCurrentAccount())?.address || '',
+          },
+        })) || null;
 
       return { token, portofolioToken };
     },
@@ -129,13 +137,18 @@ const AddToken = () => {
   );
 
   const handleConfirm = useCallback(async () => {
-    // try {
-    //   const addedInfo = await runAddToken();
-    //   //   onConfirm?.(addedInfo);
-    // } catch (e: any) {
-    //   message.error(e?.message);
-    // }
-  }, []);
+    try {
+      if (!token || !chain?.id || !tokenId) {
+        return;
+      }
+      const addedInfo = await runAddToken();
+      if (addedInfo) {
+        history.goBack();
+      }
+    } catch (e: any) {
+      console.error('Failed to add token:', e);
+    }
+  }, [token, chain?.id, tokenId, runAddToken, history]);
 
   useEffect(() => {
     setChainSelectorState({

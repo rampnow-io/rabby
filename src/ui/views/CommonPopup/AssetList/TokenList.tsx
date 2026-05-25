@@ -54,9 +54,7 @@ export const HomeTokenList = ({
   }, [list]);
 
   const totalValue = React.useMemo(() => {
-    return sortedList
-      ?.reduce((acc, item) => acc.plus(item._usdValue || 0), new BigNumber(0))
-      .toNumber();
+    return sortedList;
   }, [sortedList]);
   const { result: currentList } = useExpandList(sortedList, totalValue);
   const lowValueList = React.useMemo(() => {
@@ -90,9 +88,6 @@ export const HomeTokenList = ({
           list={isSearch ? list : currentList}
           EmptyComponent={<div></div>}
         />
-        {!isSearch && hasList && hasLowValueList && (
-          <TokenLowValueItem list={lowValueList} className="h-[44px]" />
-        )}
       </div>
     </div>
   );

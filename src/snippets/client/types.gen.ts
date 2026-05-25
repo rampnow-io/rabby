@@ -9,6 +9,23 @@ export type AbiInfo = {
     params: Array<unknown>;
 };
 
+export type AddUserTokenRequest = {
+    chain_id: string;
+    contract_address: string;
+    wallet_address: string;
+};
+
+export type AddUserTokenResponse = {
+    chain_id: string;
+    contract_address: string;
+    decimals: number;
+    id: number;
+    logo_url: string;
+    name: string;
+    symbol: string;
+    wallet_address: string;
+};
+
 export type ApproveItem = {
     price: string;
     spender: string;
@@ -39,6 +56,61 @@ export type BlockChainTxn = {
     maxFeePerGas: string;
     maxPriorityFeePerGas: string;
     nonce: string;
+    to: string;
+    value: string;
+};
+
+export type BridgeHistoryItem = {
+    from_amount: string;
+    from_chain_id: number;
+    id: string;
+    status: string;
+    time_at: number;
+    to_amount: string;
+    to_chain_id: number;
+    tx_hash: string;
+};
+
+export type BridgeQuote = {
+    approve_contract_id: string;
+    duration: number;
+    from_amount: string;
+    quote_key: string;
+    route_id: string;
+    to_amount: string;
+    to_amount_min: string;
+};
+
+export type BridgeQuoteV2 = {
+    bridge_id: string;
+    duration: number;
+    from_amount: string;
+    quote_key: string;
+    route_id: string;
+    to_amount: string;
+    to_amount_min: string;
+    tools: Array<string>;
+};
+
+export type BuildBridgeTxRequest = {
+    aggregator_id: string;
+    bridge_id: string;
+    from_chain_id: string;
+    from_token_id: string;
+    from_token_raw_amount: string;
+    quote_key: string;
+    slippage: string;
+    to_chain_id: string;
+    to_token_id: string;
+    user_addr: string;
+};
+
+export type BuildBridgeTxResponse = {
+    chainId: number;
+    data: string;
+    from: string;
+    gasLimit: string;
+    gasPrice: string;
     to: string;
     value: string;
 };
@@ -1154,6 +1226,22 @@ export type FeeCost = {
     percentage: string;
 };
 
+export type FeeCostType2 = {
+    amount: string;
+    amountUSD: string;
+    description: string;
+    feeSplit?: FeeSplit;
+    included: boolean;
+    name: string;
+    percentage: string;
+    token?: TokenInfo;
+};
+
+export type FeeSplit = {
+    integratorFee: string;
+    lifiFee: string;
+};
+
 export type GasAccountCost = {
     estimate_tx_cost: number;
     gas_cost: number;
@@ -1167,6 +1255,16 @@ export type GasAccountCost = {
 export type GasCost = {
     amount: string;
     amount_usd: string;
+};
+
+export type GasCostType2 = {
+    amount: string;
+    amountUSD: string;
+    estimate: string;
+    limit: string;
+    price: string;
+    token?: TokenInfo;
+    type: string;
 };
 
 export type GasInfo = {
@@ -1183,6 +1281,19 @@ export type GasLevel = {
     level: string;
     price?: string;
     priority_price?: string;
+};
+
+export type GetBridgeHistoryListResponse = {
+    history_list: Array<BridgeHistoryItem>;
+    total_cnt: number;
+};
+
+export type GetBridgeQuoteListResponse = {
+    quotes: Array<BridgeQuote>;
+};
+
+export type GetBridgeQuoteV2Response = {
+    quotes: Array<BridgeQuoteV2>;
 };
 
 export type GetChainBalanceListResponse = {
@@ -1309,6 +1420,14 @@ export type GetGasPriceStatsResponse = {
     median?: string;
 };
 
+export type GetHypermidQuoteResponse = {
+    quote: unknown;
+};
+
+export type GetHypermidRoutesResponse = {
+    routes: Array<Route>;
+};
+
 export type GetIpInfoResponse = {
     country: CountryCode;
 };
@@ -1348,6 +1467,10 @@ export type GetPreExecTxnResponse = {
     type_cancel_tx?: TypeCancelTx;
     type_send?: TypeSendInfo;
     type_token_approval?: TypeTokenApprovalInfo;
+};
+
+export type GetSearchTokenResponse = {
+    list: Array<Token>;
 };
 
 export type GetSubmitTxRequest = {
@@ -1559,6 +1682,48 @@ export type RegisterInboundReceiverResponse = {
     status: string;
 };
 
+export type Route = {
+    containsSwitchChain: boolean;
+    executionType: string;
+    fromAddress: string;
+    fromAmount: string;
+    fromAmountUSD: string;
+    fromChainId: number;
+    fromToken?: TokenType3;
+    gasCostUSD: string;
+    id: string;
+    integrator: string;
+    steps: Array<RouteStep>;
+    tags: Array<string>;
+    toAddress: string;
+    toAmount: string;
+    toAmountMin: string;
+    toAmountUSD: string;
+    toChainId: number;
+    toToken?: TokenType3;
+};
+
+export type RouteEstimate = {
+    approvalAddress: string;
+    executionDuration: number;
+    feeCosts: Array<FeeCostType2>;
+    fromAmount: string;
+    fromAmountUSD: string;
+    gasCosts: Array<GasCostType2>;
+    toAmount: string;
+    toAmountMin: string;
+    toAmountUSD: string;
+    tool: string;
+};
+
+export type RouteStep = {
+    estimate?: RouteEstimate;
+    id: string;
+    tool: string;
+    toolDetails?: ToolDetails;
+    type: string;
+};
+
 export type RpcError = {
     code: number;
     data: unknown;
@@ -1675,6 +1840,18 @@ export type TokenIdentity = {
     twitter_id: string;
 };
 
+export type TokenInfo = {
+    address: string;
+    chainId: number;
+    coinKey: string;
+    decimals: number;
+    logoURI: string;
+    name: string;
+    priceUSD: string;
+    symbol: string;
+    tags: Array<string>;
+};
+
 /**
  * Token represents token information in the responseGasCost represents gas cost breakdown
  */
@@ -1697,6 +1874,26 @@ export type TokenType2 = {
     symbol: string;
     time_at?: number;
     total_supply: string;
+};
+
+export type TokenType3 = {
+    address: string;
+    chainId: number;
+    coinKey: string;
+    decimals: number;
+    logoURI: string;
+    name: string;
+    priceUSD: string;
+    symbol: string;
+    tags: Array<string>;
+    verificationStatus: string;
+    verificationStatusBreakdown: Array<unknown>;
+};
+
+export type ToolDetails = {
+    key: string;
+    logoURI: string;
+    name: string;
 };
 
 export type Transaction = {
@@ -1803,6 +2000,117 @@ export type SwapTokenItem = {
     priceUSD: string;
     symbol: string;
 };
+
+export type BuildBridgeTxData = {
+    body?: BuildBridgeTxRequest;
+    path?: never;
+    query?: never;
+    url: '/v1/bridge/build_tx';
+};
+
+export type BuildBridgeTxResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: BuildBridgeTxResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type BuildBridgeTxResponse2 = BuildBridgeTxResponses[keyof BuildBridgeTxResponses];
+
+export type GetBridgeHistoryListData = {
+    body?: never;
+    path?: never;
+    query?: {
+        user_addr?: string;
+        start?: number;
+        limit?: number;
+        is_all?: boolean;
+    };
+    url: '/v1/bridge/history_list';
+};
+
+export type GetBridgeHistoryListResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetBridgeHistoryListResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetBridgeHistoryListResponse2 = GetBridgeHistoryListResponses[keyof GetBridgeHistoryListResponses];
+
+export type GetBridgeQuoteListData = {
+    body?: never;
+    path?: never;
+    query?: {
+        aggregator_id?: string;
+        user_addr?: string;
+        from_chain_id?: string;
+        from_token_id?: string;
+        from_token_raw_amount?: string;
+        to_chain_id?: string;
+        to_token_id?: string;
+        slippage?: string;
+    };
+    url: '/v1/bridge/quote_list';
+};
+
+export type GetBridgeQuoteListResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetBridgeQuoteListResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetBridgeQuoteListResponse2 = GetBridgeQuoteListResponses[keyof GetBridgeQuoteListResponses];
+
+export type GetBridgeQuoteV2Data = {
+    body?: never;
+    path?: never;
+    query?: {
+        aggregator_id?: string;
+        user_addr?: string;
+        from_chain_id?: string;
+        from_token_id?: string;
+        from_token_raw_amount?: string;
+        to_chain_id?: string;
+        to_token_id?: string;
+        slippage?: string;
+    };
+    url: '/v1/bridge/quote_v2';
+};
+
+export type GetBridgeQuoteV2Responses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetBridgeQuoteV2Response;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetBridgeQuoteV2Response2 = GetBridgeQuoteV2Responses[keyof GetBridgeQuoteV2Responses];
 
 export type GetTokenListCachedData = {
     body?: GetTokenListCachedRequest;
@@ -1913,6 +2221,69 @@ export type GetCheckTxsResponses = {
 };
 
 export type GetCheckTxsResponse2 = GetCheckTxsResponses[keyof GetCheckTxsResponses];
+
+export type GetHypermidQuoteData = {
+    body?: never;
+    path?: never;
+    query?: {
+        fromChain?: string;
+        toChain?: string;
+        fromToken?: string;
+        toToken?: string;
+        fromAmount?: string;
+        fromAddress?: string;
+        toAddress?: string;
+        slippage?: string;
+    };
+    url: '/v1/hypermid/quote';
+};
+
+export type GetHypermidQuoteResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetHypermidQuoteResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetHypermidQuoteResponse2 = GetHypermidQuoteResponses[keyof GetHypermidQuoteResponses];
+
+export type GetHypermidRoutesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        fromChain?: string;
+        toChain?: string;
+        fromToken?: string;
+        toToken?: string;
+        fromAmount?: string;
+        fromAddress?: string;
+        toAddress?: string;
+        slippage?: string;
+        order?: string;
+    };
+    url: '/v1/hypermid/routes';
+};
+
+export type GetHypermidRoutesResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetHypermidRoutesResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetHypermidRoutesResponse2 = GetHypermidRoutesResponses[keyof GetHypermidRoutesResponses];
 
 export type GetIpInfoData = {
     body?: never;
@@ -2343,6 +2714,28 @@ export type GetSwapToolsResponses = {
 
 export type GetSwapToolsResponse2 = GetSwapToolsResponses[keyof GetSwapToolsResponses];
 
+export type AddUserTokenData = {
+    body?: AddUserTokenRequest;
+    path?: never;
+    query?: never;
+    url: '/v1/user/custom_token';
+};
+
+export type AddUserTokenResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: AddUserTokenResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type AddUserTokenResponse2 = AddUserTokenResponses[keyof AddUserTokenResponses];
+
 export type GetTxnHistoryData = {
     body?: never;
     path?: never;
@@ -2422,6 +2815,34 @@ export type GetUserTokenListResponses = {
 };
 
 export type GetUserTokenListResponse2 = GetUserTokenListResponses[keyof GetUserTokenListResponses];
+
+export type GetSearchTokenData = {
+    body?: never;
+    path?: never;
+    query?: {
+        id?: string;
+        q?: string;
+        chain_id?: string;
+        has_balance?: boolean;
+        is_all?: boolean;
+    };
+    url: '/v1/user/token_search';
+};
+
+export type GetSearchTokenResponses = {
+    /**
+     * OK
+     */
+    200: {
+        code: number;
+        data: GetSearchTokenResponse;
+        displayError?: string;
+        message: string;
+        traceId: string;
+    };
+};
+
+export type GetSearchTokenResponse2 = GetSearchTokenResponses[keyof GetSearchTokenResponses];
 
 export type GetChainBalanceListData = {
     body?: never;
