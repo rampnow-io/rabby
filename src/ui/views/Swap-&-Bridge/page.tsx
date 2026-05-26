@@ -468,23 +468,16 @@ const SwapAndBridgeContainer = () => {
   );
 
   const gotoBridge = useCallback(async () => {
-    console.log('[gotoBridge] Submit button clicked', {
-      inSufficient,
-      fromToken: fromToken?.symbol,
-      toToken: toToken?.symbol,
-      selectedBridgeQuote: selectedBridgeQuote?.type,
-      reviewModalOpen,
-      timestamp: new Date().toISOString(),
-    });
+
 
     if (!inSufficient && fromToken && toToken && selectedBridgeQuote) {
       try {
-        console.log('[gotoBridge] Starting transaction - type:', selectedBridgeQuote.type);
+
         setFetchingBridgeQuote(true);
 
         // Branch: Execute DEX swap for same-chain transactions
         if (selectedBridgeQuote.type === 'swap') {
-          console.log('[gotoBridge] Processing SWAP transaction');
+
           const swapQuote = selectedBridgeQuote;
           const dexQuote = swapQuote.dexQuote;
 
@@ -546,9 +539,9 @@ const SwapAndBridgeContainer = () => {
           );
 
           try {
-            console.log('[gotoBridge] Executing SWAP promise');
+
             const swapResult = await promise;
-            console.log('[gotoBridge] SWAP completed successfully', { result: swapResult });
+
             // Note: Transaction hash is handled by wallet.dexSwap internally
             // Only clear amount for tab/desktop mode to keep selectedBridgeQuote alive for popup
             if (isTab || isDesktop) {
@@ -556,14 +549,14 @@ const SwapAndBridgeContainer = () => {
             }
             setFetchingBridgeQuote(false);
             // Close modal after swap completes
-            console.log('[gotoBridge] Closing review modal after swap');
+
             setReviewModalOpen(false);
             setReviewModalSnapshot(null);
-            console.log('[gotoBridge] Modal should be closed now');
+
           } catch (error) {
             console.error('[gotoBridge] Swap error:', error);
             setFetchingBridgeQuote(false);
-            console.log('[gotoBridge] Closing modal due to swap error');
+
             setReviewModalOpen(false);
             setReviewModalSnapshot(null);
           }
@@ -575,7 +568,7 @@ const SwapAndBridgeContainer = () => {
           selectedBridgeQuote.type === 'bridge' &&
           selectedBridgeQuote.bridge_id
         ) {
-          console.log('[gotoBridge] Processing BRIDGE transaction');
+
           const bridgeQuote = selectedBridgeQuote;
 
           const tx = await pRetry(
@@ -599,13 +592,13 @@ const SwapAndBridgeContainer = () => {
                   should_two_step_approve: bridgeQuote.shouldTwoStepApprove || false,
                 })
                 .catch((e) => {
-                  console.log('[gotoBridge] fetchBuildBridgeTx error, retrying:', e?.message);
+
                   throw new AbortError(e?.message || String(e));
                 }),
             { retries: 1 }
           );
 
-          console.log('[gotoBridge] fetchBuildBridgeTx completed');
+
 
           stats.report('bridgeQuoteResult', {
             aggregatorIds: bridgeQuote.aggregator.id,
@@ -670,32 +663,29 @@ const SwapAndBridgeContainer = () => {
           );
 
           try {
-            console.log('[gotoBridge] Executing BRIDGE promise');
+
             const bridgeResult = await promise;
             console.log('[gotoBridge] BRIDGE completed successfully', { result: bridgeResult });
-            // Note: Transaction hash is handled by wallet.bridgeToken internally
-            // Only clear amount for tab/desktop mode to keep selectedBridgeQuote alive for popup
             if (isTab || isDesktop) {
               handleAmountChange('');
             }
             setFetchingBridgeQuote(false);
-            // Close modal after bridge completes
-            console.log('[gotoBridge] Closing review modal after bridge');
+
             setReviewModalOpen(false);
             setReviewModalSnapshot(null);
-            console.log('[gotoBridge] Modal should be closed now');
-          } catch (error) {
-            console.error('[gotoBridge] Bridge error:', error);
+
+          } catch (_) {
+
             setFetchingBridgeQuote(false);
-            console.log('[gotoBridge] Closing modal due to bridge error');
+
             setReviewModalOpen(false);
             setReviewModalSnapshot(null);
           }
         }
       } catch (error) {
-        console.error('[gotoBridge] Outer catch error:', error);
+
         setFetchingBridgeQuote(false);
-        console.log('[gotoBridge] Closing modal due to outer error');
+
         setReviewModalOpen(false);
         setReviewModalSnapshot(null);
         console.error(error);
@@ -704,14 +694,7 @@ const SwapAndBridgeContainer = () => {
           console.warn('Bridge error:', error.message);
         }
       }
-    } else {
-      console.log('[gotoBridge] Preconditions not met - not executing', {
-        inSufficient,
-        hasFromToken: !!fromToken,
-        hasToToken: !!toToken,
-        hasSelectedBridgeQuote: !!selectedBridgeQuote,
-      });
-    }
+    } 
   }, [
     inSufficient,
     fromToken,
@@ -734,8 +717,7 @@ const SwapAndBridgeContainer = () => {
 
   const buildTxs = useMemoizedFn(async () => {
     try {
-      console.log('[buildTxs] starting - quote type:', selectedBridgeQuote?.type, 'inSufficient:', inSufficient);
-      // Handle swap type (same-chain swap via DEX)
+
       if (
         selectedBridgeQuote &&
         selectedBridgeQuote.type === 'swap' &&
@@ -743,7 +725,7 @@ const SwapAndBridgeContainer = () => {
         fromToken &&
         toToken
       ) {
-        console.log('[buildTxs] building DEX swap');
+
         const swapQuote = selectedBridgeQuote;
         const dexQuote = swapQuote.dexQuote;
 
@@ -800,8 +782,7 @@ const SwapAndBridgeContainer = () => {
             },
           }
           );
-          // Wrap in array if it's a single transaction object
-          console.log('[buildTxs] DEX swap result:', { isArray: Array.isArray(result), length: result?.length });
+
           return Array.isArray(result) ? result : [result];
         } catch (error) {
           console.error('Error building dex swap:', error);
@@ -818,7 +799,7 @@ const SwapAndBridgeContainer = () => {
         selectedBridgeQuote.type === 'bridge' &&
         selectedBridgeQuote.bridge_id
       ) {
-        console.log('[buildTxs] building bridge transaction');
+
         const bridgeQuote = selectedBridgeQuote;
         try {
           const tx = await pRetry(
@@ -906,8 +887,7 @@ const SwapAndBridgeContainer = () => {
               },
             }
           );
-          // Wrap in array if it's a single transaction object
-          console.log('[buildTxs] Bridge result:', { isArray: Array.isArray(result), length: result?.length });
+
           return Array.isArray(result) ? result : [result];
         } catch (error) {
           setQuotesList((pre) =>
@@ -1003,12 +983,6 @@ const SwapAndBridgeContainer = () => {
   const canUseDirectSubmitTx = useMemo(
     () => {
       const result = !!selectedBridgeQuote && supportedDirectSign(currentAccount?.type || '');
-      console.log('[Swap-Bridge] canUseDirectSubmitTx calculation:', {
-        hasQuote: !!selectedBridgeQuote,
-        accountType: currentAccount?.type,
-        supportsDirect: supportedDirectSign(currentAccount?.type || ''),
-        result,
-      });
       return result;
     },
     [selectedBridgeQuote, currentAccount?.type]
@@ -1035,29 +1009,26 @@ const SwapAndBridgeContainer = () => {
   });
 
   const handleBridge = useMemoizedFn(async () => {
-    console.log('[handleBridge] Called, canUseDirectSubmitTx:', canUseDirectSubmitTx);
+
     if (canUseDirectSubmitTx) {
       setMiniSignLoading(true);
       setFetchingBridgeQuote(true);
       try {
-        console.log('[handleBridge] Starting direct submit flow');
-        // Reuse any in-flight build promise, but skip cached empty/failed ones
+
         const existingPromise = runBuildSwapTxsRef.current;
         const buildPromise = existingPromise || runBuildSwapTxs();
         if (!existingPromise) {
           runBuildSwapTxsRef.current = buildPromise;
         }
         const builtTxs = await buildPromise;
-        console.log('[handleBridge] Built txs:', builtTxs?.length, 'transactions');
         setFetchingBridgeQuote(false);
         if (!builtTxs?.length) {
           // Clear cached empty result so next attempt rebuilds
           runBuildSwapTxsRef.current = undefined;
-          console.log('[handleBridge] No built txs, throwing error');
           throw MINI_SIGN_ERROR.PREFETCH_FAILURE;
         }
         clearExpiredTimer();
-        console.log('[handleBridge] Opening direct signing flow');
+
         const directResult = await openDirect({
           txs: builtTxs,
           getContainer,
@@ -1067,19 +1038,17 @@ const SwapAndBridgeContainer = () => {
             trigger: rbiSource,
           },
           onPreExecError: () => {
-            console.log('[handleBridge] onPreExecError triggered, calling gotoBridge');
             gotoBridge();
           },
         });
-        console.log('[handleBridge] Direct signing result:', directResult);
+
         // directResult is an array of tx hashes - capture the first one
         if (directResult && Array.isArray(directResult) && directResult[0]) {
-          console.log('[handleBridge] Setting pending tx hash from direct signing:', directResult[0]);
+
           setPendingTxHash(directResult[0]);
         }
-        console.log('[handleBridge] Direct signing completed');
-        // Close the review modal after successful direct signing
-        console.log('[handleBridge] Closing review modal after successful direct signing');
+
+
         setReviewModalOpen(false);
         setReviewModalSnapshot(null);
         setMiniSignLoading(false);
@@ -1094,14 +1063,14 @@ const SwapAndBridgeContainer = () => {
         setMiniSignLoading(false);
         if (error == MINI_SIGN_ERROR.USER_CANCELLED) {
           // User cancelled inline signing: close modal and reset
-          console.log('[handleBridge] User cancelled, closing modal');
+
           setReviewModalOpen(false);
           setReviewModalSnapshot(null);
           refresh((e) => e + 1);
           mutateTxs([]);
         } else if (error === MINI_SIGN_ERROR.CANT_PROCESS) {
           // Inline signing can't process: retry after delay
-          console.log('[handleBridge] Cant process, closing modal and retrying');
+
           setReviewModalOpen(false);
           setReviewModalSnapshot(null);
           setTimeout(() => {
@@ -1112,13 +1081,13 @@ const SwapAndBridgeContainer = () => {
           (error instanceof Error && error.message?.includes('prepare failure'))
         ) {
           // Prefetch/gas-estimation failed: fall back to traditional approval flow
-          console.log('[handleBridge] Prefetch failed, closing modal and calling gotoBridge');
+
           setReviewModalOpen(false);
           setReviewModalSnapshot(null);
           await gotoBridge();
         } else {
           // Other error: fall back to traditional approval flow
-          console.log('[handleBridge] Other error, closing modal and calling gotoBridge');
+
           setReviewModalOpen(false);
           setReviewModalSnapshot(null);
           await gotoBridge();
@@ -1136,7 +1105,7 @@ const SwapAndBridgeContainer = () => {
 
   useEffect(() => {
     if (!btnDisabled && selectedBridgeQuote) {
-      console.log('[Swap-Bridge] buildTxs: starting - btnDisabled:', btnDisabled, 'quote type:', selectedBridgeQuote?.type);
+
       mutateTxs([]);
       runBuildSwapTxsRef.current = runBuildSwapTxs();
     }
@@ -1144,15 +1113,15 @@ const SwapAndBridgeContainer = () => {
 
   useEffect(() => {
     if (!canUseDirectSubmitTx) {
-      console.log('[Swap-Bridge] prefetch: canUseDirectSubmitTx is false');
+
       return;
     }
     // Only prefetch when we have real txs — calling with empty txs resets SignatureManager state
     if (!txs?.length) {
-      console.log('[Swap-Bridge] prefetch: no txs available yet', { txs, length: txs?.length });
+
       return;
     }
-    console.log('[Swap-Bridge] prefetch: calling with', txs?.length, 'txs');
+
     closeSign();
     prefetch({
       txs,
@@ -1165,16 +1134,7 @@ const SwapAndBridgeContainer = () => {
     });
   }, [closeSign, prefetch, txs, canUseDirectSubmitTx, rbiSource]);
 
-  // Auto-calculate network fee when the review modal opens
-  // Debug: Monitor reviewModalOpen state changes
-  useEffect(() => {
-    console.log('[ReviewModal] State changed:', {
-      reviewModalOpen,
-      hasSnapshot: !!reviewModalSnapshot,
-      timestamp: new Date().toISOString(),
-      quote: reviewModalSnapshot?.quote?.type,
-    });
-  }, [reviewModalOpen, reviewModalSnapshot]);
+
 
   useEffect(() => {
     if (!reviewModalOpen || !fromChain) return;
@@ -1214,27 +1174,18 @@ const SwapAndBridgeContainer = () => {
 
   // Gas fee popup handlers - opens popup showing ONLY gas fee information
   const openGasFeePopup = useCallback(() => {
-    console.log('[Swap-Bridge] openGasFeePopup CALLED - Setting gasFeePopupOpen to true');
-    console.trace('[Swap-Bridge] openGasFeePopup call stack');
     setGasFeePopupOpen(true);
   }, []);
 
-  const closeGasFeePopup = useCallback(() => {
-    console.log('[Swap-Bridge] closeGasFeePopup CALLED - Setting gasFeePopupOpen to false');
-    setGasFeePopupOpen(false);
-  }, []);
+  
 
-  // Debug: Log gasFeePopupOpen state changes
-  useEffect(() => {
-    console.log('[Swap-Bridge] gasFeePopupOpen state changed:', gasFeePopupOpen);
-  }, [gasFeePopupOpen]);
 
-  // Debug: Log pendingTxHash state changes
+
+
   useEffect(() => {
-    console.log('[Swap-Bridge] pendingTxHash state changed:', pendingTxHash);
-    // Open status drawer when transaction hash is set
+
     if (pendingTxHash) {
-      console.log('[Swap-Bridge] Opening status drawer with tx hash:', pendingTxHash);
+
       setStatusDrawerOpen(true);
     }
   }, [pendingTxHash]);
@@ -1525,14 +1476,14 @@ const SwapAndBridgeContainer = () => {
           {selectedBridgeQuote && (fromChain as string) !== 'DBK' && (
             <Button
               onClick={() => {
-                console.log('[ReviewButton] Click detected, fetchingBridgeQuote:', fetchingBridgeQuote);
+
                 if (fetchingBridgeQuote) return;
                 if (!selectedBridgeQuote) {
-                  console.log('[ReviewButton] No quote, refreshing');
+
                   refresh((e) => e + 1);
                   return;
                 }
-                console.log('[ReviewButton] Opening review modal');
+
                 setReviewModalSnapshot({ quote: selectedBridgeQuote, fromToken, toToken });
                 setReviewModalOpen(true);
               }}
@@ -1679,7 +1630,6 @@ const SwapAndBridgeContainer = () => {
       <BottomFloatingSheet
         open={reviewModalOpen}
         onClose={() => { 
-          console.log('[ReviewModal] onClose called, closing modal');
           setReviewModalOpen(false); 
           setReviewModalSnapshot(null); 
         }}
@@ -1692,7 +1642,7 @@ const SwapAndBridgeContainer = () => {
                       type="button"
                       className="flex items-center justify-end cursor-pointer"
                       onClick={() => { 
-                        console.log('[ReviewModal] X button clicked, closing modal');
+
                         setReviewModalOpen(false); 
                         setReviewModalSnapshot(null); 
                       }}
@@ -1714,7 +1664,7 @@ const SwapAndBridgeContainer = () => {
             selectedQuote={reviewModalSnapshot.quote}
             loading={fetchingBridgeQuote || miniSignLoading}
             onConfirm={() => {
-              console.log('[ReviewModal] Submit button clicked in modal');
+
               handleBridge();
             }}
             type={isSwap ? 'swap' : 'bridge'}
