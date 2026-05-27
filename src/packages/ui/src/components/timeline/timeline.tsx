@@ -1,3 +1,4 @@
+import { cn } from '@repo/utils';
 import { ReactNode } from 'react';
 import { Image } from '../../primitives';
 import { FailedIcon, PendingIcon, ProcessingIcon, SuccessIcon } from '../icon';
@@ -14,6 +15,8 @@ export interface TimelineStep {
   description: React.ReactNode;
   status?: TimelineStatus;
   icon?: string;
+  className?: string;
+  image?: React.ReactNode;
 }
 
 interface TimelineProps {
@@ -34,7 +37,9 @@ const Timeline = ({ steps }: TimelineProps) => {
         <div className="flex flex-col w-full" key={index}>
           <div className="flex items-center gap-4 tracking-tight w-full">
             <div className="flex flex-col items-center gap-5">
-              {step?.icon ? (
+              {step?.image ? (
+                step?.image
+              ) : step?.icon ? (
                 <Image
                   src={step.icon}
                   width={50}
@@ -48,12 +53,15 @@ const Timeline = ({ steps }: TimelineProps) => {
             </div>
 
             <div className="flex flex-col w-full">
-              <h3 className="text-base font-medium text-[#002C15]">
+              <h3
+                className={cn(
+                  'text-base font-medium text-black',
+                  step.className
+                )}
+              >
                 {step.title}
               </h3>
-              <p className="text-sm font-light text-[#6A6C6A]">
-                {step.description}
-              </p>
+              <div className="text-sm text-[#6C6C76]">{step.description}</div>
             </div>
           </div>
         </div>

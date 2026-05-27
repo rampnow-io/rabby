@@ -106,6 +106,7 @@ import BuyPage from './buy/page';
 // import SendToken from './send-token';
 import ConnectedDappsPage from './ConnectedDapps';
 import SwapAndBridge from './Swap-&-Bridge';
+import TxStatusPage from './Swap-&-Bridge/TxStatusPage';
 import TokenPortfolioPage from './token-portfolio/index';
 
 declare global {
@@ -462,6 +463,10 @@ const Main = () => {
         </PrivateRoute>
         <PrivateRoute exact path="/swap-and-bridge">
           <SwapAndBridge />
+        </PrivateRoute>
+
+        <PrivateRoute exact path="/swap-bridge-status">
+          <TxStatusPage />
         </PrivateRoute>
 
         <PrivateRoute exact path="/add-wallet">

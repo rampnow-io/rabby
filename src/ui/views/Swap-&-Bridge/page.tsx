@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { fetchBuildBridgeTx } from './api';
+
 import { UIContainer } from '@/ui/provider';
 import { Action, Container, Content, useEventRef } from '@repo/ui';
 import { HeaderNavPage } from '@/ui/component';
@@ -66,8 +67,6 @@ import {
 import { BridgePendingTxItem } from './components/bridge/PendingTxItem';
 import { SubmitDepositStatus } from './components/bridge/SubmitDepositStatus';
 import { QuoteList } from './components/bridge/BridgeQuotes';
-import { usePollBridgePendingNumber } from './hooks/history';
-
 import { PendingTxItem } from './components/swap/PendingTxItem';
 import ReviewSwapBridge from './components/ReviewSwapBridge';
 import RouteSelectorModal, {
@@ -187,9 +186,6 @@ const SwapAndBridgeContainer = () => {
     fromToken: typeof fromToken;
     toToken: typeof toToken;
   } | null>(null);
-  // Track pending transaction hash for status display
-  const [pendingTxHash, setPendingTxHash] = useState<string | null>(null);
-  const [statusDrawerOpen, setStatusDrawerOpen] = useState(false);
   const isSettingMaxRef = useRef(false);
 
   const currentAccount = useCurrentAccount();
@@ -282,8 +278,6 @@ const SwapAndBridgeContainer = () => {
   ]);
 
   const rbiSource = useRbiSource();
-
-  const { historyList } = usePollBridgePendingNumber();
 
   const [fetchingBridgeQuote, setFetchingBridgeQuote] = useState(false);
 
@@ -1008,8 +1002,40 @@ const SwapAndBridgeContainer = () => {
     autoResetGasStoreOnChainChange: true,
   });
 
-  const handleBridge = useMemoizedFn(async () => {
+  const history = useHistory();
 
+  const navigateToStatusPage = useMemoizedFn(async (txHashHint?: string) => {
+    const txHash =
+      txHashHint?.trim() ||
+      ((await wallet.getLatestTxHistory(
+        userAddress,
+        'bridge',
+        30_000
+      )) as any)?.hash;
+    if (!txHash) return;
+    const fromChainObj = fromToken ? findChain({ serverId: fromToken.chain }) : null;
+    const toChainObj = toToken ? findChain({ serverId: toToken.chain }) : null;
+    const toAmountNum = selectedBridgeQuote?.to_token_amount
+      ? selectedBridgeQuote.type === 'swap'
+        ? new BigNumber(selectedBridgeQuote.to_token_amount)
+            .div(10 ** (toToken?.decimals ?? 18))
+            .toNumber()
+        : Number(selectedBridgeQuote.to_token_amount)
+      : undefined;
+    const params = new URLSearchParams();
+    params.set('txHash', txHash);
+    params.set('isSwap', String(isSwap));
+    params.set('hadApproval', String(selectedBridgeQuote?.shouldApproveToken || false));
+    if (fromToken) params.set('fromToken', JSON.stringify(fromToken));
+    if (toToken) params.set('toToken', JSON.stringify(toToken));
+    if (amount) params.set('fromAmount', String(Number(amount)));
+    if (toAmountNum !== undefined) params.set('toAmount', String(toAmountNum));
+    if (fromChainObj?.id) params.set('fromChainNumericId', String(fromChainObj.id));
+    if (toChainObj?.id) params.set('toChainNumericId', String(toChainObj.id));
+    history.push(`/swap-bridge-status?${params.toString()}`);
+  });
+
+  const handleBridge = useMemoizedFn(async () => {
     if (canUseDirectSubmitTx) {
       setMiniSignLoading(true);
       setFetchingBridgeQuote(true);
@@ -1042,21 +1068,18 @@ const SwapAndBridgeContainer = () => {
           },
         });
 
-        // directResult is an array of tx hashes - capture the first one
-        if (directResult && Array.isArray(directResult) && directResult[0]) {
-
-          setPendingTxHash(directResult[0]);
-        }
-
-
         setReviewModalOpen(false);
         setReviewModalSnapshot(null);
         setMiniSignLoading(false);
         setFetchingBridgeQuote(false);
         mutateTxs([]);
         handleAmountChange('');
+
+        const txHashFromResult = Array.isArray(directResult)
+          ? directResult.filter(Boolean).at(-1)
+          : undefined;
+        await navigateToStatusPage(txHashFromResult);
       } catch (error) {
-        console.error('[handleBridge] Error in direct flow:', error);
         // Clear cached build promise so next click triggers a fresh build
         runBuildSwapTxsRef.current = undefined;
         setFetchingBridgeQuote(false);
@@ -1085,23 +1108,24 @@ const SwapAndBridgeContainer = () => {
           setReviewModalOpen(false);
           setReviewModalSnapshot(null);
           await gotoBridge();
+          await navigateToStatusPage();
         } else {
           // Other error: fall back to traditional approval flow
 
           setReviewModalOpen(false);
           setReviewModalSnapshot(null);
           await gotoBridge();
+          await navigateToStatusPage();
         }
         console.error('bridge direct sign error', error);
       } finally {
         setMiniSignLoading(false);
       }
     } else {
-      gotoBridge();
+      await gotoBridge();
+      await navigateToStatusPage();
     }
   });
-
-  const history = useHistory();
 
   useEffect(() => {
     if (!btnDisabled && selectedBridgeQuote) {
@@ -1181,14 +1205,6 @@ const SwapAndBridgeContainer = () => {
 
 
 
-
-  useEffect(() => {
-
-    if (pendingTxHash) {
-
-      setStatusDrawerOpen(true);
-    }
-  }, [pendingTxHash]);
 
   const isFromNativeToken = useMemo(() => {
     if (!fromToken || !fromChain) return false;
@@ -1346,7 +1362,7 @@ const SwapAndBridgeContainer = () => {
                 </span>) : null}
 
           {/* Bridge Info Summary & Quote Details */}
-          
+
 
           {routes.length ? (
             <div className="mt-4">
@@ -1417,34 +1433,6 @@ const SwapAndBridgeContainer = () => {
               />
             </>
           )}
-          {!selectedBridgeQuote && !recommendFromToken && (
-            <div className="mt-4 mx-4">
-              {pendingTxHash ? (
-                isSwap ? (
-                  <PendingTxItem type="swap" />
-                ) : (
-                  <BridgePendingTxItem historyList={historyList} />
-                )
-              ) : (
-                isSwap ? (
-                  <PendingTxItem type="swap" />
-                ) : (
-                  <BridgePendingTxItem historyList={historyList} />
-                )
-              )}
-            </div>
-          )}
-
-          {/* Show pending tx status if tx hash is available */}
-          {pendingTxHash && (
-            <div className="mt-4 mx-4">
-              {isSwap ? (
-                <PendingTxItem type="swap" />
-              ) : (
-                <BridgePendingTxItem historyList={historyList} pendingTxHash={pendingTxHash} />
-              )}
-            </div>
-          )}
 
           {/* Recommend From Token */}
           {noQuote && recommendFromToken && (
@@ -1472,7 +1460,7 @@ const SwapAndBridgeContainer = () => {
                 chainServeId={fromToken.chain}
               />
           ) : null}
-          
+
           {selectedBridgeQuote && (fromChain as string) !== 'DBK' && (
             <Button
               onClick={() => {
@@ -1529,7 +1517,7 @@ const SwapAndBridgeContainer = () => {
       />
 
       {/* Submit Deposit Status Drawer */}
-      <SubmitDepositStatus
+      {/* <SubmitDepositStatus
         isOpen={statusDrawerOpen}
         onClose={() => {
           setStatusDrawerOpen(false);
@@ -1546,7 +1534,7 @@ const SwapAndBridgeContainer = () => {
         toChainName={findChainByEnum(toChain)?.name}
         fromTokenLogo={fromToken?.logo_url}
         toTokenLogo={toToken?.logo_url}
-      />
+      /> */}
 
       <BottomFloatingSheet
         contentClassName="px-4 py-4"

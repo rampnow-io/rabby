@@ -78,7 +78,7 @@ function serverIdToNumericId(serverId: string): string {
   return findChain({ serverId })?.id?.toString() || serverId;
 }
 
-function numericIdToServerId(numericId: string | number): string {
+export function numericIdToServerId(numericId: string | number): string {
   return findChainByID(Number(numericId))?.serverId || String(numericId);
 }
 
@@ -444,12 +444,40 @@ export async function fetchSubmitDeposit(
   return raw?.data ?? raw;
 }
 
+export interface SwapStatusToken {
+  address: string;
+  chain_id: number;
+  symbol: string;
+  decimals: number;
+  name?: string;
+  logo_uri?: string;
+}
+
+export interface SwapStatusSide {
+  tx_hash?: string;
+  tx_link?: string;
+  chain_id: number;
+  amount: string;
+  amount_usd?: string;
+  token: SwapStatusToken;
+  timestamp?: number;
+}
+
+export interface SwapStatusResponse {
+  transaction_id: string;
+  status: string;
+  sub_status: string;
+  sub_status_message?: string;
+  sending?: SwapStatusSide;
+  receiving?: SwapStatusSide | null;
+}
+
 /** GET /v1/swap/status — poll bridge/swap status by tx hash and chains */
 export async function fetchDepositStatus(params: {
   txHash: string;
   fromChain?: string;
   toChain?: string;
-}): Promise<{ status: string; sub_status: string; transaction_id: string }> {
+}): Promise<SwapStatusResponse> {
   const result = await getSwapStatus({
     client: apiClient,
     query: {

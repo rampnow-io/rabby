@@ -1512,10 +1512,17 @@ export type GetSwapRoutesResponse = {
 };
 
 export type GetSwapStatusResponse = {
+    fee_costs: Array<SwapStatusFeeCost>;
+    from_address: string;
+    lifi_explorer_link: string;
+    provider: string;
     receiving?: SwapStatusSide;
     sending?: SwapStatusSide;
     status: string;
     sub_status: string;
+    sub_status_message: string;
+    to_address: string;
+    tool: string;
     transaction_id: string;
 };
 
@@ -1774,10 +1781,38 @@ export type SwapConnection = {
     to_tokens: Array<SwapTokenItem>;
 };
 
+export type SwapStatusFeeCost = {
+    amount: string;
+    amount_usd: string;
+    description: string;
+    included: boolean;
+    name: string;
+    percentage: string;
+};
+
 export type SwapStatusSide = {
+    amount: string;
+    amount_usd: string;
     chain_id: number;
-    status: string;
+    gas_amount: string;
+    gas_amount_usd: string;
+    gas_price: string;
+    gas_token?: SwapStatusToken;
+    gas_used: string;
+    timestamp: number;
+    token?: SwapStatusToken;
     tx_hash: string;
+    tx_link: string;
+};
+
+export type SwapStatusToken = {
+    address: string;
+    chain_id: number;
+    decimals: number;
+    logo_uri: string;
+    name: string;
+    price_usd: string;
+    symbol: string;
 };
 
 export type SwapToolItem = {

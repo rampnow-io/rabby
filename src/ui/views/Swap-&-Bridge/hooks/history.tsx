@@ -1,5 +1,6 @@
 import { useInViewport, useInfiniteScroll } from 'ahooks';
-import { fetchBridgeHistoryList } from '../api';
+import { fetchBridgeHistoryList, fetchDepositStatus } from '../api';
+import type { SwapStatusResponse } from '../api';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRabbySelector } from '@/ui/store';
 import { useAsync } from 'react-use';
@@ -157,6 +158,53 @@ export const usePollBridgePendingNumber = (timer = 5000) => {
   };
 };
 
+/** Poll /v1/swap/status every 10s at the page level for both swap and bridge. */
+export const usePollSwapStatus = ({
+  txHash,
+  fromChain,
+  toChain,
+}: {
+  txHash: string | null;
+  fromChain?: string;
+  toChain?: string;
+}) => {
+  const [swapStatus, setSwapStatus] = useState<SwapStatusResponse | null>(null);
+  const [hasInitialized, setHasInitialized] = useState(false);
+
+  const isDone =
+    swapStatus?.status === 'DONE' ||
+    swapStatus?.status === 'COMPLETED' ||
+    swapStatus?.status === 'FAILED' ||
+    swapStatus?.status === 'INVALID';
+
+  const poll = useCallback(async () => {
+    if (!txHash) return;
+    try {
+      const res = await fetchDepositStatus({ txHash, fromChain, toChain });
+      setSwapStatus(res);
+    } catch {}
+  }, [txHash, fromChain, toChain]);
+
+  // Initial poll when txHash changes
+  useEffect(() => {
+    if (txHash && !hasInitialized) {
+      setSwapStatus(null);
+      poll();
+      setHasInitialized(true);
+    }
+  }, [txHash, hasInitialized, poll]);
+
+  // Reset when txHash changes
+  useEffect(() => {
+    setHasInitialized(false);
+  }, [txHash]);
+
+  // Poll every 10s when txHash exists and not done
+  useInterval(poll, txHash && !isDone ? 10_000 : undefined);
+
+  return { swapStatus };
+};
+
 export const useBridgeHistory = () => {
   const addr = useRabbySelector(
     (state) => state.account.currentAccount?.address || ''
@@ -168,7 +216,6 @@ export const useBridgeHistory = () => {
   }, []);
   const isInBridge = true;
 
-  const wallet = useWallet();
   const getBridgeHistoryList = React.useCallback(
     async (addr: string, start = 0, limit = 5) => {
       const data = await fetchBridgeHistoryList({
