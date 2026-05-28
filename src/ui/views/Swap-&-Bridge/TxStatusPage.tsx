@@ -6,12 +6,22 @@ import { Image } from 'antd';
 import { ExternalLink } from 'lucide-react';
 
 import { UIContainer } from '@/ui/provider';
-import { Container, Content, Action, TimeLine, TimelineStep } from '@repo/ui';
+import {
+  Container,
+  Content,
+  Action,
+  TimeLine,
+  TimelineStep,
+  TransactionHash,
+} from '@repo/ui';
 import {
   Accordion,
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
+  Copy,
+  Link,
+  LinkType,
 } from '@repo/ui/primitives';
 import { HeaderNavPage } from '@/ui/component';
 import { useWallet, getUiType, formatUsdValue } from '@/ui/utils';
@@ -30,6 +40,7 @@ import type { SwapStatusResponse } from './api';
 import { numericIdToServerId } from './api';
 import { usePollSwapStatus } from './hooks/history';
 import { Button } from '@repo/ui/primitives';
+import { cn, truncate } from '@repo/utils';
 
 const isDesktop = getUiType().isDesktop;
 type TxData = SwapTxHistoryItem | BridgeTxHistoryItem;
@@ -44,6 +55,33 @@ export interface TxStatusPageState {
   toAmount: number;
   fromChainNumericId?: string;
   toChainNumericId?: string;
+}
+
+function HashItem({
+  hash,
+  link,
+  className,
+}: {
+  hash: string;
+  link?: string;
+  className?: string;
+}) {
+  const isExternal = link && link !== 'fiat';
+
+  return (
+    <div
+      className={cn(
+        'flex w-full gap-3 text-[14px] items-center font-medium',
+        className
+      )}
+    >
+      <span>{truncate(hash, [10, 10])}</span>
+      <div className="flex items-center gap-2">
+        <Copy value={hash} />
+        {isExternal && <Link href={link} linkType={LinkType.EXTERNAL} />}
+      </div>
+    </div>
+  );
 }
 
 // ─── sub-components ────────────────────────────────────────────────────────────
@@ -172,11 +210,16 @@ const getReceivingStepDetails = (
 
 // ─── status → timeline helpers ───────────────────────────────────────────────
 
-const swapStatusToTimelineStatus = (status: string | undefined): TimelineStatus => {
+const swapStatusToTimelineStatus = (
+  status: string | undefined
+): TimelineStatus => {
   switch (status?.toUpperCase()) {
-    case 'DONE': return TimelineStatus.SUCCESS;
-    case 'FAILED': return TimelineStatus.FAILED;
-    default: return TimelineStatus.PROCESSING; // NOT_FOUND, PENDING, undefined
+    case 'DONE':
+      return TimelineStatus.SUCCESS;
+    case 'FAILED':
+      return TimelineStatus.FAILED;
+    default:
+      return TimelineStatus.PROCESSING; // NOT_FOUND, PENDING, undefined
   }
 };
 
@@ -185,12 +228,16 @@ const subStatusToTimelineStatus = (
   status: string | undefined
 ): TimelineStatus => {
   switch (subStatus?.toUpperCase()) {
-    case 'COMPLETED': return TimelineStatus.SUCCESS;
+    case 'COMPLETED':
+      return TimelineStatus.SUCCESS;
     case 'PARTIAL':
-    case 'REFUNDED': return TimelineStatus.FAILED;
+    case 'REFUNDED':
+      return TimelineStatus.FAILED;
     case 'BRIDGE_IN_PROGRESS':
-    case 'WAIT_DESTINATION_TRANSACTION': return TimelineStatus.PROCESSING;
-    case 'WAIT_SOURCE_CONFIRMATIONS': return TimelineStatus.PENDING;
+    case 'WAIT_DESTINATION_TRANSACTION':
+      return TimelineStatus.PROCESSING;
+    case 'WAIT_SOURCE_CONFIRMATIONS':
+      return TimelineStatus.PENDING;
     default:
       if (status?.toUpperCase() === 'DONE') return TimelineStatus.SUCCESS;
       if (status?.toUpperCase() === 'FAILED') return TimelineStatus.FAILED;
@@ -206,6 +253,8 @@ const TxStatusPage = () => {
   const wallet = useWallet();
 
   const location = useLocation();
+
+  const [accordionValue, setAccordionValue] = useState<string>('item-1');
 
   // Parse query parameters from URL
   const searchParams = new URLSearchParams(location.search);
@@ -381,12 +430,14 @@ const TxStatusPage = () => {
   }, [fromAmount, toAmount, toToken]);
 
   // Generate accordion steps based on transaction data
-  const sendingStep = useMemo(() => getSendingStepDetails(data, isSwap, txHash || undefined), [
-    data,
-    isSwap,
-    txHash,
-  ]);
-  const receivingStep = useMemo(() => getReceivingStepDetails(data, txHash || undefined), [data, txHash]);
+  const sendingStep = useMemo(
+    () => getSendingStepDetails(data, isSwap, txHash || undefined),
+    [data, isSwap, txHash]
+  );
+  const receivingStep = useMemo(
+    () => getReceivingStepDetails(data, txHash || undefined),
+    [data, txHash]
+  );
 
   const handleGoToDashboard = useMemoizedFn(() => {
     if (isFailed) {
@@ -447,15 +498,7 @@ const TxStatusPage = () => {
     {
       title: isSwap ? 'Swapping' : 'Bridging',
       description: explorerUrl ? (
-        <a
-          href={explorerUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-rabby-blue-default hover:underline inline-flex items-center gap-1 text-sm"
-        >
-          View Explorer
-          <ExternalLink size={12} />
-        </a>
+        <HashItem hash={data?.hash || txHash || ''} link={explorerUrl} />
       ) : undefined,
       status: swapStatusToTimelineStatus(swapStatus?.status),
     },
@@ -464,7 +507,10 @@ const TxStatusPage = () => {
         ? 'Receiving'
         : `Receiving on ${toChain?.name || 'destination'}`,
       description: isSwap ? '' : undefined,
-      status: subStatusToTimelineStatus(swapStatus?.sub_status, swapStatus?.status),
+      status: subStatusToTimelineStatus(
+        swapStatus?.sub_status,
+        swapStatus?.status
+      ),
     },
     {
       title: toAmount ? formatTokenAmount(toAmount) : '–',
@@ -504,85 +550,9 @@ const TxStatusPage = () => {
         </HeaderNavPage>
 
         <Content>
-          {/* Steps */}
           <TimeLine steps={timeLineSteps} />
-
-          {/* Accordion — show when we have transaction info */}
-          {(sendingStep || (!isSwap && receivingStep)) ? (
-            <Accordion
-              type="single"
-              collapsible
-              defaultValue="item-1"
-              className="px-0 mt-6"
-            >
-              {/* Step 1: Sending/Source Chain */}
-              {sendingStep && (
-                <AccordionItem value="item-1" className="border-0">
-                  <AccordionTrigger className="px-4 py-3">
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-13 text-r-neutral-foot">
-                        {priceRatio ? `1 = ${priceRatio}` : '–'}
-                      </span>
-                      <span className="text-13 text-rabby-blue-default">
-                        {sendingStep.triggerLabel}
-                      </span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-3">
-                    <div className="flex flex-col gap-2">
-                      {sendingStep.details.map((detail) => (
-                        <div
-                          key={detail.label}
-                          className="flex justify-between items-center text-12 text-r-neutral-body"
-                        >
-                          <span>{detail.label}</span>
-                          <span className="font-mono">{detail.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              )}
-
-              {/* Step 2: Receiving/Destination Chain (only for bridges) */}
-              {!isSwap && receivingStep && (
-                <AccordionItem value="item-2" className="border-0">
-                  <AccordionTrigger className="px-4 py-3">
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-13 text-r-neutral-foot">
-                        {receivingStep.triggerLabel}
-                      </span>
-                      <span className="text-13 text-rabby-blue-default">
-                        View breakdown
-                      </span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-3">
-                    <div className="flex flex-col gap-2">
-                      {receivingStep.details.map((detail) => (
-                        <div
-                          key={detail.label}
-                          className="flex justify-between items-center text-12 text-r-neutral-body"
-                        >
-                          <span>{detail.label}</span>
-                          <span className="font-mono">{detail.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              )}
-            </Accordion>
-          ) : (
-            txHash && (
-              <div className="px-4 py-3 text-12 text-r-neutral-foot text-center">
-                Loading transaction details...
-              </div>
-            )
-          )}
         </Content>
 
-        {/* Button — only when tx is complete or failed */}
         {!isPending && (
           <Action>
             <Button
@@ -593,7 +563,7 @@ const TxStatusPage = () => {
               )}
               onClick={handleGoToDashboard}
             >
-              {isFailed ? 'Try Again' : 'Go to Dashboard'}
+              {isFailed ? 'Try Again' : 'Done'}
             </Button>
           </Action>
         )}
