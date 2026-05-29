@@ -619,6 +619,7 @@ const SwapAndBridgeContainer = () => {
               payTokenId: fromToken.id,
               payTokenChainServerId: fromToken.chain,
               gasPrice: maxNativeTokenGasPrice,
+              gasLimit: tx.gasLimit,
               info: {
                 aggregator_id: bridgeQuote.aggregator.id,
                 bridge_id: bridgeQuote.bridge_id,
@@ -845,6 +846,7 @@ const SwapAndBridgeContainer = () => {
               payTokenId: fromToken.id,
               payTokenChainServerId: fromToken.chain,
               gasPrice: maxNativeTokenGasPrice,
+              gasLimit: tx.gasLimit,
               info: {
                 aggregator_id: bridgeQuote.aggregator.id,
                 bridge_id: bridgeQuote.bridge_id,
@@ -995,6 +997,15 @@ const SwapAndBridgeContainer = () => {
   const [miniSignLoading, setMiniSignLoading] = useState(false);
 
   const { ctx: signCtx } = useSignatureStore();
+
+  // Sync signatureStore gas selection back to maxNativeTokenGasPrice so the
+  // gotoBridge() fallback path uses the same price the user picked in DirectSignGasInfo.
+  useEffect(() => {
+    const selectedPrice = signCtx?.selectedGas?.price;
+    if (selectedPrice != null && selectedPrice !== maxNativeTokenGasPrice) {
+      setMaxNativeTokenGasPrice(selectedPrice);
+    }
+  }, [signCtx?.selectedGas?.price]);
 
   const { openDirect, prefetch, close: closeSign } = useMiniSigner({
     account: currentAccount!,

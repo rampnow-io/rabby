@@ -593,6 +593,9 @@ export class WalletController extends BaseController {
             gasPrice: gasPrice
               ? `0x${new BigNumber(gasPrice).toString(16)}`
               : undefined,
+            gas: quote.tx.gas
+              ? `0x${new BigNumber(quote.tx.gas).toString(16)}`
+              : undefined,
             isSwap: true,
             swapPreferMEVGuarded,
           },
@@ -720,6 +723,9 @@ export class WalletController extends BaseController {
               gasPrice: gasPrice
                 ? `0x${new BigNumber(gasPrice).toString(16)}`
                 : undefined,
+              gas: quote.tx.gas
+                ? `0x${new BigNumber(quote.tx.gas).toString(16)}`
+                : undefined,
               isSwap: true,
               swapPreferMEVGuarded,
             },
@@ -748,6 +754,7 @@ export class WalletController extends BaseController {
       shouldApprove,
       shouldTwoStepApprove,
       gasPrice,
+      gasLimit,
       info,
       value,
       addHistoryData,
@@ -762,6 +769,7 @@ export class WalletController extends BaseController {
       payTokenChainServerId: string;
       payTokenRawAmount: string;
       gasPrice?: number;
+      gasLimit?: string;
       info: BridgeRecord;
       addHistoryData: Omit<BridgeTxHistoryItem, 'hash'>;
     },
@@ -844,6 +852,9 @@ export class WalletController extends BaseController {
             gasPrice: gasPrice
               ? `0x${new BigNumber(gasPrice).toString(16)}`
               : undefined,
+            gas: gasLimit
+              ? `0x${new BigNumber(gasLimit).toString(16)}`
+              : undefined,
             isBridge: true,
           },
         ],
@@ -864,6 +875,7 @@ export class WalletController extends BaseController {
       shouldApprove,
       shouldTwoStepApprove,
       gasPrice,
+      gasLimit,
       info,
       value,
       addHistoryData,
@@ -878,6 +890,7 @@ export class WalletController extends BaseController {
       payTokenChainServerId: string;
       payTokenRawAmount: string;
       gasPrice?: number;
+      gasLimit?: string;
       info: BridgeRecord;
       addHistoryData: Omit<BridgeTxHistoryItem, 'hash'>;
     },
@@ -966,6 +979,9 @@ export class WalletController extends BaseController {
               chainId: chainObj.id,
               gasPrice: gasPrice
                 ? `0x${new BigNumber(gasPrice).toString(16)}`
+                : undefined,
+              gas: gasLimit
+                ? `0x${new BigNumber(gasLimit).toString(16)}`
                 : undefined,
               isBridge: true,
             },

@@ -331,12 +331,14 @@ const SendToken = () => {
   }, [hasQueryToken, showTokenSelectorRef]);
 
   useEffect(() => {
+    if (!toAddress) return;
     const values = form.getFieldsValue();
     form.setFieldsValue({
       ...values,
       to: toAddress,
     });
-  }, [toAddress, history, search, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [toAddress]);
 
   const {
     targetAccount,

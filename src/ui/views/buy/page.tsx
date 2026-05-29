@@ -453,7 +453,10 @@ const BuyPage = () => {
           )}
         </Content>
         <Action>
-          <Button onClick={() => form.handleSubmit(onSubmit)()}>
+          <Button
+            onClick={() => form.handleSubmit(onSubmit)()}
+            disabled={quoteLoading || loadingConfig}
+          >
             Continue
           </Button>
         </Action>

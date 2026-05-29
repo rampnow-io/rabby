@@ -89,10 +89,10 @@ function HashItem({
 const renderIcon = (tokenLogo: string, chainLogo: string) => {
   if (!tokenLogo && !chainLogo) return undefined;
   return (
-    <div className="relative w-9 h-9">
+    <div className="relative w-10 h-10">
       {tokenLogo && (
         <Image
-          className="w-9 h-9 rounded-full object-cover"
+          className="w-10 h-10 rounded-full object-cover"
           src={tokenLogo}
           fallback={IconUnknown}
           preview={false}
@@ -176,7 +176,7 @@ const getReceivingStepDetails = (
     });
   }
 
-  // Protocol Fee
+  // Protocol fee
   if ((data as any)?.fee_costs?.[0]?.amount_usd) {
     details.push({
       label: 'Protocol fee',
@@ -496,16 +496,27 @@ const TxStatusPage = () => {
     },
 
     {
-      title: isSwap ? 'Swapping' : 'Bridging',
+      title: (() => {
+        const s = swapStatusToTimelineStatus(swapStatus?.status);
+        if (s === TimelineStatus.SUCCESS) return isSwap ? 'Swapped' : 'Bridged';
+        return isSwap ? 'Swapping' : 'Bridging';
+      })(),
       description: explorerUrl ? (
         <HashItem hash={data?.hash || txHash || ''} link={explorerUrl} />
       ) : undefined,
       status: swapStatusToTimelineStatus(swapStatus?.status),
     },
     {
-      title: isSwap
-        ? 'Receiving'
-        : `Receiving on ${toChain?.name || 'destination'}`,
+      title: (() => {
+        const s = subStatusToTimelineStatus(
+          swapStatus?.sub_status,
+          swapStatus?.status
+        );
+        const dest = toChain?.name || 'destination';
+        if (s === TimelineStatus.SUCCESS)
+          return isSwap ? 'Received' : `Received on ${dest}`;
+        return isSwap ? 'Receiving' : `Receiving on ${dest}`;
+      })(),
       description: isSwap ? '' : undefined,
       status: subStatusToTimelineStatus(
         swapStatus?.sub_status,

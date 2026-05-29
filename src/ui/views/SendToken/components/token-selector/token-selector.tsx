@@ -212,7 +212,7 @@ const TokenSelectorModal = ({
                           {token.symbol}
                         </div>
                         <div className="text-sm text-secondary-foreground">
-                          {token.chain}
+                          {chain?.name || token.chain}
                         </div>
                       </div>
 
@@ -222,11 +222,16 @@ const TokenSelectorModal = ({
                             {Number(token.amount)?.toFixed(4)}
                           </div>
                         )}
-                        {token.price !== undefined && token.price > 0 && (
-                          <div className="text-sm font-medium text-secondary-foreground">
-                            ${Number(token.price)?.toFixed(2)}
-                          </div>
-                        )}
+                        {(() => {
+                          const usdValue =
+                            token.usd_value ??
+                            Number(token.price) * Number(token.amount);
+                          return usdValue > 0 ? (
+                            <div className="text-sm font-medium text-secondary-foreground">
+                              ${usdValue.toFixed(2)}
+                            </div>
+                          ) : null;
+                        })()}
                       </div>
                     </div>
                   );

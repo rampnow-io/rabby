@@ -15,15 +15,167 @@
     </style>
     <script src="/vendor/matomo.js"></script>
     <title></title>
-    <style id="skeleton">
-      body {
-        background: url("data:image/svg+xml,%3Csvg width='400' height='600' viewBox='0 0 400 600' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='400' height='600' fill='%23F2F4F7'/%3E%3Cg opacity='0.15'%3E%3Cpath d='M16 56C16 53.7909 17.7909 52 20 52H380C382.209 52 384 53.7909 384 56V180C384 182.209 382.209 184 380 184H20C17.7909 184 16 182.209 16 180V56Z' fill='url(%23paint0_linear_135822_32039)'/%3E%3C/g%3E%3Cg opacity='0.15'%3E%3Cpath d='M16 16C16 13.7909 17.7909 12 20 12H206C208.209 12 210 13.7909 210 16V40C210 42.2091 208.209 44 206 44H20C17.7909 44 16 42.2091 16 40V16Z' fill='url(%23paint1_linear_135822_32039)'/%3E%3C/g%3E%3Cg opacity='0.6'%3E%3Crect x='16' y='210' width='368' height='264' rx='8' fill='white'/%3E%3C/g%3E%3Cg opacity='0.6'%3E%3Crect x='16' y='534' width='368' height='52' rx='8' fill='white'/%3E%3C/g%3E%3Cg opacity='0.6'%3E%3Crect x='16' y='486' width='368' height='36' rx='8' fill='white'/%3E%3C/g%3E%3Cdefs%3E%3ClinearGradient id='paint0_linear_135822_32039' x1='16' y1='132.667' x2='384' y2='132.667' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='white'/%3E%3Cstop offset='0.295134' stop-color='white' stop-opacity='0.2'/%3E%3Cstop offset='0.664933' stop-color='white'/%3E%3Cstop offset='0.961813' stop-color='white' stop-opacity='0.2'/%3E%3C/linearGradient%3E%3ClinearGradient id='paint1_linear_135822_32039' x1='16' y1='31.5555' x2='210' y2='31.5555' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='white' stop-opacity='0.2'/%3E%3Cstop offset='0.315968' stop-color='white'/%3E%3Cstop offset='0.701392' stop-color='white' stop-opacity='0.2'/%3E%3Cstop offset='1' stop-color='white'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E%0A")
-          no-repeat center center fixed;
+    <!-- Removed by the app after load — keep empty so existing removal logic still works -->
+    <style id="skeleton"></style>
+    <!-- Coin loader styles — removed programmatically by MutationObserver below -->
+    <style id="coin-loader-styles">
+      #coin-loader {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #f4f7f6;
+        z-index: 9999;
+      }
+
+      #coin-loader .ck-container {
+        perspective: 1000px;
+        position: relative;
+        width: 120px;
+        height: 120px;
+      }
+
+      #coin-loader .ck-container::after {
+        content: '';
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 12px;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        filter: blur(4px);
+        animation: ck-shadow 1.8s ease-in-out infinite alternate;
+      }
+
+      #coin-loader .ck-coin {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        transform-style: preserve-3d;
+        animation: ck-spin 3.6s linear infinite;
+        will-change: transform;
+      }
+
+      #coin-loader .ck-face,
+      #coin-loader .ck-edge {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        box-sizing: border-box;
+      }
+
+      #coin-loader .ck-face {
+        background:
+          radial-gradient(circle at 30% 30%, #ffffff, #e8f0e6) padding-box,
+          linear-gradient(135deg, #b0d966 0%, #50be3a 100%) border-box;
+        border: 7px solid transparent;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #1e2b15;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        box-shadow: inset 0 0 10px rgba(80, 190, 58, 0.2);
+      }
+
+      #coin-loader .ck-logo-1,
+      #coin-loader .ck-logo-2 {
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+      }
+
+      #coin-loader .ck-logo-1 { animation: ck-logo1 3.6s linear infinite; }
+      #coin-loader .ck-logo-2 { animation: ck-logo2 3.6s linear infinite; }
+
+      #coin-loader .ck-front { transform: translateZ(8px); }
+      #coin-loader .ck-back {
+        transform: rotateY(180deg) translateZ(8px);
+        background:
+          radial-gradient(circle at 70% 30%, #ffffff, #e8f0e6) padding-box,
+          linear-gradient(135deg, #b0d966 0%, #50be3a 100%) border-box;
+      }
+
+      #coin-loader .ck-edge {
+        background: linear-gradient(135deg, #9dc456 0%, #46aa30 100%);
+      }
+
+      @keyframes ck-spin {
+        0%   { transform: rotateY(0deg); }
+        100% { transform: rotateY(720deg); }
+      }
+
+      @keyframes ck-shadow {
+        0%   { transform: translateX(-50%) scale(0.8); opacity: 0.5; }
+        100% { transform: translateX(-50%) scale(1.1); opacity: 0.8; }
+      }
+
+      @keyframes ck-logo1 {
+        0%, 24.9% { opacity: 1; }
+        25%, 74.9% { opacity: 0; }
+        75%, 100%  { opacity: 1; }
+      }
+
+      @keyframes ck-logo2 {
+        0%, 24.9% { opacity: 0; }
+        25%, 74.9% { opacity: 1; }
+        75%, 100%  { opacity: 0; }
+      }
+
+      /* Hide loader once React mounts content into #root */
+      body:has(#root:not(:empty)) #coin-loader {
+        display: none;
       }
     </style>
   </head>
 
   <body class="h-full w-full">
+    <div id="coin-loader" role="status" aria-label="Loading">
+      <div class="ck-container">
+        <div class="ck-coin">
+          <div class="ck-face ck-front">
+            <div class="ck-logo-1">
+              <!-- Ethereum -->
+              <svg viewBox="0 0 256 417" width="68" height="68" xmlns="http://www.w3.org/2000/svg">
+                <path fill="currentColor" d="M127.961 0l-2.795 9.5v275.668l2.795 2.79 127.962-75.638z"/>
+                <path fill="currentColor" d="M127.962 0L0 212.32l127.962 75.639V154.158z" opacity="0.8"/>
+                <path fill="currentColor" d="M127.961 312.187l-1.575 1.92v98.199l1.575 4.6L256 236.587z" opacity="0.6"/>
+                <path fill="currentColor" d="M127.962 416.905v-104.72L0 236.585z" opacity="0.4"/>
+              </svg>
+            </div>
+            <div class="ck-logo-2">
+              <!-- Solana -->
+              <svg viewBox="0 0 397 311" width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+                <path fill="currentColor" d="M64.6 237.9c2.4-2.4 5.7-3.8 9.2-3.8h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1l62.7-62.7z"/>
+                <path fill="currentColor" d="M64.6 3.8C67.1 1.4 70.4 0 73.8 0h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1L64.6 3.8z"/>
+                <path fill="currentColor" d="M333.1 120.1c-2.4-2.4-5.7-3.8-9.2-3.8H6.5c-5.8 0-8.7 7-4.6 11.1l62.7 62.7c2.4 2.4 5.7 3.8 9.2 3.8h317.4c5.8 0 8.7-7 4.6-11.1l-62.7-62.7z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="ck-edge" style="transform:translateZ(6px)"></div>
+          <div class="ck-edge" style="transform:translateZ(4px)"></div>
+          <div class="ck-edge" style="transform:translateZ(2px)"></div>
+          <div class="ck-edge" style="transform:translateZ(0px)"></div>
+          <div class="ck-edge" style="transform:translateZ(-2px)"></div>
+          <div class="ck-edge" style="transform:translateZ(-4px)"></div>
+          <div class="ck-edge" style="transform:translateZ(-6px)"></div>
+          <div class="ck-face ck-back">
+            <!-- Bitcoin -->
+            <svg viewBox="0 0 32 32" width="76" height="76" xmlns="http://www.w3.org/2000/svg">
+              <path fill="currentColor" d="M23.951 13.916c.414-2.756-1.688-4.24-4.48-5.207l.915-3.673-2.235-.557-.896 3.596c-.588-.146-1.189-.286-1.785-.42l.904-3.626-2.235-.556-.913 3.665c-.482-.108-.952-.213-1.405-.325l.002-.009-3.084-.768-.594 2.385s1.658.378 1.623.404c.905.226 1.07.825 1.042 1.302l-1.043 4.184c.063.016.143.038.232.072l-.235-.058-1.458 5.85c-.085.212-.303.53-.996.357.027.03-1.624-.405-1.624-.405l-1.11 2.553 2.915.726c.542.136 1.082.277 1.616.41l-.92 3.696 2.235.556.914-3.673c.613.162 1.21.314 1.794.457l-.916 3.676 2.235.556.923-3.704c3.843.729 6.736.437 7.954-3.003.98-2.77-.02-4.37-2.05-5.419 1.463-.338 2.56-1.343 2.85-3.414zm-5.068 7.15c-.688 2.76-5.32 1.272-6.82.898l1.217-4.883c1.5.374 6.31 1.076 5.603 3.985zm.622-6.914c-.628 2.52-4.52 1.196-5.782.883l1.1-4.415c1.263.314 5.333.882 4.682 3.532z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
     <div id="root" class="h-full overflow-x-hidden"></div>
   </body>
 </html>
