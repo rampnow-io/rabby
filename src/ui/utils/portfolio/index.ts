@@ -8,6 +8,7 @@ type UseQueryProjectsOptions = {
   lpTokenMode?: boolean;
   searchMode?: boolean;
   autoLoad?: boolean;
+  forceRefresh?: boolean;
 };
 
 export const useQueryProjects = (
@@ -17,6 +18,7 @@ export const useQueryProjects = (
     lpTokenMode = false,
     searchMode = false,
     autoLoad = true,
+    forceRefresh = false,
   }: UseQueryProjectsOptions = {}
 ) => {
   const shouldAutoLoad = visible && autoLoad;
@@ -26,7 +28,17 @@ export const useQueryProjects = (
     isLoading: isTokensLoading,
     hasValue: hasTokens,
     updateData: updateTokens,
-  } = useTokens(userAddr, undefined, shouldAutoLoad);
+  } = useTokens(
+    userAddr,
+    undefined,
+    shouldAutoLoad,
+    0,
+    undefined,
+    undefined,
+    false,
+    false,
+    forceRefresh
+  );
 
   const {
     data: portfolios,

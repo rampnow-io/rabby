@@ -545,10 +545,7 @@ const AddAsset = ({ params, account }: AddAssetProps) => {
                 )}
                 {tokenHistory.map((item) => (
                   <HistoryItem
-                    data={item}
-                    projectDict={item.projectDict}
-                    cateDict={item.cateDict}
-                    tokenDict={item.tokenDict}
+                    data={item as any}
                     canClickToken={false}
                     key={item.id}
                   />
@@ -615,19 +612,19 @@ const AddAsset = ({ params, account }: AddAssetProps) => {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col gap-3 bg-r-neutral-card-1 rounded-[8px] gap-12 py-12">
+              <div className="flex flex-col gap-3 bg-r-neutral-card-1 rounded-[8px]  py-12">
                 <div className="text-r-neutral-foot text-13 flex flex-row items-center justify-center w-full">
                   <img src={IconNoFind} className="w-14 mr-4" />
                   {t('page.dashboard.tokenDetail.noIssuer')}
                 </div>
               </div>
-              <div className="flex flex-col gap-3 bg-r-neutral-card-1 rounded-[8px] gap-12 py-12">
+              <div className="flex flex-col gap-3 bg-r-neutral-card-1 rounded-[8px]  py-12">
                 <div className="text-r-neutral-foot text-13 flex flex-row items-center justify-center w-full">
                   <img src={IconNoFind} className="w-14 mr-4" />
                   {t('page.dashboard.tokenDetail.NoListedBy')}
                 </div>
               </div>
-              <div className="flex flex-col gap-3 bg-r-neutral-card-1 rounded-[8px] gap-12 py-12">
+              <div className="flex flex-col gap-3 bg-r-neutral-card-1 rounded-[8px]  py-12">
                 <div className="text-r-neutral-foot text-13 flex flex-row items-center justify-center w-full">
                   <img src={IconNoFind} className="w-14 mr-4" />
                   {t('page.dashboard.tokenDetail.NoSupportedExchanges')}
@@ -700,10 +697,7 @@ const AddAsset = ({ params, account }: AddAssetProps) => {
                 )}
                 {tokenHistory.map((item) => (
                   <HistoryItem
-                    data={item}
-                    projectDict={item.projectDict}
-                    cateDict={item.cateDict}
-                    tokenDict={item.tokenDict}
+                    data={item as any}
                     canClickToken={false}
                     key={item.id}
                   />

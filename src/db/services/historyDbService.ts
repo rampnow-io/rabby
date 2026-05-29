@@ -49,11 +49,13 @@ class HistoryDbService {
     startTime,
     latestTime: _latestTime,
     forceUseRealTimeApi: _forceUseRealTimeApi,
+    forceRefresh: _forceRefresh,
   }: {
     address: string;
     startTime?: number;
     latestTime?: number;
     forceUseRealTimeApi?: boolean;
+    forceRefresh?: boolean;
   }) {
     const syncState = await syncDbService.getSyncState({
       address,
@@ -109,6 +111,7 @@ class HistoryDbService {
         address,
         startTime: startTime || 0,
         latestTime: latestTime * 1000,
+        forceRefresh: _forceRefresh,
       });
 
       await syncDbService.setUpdatedAt({
@@ -250,10 +253,12 @@ class HistoryDbService {
     address,
     startTime: _startTime,
     latestTime: _latestTime,
+    forceRefresh = false,
   }: {
     address: string;
     startTime: number;
     latestTime?: number;
+    forceRefresh?: boolean;
   }) {
     const notNeedUpdateTime = new Date().getTime() / 1000 - 30 * 24 * 60 * 60; // 30 days ago
     const latestTime = _latestTime || notNeedUpdateTime;
@@ -278,7 +283,8 @@ class HistoryDbService {
         id: address,
         start_time: nextStartTime,
         page_count: PAGE_COUNT,
-      });
+        ...(forceRefresh && { force_fetch: true }),
+      } as any);
 
       res.history_list = res.history_list.filter(
         (i) => i.time_at > ninetyDaysAgo

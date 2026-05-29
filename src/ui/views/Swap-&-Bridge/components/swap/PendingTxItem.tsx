@@ -209,7 +209,7 @@ export const PendingTxItem = forwardRef<
           }?action=activities`
         );
       } else {
-        history.push('/dashboard');
+        history.push('/dashboard?force_fetch=true');
       }
     }
   });

@@ -67,7 +67,8 @@ export const useTokens = (
     ? !!findChain({ serverId: chainServerId })?.isTestnet
     : false,
   showAll = false,
-  showBlocked = false
+  showBlocked = false,
+  forceRefresh = false
 ) => {
   const abortProcess = useRef<AbortController | undefined>(undefined);
   const [data, setData] = useSafeState(walletProject);
@@ -92,6 +93,14 @@ export const useTokens = (
       abortProcess.current?.abort();
     };
   }, [updateNonce]);
+
+  useEffect(() => {
+    if (!forceRefresh) return;
+    loadProcess();
+    return () => {
+      abortProcess.current?.abort();
+    };
+  }, [forceRefresh]);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | null = null;
@@ -184,6 +193,7 @@ export const useTokens = (
       body: {
         address: userAddr,
         chains: allSupportedChains,
+        force_fetch: forceRefresh,
       },
     }).then((res) => (res.data?.data?.list as unknown) as TokenItem[][]);
 
@@ -240,7 +250,8 @@ export const useTokens = (
       wallet,
       chainServerId,
       isTestnet,
-      showAll
+      showAll,
+      forceRefresh
     );
 
     if (!tokenRes) {
@@ -407,7 +418,8 @@ export const useTokens = (
       userAddr,
       historyTime.current,
       wallet,
-      isTestnet
+      isTestnet,
+      forceRefresh
     );
 
     if (currentAbort.signal.aborted) {

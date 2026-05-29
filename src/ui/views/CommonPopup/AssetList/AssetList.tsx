@@ -15,10 +15,12 @@ export const AssetList = ({
   visible,
   onClose,
   selectedNetwork,
+  forceRefresh,
 }: {
   visible: boolean;
   onClose?(): void;
   selectedNetwork?: string | null;
+  forceRefresh?: boolean;
 }) => {
   const { t } = useTranslation();
   const { setHeight, data } = useCommonPopupView();
@@ -82,6 +84,7 @@ export const AssetList = ({
           selectChainId={selectChainId}
           visible={visible}
           onEmptyAssets={setIsEmptyAssets}
+          forceRefresh={forceRefresh}
         />
         <SpecialTokenListPopup
           label={

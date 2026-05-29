@@ -450,7 +450,7 @@ const TxStatusPage = () => {
         : '/desktop/profile';
       history.push(`${base}?action=activities`);
     } else {
-      history.push('/dashboard');
+      history.push('/dashboard?force_fetch=true');
     }
   });
 

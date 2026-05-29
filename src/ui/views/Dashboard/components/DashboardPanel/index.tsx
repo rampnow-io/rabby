@@ -14,6 +14,7 @@ import AddTokenEntry, {
 import { useCommonPopupView } from '@/ui/utils';
 import { DisplayChainWithWhiteLogo } from '@/ui/hooks/useCurrentBalance';
 import useCurrentBalance from '@/ui/hooks/useCurrentBalance';
+import { useHistory, useLocation } from 'react-router-dom';
 import { formatAppChain } from '@/ui/hooks/useAppChain';
 import { useCurrentAccount } from '@/ui/hooks/backgroundState/useAccount';
 import { CHAINS } from 'consts';
@@ -29,6 +30,8 @@ export const DashboardPanel: React.FC<{
   chainBalancesWithValue?: DisplayChainWithWhiteLogo[];
 }> = ({ onRefresh, chainBalancesWithValue = [] }) => {
   const currentAccount = useCurrentAccount();
+  const history = useHistory();
+  const location = useLocation();
   const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
   const [selectedNetworkId, setSelectedNetworkId] = useState<string | null>(
     null
@@ -38,6 +41,7 @@ export const DashboardPanel: React.FC<{
   );
   const [showNetworkMenu, setShowNetworkMenu] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [forceRefresh, setForceRefresh] = useState(false);
   const { data, apps, setData } = useCommonPopupView();
   const addTokenEntryRef = React.useRef<AddTokenEntryInst>(null);
   const networkMenuRef = React.useRef<HTMLDivElement>(null);
@@ -99,15 +103,31 @@ export const DashboardPanel: React.FC<{
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
+    setForceRefresh(true);
     try {
       await refreshBalance();
       if (onRefresh) {
         onRefresh();
       }
+      // Reset forceRefresh after a brief delay
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      setForceRefresh(false);
     } finally {
       setIsRefreshing(false);
     }
   };
+
+  // Trigger forced refresh when navigating from send/swap/bridge with force_fetch=true
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('force_fetch') === 'true') {
+      (async () => {
+        await handleRefresh();
+        params.delete('force_fetch');
+        history.replace({ search: params.toString() });
+      })();
+    }
+  }, [location.search]);
 
   // Call refreshBalance when refreshTrigger changes
   useEffect(() => {
@@ -269,11 +289,15 @@ export const DashboardPanel: React.FC<{
               visible={true}
               onClose={() => {}}
               selectedNetwork={selectedNetworkId}
+              forceRefresh={forceRefresh}
             />
           </TabsContent>
 
           <TabsContent value="activity" className="h-full">
-            <HistoryList chainId={selectedNetworkId ?? undefined} />
+            <HistoryList
+              chainId={selectedNetworkId ?? undefined}
+              forceRefresh={forceRefresh}
+            />
           </TabsContent>
         </div>
       </Tabs>

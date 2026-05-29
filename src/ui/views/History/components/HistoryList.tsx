@@ -16,11 +16,13 @@ export const HistoryList = ({
   chainId,
   tokenId,
   pageCount = 100,
+  forceRefresh = false,
 }: {
   isFilterScam?: boolean;
   chainId?: string;
   tokenId?: string;
   pageCount?: number;
+  forceRefresh?: boolean;
 }) => {
   const wallet = useWallet();
   const { t } = useTranslation();
@@ -52,7 +54,7 @@ export const HistoryList = ({
     if (account) {
       loadHistoryData();
     }
-  }, [account?.address, chainId, tokenId, pageCount]);
+  }, [account?.address, chainId, tokenId, pageCount, forceRefresh]);
 
   const fetchData = async (startTime = 0) => {
     const { address } = account!;
@@ -71,7 +73,8 @@ export const HistoryList = ({
       token_id: tokenId,
       start_time: startTime,
       page_count: pageCount,
-    });
+      ...(forceRefresh && { force_fetch: true }),
+    } as any);
 
     const { project_dict, cate_dict, history_list } = res;
 

@@ -22,7 +22,8 @@ import { getTokenSymbol } from '../token';
 export const queryTokensCache = async (
   user_id: string,
   wallet: WalletControllerType,
-  isTestnet = false
+  isTestnet = false,
+  forceRefresh = false
 ) => {
   return requestOpenApiWithChainId(
     ({ openapi }) => openapi.getCachedTokenList(user_id),
@@ -38,7 +39,8 @@ export const batchQueryTokens = async (
   wallet: WalletControllerType,
   chainId?: string,
   isTestnet: boolean = !chainId ? false : checkIsTestnet(chainId),
-  isAll: boolean = true
+  isAll: boolean = true,
+  forceRefresh = false
 ) => {
   if (!chainId && !isTestnet) {
     const allSupportedChains = getMainnetChainList().map(
@@ -49,6 +51,7 @@ export const batchQueryTokens = async (
       body: {
         address: user_id,
         chains: allSupportedChains,
+        force_fetch: forceRefresh,
       },
     });
 
@@ -59,6 +62,7 @@ export const batchQueryTokens = async (
     body: {
       address: user_id,
       chains: [chainId || ''],
+      force_fetch: forceRefresh,
     },
   });
 
@@ -69,11 +73,15 @@ export const batchQueryHistoryTokens = async (
   user_id: string,
   time_at: number,
   wallet: WalletControllerType,
-  isTestnet = false
+  isTestnet = false,
+  forceRefresh = false
 ) => {
   return requestOpenApiWithChainId(
     ({ openapi }) =>
-      openapi.getHistoryTokenList({ id: user_id, timeAt: time_at }),
+      openapi.getHistoryTokenList({
+        id: user_id,
+        timeAt: time_at,
+      }),
     {
       wallet,
       isTestnet,
@@ -220,7 +228,6 @@ export const parseTokenItem = (token: TokenItem): AbstractPortfolioToken => {
     low_credit_score: token.low_credit_score,
     raw_amount_hex_str: token.raw_amount_hex_str,
     cex_ids: token.cex_ids || [],
-    protocol_id: token.protocol_id,
 
     _amountChangeStr: '',
     _usdValueChangeStr: '-',

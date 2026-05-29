@@ -1504,6 +1504,7 @@ export type GetTokenHistoryResponse = {
 export type GetTokenListCachedRequest = {
     address: string;
     chains: Array<string>;
+    force_fetch: boolean;
 };
 
 export type GetTokenListCachedResponse = {
@@ -1513,6 +1514,7 @@ export type GetTokenListCachedResponse = {
 export type GetTokenListRequest = {
     address: string;
     chains: Array<string>;
+    force_fetch: boolean;
 };
 
 export type GetTokenListResponse = {
@@ -2511,6 +2513,7 @@ export type GetTxnHistoryData = {
         token_id?: string;
         page_count?: number;
         start_time?: number;
+        force_fetch?: boolean;
     };
     url: '/v1/user/history_list';
 };

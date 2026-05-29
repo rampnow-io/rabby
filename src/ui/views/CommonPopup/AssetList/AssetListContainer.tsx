@@ -24,6 +24,7 @@ interface Props {
   visible: boolean;
   onEmptyAssets: (isEmpty: boolean) => void;
   isTestnet?: boolean;
+  forceRefresh?: boolean;
 }
 
 export const AssetListContainer: React.FC<Props> = ({
@@ -32,6 +33,7 @@ export const AssetListContainer: React.FC<Props> = ({
   visible,
   onEmptyAssets,
   isTestnet = false,
+  forceRefresh = false,
 }) => {
   const [search, setSearch] = React.useState<string>('');
   const handleOnSearch = React.useCallback((value: string) => {
@@ -55,6 +57,7 @@ export const AssetListContainer: React.FC<Props> = ({
   } = useQueryProjects(currentAccount?.address, {
     visible,
     autoLoad: true,
+    forceRefresh,
   });
   const {
     data: appPortfolios,
