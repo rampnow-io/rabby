@@ -6,7 +6,6 @@ import {
   getSwapChains,
   getSwapGasPrices,
   getSwapStatus,
-  submitDeposit,
 } from '@/snippets/client/sdk.gen';
 import type { GetDexSwapQuoteResponse } from '@/snippets/client/types.gen';
 import type { GasLevel } from '@rabby-wallet/rabby-api/dist/types';
@@ -432,17 +431,6 @@ export async function fetchBuildBridgeTx(params: {
  * chainNumericId: the numeric chain ID (e.g. 137 for Polygon).
  */
 /** POST /v1/swap/deposit/submit — register a bridge tx and get its deposit_id */
-export async function fetchSubmitDeposit(
-  chainId: string,
-  txHash: string
-): Promise<{ deposit_id: string; status: string }> {
-  const result = await submitDeposit({
-    client: apiClient,
-    body: { chain_id: chainId, tx_hash: txHash },
-  });
-  const raw = result.data as any;
-  return raw?.data ?? raw;
-}
 
 export interface SwapStatusToken {
   address: string;

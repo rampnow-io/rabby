@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AddUserTokenData, AddUserTokenResponses, BuildBridgeTxData, BuildBridgeTxResponses, CheckServiceabilityData, CheckServiceabilityResponses, ExecuteSwapData, ExecuteSwapResponses, GetBridgeHistoryListData, GetBridgeHistoryListResponses, GetBridgeQuoteListData, GetBridgeQuoteListResponses, GetBridgeQuoteV2Data, GetBridgeQuoteV2Responses, GetChainBalanceListData, GetChainBalanceListResponses, GetChainRpcData, GetChainRpcResponses, GetCheckTxsData, GetCheckTxsResponses, GetCustomTokenListData, GetCustomTokenListResponses, GetDepositStatusData, GetDepositStatusResponses, GetDexSwapQuoteData, GetDexSwapQuoteResponses, GetEthRpcData, GetEthRpcResponses, GetGasFeeData, GetGasFeeResponses, GetGasPriceStatsData, GetGasPriceStatsResponses, GetHypermidQuoteData, GetHypermidQuoteResponses, GetHypermidRoutesData, GetHypermidRoutesResponses, GetIpInfoData, GetIpInfoResponses, GetParseTxData, GetParseTxResponses, GetPreExecTxnData, GetPreExecTxnResponses, GetSearchTokenData, GetSearchTokenResponses, GetSubmitTxData, GetSubmitTxResponses, GetSwapBalancesData, GetSwapBalancesResponses, GetSwapChainsData, GetSwapChainsResponses, GetSwapConnectionsData, GetSwapConnectionsResponses, GetSwapGasPricesData, GetSwapGasPricesResponses, GetSwapQuoteData, GetSwapQuoteResponses, GetSwapRoutesData, GetSwapRoutesResponses, GetSwapStatusData, GetSwapStatusResponses, GetSwapTokensData, GetSwapTokensResponses, GetSwapToolsData, GetSwapToolsResponses, GetTokenData, GetTokenListCachedData, GetTokenListCachedResponses, GetTokenListData, GetTokenListResponses, GetTokenResponses, GetTxnHistoryData, GetTxnHistoryResponses, GetTxsIsGaslessData, GetTxsIsGaslessResponses, GetUserTokenListData, GetUserTokenListResponses, GetWalletStatusData, GetWalletStatusResponses, RegisterInboundReceiverData, RegisterInboundReceiverResponses, SubmitDepositData, SubmitDepositResponses } from './types.gen';
+import type { AddUserTokenData, AddUserTokenResponses, BuildBridgeTxData, BuildBridgeTxResponses, CheckServiceabilityData, CheckServiceabilityResponses, ExecuteSwapData, ExecuteSwapResponses, GetBridgeHistoryListData, GetBridgeHistoryListResponses, GetBridgeQuoteListData, GetBridgeQuoteListResponses, GetBridgeQuoteV2Data, GetBridgeQuoteV2Responses, GetChainBalanceListData, GetChainBalanceListResponses, GetChainRpcData, GetChainRpcResponses, GetCheckTxsData, GetCheckTxsResponses, GetCustomTokenListData, GetCustomTokenListResponses, GetDexSwapQuoteData, GetDexSwapQuoteResponses, GetEthRpcData, GetEthRpcResponses, GetGasFeeData, GetGasFeeResponses, GetGasPriceStatsData, GetGasPriceStatsResponses, GetIpInfoData, GetIpInfoResponses, GetParseTxData, GetParseTxResponses, GetPreExecTxnData, GetPreExecTxnResponses, GetSearchTokenData, GetSearchTokenResponses, GetSubmitTxData, GetSubmitTxResponses, GetSwapBalancesData, GetSwapBalancesResponses, GetSwapChainsData, GetSwapChainsResponses, GetSwapConnectionsData, GetSwapConnectionsResponses, GetSwapGasPricesData, GetSwapGasPricesResponses, GetSwapQuoteData, GetSwapQuoteResponses, GetSwapRoutesData, GetSwapRoutesResponses, GetSwapStatusData, GetSwapStatusResponses, GetSwapTokensData, GetSwapTokensResponses, GetSwapToolsData, GetSwapToolsResponses, GetTokenData, GetTokenListCachedData, GetTokenListCachedResponses, GetTokenListData, GetTokenListResponses, GetTokenResponses, GetTxnHistoryData, GetTxnHistoryResponses, GetTxsIsGaslessData, GetTxsIsGaslessResponses, GetUserTokenListData, GetUserTokenListResponses, GetWalletStatusData, GetWalletStatusResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -99,16 +99,6 @@ export const getCheckTxs = <ThrowOnError extends boolean = false>(options?: Opti
 });
 
 /**
- * GetHypermidQuote
- */
-export const getHypermidQuote = <ThrowOnError extends boolean = false>(options?: Options<GetHypermidQuoteData, ThrowOnError>) => (options?.client ?? client).get<GetHypermidQuoteResponses, unknown, ThrowOnError>({ url: '/v1/hypermid/quote', ...options });
-
-/**
- * GetHypermidRoutes
- */
-export const getHypermidRoutes = <ThrowOnError extends boolean = false>(options?: Options<GetHypermidRoutesData, ThrowOnError>) => (options?.client ?? client).get<GetHypermidRoutesResponses, unknown, ThrowOnError>({ url: '/v1/hypermid/routes', ...options });
-
-/**
  * GetIpInfo
  */
 export const getIpInfo = <ThrowOnError extends boolean = false>(options?: Options<GetIpInfoData, ThrowOnError>) => (options?.client ?? client).get<GetIpInfoResponses, unknown, ThrowOnError>({ url: '/v1/ip', ...options });
@@ -146,23 +136,6 @@ export const getSwapChains = <ThrowOnError extends boolean = false>(options?: Op
 export const getSwapConnections = <ThrowOnError extends boolean = false>(options?: Options<GetSwapConnectionsData, ThrowOnError>) => (options?.client ?? client).get<GetSwapConnectionsResponses, unknown, ThrowOnError>({ url: '/v1/swap/connections', ...options });
 
 /**
- * GetDepositStatus
- */
-export const getDepositStatus = <ThrowOnError extends boolean = false>(options?: Options<GetDepositStatusData, ThrowOnError>) => (options?.client ?? client).get<GetDepositStatusResponses, unknown, ThrowOnError>({ url: '/v1/swap/deposit/status', ...options });
-
-/**
- * SubmitDeposit
- */
-export const submitDeposit = <ThrowOnError extends boolean = false>(options?: Options<SubmitDepositData, ThrowOnError>) => (options?.client ?? client).post<SubmitDepositResponses, unknown, ThrowOnError>({
-    url: '/v1/swap/deposit/submit',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-    }
-});
-
-/**
  * GetDexSwapQuote
  */
 export const getDexSwapQuote = <ThrowOnError extends boolean = false>(options?: Options<GetDexSwapQuoteData, ThrowOnError>) => (options?.client ?? client).get<GetDexSwapQuoteResponses, unknown, ThrowOnError>({ url: '/v1/swap/dex_quote', ...options });
@@ -183,18 +156,6 @@ export const executeSwap = <ThrowOnError extends boolean = false>(options?: Opti
  * GetSwapGasPrices
  */
 export const getSwapGasPrices = <ThrowOnError extends boolean = false>(options?: Options<GetSwapGasPricesData, ThrowOnError>) => (options?.client ?? client).get<GetSwapGasPricesResponses, unknown, ThrowOnError>({ url: '/v1/swap/gas_prices', ...options });
-
-/**
- * RegisterInboundReceiver
- */
-export const registerInboundReceiver = <ThrowOnError extends boolean = false>(options?: Options<RegisterInboundReceiverData, ThrowOnError>) => (options?.client ?? client).post<RegisterInboundReceiverResponses, unknown, ThrowOnError>({
-    url: '/v1/swap/inbound/receiver',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-    }
-});
 
 /**
  * GetSwapQuote

@@ -1226,22 +1226,6 @@ export type FeeCost = {
     percentage: string;
 };
 
-export type FeeCostType2 = {
-    amount: string;
-    amountUSD: string;
-    description: string;
-    feeSplit?: FeeSplit;
-    included: boolean;
-    name: string;
-    percentage: string;
-    token?: TokenInfo;
-};
-
-export type FeeSplit = {
-    integratorFee: string;
-    lifiFee: string;
-};
-
 export type GasAccountCost = {
     estimate_tx_cost: number;
     gas_cost: number;
@@ -1255,16 +1239,6 @@ export type GasAccountCost = {
 export type GasCost = {
     amount: string;
     amount_usd: string;
-};
-
-export type GasCostType2 = {
-    amount: string;
-    amountUSD: string;
-    estimate: string;
-    limit: string;
-    price: string;
-    token?: TokenInfo;
-    type: string;
 };
 
 export type GasInfo = {
@@ -1329,12 +1303,6 @@ export type GetCustomTokenListRequest = {
 
 export type GetCustomTokenListResponse = {
     list: Array<Token>;
-};
-
-export type GetDepositStatusResponse = {
-    deposit_id: string;
-    status: string;
-    tx_hash: string;
 };
 
 export type GetDexSwapQuoteResponse = {
@@ -1418,14 +1386,6 @@ export type GetGasFeeResponse = {
 
 export type GetGasPriceStatsResponse = {
     median?: string;
-};
-
-export type GetHypermidQuoteResponse = {
-    quote: unknown;
-};
-
-export type GetHypermidRoutesResponse = {
-    routes: Array<Route>;
 };
 
 export type GetIpInfoResponse = {
@@ -1678,59 +1638,6 @@ export type ReceiveItem = {
     token_id: string;
 };
 
-export type RegisterInboundReceiverRequest = {
-    address: string;
-    chain_id: string;
-    token_address: string;
-};
-
-export type RegisterInboundReceiverResponse = {
-    receiver_id: string;
-    status: string;
-};
-
-export type Route = {
-    containsSwitchChain: boolean;
-    executionType: string;
-    fromAddress: string;
-    fromAmount: string;
-    fromAmountUSD: string;
-    fromChainId: number;
-    fromToken?: TokenType3;
-    gasCostUSD: string;
-    id: string;
-    integrator: string;
-    steps: Array<RouteStep>;
-    tags: Array<string>;
-    toAddress: string;
-    toAmount: string;
-    toAmountMin: string;
-    toAmountUSD: string;
-    toChainId: number;
-    toToken?: TokenType3;
-};
-
-export type RouteEstimate = {
-    approvalAddress: string;
-    executionDuration: number;
-    feeCosts: Array<FeeCostType2>;
-    fromAmount: string;
-    fromAmountUSD: string;
-    gasCosts: Array<GasCostType2>;
-    toAmount: string;
-    toAmountMin: string;
-    toAmountUSD: string;
-    tool: string;
-};
-
-export type RouteStep = {
-    estimate?: RouteEstimate;
-    id: string;
-    tool: string;
-    toolDetails?: ToolDetails;
-    type: string;
-};
-
 export type RpcError = {
     code: number;
     data: unknown;
@@ -1742,16 +1649,6 @@ export type SendItem = {
     price: string;
     to_addr: string;
     token_id: string;
-};
-
-export type SubmitDepositRequest = {
-    chain_id: string;
-    tx_hash: string;
-};
-
-export type SubmitDepositResponse = {
-    deposit_id: string;
-    status: string;
 };
 
 export type SwapBalanceItem = {
@@ -1875,18 +1772,6 @@ export type TokenIdentity = {
     twitter_id: string;
 };
 
-export type TokenInfo = {
-    address: string;
-    chainId: number;
-    coinKey: string;
-    decimals: number;
-    logoURI: string;
-    name: string;
-    priceUSD: string;
-    symbol: string;
-    tags: Array<string>;
-};
-
 /**
  * Token represents token information in the responseGasCost represents gas cost breakdown
  */
@@ -1909,26 +1794,6 @@ export type TokenType2 = {
     symbol: string;
     time_at?: number;
     total_supply: string;
-};
-
-export type TokenType3 = {
-    address: string;
-    chainId: number;
-    coinKey: string;
-    decimals: number;
-    logoURI: string;
-    name: string;
-    priceUSD: string;
-    symbol: string;
-    tags: Array<string>;
-    verificationStatus: string;
-    verificationStatusBreakdown: Array<unknown>;
-};
-
-export type ToolDetails = {
-    key: string;
-    logoURI: string;
-    name: string;
 };
 
 export type Transaction = {
@@ -2257,69 +2122,6 @@ export type GetCheckTxsResponses = {
 
 export type GetCheckTxsResponse2 = GetCheckTxsResponses[keyof GetCheckTxsResponses];
 
-export type GetHypermidQuoteData = {
-    body?: never;
-    path?: never;
-    query?: {
-        fromChain?: string;
-        toChain?: string;
-        fromToken?: string;
-        toToken?: string;
-        fromAmount?: string;
-        fromAddress?: string;
-        toAddress?: string;
-        slippage?: string;
-    };
-    url: '/v1/hypermid/quote';
-};
-
-export type GetHypermidQuoteResponses = {
-    /**
-     * OK
-     */
-    200: {
-        code: number;
-        data: GetHypermidQuoteResponse;
-        displayError?: string;
-        message: string;
-        traceId: string;
-    };
-};
-
-export type GetHypermidQuoteResponse2 = GetHypermidQuoteResponses[keyof GetHypermidQuoteResponses];
-
-export type GetHypermidRoutesData = {
-    body?: never;
-    path?: never;
-    query?: {
-        fromChain?: string;
-        toChain?: string;
-        fromToken?: string;
-        toToken?: string;
-        fromAmount?: string;
-        fromAddress?: string;
-        toAddress?: string;
-        slippage?: string;
-        order?: string;
-    };
-    url: '/v1/hypermid/routes';
-};
-
-export type GetHypermidRoutesResponses = {
-    /**
-     * OK
-     */
-    200: {
-        code: number;
-        data: GetHypermidRoutesResponse;
-        displayError?: string;
-        message: string;
-        traceId: string;
-    };
-};
-
-export type GetHypermidRoutesResponse2 = GetHypermidRoutesResponses[keyof GetHypermidRoutesResponses];
-
 export type GetIpInfoData = {
     body?: never;
     path?: never;
@@ -2395,9 +2197,6 @@ export type GetSwapBalancesData = {
     path?: never;
     query?: {
         address?: string;
-        /**
-         * comma-separated chain IDs, e.g. "1,137,42161"
-         */
         chain_ids?: string;
     };
     url: '/v1/swap/balances';
@@ -2466,52 +2265,6 @@ export type GetSwapConnectionsResponses = {
 };
 
 export type GetSwapConnectionsResponse2 = GetSwapConnectionsResponses[keyof GetSwapConnectionsResponses];
-
-export type GetDepositStatusData = {
-    body?: never;
-    path?: never;
-    query?: {
-        deposit_id?: string;
-    };
-    url: '/v1/swap/deposit/status';
-};
-
-export type GetDepositStatusResponses = {
-    /**
-     * OK
-     */
-    200: {
-        code: number;
-        data: GetDepositStatusResponse;
-        displayError?: string;
-        message: string;
-        traceId: string;
-    };
-};
-
-export type GetDepositStatusResponse2 = GetDepositStatusResponses[keyof GetDepositStatusResponses];
-
-export type SubmitDepositData = {
-    body?: SubmitDepositRequest;
-    path?: never;
-    query?: never;
-    url: '/v1/swap/deposit/submit';
-};
-
-export type SubmitDepositResponses = {
-    /**
-     * OK
-     */
-    200: {
-        code: number;
-        data: SubmitDepositResponse;
-        displayError?: string;
-        message: string;
-        traceId: string;
-    };
-};
-
-export type SubmitDepositResponse2 = SubmitDepositResponses[keyof SubmitDepositResponses];
 
 export type GetDexSwapQuoteData = {
     body?: never;
@@ -2589,28 +2342,6 @@ export type GetSwapGasPricesResponses = {
 };
 
 export type GetSwapGasPricesResponse2 = GetSwapGasPricesResponses[keyof GetSwapGasPricesResponses];
-
-export type RegisterInboundReceiverData = {
-    body?: RegisterInboundReceiverRequest;
-    path?: never;
-    query?: never;
-    url: '/v1/swap/inbound/receiver';
-};
-
-export type RegisterInboundReceiverResponses = {
-    /**
-     * OK
-     */
-    200: {
-        code: number;
-        data: RegisterInboundReceiverResponse;
-        displayError?: string;
-        message: string;
-        traceId: string;
-    };
-};
-
-export type RegisterInboundReceiverResponse2 = RegisterInboundReceiverResponses[keyof RegisterInboundReceiverResponses];
 
 export type GetSwapQuoteData = {
     body?: never;
