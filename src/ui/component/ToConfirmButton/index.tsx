@@ -83,7 +83,7 @@ export const ToConfirmBtn = (props: {
             {props.loading ? (
               <RcIconCCLoading
                 viewBox="0 0 24 24"
-                className="w-16 h-16 animate-spin text-r-neutral-title2"
+                className="w-4 h-4 animate-spin text-r-neutral-title2"
               />
             ) : null}
             {props?.title}

@@ -184,11 +184,7 @@ const ReviewSwapBridge: React.FC<ReviewSwapBridgeProps> = ({
 
   return (
     <div className="w-full">
-      {/* Header */}
-
-      {/* Token Card */}
       <div className="bg-gray-100 rounded-2xl px-6 py-4 mb-6 flex items-center justify-between gap-4">
-        {/* From Token */}
         <div className="flex-1">
           <div className="text-sm text-gray-500 mb-1">
             {displayFromUsdValue}
@@ -199,33 +195,30 @@ const ReviewSwapBridge: React.FC<ReviewSwapBridgeProps> = ({
           </div>
         </div>
 
-        {/* Token Images + Arrow */}
         <div className="relative w-16 h-16 flex-shrink-0">
           <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-white shadow-sm flex">
-            {/* Left Half */}
-            <div className="w-1/2 h-full overflow-hidden">
+            <div className="relative w-1/2 h-full overflow-hidden">
               {fromToken?.logo_url && (
                 <img
                   src={fromToken.logo_url}
                   alt={fromToken.symbol}
-                  className="w-full h-full object-cover"
+                  className="absolute w-[200%] h-full object-cover"
+                  style={{ left: 0 }}
                 />
               )}
             </div>
 
-            {/* Right Half */}
-            <div className="w-1/2 h-full overflow-hidden">
+            <div className="relative w-1/2 h-full overflow-hidden">
               {toToken?.logo_url && (
                 <img
                   src={toToken.logo_url}
                   alt={toToken.symbol}
-                  className="w-full h-full object-cover"
+                  className="absolute w-[200%] h-full object-cover"
+                  style={{ right: 0 }}
                 />
               )}
             </div>
           </div>
-
-          {/* Small Badge Bottom Right (optional) */}
         </div>
 
         {/* To Token */}
@@ -250,7 +243,6 @@ const ReviewSwapBridge: React.FC<ReviewSwapBridgeProps> = ({
           </span>
         </div>
 
-        {/* Swapping/Bridging Via */}
         <div className="flex justify-between items-center gap-4 py-1 rounded-lg text-sm">
           <span className="text-primary-foreground text-sm font-medium">
             {type === 'swap' ? 'Swapping via' : 'Bridging via'}
@@ -260,10 +252,8 @@ const ReviewSwapBridge: React.FC<ReviewSwapBridgeProps> = ({
           </span>
         </div>
 
-        {/* Bridge-specific rows */}
         {type === 'bridge' && (
           <>
-            {/* Network */}
             <div className="flex justify-between items-center gap-4 py-1 text-sm">
               <span className="text-primary-foreground text-sm font-medium">
                 Network
@@ -287,7 +277,6 @@ const ReviewSwapBridge: React.FC<ReviewSwapBridgeProps> = ({
               </div>
             </div>
 
-            {/* Token */}
             <div className="flex justify-between items-center gap-4 py-1 rounded-lg text-sm">
               <span className="text-primary-foreground text-sm font-medium">
                 Token
@@ -345,7 +334,6 @@ const ReviewSwapBridge: React.FC<ReviewSwapBridgeProps> = ({
           </>
         )}
 
-        {/* Protocol Fee */}
         {type === 'bridge' && sourceName && (
           <div className="flex justify-between items-center gap-4 py-1 rounded-lg text-sm">
             <span className="text-primary-foreground text-sm font-medium">
@@ -374,7 +362,6 @@ const ReviewSwapBridge: React.FC<ReviewSwapBridgeProps> = ({
         </div>
       </div>
 
-      {/* Button */}
       <div>
         {canUseDirectSubmitTx && accountType && isSupportedChain ? (
           <DirectSignToConfirmBtn
