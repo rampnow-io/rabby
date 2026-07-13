@@ -17,6 +17,7 @@ export enum ButtonType {
 export enum ButtonSize {
   DEFAULT = "default",
   SM = "sm",
+  ICON = "icon",
   NONE = "none",
 }
 
@@ -29,14 +30,15 @@ const buttonVariants = cva(
         [ButtonType.DESTRUCTIVE]: "bg-destructive !text-button-primary",
         [ButtonType.SECONDARY]:
           "bg-secondary border border-button-primary text-button-primary",
-        [ButtonType.GHOST]: "hover:bg-accent hover:text-secondary-foreground",
+        [ButtonType.GHOST]: "hover:bg-accent hover:text-accent-foreground",
         [ButtonType.LINK]:
           "bg-secondary text-button-primary underline underline-offset-4",
         [ButtonType.NONE]: "",
       },
       buttonSize: {
-        [ButtonSize.DEFAULT]: "text-lg px-4 py-3",
+        [ButtonSize.DEFAULT]: "text-lg px-4 py-2",
         [ButtonSize.SM]: "h-9 px-4",
+        [ButtonSize.ICON]: "h-10 w-10",
         [ButtonSize.NONE]: "",
       },
     },

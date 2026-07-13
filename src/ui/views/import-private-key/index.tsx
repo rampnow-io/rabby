@@ -157,9 +157,27 @@ const ImportPrivateKeyPage = () => {
 
               <Clipboard
                 onClick={async () => {
-                  const text = await navigator.clipboard.readText();
-                  form.setValue('key', text);
-                  clearClipboard();
+                  try {
+                    const text = await navigator.clipboard.readText();
+                    console.log('adasdsad', text);
+
+                    form.setValue('key', text);
+                    clearClipboard();
+                  } catch (err: any) {
+                    if (err?.name === 'NotAllowedError') {
+                      window.dispatchEvent(
+                        new CustomEvent('toast', {
+                          detail: {
+                            message:
+                              t('page.newAddress.seedPhrase.clipboardDenied') ||
+                              'Clipboard access denied. Please paste manually.',
+                          },
+                        })
+                      );
+                    } else {
+                      console.error('Failed to read clipboard:', err);
+                    }
+                  }
                 }}
               />
             </div>
